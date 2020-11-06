@@ -22,12 +22,12 @@
 
 _Lightweight, high-level, multi-paradigm programming language Script used with Open Broadcaster Software®️ (OBS) that is a simple script that do not warrant an entire program_
 
+### How to use:
 
 ##### Open Broadcaster Software®️ - Script
 
 To start working with the Script right away, copy the file to your OBS lua Script Folder then load from:
-
- <br /> OBS > Tools > Scripts.
+<br /> OBS > Tools > Scripts.
 
 ### Dependencies
 
