@@ -1,12 +1,12 @@
+[//]: # "https://pandao.github.io/editor.md/en.html" 
+
 # Lua (programming language)
 -------
 
-##[Contents]
-[1]: https://github.com/midnight-studios/obs-lua/
+##[Contents](https://github.com/midnight-studios/obs-lua/)
 
 
- **1. [Source Visibility Timer]**
-[2]: https://github.com/midnight-studios/obs-lua/source-visibility-timer.lua
+ **1. [Source Visibility Timer](https://github.com/midnight-studios/obs-lua/source-visibility-timer.lua)**
 
 
 * Set an interval in Milliseconds to change visibility of a Target Source
@@ -16,8 +16,7 @@
  - [x] Target Group only and if required extends to target Group Items
 
 
- **1. [Linked Source Switcher]**
-[3]: https://github.com/midnight-studios/obs-lua/linked-source-switcher.lua
+ **1. [Linked Source Switcher](https://github.com/midnight-studios/obs-lua/linked-source-switcher.lua)**
 
 * Set an interval in Milliseconds to change visibility of a Target Source
  - [x] Toggle the visibility of Scene Items (Sources)
@@ -40,8 +39,4 @@ To start working with the Script right away, copy the file to your OBS lua Scrip
 
 ### Dependencies
 
-Open Broadcaster Software®️
-
-
-[Download OBS]
-[4]: https://obsproject.com/download/
+[Open Broadcaster Software®️](https://obsproject.com/download/)
