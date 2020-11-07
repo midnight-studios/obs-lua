@@ -2,9 +2,11 @@
 -------
 
 ##[Contents]
+[1]: https://github.com/midnight-studios/obs-lua/
 
 
  **1. [Source Visibility Timer]**
+[2]: https://github.com/midnight-studios/obs-lua/source-visibility-timer.lua
 
 
 * Set an interval in Milliseconds to change visibility of a Target Source
@@ -15,7 +17,7 @@
 
 
  **1. [Linked Source Switcher]**
-
+[3]: https://github.com/midnight-studios/obs-lua/linked-source-switcher.lua
 
 * Set an interval in Milliseconds to change visibility of a Target Source
  - [x] Toggle the visibility of Scene Items (Sources)
@@ -42,8 +44,4 @@ Open Broadcaster Software®️
 
 
 [Download OBS]
-
-[1]: https://github.com/midnight-studios/obs-lua/
-[2]: https://github.com/midnight-studios/obs-lua/source-visibility-timer.lua
-[3]: https://github.com/midnight-studios/obs-lua/linked-source-switcher.lua
 [4]: https://obsproject.com/download/
