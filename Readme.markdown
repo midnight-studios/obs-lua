@@ -1,8 +1,7 @@
 # Lua (programming language)
 -------
 
-##[Contents]
-[1]: https://github.com/midnight-studios/obs-lua/
+##[Contents](https://github.com/midnight-studios/obs-lua/)
 
 
  **1. [Source Visibility Timer]**
