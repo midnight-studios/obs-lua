@@ -8,6 +8,7 @@
 
  **1. [Source Visibility Timer](https://github.com/midnight-studios/obs-lua/source-visibility-timer.lua)**
 
+[Code adapted from Original Developer](https://github.com/cg2121/obs-visibility-timer)
 
 * Set an interval in Milliseconds to change visibility of a Target Source
  - [x] Mode - Show source after specified time
@@ -18,6 +19,8 @@
 
 
  **2. [Linked Source Switcher](https://github.com/midnight-studios/obs-lua/linked-source-switcher.lua)**
+ 
+[Code adapted from Original Developer](https://github.com/exeldro/obs-source-switcher)
 
 * Set an interval in Milliseconds to change visibility of a Target Source
  - [x] Toggle the visibility of Scene Items (Sources)
