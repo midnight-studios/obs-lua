@@ -14,6 +14,7 @@
  - [x] Mode - Hide source after specified time 
  - [x] Mode - Repeat Hide / Show Setting
  - [x] Target Group only and if required extends to target Group Items
+ - [x] Allows to enable or disable script
 
 
  **2. [Linked Source Switcher](https://github.com/midnight-studios/obs-lua/linked-source-switcher.lua)**
@@ -23,6 +24,7 @@
  - [x] Link siblings (Sources)
  - [x] Allow Scene Items (Sources) to be exluded
  - [x] Affects Scene Items (Sources) and if a Defined Scene Item (Source) is a 'Group', it will only affect the Group.
+ - [x] Allows to enable or disable script
 
 
  **3. [Linked Source Switcher](https://github.com/midnight-studios/obs-lua/group-source-visibility-switcher.lua)**
@@ -32,6 +34,7 @@
  - [ ] Link siblings (Sources)
  - [x] Allow Scene Items (Sources) to be exluded
  - [x] Affects all Groups in Scenes.
+ - [x] Allows to enable or disable script
 ***
 
 
