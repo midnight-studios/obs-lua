@@ -16,13 +16,22 @@
  - [x] Target Group only and if required extends to target Group Items
 
 
- **1. [Linked Source Switcher](https://github.com/midnight-studios/obs-lua/linked-source-switcher.lua)**
+ **2. [Linked Source Switcher](https://github.com/midnight-studios/obs-lua/linked-source-switcher.lua)**
 
 * Set an interval in Milliseconds to change visibility of a Target Source
  - [x] Toggle the visibility of Scene Items (Sources)
  - [x] Link siblings (Sources)
- - [x] Allow Scene Items (Sources) to be exlused
+ - [x] Allow Scene Items (Sources) to be exluded
  - [x] Affects Scene Items (Sources) and if a Defined Scene Item (Source) is a 'Group', it will only affect the Group.
+
+
+ **3. [Linked Source Switcher](https://github.com/midnight-studios/obs-lua/group-source-visibility-switcher.lua)**
+
+* Toggle visibility of Group & all of the children items
+ - [x] Toggle the visibility of Scene Items (Sources)
+ - [ ] Link siblings (Sources)
+ - [x] Allow Scene Items (Sources) to be exluded
+ - [x] Affects all Groups in Scenes.
 ***
 
 
