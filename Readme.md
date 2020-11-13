@@ -27,7 +27,7 @@
  - [x] Allows to enable or disable script
 
 
- **3. [Linked Source Switcher](https://github.com/midnight-studios/obs-lua/group-source-visibility-switcher.lua)**
+ **3. [Group Source Switcher](https://github.com/midnight-studios/obs-lua/group-source-visibility-switcher.lua)**
 
 * Toggle visibility of Group & all of the children items
  - [x] Toggle the visibility of Scene Items (Sources)
