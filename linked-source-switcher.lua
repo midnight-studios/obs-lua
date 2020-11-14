@@ -81,6 +81,8 @@ function in_exclusion_array(itm)
         end
 		
     end
+	
+	obs.obs_data_array_release(exclusionNames)
 
 	return matchFound
 	
@@ -243,7 +245,7 @@ function is_linked(a, b)
         end
 		
     end
-
+	
 	return matchFound
 	
 end
@@ -340,6 +342,12 @@ function item_visible(calldata)
        obs.obs_sceneitem_set_visible(item, true)
 		
     end
+	
+	obs.obs_scene_release(scene)
+	
+	obs.obs_source_release(itemsource)
+	
+	obs.obs_source_release(source)
 
     obs.sceneitem_list_release(sceneitems)
 	
@@ -382,6 +390,8 @@ function script_update(settings)
         end
 		
     end
+	
+	obs.obs_data_array_release(sourceNames)
 	
 end
 

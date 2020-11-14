@@ -38,6 +38,17 @@
  - [x] Allow Scene Items (Sources) to be exluded
  - [x] Affects all Groups in Scenes.
  - [x] Allows to enable or disable script
+
+
+ **4. [Group Activator](https://github.com/midnight-studios/obs-lua/group-activator.lua)**
+
+* Activate visibility of Group when visibility of any item inside the Group is activated
+ - [x] Make group visible if Group Item is made visible
+ - [ ] Link siblings (Sources)
+ - [x] Allow Scene Items (Sources) to be exluded
+ - [x] Affects all Groups in all Scenes.
+ - [x] Allows to enable or disable script
+ - [x] Activator will affect at minimum top most group item
 ***
 
 
