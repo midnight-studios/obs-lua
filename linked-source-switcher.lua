@@ -113,6 +113,10 @@ local function inArray( t, a, b )
 	
     local f = false
 	
+	if a ~= nil then
+		
+	end 	
+	
 	a = string.gsub(a, '^%s*(.-)%s*$', '%1')
 	
 	if b ~= nil and b ~= '' then b = string.gsub(b, '^%s*(.-)%s*$', '%1') end
@@ -221,6 +225,10 @@ end
 function is_linked(a, b)
 	
     local matchFound = false
+	
+	if a == nil then
+		return matchFound
+	end	
 	
     local links =  obs.obs_data_get_array(gs, "link");
 	
@@ -343,12 +351,6 @@ function item_visible(calldata)
 		
     end
 	
-	obs.obs_scene_release(scene)
-	
-	obs.obs_source_release(itemsource)
-	
-	obs.obs_source_release(source)
-
     obs.sceneitem_list_release(sceneitems)
 	
 end

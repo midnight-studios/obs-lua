@@ -151,9 +151,7 @@ function item_visible(calldata)
 				
 				end -- end for
 				
-				obs.obs_source_release(itemsource)
-				
-				obs.obs_source_release(source)
+				obs.sceneitem_list_release(groupitems)
 				
 				if not visible and sourceName ~= isn and obs.obs_sceneitem_visible(sceneitem) then
 				
@@ -161,14 +159,14 @@ function item_visible(calldata)
 				
 				end
 				
-				obs.sceneitem_list_release(groupitems)
+				
 				
 			end		
 			
 		end
 
 	end 
-
+	
     obs.sceneitem_list_release(sceneitems)
 	
 end

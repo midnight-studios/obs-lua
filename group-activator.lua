@@ -1,3 +1,9 @@
+--
+--	OBS Script LUA
+--	https://obsproject.com/docs/genindex.html
+--
+--
+--
 obs           = obslua
 gs            = nil
 always_show   = false
@@ -29,6 +35,7 @@ function script_properties()
     obs.obs_properties_add_bool(props, "disable_script", "Disable Script")
 	
 	return props
+	
 end
 
 --
@@ -108,71 +115,50 @@ function item_visible(calldata)
 	--]] 
     local visible = obs.calldata_bool(calldata,"visible")
 	
-	local rendered = false
+    if not visible and not always_show then --[[ return --]] end  --ok
 
-    if not visible and not always_show then --[[ return --]] end
-
-    local item = obs.calldata_sceneitem(calldata,"item")
+    local item = obs.calldata_sceneitem(calldata,"item") --ok
 	
-    local source = obs.obs_sceneitem_get_source(item)
+    local source = obs.obs_sceneitem_get_source(item)  --ok
 	
-    local sourceName = obs.obs_source_get_name(source)
+	local currentscene = obs.obs_frontend_get_current_scene()  --ok
 	
-	local activescene = obs.obs_scene_from_source(obs.obs_frontend_get_current_scene(source))
+	local activescene = obs.obs_scene_from_source(currentscene)  --ok
 	
+    obs.obs_source_release(currentscene)
+		
 	local targetgroup = obs.obs_sceneitem_get_group(activescene, item)
-	
+
 	local groupsource = obs.obs_sceneitem_get_source(targetgroup)
 	
 	local groupname = obs.obs_source_get_name(groupsource)
 
-	-- sources not excluded
 	if not in_exclusion_array(groupname) then 
 	
-		local g_sceneitems = obs.obs_scene_enum_items(activescene)	
+		local sceneitems = obs.obs_scene_enum_items(activescene) --ok
 
-		for i, g_sceneitem in ipairs(g_sceneitems) do
+		for i, sceneitem in ipairs(sceneitems) do
 
-			local g_source = obs.obs_sceneitem_get_source(g_sceneitem)
+			local g_source = obs.obs_sceneitem_get_source(sceneitem)
 
 			local gi_name = obs.obs_source_get_name(g_source)
 
 			if gi_name == groupname then
 
-				if not obs.obs_sceneitem_visible(g_sceneitem) and visible then
+				if not obs.obs_sceneitem_visible(sceneitem) and visible then
 
-					obs.obs_sceneitem_set_visible(g_sceneitem, true)
-
-					local group = obs.obs_group_from_source(g_source)
-
-					local groupitems = obs.obs_scene_enum_items(group)	
-
-					for j, groupitem in ipairs(groupitems) do
-
-						local gi_source = obs.obs_sceneitem_get_source(groupitem)
-						
-						local name = obs.obs_source_get_name(gi_source)
-
-						log(name..' enabled: ', obs.obs_source_enabled(gi_source));
-
-					end -- end for
-					
-					obs.sceneitem_list_release(groupitems)
+					obs.obs_sceneitem_set_visible(sceneitem, true)
 
 				end 	
 
 				break
 
-			end
-
-		end	
-
-		obs.sceneitem_list_release(g_sceneitems)
-
-		obs.sceneitem_list_release(sceneitems)
-
-	end
+			end	
+		end	 -- end for i
 		
+		obs.sceneitem_list_release(sceneitems)
+	end
+
 end
 
 --
@@ -198,12 +184,12 @@ function script_update(settings)
             obs.signal_handler_disconnect(sh,"item_visible",item_visible)
 			
             obs.signal_handler_connect(sh,"item_visible",item_visible)
-			
-            obs.obs_source_release(source)
-			
+
 		end
 		
 	end
+	
+	obs.source_list_release(sources)
 	
 end
 
@@ -253,11 +239,11 @@ function loaded(cd)
 			
             obs.signal_handler_connect(sh,"item_visible",item_visible)
 			
-            obs.obs_source_release(source)
-			
 		end
 		
 	end
+	
+	obs.source_list_release(sources)
 
 end
 
