@@ -80,6 +80,10 @@
 ***
 
 
+### Disclaimer
+
+_Use at own risk._
+
 ### Description
 
 _Lightweight, high-level, multi-paradigm programming language Script used with Open Broadcaster Software®️ (OBS) that is a simple script that do not warrant an entire program_
