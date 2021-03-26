@@ -21,7 +21,7 @@ orig_time     = 0
 cur_time      = 0
 cur_ns        = 0
 up            = false
-hide_source   = false
+allow_hide_source   = false
 
 hotkey_id_reset     = obs.OBS_INVALID_HOTKEY_ID
 hotkey_id_pause     = obs.OBS_INVALID_HOTKEY_ID
@@ -52,7 +52,7 @@ function activate_next_scene()
 	if next_scene ~= "" and next_scene ~= "select" then
 		local source = obs.obs_get_source_by_name(next_scene)
 		if source ~= nil then
-			if global == false and hide_source then
+			if global == false and allow_hide_source then
 				hide_source()
 			end
 			obs.obs_frontend_remove_event_callback(on_event)
@@ -561,7 +561,7 @@ function script_properties()
 	
 	obs.obs_property_list_add_string(p_mode, "Recording timer", "recording")
 	
-    obs.obs_properties_add_bool(props, "hide_source", "Hide Source")
+    obs.obs_properties_add_bool(props, "allow_hide_source", "Hide Source")
 	
 	obs.obs_property_set_modified_callback(p_mode, settings_modified)
 	local p = obs.obs_properties_add_list(props, "source", "Text source", obs.OBS_COMBO_TYPE_EDITABLE, obs.OBS_COMBO_FORMAT_STRING)
@@ -650,7 +650,7 @@ function script_update(settings)
 	local second = obs.obs_data_get_int(settings, "seconds")
 	format = obs.obs_data_get_string(settings, "format")
 
-    hide_source = obs.obs_data_get_bool(settings,"hide_source")
+    allow_hide_source = obs.obs_data_get_bool(settings,"allow_hide_source")
 	
 	if mode == "Countdown" or mode == "Countdown then Countup" then
 		cur_time = obs.obs_data_get_int(settings, "duration") * 1000000000
@@ -731,7 +731,7 @@ end
 function script_load(settings)
 	local sh = obs.obs_get_signal_handler()
 	
-    hide_source = obs.obs_data_get_bool(settings,"hide_source")
+    allow_hide_source = obs.obs_data_get_bool(settings,"allow_hide_source")
 	
 	obs.signal_handler_connect(sh, "source_show", source_activated)
 	obs.signal_handler_connect(sh, "source_hide", source_deactivated)
