@@ -53,6 +53,7 @@
 
  **5. [Advanced Timer](https://github.com/midnight-studios/obs-lua/blob/main/advanced-timer.lua)**
 
+* [Original Script Developer:](https://github.com/cg2121)
 * Set On screen timer
  - [x] Count Down
  - [x] Count Up
@@ -70,7 +71,7 @@
 
  **6. [Media Scene Switch](https://github.com/midnight-studios/obs-lua/blob/main/media-switch-scene.lua)**
 
-
+* [Original Script Developer:](https://github.com/exeldro)
  - [x] Switch When Media End
  - [x] Select Media from list
  - [x] Auto stop Streaming
