@@ -432,6 +432,10 @@ function settings_modified(props, prop, settings)
 	local p_day = obs.obs_properties_get(props, "day")
 	local p_hour = obs.obs_properties_get(props, "hour")
 	local p_minutes = obs.obs_properties_get(props, "minutes")
+
+
+
+
 	local p_seconds = obs.obs_properties_get(props, "seconds")
 	local p_stop_text = obs.obs_properties_get(props, "stop_text")
 	local p_a_mode = obs.obs_properties_get(props, "a_mode")
@@ -514,6 +518,7 @@ function settings_modified(props, prop, settings)
 		obs.obs_property_set_visible(p_minutes, false)
 		obs.obs_property_set_visible(p_seconds, false)
 		obs.obs_property_set_visible(p_stop_text, false)
+
 		obs.obs_property_set_visible(button_pause, false)
 		obs.obs_property_set_visible(button_reset, false)
 		obs.obs_property_set_visible(p_a_mode, false)
@@ -560,8 +565,6 @@ function script_properties()
 	obs.obs_property_list_add_string(p_mode, "Streaming timer", "stream")
 	
 	obs.obs_property_list_add_string(p_mode, "Recording timer", "recording")
-	
-    obs.obs_properties_add_bool(props, "allow_hide_source", "Hide Source")
 	
 	obs.obs_property_set_modified_callback(p_mode, settings_modified)
 	local p = obs.obs_properties_add_list(props, "source", "Text source", obs.OBS_COMBO_TYPE_EDITABLE, obs.OBS_COMBO_FORMAT_STRING)
@@ -614,6 +617,9 @@ function script_properties()
 	obs.obs_property_list_add_string(p_a_mode, "Global (timer always active)", "global")
 	
 	obs.obs_property_list_add_string(p_a_mode, "Start timer on activation", "start_reset")
+	
+    local hs = obs.obs_properties_add_bool(props, "allow_hide_source", "Hide Source")
+	obs.obs_property_set_long_description(hs, "Hides the Selected Text Source after task is completed, before switching scenes")
 
 	obs.obs_properties_add_button(props, "pause_button", "Start/Stop", pause_button_clicked)
 	
