@@ -70,7 +70,7 @@
 
  **6. [Media Scene Switch](https://github.com/midnight-studios/obs-lua/blob/main/media-switch-scene.lua)**
 
-* Set On screen timer
+
  - [x] Switch When Media End
  - [x] Select Media from list
  - [x] Auto stop Streaming
