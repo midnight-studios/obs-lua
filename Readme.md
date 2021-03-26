@@ -66,7 +66,7 @@
  - [x] Hotkey Support (Pause)
  - [x] Hotkey Support (Reset)
  - [x] Offset
- - [] Allows to enable or disable script
+ - [ ] Allows to enable or disable script
 
 
  **6. [Media Scene Switch](https://github.com/midnight-studios/obs-lua/blob/main/media-switch-scene.lua)**
