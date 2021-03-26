@@ -49,6 +49,33 @@
  - [x] Affects all Groups in all Scenes.
  - [x] Allows to enable or disable script
  - [x] Activator will affect at minimum top most group item
+
+
+ **5. [Advanced Timer](https://github.com/midnight-studios/obs-lua/blob/main/advanced-timer.lua)**
+
+* Set On screen timer
+ - [x] Count Down
+ - [x] Count Up
+ - [x] Specific Date
+ - [x] Switch to Scene
+ - [x] Time Text Formating
+ - [x] Text Source
+ - [x] Global (Activation Mode)
+ - [x] On Activation (Activation Mode)
+ - [x] Hotkey Support (Pause)
+ - [x] Hotkey Support (Reset)
+ - [x] Offset
+ - [] Allows to enable or disable script
+
+
+ **6. [Media Scene Switch](https://github.com/midnight-studios/obs-lua/blob/main/media-switch-scene.lua)**
+
+* Set On screen timer
+ - [x] Switch When Media End
+ - [x] Select Media from list
+ - [x] Auto stop Streaming
+ - [x] Auto stop Recording
+ - [x] Allows to enable or disable script
 ***
 
 
