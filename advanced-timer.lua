@@ -80,8 +80,10 @@ function hide_source()
 			obs.obs_sceneitem_set_visible(sceneitem, false)
         end
     end
-
+	
     obs.sceneitem_list_release(sceneitems)
+	
+	obs.obs_scene_release(scene)
 	
 end	
 --
