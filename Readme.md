@@ -68,15 +68,20 @@
  - [x] Offset
  - [ ] Allows to enable or disable script
 
-
  **6. [Media Scene Switch](https://github.com/midnight-studios/obs-lua/blob/main/media-switch-scene.lua)**
 
 * [Original Script Developer:](https://github.com/exeldro)
  - [x] Switch When Media End
- - [x] Select Media from list
+ - [x] Select Scene from list
  - [x] Auto stop Streaming
  - [x] Auto stop Recording
  - [x] Allows to enable or disable script
+
+
+ **7. [Source Enable All](https://github.com/midnight-studios/obs-lua/blob/main/enable-source-all.lua)**
+
+* All your sources are black? They are probably not enabled.
+ - [x] Auto execute routine
 ***
 
 
