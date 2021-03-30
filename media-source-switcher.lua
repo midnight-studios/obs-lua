@@ -9,7 +9,7 @@ disable_script   	= false
 visible_index 		= 1
 switch_delay_ms      		= 0
 current_source_name = ''
-source_name 		= ''
+target_name 		= ''
 last_state  		= obs.OBS_MEDIA_STATE_NONE
 
 --
@@ -47,7 +47,7 @@ function script_properties()
 	
     local props = obs.obs_properties_create()
 	--obs_properties_add_list(obs_properties_t, name, description, type, format)
-	local scene_list = obs.obs_properties_add_list(props, "source_name", "Scene:", obs.OBS_COMBO_TYPE_EDITABLE, obs.OBS_COMBO_FORMAT_STRING)
+	local scene_list = obs.obs_properties_add_list(props, "target_name", "Scene:", obs.OBS_COMBO_TYPE_EDITABLE, obs.OBS_COMBO_FORMAT_STRING)
 
 	obs.obs_property_list_add_string(scene_list, "Select", "select")
 	
@@ -82,10 +82,12 @@ function script_update(settings)
 			
     disable_script = obs.obs_data_get_bool(settings,"disable_script")
 		
-	source_name = obs.obs_data_get_string(settings, "source_name")
+	target_name = obs.obs_data_get_string(settings, "target_name")
 	
 	switch_delay_ms = obs.obs_data_get_int(settings, "switch_delay_ms")
 		
+	obs.timer_remove(switch_source)
+	
 	activate(true)
 	
 end
@@ -102,7 +104,7 @@ function activate(activating)
 	
 	if activating then
 		
-		local source = obs.obs_get_source_by_name(source_name)
+		local source = obs.obs_get_source_by_name(target_name)
 
 		if source == nil then
 			
@@ -120,9 +122,6 @@ function activate(activating)
 	
 end
 
-
-
-
 --
 --	
 --	
@@ -134,38 +133,46 @@ function group_loop(diff)
     local scenes = obs.obs_frontend_get_scenes()
     if scenes ~= nil then
         for _, scenesource in ipairs(scenes) do
-            local scenename = obs.obs_source_get_name(scenesource)
+            local scene_name = obs.obs_source_get_name(scenesource)
             local scene = obs.obs_scene_from_source(scenesource)
             local sceneitems = obs.obs_scene_enum_items(scene)
             local maxindex = 0
             local index = 1
             for i, sceneitem in ipairs(sceneitems) do
-                if scenename == source_name then
-                    obs.obs_sceneitem_set_visible(sceneitem, index == visible_index)
-					
+				local source = obs.obs_sceneitem_get_source(sceneitem)
+				local source_name = obs.obs_source_get_name(source)
+				local enable = (index == visible_index)
+				if scene_name == target_name and scene_name ~= source_name then
+					obs.obs_sceneitem_set_visible(sceneitem, enable)
 					if obs.obs_sceneitem_visible(sceneitem) then
-							local item_source = obs.obs_sceneitem_get_source(sceneitem)
-							current_source_name = obs.obs_source_get_name(item_source)
+						local item_source = obs.obs_sceneitem_get_source(sceneitem)
+						current_source_name = obs.obs_source_get_name(item_source)
 					end
-							--obs.obs_source_release(item_source)
                     maxindex = index
                     index = index + 1
-                else
-                    local source = obs.obs_sceneitem_get_source(sceneitem)
-                    local sourcename = obs.obs_source_get_name(source)
-                    if sourcename == source_name then
-                        local group = obs.obs_group_from_source(source)
-                        local groupitems = obs.obs_scene_enum_items(group)
-                        for j, groupitem in ipairs(groupitems) do
-                            obs.obs_sceneitem_set_visible(groupitem, index == visible_index)
-							if obs.obs_sceneitem_visible(groupitem) then
-								local item_source = obs.obs_sceneitem_get_source(groupitem)
-								current_source_name = obs.obs_source_get_name(item_source)
+				else
+                    if sourcename == target_name then
+						if group ~= nil then
+                        	local groupitems = obs.obs_scene_enum_items(group)
+							for j, groupitem in ipairs(groupitems) do
+								if obs.obs_sceneitem_visible(groupitem) then
+									local item_source = obs.obs_sceneitem_get_source(groupitem)
+									current_source_name = obs.obs_source_get_name(item_source)
+								end		
+								maxindex = index
+								index = index + 1
+							end
+							obs.sceneitem_list_release(groupitems)
+						else			
+							if scene_name == target_name and scene_name ~= source_name then
+								if obs.obs_sceneitem_visible(groupitem) then
+									local item_source = obs.obs_sceneitem_get_source(groupitem)
+									current_source_name = obs.obs_source_get_name(item_source)
+								end	
+								maxindex = index
+								index = index + 1
 							end	
-							--obs.obs_source_release(item_source)
-                            maxindex = index
-                            index = index + 1
-                        end
+						end	-- end else							
                         visible_index = visible_index + 1
                         if visible_index > maxindex then
                             visible_index = 1
@@ -173,8 +180,10 @@ function group_loop(diff)
                     end
                 end
             end
+			obs.obs_source_release(item_source)
+			obs.obs_source_release(source)
             obs.sceneitem_list_release(sceneitems)
-            if scenename == source_name then
+            if scene_name == target_name then
                 visible_index = visible_index + diff
                 if visible_index > maxindex then
                     visible_index = 1
@@ -184,17 +193,22 @@ function group_loop(diff)
             end
         end
         obs.source_list_release(scenes)
-        --obs.obs_frontend_source_list_free(scenes)
     end
 end
 
+--
+--	
+--	
+--
+--
+--
 function script_tick(seconds)
 		
    if disable_script then
 		return					
 	end
 	
-	if source_name == "select" or source_name  == "" then
+	if target_name == "select" or target_name  == "" then
 		return
 	end	
 	
@@ -222,7 +236,12 @@ function script_tick(seconds)
 	
 end
 
-
+--
+--	
+--	
+--
+--
+--
 function switch_source()
 	
 	obs.timer_remove(switch_source)
@@ -231,15 +250,21 @@ function switch_source()
 	
 end	
 
+--
+--	
+--	
+--
+--
+--
 function hide_all()
     local scenes = obs.obs_frontend_get_scenes()
     if scenes ~= nil then
         for _, scenesource in ipairs(scenes) do
-            local scenename = obs.obs_source_get_name(scenesource)
+            local scene_name = obs.obs_source_get_name(scenesource)
             local scene = obs.obs_scene_from_source(scenesource)
             local sceneitems = obs.obs_scene_enum_items(scene)
             for i, sceneitem in ipairs(sceneitems) do
-                if scenename == source_name then
+                if scene_name == target_name then
                     obs.obs_sceneitem_set_visible(sceneitem, false)
                 else
                     local source = obs.obs_sceneitem_get_source(sceneitem)
@@ -249,6 +274,7 @@ function hide_all()
                         for j, groupitem in ipairs(groupitems) do
                             obs.obs_sceneitem_set_visible(groupitem, false)
                         end 
+						obs.sceneitem_list_release(groupitems)
                 end
             end
             obs.sceneitem_list_release(sceneitems)
@@ -258,7 +284,6 @@ function hide_all()
     end
 end
 
-
 --
 --	
 --	
@@ -266,8 +291,9 @@ end
 --
 --
 function script_defaults(settings)
-	
+
 	obs.obs_data_set_default_int(settings, "switch_delay_ms", 1000)
+	obs.obs_data_set_default_string(settings, "target_name", "Select")
 
 end
 
@@ -289,4 +315,13 @@ end
 --
 function script_load(settings)
 		
+end
+--
+--	
+--	
+--
+--
+--
+function script_unload()
+
 end
