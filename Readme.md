@@ -82,6 +82,14 @@
 
 * All your sources are black? They are probably not enabled.
  - [x] Auto execute routine
+
+ **8. [StopWatch](https://github.com/midnight-studios/obs-lua/blob/main/StopWatch.lua)**
+
+* [Contributor:](https://github.com/Geigerkind)
+ - [x] Reset
+ - [x] Start / Pause
+ - [x] Auto Start on Visible
+ - [x] Hotkey Support
 ***
 
 
