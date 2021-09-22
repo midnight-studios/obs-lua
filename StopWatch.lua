@@ -39,8 +39,8 @@ end
 ----------------------------------------------------------
 ]]
 function get_time_lapsed()
-	local tn = obs.os_gettime_ns()
-	local delta = tn - orig_time
+	local ns = obs.os_gettime_ns()
+	local delta = ns - orig_time
 	local ms = (delta / 1000000)
 	local s = (ms / 1000)
 	--log('Time Lapsed', TimeFormat(s))	
@@ -130,7 +130,7 @@ end
 ]]
 function fresh_start()
 	cur_seconds = 0
-	orig_time = obs.os_gettime_ns()
+	orig_time = obs.os_gettime_ns() -- Original Time will always be from when the timer started.
 end	
 
 --[[
