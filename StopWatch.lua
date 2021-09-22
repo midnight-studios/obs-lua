@@ -1,6 +1,5 @@
 --[[
 ----------------------------------------------------------
-
 ----------------------------------------------------------
 ]]
 obs           		= obslua
@@ -21,7 +20,6 @@ hotkey_id_pause     = obs.OBS_INVALID_HOTKEY_ID
 
 --[[
 ----------------------------------------------------------
-
 ----------------------------------------------------------
 ]]
 local function log(name, msg)
@@ -36,14 +34,18 @@ end
 --[[
 ----------------------------------------------------------
 	Used this in testing to measure accuracy
+
+	The Text Source and the Log should produce the same value
+	The Text source is updated by the time function while the bedug 
+	uses start and end timestamps to get a value
 ----------------------------------------------------------
 ]]
 function get_time_lapsed()
 	local ns = obs.os_gettime_ns()
-	local delta = ns - orig_time
+	local delta = (ns/1000000000.0) - (orig_time/1000000000.0)
 	local ms = (delta / 1000000)
 	local s = (ms / 1000)
-	--log('Time Lapsed', TimeFormat(s))	
+	log('ns now', TimeFormat(delta))
 end	
 
 --[[
@@ -80,7 +82,7 @@ end
 function set_time_text()
 	if reset_activated then 
 		reset_activated = false
-		fresh_start() 
+		fresh_start(true) 
 	end		
 	local text = tostring(TimeFormat(cur_seconds))
 	if text ~= last_text then
@@ -103,21 +105,19 @@ end
 ]]
 function start_timer()
 	timer_active = true
+	fresh_start(false)
 	obs.timer_add(timer_callback, timer_cycle) --<- milliseconds 
 end	
 
 --[[
 ----------------------------------------------------------
-
 ----------------------------------------------------------
 ]]
 function timer_callback()
 	--[[
 	higher increase time
 	.01 seconds = 10 milliseconds
-	1/60 = 0.01666667 but looses time (too slow) (1.5sec over 17 hours)
-	0.01666667
-	0.01666666666666666666667
+	1/60 = 0.0166666...
 	]]
 	cur_seconds = cur_seconds + time_frequency
 	set_time_text()
@@ -128,14 +128,19 @@ end
 	Called if the counter is starting fresh
 ----------------------------------------------------------
 ]]
-function fresh_start()
-	cur_seconds = 0
-	orig_time = obs.os_gettime_ns() -- Original Time will always be from when the timer started.
+function fresh_start(reset_curent)
+	
+	if reset_curent ~= nil then
+		if reset_curent then
+			cur_seconds = 0
+		end
+	end
+	
+	orig_time = obs.os_gettime_ns()
 end	
 
 --[[
 ----------------------------------------------------------
-
 ----------------------------------------------------------
 ]]
 function activate(activating)
@@ -171,7 +176,6 @@ end
 
 --[[
 ----------------------------------------------------------
-
 ----------------------------------------------------------
 ]]
 function source_activated(cd)
@@ -183,7 +187,6 @@ end
 
 --[[
 ----------------------------------------------------------
-
 ----------------------------------------------------------
 ]]
 function source_deactivated(cd)
@@ -192,7 +195,6 @@ end
 
 --[[
 ----------------------------------------------------------
-
 ----------------------------------------------------------
 ]]
 function reset(pressed)
@@ -206,7 +208,6 @@ end
 
 --[[
 ----------------------------------------------------------
-
 ----------------------------------------------------------
 ]]
 function reset_button_clicked(props, p)
@@ -216,7 +217,6 @@ end
 
 --[[
 ----------------------------------------------------------
-
 ----------------------------------------------------------
 ]]
 function pause_button_clicked(props, p)
@@ -226,19 +226,19 @@ end
 
 --[[
 ----------------------------------------------------------
-
 ----------------------------------------------------------
 ]]
 function on_pause(pressed)
 	if not pressed then
 		return
 	end
-	get_time_lapsed()
 	if timer_active then
 		timer_active = false
 		activate(false)
+		get_time_lapsed()
 	else
 		if activated == false then
+			
 			activate(true)
 		end	
 	end
@@ -309,11 +309,9 @@ end
 --[[
 ----------------------------------------------------------
 	A function named script_save will be called when the script is saved
-
 	NOTE: This function is usually used for saving extra data (such as in this
 	case, a hotkey's save data).  Settings set via the properties are saved
 	automatically.
-
 ----------------------------------------------------------
 ]]
 function script_save(settings)
