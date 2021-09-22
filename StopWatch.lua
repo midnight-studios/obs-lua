@@ -11,6 +11,8 @@ total_seconds 		= 0
 cur_seconds   		= 0
 cur_seconds   		= 0
 orig_time     		= 0
+timer_cycle    		= 10--<- milliseconds 
+time_frequency 		= 0.016666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666667
 activated     		= false
 timer_active  		= false
 reset_activated    	= false
@@ -103,7 +105,7 @@ end
 ]]
 function start_timer()
 	timer_active = true
-	obs.timer_add(timer_callback, 10) --<- milliseconds 
+	obs.timer_add(timer_callback, timer_cycle) --<- milliseconds 
 end	
 
 --[[
@@ -112,7 +114,14 @@ end
 ----------------------------------------------------------
 ]]
 function timer_callback()
-	cur_seconds = cur_seconds + 0.01667 -- higher increase time >>> 0.01 seconds = 10 milliseconds // I am not sure why 0.01667 was more accurate during testing?
+	--[[
+	higher increase time
+	.01 seconds = 10 milliseconds
+	1/60 = 0.01666667 but looses time (too slow) (1.5sec over 17 hours)
+	0.01666667
+	0.01666666666666666666667
+	]]
+	cur_seconds = cur_seconds + time_frequency
 	set_time_text()
 end
 
