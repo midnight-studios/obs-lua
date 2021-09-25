@@ -1,5 +1,6 @@
 --[[
 ----------------------------------------------------------
+Simple Stop Watch
 ----------------------------------------------------------
 ]]
 obs           		= obslua
@@ -9,9 +10,11 @@ default_text   		= "00:00:00,00"
 cur_seconds   		= 0
 orig_time     		= 0
 timer_cycle    		= 10 --milliseconds 
-time_frequency 		= 0.016666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666667
+time_frequency 		= 0
 activated     		= false
 timer_active  		= false
+completed_cycles	= 0
+ns_last				= 0
 reset_activated    	= false
 start_on_visible  	= false
 disable_script   	= false
@@ -20,6 +23,7 @@ hotkey_id_pause     = obs.OBS_INVALID_HOTKEY_ID
 
 --[[
 ----------------------------------------------------------
+-- Use this to create a Script Log Output used in testing
 ----------------------------------------------------------
 ]]
 local function log(name, msg)
@@ -33,6 +37,15 @@ end
 
 --[[
 ----------------------------------------------------------
+	Assign a default Frequency based on the Frame Rate
+----------------------------------------------------------
+]]
+function assign_default_frequency()
+	time_frequency = (1/obs.obs_get_active_fps())
+end	
+
+--[[
+----------------------------------------------------------
 	Used this in testing to measure accuracy
 
 	The Text Source and the Log should produce the same value
@@ -43,10 +56,34 @@ end
 function get_time_lapsed()
 	local ns = obs.os_gettime_ns()
 	local delta = (ns/1000000000.0) - (orig_time/1000000000.0)
-	local ms = (delta / 1000000)
-	local s = (ms / 1000)
-	log('ns now', TimeFormat(delta))
+	return TimeFormat(delta)
 end	
+
+--[[
+----------------------------------------------------------
+	The true frequency between cycles varies due to script
+	and system task processing,	therefore a static frequency
+	will produce inaccuarte results over time. 
+
+	Start with a default frequency of 1 second devided by
+	the assigned active fps and then update the frequency 
+	calculated from the difference between cycles for the 
+	previous and current cycle using high-precision system 
+	time, in nanoseconds.
+
+	It should be noted, the frequency is based on the
+	script defined cycle time, which in this case is 
+	10 microseconds. Based on testing 10 Microseconds is the
+	fastest cycle supported in OBS lua.
+----------------------------------------------------------
+]]
+function get_frequency(previous)
+	local ns = obs.os_gettime_ns()
+	ns_last = ns
+	local f = (ns/1000000000.0) - (previous/1000000000.0)
+	if f > 1 then f = time_frequency end
+	return f	
+end
 
 --[[
 ----------------------------------------------------------
@@ -114,13 +151,11 @@ end
 ----------------------------------------------------------
 ]]
 function timer_callback()
-	--[[
-	higher increase time
-	.01 seconds = 10 milliseconds
-	1/60 = 0.0166666...
-	]]
+	time_frequency = get_frequency(ns_last)
 	cur_seconds = cur_seconds + time_frequency
+	completed_cycles = completed_cycles + 1
 	set_time_text()
+	--log('Applied frequency', time_frequency) 
 end
 
 --[[
@@ -129,13 +164,12 @@ end
 ----------------------------------------------------------
 ]]
 function fresh_start(reset_curent)
-	
 	if reset_curent ~= nil then
 		if reset_curent then
 			cur_seconds = 0
+			completed_cycles = 0
 		end
 	end
-	
 	orig_time = obs.os_gettime_ns()
 end	
 
@@ -235,7 +269,8 @@ function on_pause(pressed)
 	if timer_active then
 		timer_active = false
 		activate(false)
-		get_time_lapsed()
+		--log('OBS Video Frame Time', obs.obs_get_video_frame_time())
+		--log(completed_cycles..' Cycles', get_time_lapsed())	
 	else
 		if activated == false then
 			
@@ -289,6 +324,7 @@ end
 ]]
 
 function script_update(settings)
+	assign_default_frequency()
 	activate(false)
 	source_name = obs.obs_data_get_string(settings, "source")
     start_on_visible = obs.obs_data_get_bool(settings,"start_on_visible")
@@ -301,7 +337,8 @@ end
 A function named script_defaults will be called to set the default settings
 ----------------------------------------------------------
 ]]
-function script_defaults(settings)
+function script_defaults(settings)assign_default_frequency()
+	assign_default_frequency()
 	obs.obs_data_set_default_bool(settings, "start_on_visible", false)
 	obs.obs_data_set_default_bool(settings, "disable_script", false)
 end
@@ -336,6 +373,8 @@ end
 ----------------------------------------------------------
 ]]
 function script_load(settings)
+	assign_default_frequency()
+	--log('OBS Video Default Frequency', time_frequency)
 	local sh = obs.obs_get_signal_handler()
 	obs.signal_handler_connect(sh, "source_activate", source_activated)
 	obs.signal_handler_connect(sh, "source_deactivate", source_deactivated)
