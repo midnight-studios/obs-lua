@@ -1,31 +1,40 @@
 --[[
 ----------------------------------------------------------
-Simple Stop Watch Version 0.1
+Simple Stop Watch Version 0.2
 ----------------------------------------------------------
 ]]
-obs           		= obslua
-last_text    		= ""
-source_name   		= ""
-warning_text		= ""
-caution_text		= ""
-default_text   		= "00:00:00,00"
-cur_seconds   		= 0
-orig_time     		= 0
-time_frequency 		= 0
-completed_cycles	= 0
-ns_last				= 0
-timer_cycle    		= 10 --milliseconds 
-normal_color		= 0xFFFFFFFF
-caution_color		= 0x40f3ed
-warning_color		= 0x05055a 
-warning_activated  	= false
-activated     		= false
-timer_active  		= false
-reset_activated    	= false
-start_on_visible  	= false
-disable_script   	= false
-hotkey_id_reset     = obs.OBS_INVALID_HOTKEY_ID
-hotkey_id_pause     = obs.OBS_INVALID_HOTKEY_ID
+obs           				= obslua
+last_text    				= ""
+source_name   				= ""
+warning_text				= ""
+caution_text				= ""
+default_text				= "00:00:00,00"
+cur_seconds   				= 0
+cur_seconds_caution		= 0
+cur_seconds_warning		= 0
+orig_time     				= 0
+time_frequency				= 0
+completed_cycles			= 0
+ns_last					= 0
+timer_cycle 				= 10 --milliseconds 
+normal_color				= 0xFFFFFFFF
+caution_color				= 0x40f3ed
+warning_color				= 0x05055a  
+warning_activated			= false
+caution_activated			= false 
+warning_audio				= false
+caution_audio				= false
+activated     				= false
+timer_active  				= false
+reset_activated			= false
+start_on_visible  			= false
+disable_script   			= false
+hotkey_id_reset			= obs.OBS_INVALID_HOTKEY_ID
+hotkey_id_pause			= obs.OBS_INVALID_HOTKEY_ID
+source_name_audio_warning	= ""
+source_name_audio_caution	= ""
+last_state_caution			= obs.OBS_MEDIA_STATE_NONE
+last_state_warning			= obs.OBS_MEDIA_STATE_NONE
 
 --[[
 ----------------------------------------------------------
@@ -79,7 +88,7 @@ end
 
 	It should be noted, the frequency is based on the
 	script defined cycle time, which in this case is 
-	10 microseconds. Based on testing 10 Microseconds is the
+	10 miliseconds. Based on testing 10 Miliseconds is the
 	fastest cycle supported in OBS lua.
 ----------------------------------------------------------
 ]]
@@ -114,31 +123,16 @@ function TimeFormat(time, val)
 	if mili < 10 then
 		mili = "0"..mili
 	end
-	
 	if val == 4 then
-	
 		return hour..":"..minutes..":"..seconds..","..mili
-					
-		
 	elseif  val == 3 then
-	
 		return hour..":"..minutes..":"..seconds
-					
-		
 	elseif  val == 2 then
-	
 		return hour..":"..minutes
-					
-		
 	elseif  val == 1 then
-	
 		return hour
-				
-		
 	else
-	
-		return hour..":"..minutes..":"..seconds..","..mili	
-					
+		return hour..":"..minutes..":"..seconds..","..mili				
 	end	
 end
 
@@ -153,14 +147,11 @@ function set_time_text()
 		fresh_start(true) 
 	end	
 	local text = tostring(TimeFormat(cur_seconds))
-	local color = tostring(0x05055a)
 	if text ~= last_text then
 		local source = obs.obs_get_source_by_name(source_name)
 		if source ~= nil then
-			--
 			local settings = obs.obs_data_create()
 			obs.obs_data_set_string(settings, "text", text)
-
 			if not caution_activated and not warning_activated then
 				obs.obs_data_set_int(settings, "color", normal_color)
 				caution_activated = true
@@ -168,21 +159,117 @@ function set_time_text()
 			end		
 			if TimeFormat(cur_seconds, 3) == caution_text then
 				obs.obs_data_set_int(settings, "color", caution_color)
+				play_audio(source_name_audio_caution)
+				cur_seconds_caution = cur_seconds
 			end	
 			if TimeFormat(cur_seconds, 3) == warning_text then
 				obs.obs_data_set_int(settings, "color", warning_color)
+				play_audio(source_name_audio_warning)
+				cur_seconds_warning = cur_seconds
 			end	
-				
-			
-			
 			obs.obs_source_update(source, settings)
 			obs.obs_data_release(settings)
 			obs.obs_source_release(source)
 		end
 	end
+	
+	stop_audio(source_name_audio_caution, last_state_caution)
+	stop_audio(source_name_audio_warning, last_state_warning)
 	last_text = text
 end
 
+--[[
+----------------------------------------------------------
+	Set source visble = true
+----------------------------------------------------------
+]]
+function play_audio(source_name, mode)
+	if source_name == nil or source_name  == "none" then
+		return
+	end	
+	set_visible(source_name, true)
+end
+
+--[[
+----------------------------------------------------------
+	Check if the source state changed, 
+	if so, set source visble = false
+----------------------------------------------------------
+]]
+function stop_audio(source_name, last_state)
+	if source_name == nil or source_name  == "none" then
+		return
+	end	
+    local source = obs.obs_get_source_by_name(source_name)	
+    if source ~= nil then
+        local state = obs.obs_source_media_get_state(source)
+        if last_state ~= state then
+            last_state = state
+			if get_source_looping(source_name) then
+				if state == obs.OBS_MEDIA_STATE_PLAYING  then
+					-- The source is looping, it will never stop
+					if source_name == source_name_audio_caution then
+						if duration_caution == math.floor(cur_seconds - cur_seconds_caution) then
+							set_visible(source_name, false)
+						end 	
+					end
+					if source_name == source_name_audio_warning then
+						if duration_warning == math.floor(cur_seconds - cur_seconds_warning) then
+							set_visible(source_name, false)
+						end 	
+					end
+				end	
+				
+			end 
+			if state == obs.OBS_MEDIA_STATE_STOPPED or state == obs.OBS_MEDIA_STATE_ENDED then
+				set_visible(source_name, false)
+			end
+		end	
+    end
+    obs.obs_source_release(source)
+end
+
+--[[
+----------------------------------------------------------
+	
+----------------------------------------------------------
+]]
+function get_source_looping(source_name)
+	local property = "looping"
+	local source = obs.obs_get_source_by_name(source_name)	
+	local enabled = false 
+    if source ~= nil then
+		local source_id = obs.obs_source_get_unversioned_id(source)
+			if source_id == "ffmpeg_source" then
+				local s = obs.obs_source_get_settings(source)
+				--local prop = obs.obs_data_get_string(s, property);
+				enabled = obs.obs_data_get_bool(s, property);
+				obs.obs_data_release(s);
+			end
+	end
+    obs.obs_source_release(source)
+	return enabled
+end	
+
+--[[
+----------------------------------------------------------
+	set source visibility
+----------------------------------------------------------
+]]
+function set_visible(target_name, visible)
+	local currentscene = obs.obs_frontend_get_current_scene()
+	local activescene = obs.obs_scene_from_source(currentscene)
+	local sceneitems = obs.obs_scene_enum_items(activescene)
+	for i, sceneitem in ipairs(sceneitems) do
+		local source = obs.obs_sceneitem_get_source(sceneitem)
+		local name = obs.obs_source_get_name(source)
+		if name == target_name then
+				obs.obs_sceneitem_set_visible(sceneitem, visible)
+				break
+			end	
+		end	 -- end for i	
+	obs.sceneitem_list_release(sceneitems)
+end
 --[[
 ----------------------------------------------------------
 	Add timer here so we have a global setting
@@ -193,14 +280,6 @@ function start_timer()
 	fresh_start(false)
 	obs.timer_add(timer_callback, timer_cycle) --<- milliseconds 
 end		
-
---[[
-----------------------------------------------------------
-----------------------------------------------------------
-]]
-
-function set_text_color()
-end	
 
 --[[
 ----------------------------------------------------------
@@ -330,8 +409,7 @@ function on_pause(pressed)
 		--log('OBS Video Frame Time', obs.obs_get_video_frame_time())
 		--log(completed_cycles..' Cycles', get_time_lapsed())	
 	else
-		if activated == false then
-			
+		if activated == false then	
 			activate(true)
 		end	
 	end
@@ -357,21 +435,47 @@ function script_properties()
 			end
 		end
 	end
+	local cap = obs.obs_properties_add_list(props, "audio_caution", "Caution Audio", obs.OBS_COMBO_TYPE_EDITABLE, obs.OBS_COMBO_FORMAT_STRING)
+	obs.obs_property_list_add_string(cap, "None", "none")
+	if sources ~= nil then
+		for _, source in ipairs(sources) do
+			source_id = obs.obs_source_get_unversioned_id(source)
+			if source_id == "ffmpeg_source" then
+				local name = obs.obs_source_get_name(source)
+				obs.obs_property_list_add_string(cap, name, name)
+			end
+		end
+	end	
+	local wap = obs.obs_properties_add_list(props, "audio_warning", "Warning Audio", obs.OBS_COMBO_TYPE_EDITABLE, obs.OBS_COMBO_FORMAT_STRING)
+	obs.obs_property_list_add_string(wap, "None", "none")
+	if sources ~= nil then
+		for _, source in ipairs(sources) do
+			source_id = obs.obs_source_get_unversioned_id(source)
+			if source_id == "ffmpeg_source" then
+				local name = obs.obs_source_get_name(source)
+				obs.obs_property_list_add_string(wap, name, name)
+			end
+		end
+	end		
 	obs.source_list_release(sources)
 	obs.obs_properties_add_color(props, "normal_color", "Normal Color")
 	obs.obs_properties_add_color(props, "caution_color", "Caution Color")
 	obs.obs_properties_add_color(props, "warning_color", "Warning Color")
-	local a_caution = obs.obs_properties_add_text(props, "caution_text", "Caution Text", obs.OBS_TEXT_DEFAULT)
-	local a_warning = obs.obs_properties_add_text(props, "warning_text", "Warning Text", obs.OBS_TEXT_DEFAULT)
+	local a_caution = obs.obs_properties_add_text(props, "caution_text", "Caution Time", obs.OBS_TEXT_DEFAULT)
+	local a_warning = obs.obs_properties_add_text(props, "warning_text", "Warning Time", obs.OBS_TEXT_DEFAULT)
 	obs.obs_property_set_long_description(a_caution, "Use format 00:00:00 (hoursa:minutes:seconds)\n")
 	obs.obs_property_set_long_description(a_warning, "Use format 00:00:00 (hoursa:minutes:seconds)\n")
+	--*props, *name, *description, min, max, step
+	local d_caution = obs.obs_properties_add_int_slider(props, "duration_caution", "Caution Duration", 1, 100, 1)
+	local d_warning = obs.obs_properties_add_int_slider(props, "duration_warning", "Warning Duration", 1, 100, 1)
+	obs.obs_property_set_long_description(d_caution, "Stop media if looping enabled\n")
+	obs.obs_property_set_long_description(d_warning, "Stop media if looping enabled\n")
 	obs.obs_properties_add_button(props, "reset_button", "Reset Stopwatch", reset_button_clicked)
 	obs.obs_properties_add_button(props, "pause_button", "Start/Pause Stopwatch", pause_button_clicked)
     obs.obs_properties_add_bool(props, "start_on_visible", "Start Timer on Source Visible")
     obs.obs_properties_add_bool(props, "disable_script", "Disable Script")
 	return props
 end
-
 --[[
 ----------------------------------------------------------
 	A function named script_description returns the description shown to
@@ -379,7 +483,7 @@ end
 ----------------------------------------------------------
 ]]
 function script_description()
-	return "Stopwatch"
+	return "Stopwatch\n\nNotice:\n\n1) The Duration setting for Caution/Warning will only be relevant when the Media looping is enabled.\n\n2) Trigger values must use the '00:00:00' foramt."
 end
 
 --[[
@@ -392,8 +496,12 @@ function script_update(settings)
 	assign_default_frequency()
 	activate(false)
 	source_name = obs.obs_data_get_string(settings, "source")
+	source_name_audio_warning = obs.obs_data_get_string(settings, "audio_warning")
+	source_name_audio_caution = obs.obs_data_get_string(settings, "audio_caution")
 	warning_text = obs.obs_data_get_string(settings, "warning_text")
 	caution_text = obs.obs_data_get_string(settings, "caution_text")
+	duration_caution = obs.obs_data_get_int(settings, "duration_caution")
+	duration_warning = obs.obs_data_get_int(settings, "duration_warning")
     start_on_visible = obs.obs_data_get_bool(settings,"start_on_visible")
     disable_script = obs.obs_data_get_bool(settings,"disable_script")
 	reset(true)
@@ -406,11 +514,16 @@ A function named script_defaults will be called to set the default settings
 ]]
 function script_defaults(settings)assign_default_frequency()
 	assign_default_frequency()
+	obs.obs_data_set_default_string(settings, "source", "Select")
+	obs.obs_data_set_default_string(settings, "audio_warning", "None")
+	obs.obs_data_set_default_string(settings, "audio_caution", "None")
 	obs.obs_data_set_default_int(settings, "normal_color", normal_color)
 	obs.obs_data_set_default_int(settings, "caution_color", caution_color)
 	obs.obs_data_set_default_int(settings, "warning_color", warning_color)
 	obs.obs_data_set_default_string(settings, "warning_text", "")
 	obs.obs_data_set_default_string(settings, "caution_text", "")
+	obs.obs_data_set_default_int(settings, "duration_caution", 5)
+	obs.obs_data_set_default_int(settings, "duration_warning", 5)
 	obs.obs_data_set_default_bool(settings, "start_on_visible", false)
 	obs.obs_data_set_default_bool(settings, "disable_script", false)
 end
