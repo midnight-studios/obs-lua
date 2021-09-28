@@ -159,12 +159,12 @@ function set_time_text()
 			end		
 			if TimeFormat(cur_seconds, 3) == caution_text then
 				obs.obs_data_set_int(settings, "color", caution_color)
-				play_audio(source_name_audio_caution)
+				start_media(source_name_audio_caution)
 				cur_seconds_caution = cur_seconds
 			end	
 			if TimeFormat(cur_seconds, 3) == warning_text then
 				obs.obs_data_set_int(settings, "color", warning_color)
-				play_audio(source_name_audio_warning)
+				start_media(source_name_audio_warning)
 				cur_seconds_warning = cur_seconds
 			end	
 			obs.obs_source_update(source, settings)
@@ -182,14 +182,22 @@ end
 	
 ----------------------------------------------------------
 ]]
+function start_media(source_name)
+start_media_action(source_name)
+end
+--[[
+----------------------------------------------------------
+	
+----------------------------------------------------------
+]]
 function stop_media(bypass)
 	
 	if bypass then
 		set_visible(source_name_audio_caution, false)
 		set_visible(source_name_audio_warning, false)
 	else
-		stop_audio(source_name_audio_caution, last_state_caution)
-		stop_audio(source_name_audio_warning, last_state_warning)
+		stop_media_action(source_name_audio_caution, last_state_caution)
+		stop_media_action(source_name_audio_warning, last_state_warning)
 		
 	end	
 end	
@@ -198,7 +206,7 @@ end
 	Set source visble = true
 ----------------------------------------------------------
 ]]
-function play_audio(source_name, mode)
+function start_media_action(source_name)
 	if source_name == nil or source_name  == "none" then
 		return
 	end	
@@ -211,7 +219,7 @@ end
 	if so, set source visble = false
 ----------------------------------------------------------
 ]]
-function stop_audio(source_name, last_state)
+function stop_media_action(source_name, last_state)
 	if source_name == nil or source_name  == "none" then
 		return
 	end	
