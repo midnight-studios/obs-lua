@@ -173,11 +173,26 @@ function set_time_text()
 		end
 	end
 	
-	stop_audio(source_name_audio_caution, last_state_caution)
-	stop_audio(source_name_audio_warning, last_state_warning)
+	stop_media()
 	last_text = text
 end
 
+--[[
+----------------------------------------------------------
+	
+----------------------------------------------------------
+]]
+function stop_media(bypass)
+	
+	if bypass then
+		set_visible(source_name_audio_caution, false)
+		set_visible(source_name_audio_warning, false)
+	else
+		stop_audio(source_name_audio_caution, last_state_caution)
+		stop_audio(source_name_audio_warning, last_state_warning)
+		
+	end	
+end	
 --[[
 ----------------------------------------------------------
 	Set source visble = true
@@ -406,6 +421,7 @@ function on_pause(pressed)
 	if timer_active then
 		timer_active = false
 		activate(false)
+		stop_media(true)
 		--log('OBS Video Frame Time', obs.obs_get_video_frame_time())
 		--log(completed_cycles..' Cycles', get_time_lapsed())	
 	else
