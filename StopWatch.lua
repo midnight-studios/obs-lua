@@ -1,6 +1,6 @@
 --[[
 ----------------------------------------------------------
-Simple Stop Watch Version 0.4
+Simple Stop Watch Version 0.5
 ----------------------------------------------------------
 ]]
 obs           				= obslua
@@ -149,7 +149,7 @@ function set_time_text()
 	if text ~= last_text then
 		local source = obs.obs_get_source_by_name(source_name)
 		if source ~= nil then
-			local settings = obs.obs_data_create()
+			local settings = obs.obs_source_get_settings(source)
 			obs.obs_data_set_string(settings, "text", text)
 			if not media['caution_activated'] and not media['warning_activated'] then
 				obs.obs_data_set_int(settings, "color", media['normal_color'])
