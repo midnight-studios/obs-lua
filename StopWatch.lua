@@ -1,13 +1,19 @@
 --[[
 ----------------------------------------------------------
-Simple Stop Watch Version 0.5
+Simple Stop Watch Version 1.0
 ----------------------------------------------------------
 ]]
 obs           				= obslua
 last_text    				= ""
-source_name   				= ""
+timer_source   				= ""
 default_text				= "00:00:00,00"
 cur_seconds   				= 0
+split	     				= 0
+split_itm					= {}
+split_data					= nil
+last_split_data 			= ""
+split_type   				= ""
+split_source   				= ""
 orig_time     				= 0
 time_frequency				= 0
 completed_cycles			= 0
@@ -35,6 +41,7 @@ last_state_warning			= obs.OBS_MEDIA_STATE_NONE
 }
 hotkey_id_reset			= obs.OBS_INVALID_HOTKEY_ID
 hotkey_id_pause			= obs.OBS_INVALID_HOTKEY_ID
+hotkey_id_split			= obs.OBS_INVALID_HOTKEY_ID
 --[[
 ----------------------------------------------------------
 -- Use this to create a Script Log Output used in testing
@@ -105,6 +112,9 @@ end
 ----------------------------------------------------------
 ]]
 function TimeFormat(time, val)
+	if time == nil then
+	return
+	end
 	local hour, minutes, seconds, mili = 0, 0, 0, 0
 	hour = math.floor(time/3600)
 	if hour < 10 then
@@ -134,13 +144,39 @@ function TimeFormat(time, val)
 		return hour..":"..minutes..":"..seconds..","..mili				
 	end	
 end
+--[[
+----------------------------------------------------------
+	Function to set the time text
+----------------------------------------------------------
+]]
+function set_split_text(source_name)
+	if source_name == 'Select' then
+		return
+	end	
+	if reset_activated then 
+		reset_activated = false
+		fresh_start(true) 
+	end	
+	local text = split_data
+	if text ~= last_split_data then
+		local source = obs.obs_get_source_by_name(source_name)
+		if source ~= nil then
+			local settings = obs.obs_source_get_settings(source)
+			obs.obs_data_set_string(settings, "text", text)	
+			obs.obs_source_update(source, settings)
+			obs.obs_data_release(settings)
+			obs.obs_source_release(source)
+		end
+	end
+	last_split_data = text
+end
 
 --[[
 ----------------------------------------------------------
 	Function to set the time text
 ----------------------------------------------------------
 ]]
-function set_time_text()
+function set_time_text(source_name)
 	if reset_activated then 
 		reset_activated = false
 		fresh_start(true) 
@@ -165,7 +201,6 @@ function set_time_text()
 		stop_media('warning')
 	last_text = text
 end
-
 --[[
 ----------------------------------------------------------
 	
@@ -189,6 +224,7 @@ end
 function start_media(source_name, ref)
 start_media_action(source_name, ref)
 end
+
 --[[
 ----------------------------------------------------------
 	
@@ -200,14 +236,15 @@ function stop_media(ref, bypass)
 	else
 		stop_media_action(media['source_name_audio_'..ref], media['last_state_'..ref])	
 	end	
-end	
+end
+
 --[[
 ----------------------------------------------------------
 	Set source visble = true
 ----------------------------------------------------------
 ]]
 function start_media_action(source_name, ref)
-	if source_name == nil or source_name  == "none" then
+	if source_name == nil or source_name  == "None" then
 		return
 	end	
 	if media[ref..'_activated'] then set_visible(source_name, true) end
@@ -220,7 +257,7 @@ end
 ----------------------------------------------------------
 ]]
 function stop_media_action(source_name, last_state)
-	if source_name == nil or source_name  == "none" then
+	if source_name == nil or source_name  == "None" then
 		return
 	end	
     local source = obs.obs_get_source_by_name(source_name)	
@@ -313,7 +350,7 @@ function timer_callback()
 	time_frequency = get_frequency(ns_last)
 	cur_seconds = cur_seconds + time_frequency
 	completed_cycles = completed_cycles + 1
-	set_time_text()
+	set_time_text(timer_source)
 	--log('Applied frequency', time_frequency) 
 end
 
@@ -327,6 +364,9 @@ function fresh_start(reset_curent)
 		if reset_curent then
 			cur_seconds = 0
 			completed_cycles = 0
+			split = 0
+			split_itm = {}
+			split_data = nil
 			media['caution_activated'] = false
 			media['warning_activated'] = false
 		end
@@ -360,7 +400,7 @@ end
 ----------------------------------------------------------
 ]]
 function activate_signal(cd, activating)
-	local source = obs.calldata_source(cd, "source")
+	local source = obs.calldata_source(cd, "timer_source")
 	if source ~= nil then
 		local name = obs.obs_source_get_name(source)
 		if (name == source_name) then
@@ -399,8 +439,9 @@ function reset(pressed)
 		return
 	end
 	reset_activated = true
-	set_time_text()
+	set_time_text(timer_source)
 	activate(false)
+	set_split_text(split_source)
 end
 
 --[[
@@ -432,6 +473,8 @@ function on_pause(pressed)
 	if timer_active then
 		timer_active = false
 		activate(false)
+		split_unpack()
+		set_split_text(split_source)
 		--log('OBS Video Frame Time', obs.obs_get_video_frame_time())
 		--log(completed_cycles..' Cycles', get_time_lapsed())	
 	else
@@ -443,24 +486,121 @@ end
 
 --[[
 ----------------------------------------------------------
+----------------------------------------------------------
+]]
+function split_button_clicked(props, p)
+	on_split(true)
+	return false
+end
+
+--[[
+----------------------------------------------------------
+----------------------------------------------------------
+]]
+function on_split(pressed)
+	if not pressed then
+		return
+	end
+	if timer_active then
+		split = split + 1
+		split_itm[split] = cur_seconds
+		split_unpack()
+		set_split_text(split_source)
+	end
+end
+
+--[[
+----------------------------------------------------------
+	This captures the split times and unpack it in the
+	correct format.
+
+	The text source only permits linebreaks ('\n') this 
+	limitation affects how the data can be formated ):
+----------------------------------------------------------
+]]
+function split_unpack()
+	local data = nil
+	local c = table.getn(split_itm)
+	local text = ''
+	local title = ''
+	local subtitle = ''
+	local line = '______________________________'
+    for i = 1,c do 
+		local mark = split_itm[i]
+		local interval = mark
+		if i > 1 then
+			local j = i - 1 
+			interval = split_itm[i] - split_itm[j]
+		end
+		if split_type == 'Interval' then
+			title = 'Interval'
+			--subtitle = ''
+			text = tostring(TimeFormat(interval))
+		elseif split_type == 'Mark' then
+			title = 'Mark'
+			--subtitle = ''
+			text = tostring(TimeFormat(mark))
+		elseif split_type == 'Mark Interval' then
+			title = 'Mark                     '
+			subtitle = 'Interval'
+			text = tostring(TimeFormat(mark)..'          '..TimeFormat(interval))
+		else	--	"Interval Mark"
+			title = 'Interval                  '
+			subtitle = 'Mark'
+		text = tostring(TimeFormat(interval)..'          '..TimeFormat(mark))
+		end	
+		-- data collection here
+		local n = i --formatting the index number
+		if i < 10 then n = '0'..tostring(i) end
+		if data ~= nil then 	
+			data = data .. '\n' .. n..')    '..text
+		else
+			data = '#       '..title..subtitle..'\n'..line..'\n\n'..n..')    '..text
+		end
+	end	-- end for
+	split_data = data
+end
+
+--[[
+----------------------------------------------------------
 	A function named script_properties defines the properties that the user
 	can change for the entire script module itself
 ----------------------------------------------------------
 ]]
 function script_properties()
 	local props = obs.obs_properties_create()
-	local p = obs.obs_properties_add_list(props, "source", "Timer Source", obs.OBS_COMBO_TYPE_EDITABLE, obs.OBS_COMBO_FORMAT_STRING)
-	obs.obs_property_list_add_string(p, "Select", "select")
+	local sources = obs.obs_enum_sources()
+	local ts = obs.obs_properties_add_list(props, "timer_source", "Timer Source", obs.OBS_COMBO_TYPE_EDITABLE, obs.OBS_COMBO_FORMAT_STRING)
+	obs.obs_property_list_add_string(ts, "Select", "select")
+	if sources ~= nil then
+		for _, source in ipairs(sources) do
+			source_id = obs.obs_source_get_unversioned_id(source)
+			if source_id == "text_gdiplus" or source_id == "text_ft2_source" then
+				local name = obs.obs_source_get_name(source)
+				if name ~= split_source then
+					obs.obs_property_list_add_string(ts, name, name)
+				else
+					--continue 
+				end
+			end
+		end
+	end
+	local ss = obs.obs_properties_add_list(props, "split_source", "Split Source", obs.OBS_COMBO_TYPE_EDITABLE, obs.OBS_COMBO_FORMAT_STRING)
+	obs.obs_property_list_add_string(ss, "Select", "select")
 	local sources = obs.obs_enum_sources()
 	if sources ~= nil then
 		for _, source in ipairs(sources) do
 			source_id = obs.obs_source_get_unversioned_id(source)
 			if source_id == "text_gdiplus" or source_id == "text_ft2_source" then
 				local name = obs.obs_source_get_name(source)
-				obs.obs_property_list_add_string(p, name, name)
+				if name ~= timer_source then
+					obs.obs_property_list_add_string(ss, name, name)
+				else
+					--continue 
+				end
 			end
 		end
-	end
+	end	
 	local cap = obs.obs_properties_add_list(props, "audio_caution", "Caution Audio", obs.OBS_COMBO_TYPE_EDITABLE, obs.OBS_COMBO_FORMAT_STRING)
 	obs.obs_property_list_add_string(cap, "None", "none")
 	if sources ~= nil then
@@ -497,7 +637,14 @@ function script_properties()
 	obs.obs_property_set_long_description(d_caution, "Stop media if looping enabled\n")
 	obs.obs_property_set_long_description(d_warning, "Stop media if looping enabled\n")
 	obs.obs_properties_add_button(props, "reset_button", "Reset Stopwatch", reset_button_clicked)
-	obs.obs_properties_add_button(props, "pause_button", "Start/Pause Stopwatch", pause_button_clicked)
+	obs.obs_properties_add_button(props, "pause_button", "Start/Pause Stopwatch", pause_button_clicked)	
+	local sp = obs.obs_properties_add_list(props, "split_type", "Split Type", obs.OBS_COMBO_TYPE_EDITABLE, obs.OBS_COMBO_FORMAT_STRING)
+	obs.obs_property_list_add_string(sp, "Interval", 0)
+	obs.obs_property_list_add_string(sp, "Mark", 1)
+	obs.obs_property_list_add_string(sp, "Mark Interval", 2)
+	obs.obs_property_list_add_string(sp, "Interval Mark", 3)
+	obs.obs_property_set_long_description(sp, "Interval = Time between current and previous split.\n\nMark = Time of split\n")
+	obs.obs_properties_add_button(props, "split_button", "Split Time", split_button_clicked)
     obs.obs_properties_add_bool(props, "start_on_visible", "Start Timer on Source Visible")
     obs.obs_properties_add_bool(props, "disable_script", "Disable Script")
 	return props
@@ -521,7 +668,8 @@ end
 function script_update(settings)
 	assign_default_frequency()
 	activate(false)
-	source_name = obs.obs_data_get_string(settings, "source")
+	timer_source = obs.obs_data_get_string(settings, "timer_source")
+	split_source = obs.obs_data_get_string(settings, "split_source")
 	media['source_name_audio_warning'] = obs.obs_data_get_string(settings, "audio_warning")
 	media['source_name_audio_caution'] = obs.obs_data_get_string(settings, "audio_caution")											
 	media['normal_color'] = obs.obs_data_get_int(settings, "normal_color")
@@ -530,6 +678,7 @@ function script_update(settings)
 	media['warning_text'] = obs.obs_data_get_string(settings, "warning_text")
 	media['caution_text'] = obs.obs_data_get_string(settings, "caution_text")
 	duration_caution = obs.obs_data_get_int(settings, "duration_caution")
+	split_type = obs.obs_data_get_string(settings, "split_type")
 	duration_warning = obs.obs_data_get_int(settings, "duration_warning")
     start_on_visible = obs.obs_data_get_bool(settings,"start_on_visible")
     disable_script = obs.obs_data_get_bool(settings,"disable_script")
@@ -543,7 +692,8 @@ A function named script_defaults will be called to set the default settings
 ]]
 function script_defaults(settings)assign_default_frequency()
 	assign_default_frequency()
-	obs.obs_data_set_default_string(settings, "source", "Select")
+	obs.obs_data_set_default_string(settings, "timer_source", "Select")
+	obs.obs_data_set_default_string(settings, "split_source", "Select")
 	obs.obs_data_set_default_string(settings, "audio_warning", "None")
 	obs.obs_data_set_default_string(settings, "audio_caution", "None")
 	obs.obs_data_set_default_int(settings, "normal_color", media['normal_color'])
@@ -553,6 +703,7 @@ function script_defaults(settings)assign_default_frequency()
 	obs.obs_data_set_default_string(settings, "caution_text", "")
 	obs.obs_data_set_default_int(settings, "duration_caution", 5)
 	obs.obs_data_set_default_int(settings, "duration_warning", 5)
+	obs.obs_data_set_default_string(settings, "split_type", "Mark")
 	obs.obs_data_set_default_bool(settings, "start_on_visible", false)
 	obs.obs_data_set_default_bool(settings, "disable_script", false)
 end
@@ -568,10 +719,13 @@ end
 function script_save(settings)
 	local hotkey_save_array_reset = obs.obs_hotkey_save(hotkey_id_reset)
 	local hotkey_save_array_pause = obs.obs_hotkey_save(hotkey_id_pause)
+	local hotkey_save_array_split = obs.obs_hotkey_save(hotkey_id_split)
 	obs.obs_data_set_array(settings, "reset_hotkey", hotkey_save_array_reset)
 	obs.obs_data_set_array(settings, "pause_hotkey", hotkey_save_array_pause)
+	obs.obs_data_set_array(settings, "split_hotkey", hotkey_save_array_split)
 	obs.obs_data_array_release(hotkey_save_array_pause)
 	obs.obs_data_array_release(hotkey_save_array_reset)
+	obs.obs_data_array_release(hotkey_save_array_split)
 end
 
 --[[
@@ -594,10 +748,14 @@ function script_load(settings)
 	obs.signal_handler_connect(sh, "source_deactivate", source_deactivated)
 	hotkey_id_reset = obs.obs_hotkey_register_frontend("reset_stopwatch_thingy", "Reset Stopwatch", reset)
 	hotkey_id_pause = obs.obs_hotkey_register_frontend("pause_stopwatch_thingy", "Start/Pause Stopwatch", on_pause)
+	hotkey_id_split = obs.obs_hotkey_register_frontend("split_stopwatch_thingy", "Split Time", on_split)
 	local hotkey_save_array_reset = obs.obs_data_get_array(settings, "reset_hotkey")
 	local hotkey_save_array_pause = obs.obs_data_get_array(settings, "pause_hotkey")
+	local hotkey_save_array_pause = obs.obs_data_get_array(settings, "pause_split")
 	obs.obs_hotkey_load(hotkey_id_reset, hotkey_save_array_reset)
 	obs.obs_hotkey_load(hotkey_id_pause, hotkey_save_array_pause)
+	obs.obs_hotkey_load(hotkey_id_split, hotkey_save_array_split)
 	obs.obs_data_array_release(hotkey_save_array_reset)
 	obs.obs_data_array_release(hotkey_save_array_pause)
+	obs.obs_data_array_release(hotkey_save_array_split)
 end
