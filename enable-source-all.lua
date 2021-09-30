@@ -39,10 +39,16 @@ function source_enable()
 				
                 local source = obs.obs_sceneitem_get_source(sceneitem)
 				
+				
 				local group = obs.obs_group_from_source(source)
 				
 				sourcename = obs.obs_source_get_name(source)
 				
+				if not obs.obs_source_enabled(source) then
+					log(sourcename, obs.obs_source_enabled(source))
+					obs.obs_source_set_enabled(source,true)
+				end
+
 				if group ~= nil then
 				
 					local groupitems = obs.obs_scene_enum_items(group)	
@@ -54,10 +60,8 @@ function source_enable()
 							local groupitemsource = obs.obs_sceneitem_get_source(groupitem)
 
 							sourcename = obs.obs_source_get_name(groupitemsource)
-							
 							if not obs.obs_source_enabled(groupitemsource) then
-								
-								log(sourcename, obs.obs_source_enabled(groupitemsource))
+							log(sourcename, obs.obs_source_enabled(groupitemsource))
 								obs.obs_source_set_enabled(groupitemsource,true)
 							end
 
