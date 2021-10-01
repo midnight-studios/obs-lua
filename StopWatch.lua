@@ -1,6 +1,6 @@
 --[[
 ----------------------------------------------------------
-Simple Stop Watch Version 1.0
+Simple Stop Watch Version 1.1
 ----------------------------------------------------------
 ]]
 obs           				= obslua
@@ -400,10 +400,10 @@ end
 ----------------------------------------------------------
 ]]
 function activate_signal(cd, activating)
-	local source = obs.calldata_source(cd, "timer_source")
+	local source = obs.calldata_source(cd, "source")
 	if source ~= nil then
-		local name = obs.obs_source_get_name(source)
-		if (name == source_name) then
+		local name = obs.obs_source_get_name(source)	
+		if (name == timer_source) then
 			if start_on_visible then
 				activate(activating)
 			end
@@ -570,7 +570,7 @@ end
 function script_properties()
 	local props = obs.obs_properties_create()
 	local sources = obs.obs_enum_sources()
-	local ts = obs.obs_properties_add_list(props, "timer_source", "Timer Source", obs.OBS_COMBO_TYPE_EDITABLE, obs.OBS_COMBO_FORMAT_STRING)
+	local ts = obs.obs_properties_add_list(props, "timer_source", "Timer Source", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING)
 	obs.obs_property_list_add_string(ts, "Select", "select")
 	if sources ~= nil then
 		for _, source in ipairs(sources) do
@@ -585,7 +585,7 @@ function script_properties()
 			end
 		end
 	end
-	local ss = obs.obs_properties_add_list(props, "split_source", "Split Source", obs.OBS_COMBO_TYPE_EDITABLE, obs.OBS_COMBO_FORMAT_STRING)
+	local ss = obs.obs_properties_add_list(props, "split_source", "Split Source", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING)
 	obs.obs_property_list_add_string(ss, "Select", "select")
 	local sources = obs.obs_enum_sources()
 	if sources ~= nil then
@@ -601,7 +601,7 @@ function script_properties()
 			end
 		end
 	end	
-	local cap = obs.obs_properties_add_list(props, "audio_caution", "Caution Audio", obs.OBS_COMBO_TYPE_EDITABLE, obs.OBS_COMBO_FORMAT_STRING)
+	local cap = obs.obs_properties_add_list(props, "audio_caution", "Caution Audio", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING)
 	obs.obs_property_list_add_string(cap, "None", "none")
 	if sources ~= nil then
 		for _, source in ipairs(sources) do
@@ -612,7 +612,7 @@ function script_properties()
 			end
 		end
 	end	
-	local wap = obs.obs_properties_add_list(props, "audio_warning", "Warning Audio", obs.OBS_COMBO_TYPE_EDITABLE, obs.OBS_COMBO_FORMAT_STRING)
+	local wap = obs.obs_properties_add_list(props, "audio_warning", "Warning Audio", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING)
 	obs.obs_property_list_add_string(wap, "None", "none")
 	if sources ~= nil then
 		for _, source in ipairs(sources) do
@@ -638,7 +638,7 @@ function script_properties()
 	obs.obs_property_set_long_description(d_warning, "Stop media if looping enabled\n")
 	obs.obs_properties_add_button(props, "reset_button", "Reset Stopwatch", reset_button_clicked)
 	obs.obs_properties_add_button(props, "pause_button", "Start/Pause Stopwatch", pause_button_clicked)	
-	local sp = obs.obs_properties_add_list(props, "split_type", "Split Type", obs.OBS_COMBO_TYPE_EDITABLE, obs.OBS_COMBO_FORMAT_STRING)
+	local sp = obs.obs_properties_add_list(props, "split_type", "Split Type", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING)
 	obs.obs_property_list_add_string(sp, "Interval", 0)
 	obs.obs_property_list_add_string(sp, "Mark", 1)
 	obs.obs_property_list_add_string(sp, "Mark Interval", 2)
