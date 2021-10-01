@@ -6,7 +6,6 @@ Simple Stop Watch Version 1.1
 obs           				= obslua
 last_text    				= ""
 timer_source   				= ""
-default_text				= "00:00:00,00"
 cur_seconds   				= 0
 split	     				= 0
 split_itm					= {}
