@@ -310,8 +310,8 @@ function set_time_text(source_name)
 			obs.obs_source_release(source)
 		end
 	end
-		--stop_media('caution')
-		stop_media('warning')
+	stop_media('caution')
+	stop_media('warning')
 	last_text = text
 	if cur_seconds <= 0.01 and timer_type ~= 1 then
 		activate(false)
@@ -807,9 +807,14 @@ function script_properties()
 			end
 		end
 	end
-	obs.obs_properties_add_int(props, "hours", "Hours", 0, 23, 1)
-	obs.obs_properties_add_int(props, "minutes", "Minutes", 0, 59, 1)
-	obs.obs_properties_add_int(props, "seconds", "Seconds", 0, 59, 1)
+	
+
+	local p_n = obs.obs_properties_add_int(props, "hours", "Hours", 0, 23, 1)
+	obs.obs_property_int_set_suffix(p_n, " Hours")
+	local p_o = obs.obs_properties_add_int(props, "minutes", "Minutes", 0, 59, 1)
+	obs.obs_property_int_set_suffix(p_o, " Minutes");
+	local p_p = obs.obs_properties_add_int(props, "seconds", "Seconds", 0, 59, 1)
+	obs.obs_property_int_set_suffix(p_p, " Seconds");
 	local p_m = obs.obs_properties_add_list(props, "timer_trim", "Trim Timer", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT)
 	t_type = {"Display full format", "Remove leading zeros", "No leading zeros, no split seconds"}
 	for i,v in ipairs(t_type) do obs.obs_property_list_add_int(p_m, v, i) end
