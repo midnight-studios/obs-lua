@@ -559,6 +559,7 @@ function activate_signal(cd, activating)
 		if (name == timer_source) then
 			if activating then record(4, 300) end
 			if start_on_visible then
+				fresh_start(true)
 				activate(activating)
 			end
 		end
