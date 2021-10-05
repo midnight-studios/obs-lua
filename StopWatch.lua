@@ -1,6 +1,6 @@
 --[[
 ----------------------------------------------------------
-Stopwatch Version 2.1
+Stopwatch Version 2.2
 ----------------------------------------------------------
 ]]
 obs           				= obslua
@@ -739,12 +739,17 @@ function property_visibility(props, property, settings)
 	obs.obs_property_set_visible(obs.obs_properties_get(props, "recording_type"), config == 2)
 	end	
 	if mode == 2 then
+		
+	obs.obs_property_set_description(obs.obs_properties_get(props, "pause_button"), "Start/Pause Countdown")
+	obs.obs_property_set_description(obs.obs_properties_get(props, "reset_button"), "Reset Countdown")	
 	obs.obs_property_set_visible(obs.obs_properties_get(props, "start_recording"), config == 2)
 	obs.obs_property_set_visible(obs.obs_properties_get(props, "next_scene"), config == 2)
 	obs.obs_property_set_visible(obs.obs_properties_get(props, "hours"), config == 2)
 	obs.obs_property_set_visible(obs.obs_properties_get(props, "minutes"), config == 2)
 	obs.obs_property_set_visible(obs.obs_properties_get(props, "seconds"), config == 2)
 	else
+	obs.obs_property_set_description(obs.obs_properties_get(props, "pause_button"), "Start/Pause Stopwatch")
+	obs.obs_property_set_description(obs.obs_properties_get(props, "reset_button"), "Reset Stopwatch")	
 	obs.obs_property_set_visible(obs.obs_properties_get(props, "start_recording"), false)
 	obs.obs_property_set_visible(obs.obs_properties_get(props, "next_scene"), false)
 	obs.obs_property_set_visible(obs.obs_properties_get(props, "hours"), false)
