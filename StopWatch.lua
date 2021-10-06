@@ -86,8 +86,8 @@ end
 	Used this in testing to measure accuracy
 
 	The Text Source and the Log should produce the same value
-	The Text source is updated by the time function while the bedug 
-	uses start and end timestamps to get a value
+	The Text source is updated by the time function while the dedug 
+	uses start and end time stamps to get a value
 ----------------------------------------------------------
 ]]
 function get_time_lapsed()
@@ -303,7 +303,7 @@ function set_time_text(source_name)
 			if not media['caution_activated'] and not media['warning_activated'] then
 				obs.obs_data_set_int(settings, "color", media['normal_color'])
 			end		
-			--media_activate(settings, 'caution')
+			media_activate(settings, 'caution')
 			media_activate(settings, 'warning')
 			obs.obs_source_update(source, settings)
 			obs.obs_data_release(settings)
@@ -386,7 +386,7 @@ function stop_media_action(ref)
 	if source_name == nil or source_name  == "None" then
 		return
 	end	
-	-- we got a source name, let's ee if it exist...
+	-- we got a source name, let's see if it exist...
     local source = obs.obs_get_source_by_name(source_name)	
     if source ~= nil then -- source is valid
         local state = obs.obs_source_media_get_state(source) -- get the current state for the source
@@ -729,7 +729,6 @@ function property_visibility(props, property, settings)
 	local mode = obs.obs_data_get_int(settings, "timer_type")
 	local rec = obs.obs_data_get_int(settings, "start_recording")
 	local scene = obs.obs_data_get_string(settings, "next_scene")
-	
 	obs.obs_property_set_visible(obs.obs_properties_get(props, "stop_text"), false)
 	if scene == 'TIMER END TEXT' and  mode == 2 then
 		obs.obs_property_set_visible(obs.obs_properties_get(props, "stop_text"), true)
@@ -739,8 +738,7 @@ function property_visibility(props, property, settings)
 	if rec == 1 then
 	obs.obs_property_set_visible(obs.obs_properties_get(props, "recording_type"), config == 2)
 	end	
-	if mode == 2 then
-		
+	if mode == 2 then	
 	obs.obs_property_set_description(obs.obs_properties_get(props, "pause_button"), "Start/Pause Countdown")
 	obs.obs_property_set_description(obs.obs_properties_get(props, "reset_button"), "Reset Countdown")	
 	obs.obs_property_set_visible(obs.obs_properties_get(props, "start_recording"), config == 2)
@@ -757,7 +755,6 @@ function property_visibility(props, property, settings)
 	obs.obs_property_set_visible(obs.obs_properties_get(props, "minutes"), false)
 	obs.obs_property_set_visible(obs.obs_properties_get(props, "seconds"), false)	
 	end	
-
 	obs.obs_property_set_visible(obs.obs_properties_get(props, "split_button"), mode==1)
 	obs.obs_property_set_visible(obs.obs_properties_get(props, "timer_trim"), config==2)
 	obs.obs_property_set_visible(obs.obs_properties_get(props, "audio_caution"), config==2)
@@ -771,14 +768,12 @@ function property_visibility(props, property, settings)
 	obs.obs_property_set_visible(obs.obs_properties_get(props, "warning_text"), config==2)
 	obs.obs_property_set_visible(obs.obs_properties_get(props, "start_on_visible"), config==2)
 	obs.obs_property_set_visible(obs.obs_properties_get(props, "disable_script"), config==2)
-
   	obs.obs_property_set_visible(obs.obs_properties_get(props, "split_type"), false)
 	obs.obs_property_set_visible(obs.obs_properties_get(props, "split_source"), false)
 	if mode == 1 then
   		obs.obs_property_set_visible(obs.obs_properties_get(props, "split_type"), config == 2)
 		obs.obs_property_set_visible(obs.obs_properties_get(props, "split_source"), config == 2)	
 	end	
-	
   -- IMPORTANT: returns true to trigger refresh of the properties
   return true
 end
@@ -813,8 +808,6 @@ function script_properties()
 			end
 		end
 	end
-	
-
 	local p_n = obs.obs_properties_add_int(props, "hours", "Hours", 0, 23, 1)
 	obs.obs_property_int_set_suffix(p_n, " Hours")
 	local p_o = obs.obs_properties_add_int(props, "minutes", "Minutes", 0, 59, 1)
