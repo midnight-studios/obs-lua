@@ -1,6 +1,6 @@
 --[[
 ----------------------------------------------------------
-Stopwatch Version 2.2
+Stopwatch Version 2.3
 ----------------------------------------------------------
 ]]
 obs           				= obslua
@@ -392,8 +392,9 @@ function stop_media_action(ref)
         local state = obs.obs_source_media_get_state(source) -- get the current state for the source
 		if media['last_state_'..ref] ~= state then -- The state has changed
 			if get_source_looping(source_name) then
+				--log('is looped', source_name)
 				if state == obs.OBS_MEDIA_STATE_PLAYING  then
-					local time_remaining = math.floor(cur_seconds) + math.floor(media[ref..'_duration']) - math.floor(media['cur_seconds_'..ref])
+					local time_remaining = math.floor(media['cur_seconds_'..ref]) + math.floor(media[ref..'_duration']) - math.floor(cur_seconds)
 					-- The source is looping, it will never stop
 					if source_name == media['source_name_audio_'..ref] then
 						local time_end = (time_remaining == 0)
@@ -404,11 +405,12 @@ function stop_media_action(ref)
 					end
 				end
 			else
+				--log('not looped', source_name)
 				media['last_state_'..ref] = state
 				if state == obs.OBS_MEDIA_STATE_STOPPED or state == obs.OBS_MEDIA_STATE_ENDED then
 					set_visible(source_name, false)
 				end
-			end 
+			end	
 		end	 
     end
     obs.obs_source_release(source)
@@ -441,36 +443,20 @@ end
 	set source visibility
 ----------------------------------------------------------
 ]]
+
+--[[
+----------------------------------------------------------
+	set source visibility
+----------------------------------------------------------
+]]
 function set_visible(target_name, visible)
 	local currentscene = obs.obs_frontend_get_current_scene()
 	local activescene = obs.obs_scene_from_source(currentscene)
-	local sceneitems = obs.obs_scene_enum_items(activescene)
-	for i, sceneitem in ipairs(sceneitems) do
-		local source = obs.obs_sceneitem_get_source(sceneitem)
-		local group = obs.obs_group_from_source(source)
-		local name = obs.obs_source_get_name(source)
-		if name == target_name then
-			obs.obs_sceneitem_set_visible(sceneitem, visible)
-			break
-		end	 -- end if name
-		if group ~= nil then -- The Source is nested inside a group
-			local groupitems = obs.obs_scene_enum_items(group)	
-			if groupitems ~= nil then
-				for j, groupitem in ipairs(groupitems) do
-					local groupitemsource = obs.obs_sceneitem_get_source(groupitem)
-					name = obs.obs_source_get_name(groupitemsource)
-					if name == target_name then
-						obs.obs_sceneitem_set_visible(groupitem, visible)
-						break
-					end	 -- end if name
-				end -- end for j
-				obs.sceneitem_list_release(groupitems)
-			end  -- end if groupitems
-		end -- if group
-	end	 -- end for i		
-	obs.sceneitem_list_release(sceneitems)
+	local sceneitem = obs.obs_scene_find_source_recursive(activescene, target_name)
+	if sceneitem ~= nil then
+		obs.obs_sceneitem_set_visible(sceneitem, visible)
+	end	
 end	
-
 --[[
 ----------------------------------------------------------
 ----------------------------------------------------------
