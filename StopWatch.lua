@@ -447,12 +447,27 @@ function set_visible(target_name, visible)
 	local sceneitems = obs.obs_scene_enum_items(activescene)
 	for i, sceneitem in ipairs(sceneitems) do
 		local source = obs.obs_sceneitem_get_source(sceneitem)
+		local group = obs.obs_group_from_source(source)
 		local name = obs.obs_source_get_name(source)
 		if name == target_name then
-				obs.obs_sceneitem_set_visible(sceneitem, visible)
-				break
-			end	
-		end	 -- end for i	
+			obs.obs_sceneitem_set_visible(sceneitem, visible)
+			break
+		end	 -- end if name
+		if group ~= nil then -- The Source is nested inside a group
+			local groupitems = obs.obs_scene_enum_items(group)	
+			if groupitems ~= nil then
+				for j, groupitem in ipairs(groupitems) do
+					local groupitemsource = obs.obs_sceneitem_get_source(groupitem)
+					name = obs.obs_source_get_name(groupitemsource)
+					if name == target_name then
+						obs.obs_sceneitem_set_visible(groupitem, visible)
+						break
+					end	 -- end if name
+				end -- end for j
+				obs.sceneitem_list_release(groupitems)
+			end  -- end if groupitems
+		end -- if group
+	end	 -- end for i		
 	obs.sceneitem_list_release(sceneitems)
 end	
 
