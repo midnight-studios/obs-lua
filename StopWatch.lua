@@ -221,8 +221,8 @@ function set_split_text(source_name)
 			obs.obs_data_set_string(settings, "text", text)	
 			obs.obs_source_update(source, settings)
 			obs.obs_data_release(settings)
-			obs.obs_source_release(source)
 		end
+		obs.obs_source_release(source)
 	end
 	last_split_data = text
 end
@@ -278,8 +278,8 @@ function timer_ended(source_name)
 			obs.obs_data_set_string(settings, "text", text)
 			obs.obs_source_update(source, settings)
 			obs.obs_data_release(settings)
-			obs.obs_source_release(source)
 		end		
+		obs.obs_source_release(source)
 	end	
 end	
 
@@ -307,8 +307,8 @@ function set_time_text(source_name)
 			media_activate(settings, 'warning')
 			obs.obs_source_update(source, settings)
 			obs.obs_data_release(settings)
-			obs.obs_source_release(source)
 		end
+		obs.obs_source_release(source)
 	end
 	stop_media('caution')
 	stop_media('warning')
