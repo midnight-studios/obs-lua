@@ -3,7 +3,7 @@
 ----------------------------------------------------------
 
 	https://github.com/dlrudie/Snip
-
+	https://obsproject.com/forum/resources/source-copy.1261/
 
 ----------------------------------------------------------
 ]]
@@ -160,6 +160,9 @@ function change_event(props, property, settings)
 					source_id = obs.obs_source_get_unversioned_id(source)
 					ext = string.match(value, "^.+(%..+)$")
 					if source_id == 'image_source' and ext ~= '.jpg' then
+						
+						---obs.obs_property_path_default_path(obs_property_t *p)
+						
 					end
 
 					if source_id == 'text_gdiplus' and ext ~= '.txt' then
