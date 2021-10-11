@@ -1,6 +1,6 @@
 --[[
 ----------------------------------------------------------
-Stopwatch Version 2.3
+Stopwatch Version 2.4
 ----------------------------------------------------------
 ]]
 obs           				= obslua
@@ -13,6 +13,8 @@ desc	    				= [[
 <br><p>The Properties for this script will adjust visibility as needed. Some advanced properties will only be visible if the Configuration is set to "Advanced". If the Configuration is set to "Basic" the defined values will still be used, so ensure you define those correctly.</p><p>Find help on the <a href=
 "https://obsproject.com/forum/resources/simple-stopwatch.1364/">
 OBS Forum Thread</a>.</p><hr/></p>]]
+font_normal					= "#ffffff"
+font_dimmed					= "#bfbbbf"
 timer_source   				= ""
 cur_seconds   				= 0
 def_seconds   				= 0
@@ -245,6 +247,7 @@ end
 ----------------------------------------------------------
 ]]
 function record(mark, ms)
+	if timer_type ~= 2 then return end
 	if start_recording == 1 and mark == recording_type then
 		obs.obs_frontend_recording_start()
 	end
@@ -295,6 +298,7 @@ function set_time_text(source_name)
 	end	
 	if cur_seconds <= 0.01 and timer_type ~= 1 then cur_seconds = 0 end
 	local text = tostring(TimeFormat(cur_seconds))
+	text = text_prefix .. text
 	if text ~= last_text then
 		local source = obs.obs_get_source_by_name(source_name)
 		if source ~= nil then
@@ -729,17 +733,19 @@ function property_visibility(props, property, settings)
 	local config = obs.obs_data_get_int(settings, "config")
 	local mode = obs.obs_data_get_int(settings, "timer_type")
 	local rec = obs.obs_data_get_int(settings, "start_recording")
-	local scene = obs.obs_data_get_string(settings, "next_scene")
+	local scene = obs.obs_data_get_string(settings, "next_scene")	
 	obs.obs_property_set_visible(obs.obs_properties_get(props, "stop_text"), false)
+	obs.obs_property_set_visible(obs.obs_properties_get(props, "text_prefix"), false)
+	obs.obs_property_set_visible(obs.obs_properties_get(props, "recording_type"), false)
 	if scene == 'TIMER END TEXT' and  mode == 2 then
 		obs.obs_property_set_visible(obs.obs_properties_get(props, "stop_text"), true)
 	end	
 	-- Preset parameters
-	obs.obs_property_set_visible(obs.obs_properties_get(props, "recording_type"), false)
-	if rec == 1 then
+	if rec == 1 and mode == 2 then
 	obs.obs_property_set_visible(obs.obs_properties_get(props, "recording_type"), config == 2)
 	end	
 	if mode == 2 then	
+	obs.obs_property_set_visible(obs.obs_properties_get(props, "text_prefix"), config == 2)
 	obs.obs_property_set_description(obs.obs_properties_get(props, "pause_button"), "Start/Pause Countdown")
 	obs.obs_property_set_description(obs.obs_properties_get(props, "reset_button"), "Reset Countdown")	
 	obs.obs_property_set_visible(obs.obs_properties_get(props, "start_recording"), config == 2)
@@ -787,14 +793,14 @@ end
 ]]
 function script_properties()
 	local props = obs.obs_properties_create()
-  	local p_a = obs.obs_properties_add_list(props, "timer_type", "Timer Type", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT)
+  	local p_a = obs.obs_properties_add_list(props, "timer_type", "<b>Timer Type</b>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT)
   	t_type = {"Stopwatch", "Countdown"}
   	for i,v in ipairs(t_type) do obs.obs_property_list_add_int(p_a, v, i) end
-  	local p_b = obs.obs_properties_add_list(props, "config", "Configuration", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT)
+  	local p_b = obs.obs_properties_add_list(props, "config", "<font color=".. font_dimmed ..">Configuration</font>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT)
   	t_type = {"Basic", "Advanced"}
   	for i,v in ipairs(t_type) do obs.obs_property_list_add_int(p_b, v, i) end
 	local sources = obs.obs_enum_sources()
-	local p_c = obs.obs_properties_add_list(props, "timer_source", "Timer Source", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING)
+	local p_c = obs.obs_properties_add_list(props, "timer_source", "<i>Timer Source</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING)
 	obs.obs_property_list_add_string(p_c, "Select", "select")
 	if sources ~= nil then
 		for _, source in ipairs(sources) do
@@ -809,16 +815,16 @@ function script_properties()
 			end
 		end
 	end
-	local p_n = obs.obs_properties_add_int(props, "hours", "Hours", 0, 23, 1)
+	local p_n = obs.obs_properties_add_int(props, "hours", "<font color=".. font_dimmed ..">Hours</font>", 0, 23, 1)
 	obs.obs_property_int_set_suffix(p_n, " Hours")
-	local p_o = obs.obs_properties_add_int(props, "minutes", "Minutes", 0, 59, 1)
+	local p_o = obs.obs_properties_add_int(props, "minutes", "<font color=".. font_dimmed ..">Minutes</font>", 0, 59, 1)
 	obs.obs_property_int_set_suffix(p_o, " Minutes");
-	local p_p = obs.obs_properties_add_int(props, "seconds", "Seconds", 0, 59, 1)
+	local p_p = obs.obs_properties_add_int(props, "seconds", "<font color=".. font_dimmed ..">Seconds</font>", 0, 59, 1)
 	obs.obs_property_int_set_suffix(p_p, " Seconds");
-	local p_m = obs.obs_properties_add_list(props, "timer_trim", "Trim Timer", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT)
+	local p_m = obs.obs_properties_add_list(props, "timer_trim", "Timer Format", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT)
 	t_type = {"Display full format", "Remove leading zeros", "No leading zeros, no split seconds"}
 	for i,v in ipairs(t_type) do obs.obs_property_list_add_int(p_m, v, i) end
-	local p_d = obs.obs_properties_add_list(props, "split_source", "Split Source", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING)
+	local p_d = obs.obs_properties_add_list(props, "split_source", "<i>Split Source</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING)
 	obs.obs_property_list_add_string(p_d, "Select", "select")
 	if sources ~= nil then
 		for _, source in ipairs(sources) do
@@ -837,7 +843,7 @@ function script_properties()
   	t_type = {"Interval", "Mark", "Mark Interval", "Interval Mark"}
   	for i,v in ipairs(t_type) do obs.obs_property_list_add_int(p_e, v, i) end
 	obs.obs_property_set_long_description(p_e, "\nInterval = Time between current and previous split.\n\nMark = Time of split\n")
-	local p_f = obs.obs_properties_add_list(props, "audio_caution", "Caution Audio", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING)
+	local p_f = obs.obs_properties_add_list(props, "audio_caution", "<font color=".. font_dimmed ..">Caution Audio</font>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING)
 	obs.obs_property_list_add_string(p_f, "None", "none")
 	if sources ~= nil then
 		for _, source in ipairs(sources) do
@@ -848,7 +854,7 @@ function script_properties()
 			end
 		end
 	end	
-	local p_g = obs.obs_properties_add_list(props, "audio_warning", "Warning Audio", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING)
+	local p_g = obs.obs_properties_add_list(props, "audio_warning", "<font color=".. font_dimmed ..">Warning Audio</font>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING)
 	obs.obs_property_list_add_string(p_g, "None", "none")
 	if sources ~= nil then
 		for _, source in ipairs(sources) do
@@ -863,9 +869,9 @@ function script_properties()
 	obs.obs_properties_add_color(props, "normal_color", "Normal Color")
 	obs.obs_properties_add_color(props, "caution_color", "Caution Color")
 	obs.obs_properties_add_color(props, "warning_color", "Warning Color")
-	local p_h = obs.obs_properties_add_text(props, "caution_text", "Caution Time", obs.OBS_TEXT_DEFAULT)
+	local p_h = obs.obs_properties_add_text(props, "caution_text", "<font color=".. font_dimmed ..">Caution Time</font>", obs.OBS_TEXT_DEFAULT)
 	obs.obs_property_set_long_description(p_h, "\nUse format 00:00:00 (hoursa:minutes:seconds)\n")
-	local p_i = obs.obs_properties_add_text(props, "warning_text", "Warning Time", obs.OBS_TEXT_DEFAULT)
+	local p_i = obs.obs_properties_add_text(props, "warning_text", "<font color=".. font_dimmed ..">Warning Time</font>", obs.OBS_TEXT_DEFAULT)
 	obs.obs_property_set_long_description(p_i, "\nUse format 00:00:00 (hoursa:minutes:seconds)\n")
 	--*props, *name, *description, min, max, step
 	obs.obs_properties_add_int_slider(props, "caution_duration", "Caution Duration", 1, 100, 1)
@@ -877,7 +883,7 @@ function script_properties()
   	local p_k = obs.obs_properties_add_list(props, "recording_type", "Recording", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT)
   	t_type = {"Timer Expires", "Caution Time", "Warning Time", "Timer Visible", "Timer Start"}
   	for i,v in ipairs(t_type) do obs.obs_property_list_add_int(p_k, v, i) end
-	local p_l = obs.obs_properties_add_list(props, "next_scene", "Next Scene", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING)
+	local p_l = obs.obs_properties_add_list(props, "next_scene", "<i>Next Scene</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING)
 	t_type = {"Select", "TIMER END TEXT"}
 	for i,v in ipairs(t_type) do obs.obs_property_list_add_string(p_l, v, v) end
 	local name = obs.obs_source_get_name(obs.obs_frontend_get_current_scene())
@@ -890,7 +896,11 @@ function script_properties()
 		end
 		obs.bfree(scene)
 	end
-	obs.obs_properties_add_text(props, "stop_text", "Timer End Text", obs.OBS_TEXT_DEFAULT)
+	
+	local p_q = obs.obs_properties_add_text(props, "text_prefix", "<font color=#fefceb>Timer Prefix</font>", obs.OBS_TEXT_DEFAULT)
+	obs.obs_property_set_long_description(p_q, "\nDefine text placed before the Timer\n")
+	local p_r = obs.obs_properties_add_text(props, "stop_text", "<font color=#fef1eb>Timer End Text</font>", obs.OBS_TEXT_DEFAULT)
+	obs.obs_property_set_long_description(p_r, "\nDefine text displayed when timer ended\n")
 	obs.obs_properties_add_button(props, "reset_button", "Reset Stopwatch", reset_button_clicked)
 	obs.obs_properties_add_button(props, "pause_button", "Start/Pause Stopwatch", pause_button_clicked)	
 	obs.obs_properties_add_button(props, "split_button", "Split Time", split_button_clicked)
@@ -950,6 +960,7 @@ function script_update(settings)
 	start_recording = obs.obs_data_get_int(settings, "start_recording")
 	recording_type = obs.obs_data_get_int(settings, "recording_type")
 	next_scene = obs.obs_data_get_string(settings, "next_scene")
+	text_prefix = obs.obs_data_get_string(settings, "text_prefix")
 	stop_text = obs.obs_data_get_string(settings, "stop_text")
     start_on_visible = obs.obs_data_get_bool(settings,"start_on_visible")
     disable_script = obs.obs_data_get_bool(settings,"disable_script")
@@ -986,6 +997,7 @@ function script_defaults(settings)assign_default_frequency()
 	obs.obs_data_set_default_int(settings, "start_recording", 2)
 	obs.obs_data_set_default_int(settings, "recording_type", 5)
 	obs.obs_data_set_default_string(settings, "next_scene", "Select")
+	obs.obs_data_set_default_string(settings, "text_prefix", "")
 	obs.obs_data_set_default_string(settings, "stop_text", "")
 	obs.obs_data_set_default_bool(settings, "start_on_visible", false)
 	obs.obs_data_set_default_bool(settings, "disable_script", false)
