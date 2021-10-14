@@ -1,6 +1,6 @@
 --[[
 ----------------------------------------------------------
-Stopwatch Version 2.4
+Stopwatch Version 2.5
 ----------------------------------------------------------
 ]]
 obs           				= obslua
@@ -234,8 +234,10 @@ end
 ----------------------------------------------------------
 ]]
 function wait(ms)
+	if ms ~= nil then
     local start = math.floor((obs.os_gettime_ns()/1000000))
-    repeat until (math.floor((obs.os_gettime_ns()/1000000))-start) >= ms
+    repeat until (math.floor((obs.os_gettime_ns()/1000000))-start) >= ms 
+	end 
 end
 --[[
 ----------------------------------------------------------
@@ -454,12 +456,17 @@ end
 ----------------------------------------------------------
 ]]
 function set_visible(target_name, visible)
-	local currentscene = obs.obs_frontend_get_current_scene()
-	local activescene = obs.obs_scene_from_source(currentscene)
-	local sceneitem = obs.obs_scene_find_source_recursive(activescene, target_name)
-	if sceneitem ~= nil then
-		obs.obs_sceneitem_set_visible(sceneitem, visible)
-	end	
+	local scenes = obs.obs_frontend_get_scenes()
+	if scenes ~= nil then
+		for i, scn in ipairs(scenes) do	
+			local scene = obs.obs_scene_from_source(scn)
+			local sceneitem = obs.obs_scene_find_source_recursive(scene, target_name)
+			if sceneitem ~= nil then
+				obs.obs_sceneitem_set_visible(sceneitem, visible)
+				break	
+			end	
+		end --end for		
+	end
 end	
 --[[
 ----------------------------------------------------------
