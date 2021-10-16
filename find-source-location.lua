@@ -56,7 +56,6 @@ function source_list(source_name)
             local scenename = obs.obs_source_get_name(value_scenesource)
             local scene = obs.obs_scene_from_source(value_scenesource)
             local sceneitems = obs.obs_scene_enum_items(scene)
-
             for key_sceneitem, value_sceneitem in pairs(sceneitems) do
                 local source = obs.obs_sceneitem_get_source(value_sceneitem)
 				local group = obs.obs_group_from_source(source)
@@ -66,7 +65,6 @@ function source_list(source_name)
 					print(results)				
 				end		
 				if source_name == list_all then
-					
 					local results = string.format('<Source:"%s"> <Scene:"%s">', tostring(source_name_parent), tostring(scenename))
 					print(results)			
 				end	
@@ -142,6 +140,9 @@ function property_filter(props, property, settings)
 	local source_filter = obs.obs_data_get_string(settings, "source_filter")
 	local props = obs.obs_properties_get(props, "source_name")
 	obs.obs_property_list_clear(props)
+	if source_filter == list_all then
+		obs.obs_property_list_add_string(props, list_all, list_all)
+	end
 	local list = {}
 	local sources = obs.obs_enum_sources()
 		if sources ~= nil then
