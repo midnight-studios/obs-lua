@@ -90,6 +90,11 @@
  - [x] Start / Pause
  - [x] Auto Start on Visible
  - [x] Hotkey Support
+ 
+ **9. [Find Source Location](https://github.com/midnight-studios/obs-lua/blob/main/find-source-location.lua)**
+ - [x] Filter by source type
+ - [x] List Sources
+
 ***
 
 
