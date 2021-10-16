@@ -5,15 +5,24 @@ Open Broadcaster Software®️
 OBS > Tools > Scripts
 @midnight-studios
 
-Simple Source Search Tool 0.1
+Simple Source Search Tool
 ----------------------------------------------------------
 ]]
 
 --Globals
-obs           = obslua
-source_name   = ""
-list_all = "List Everything"
+obs           				= obslua
+source_name   				= ""
+list_all 					= "List Everything"
 p_settings 					= nil
+icon="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAVCAYAAACpF6WWAAABlUlEQVQ4jc3UzUtVURQF8N9Lg1CLqEBMJD8iCSp4COZIEIxq0kDIolEzhzmoQRD1R1Q0rFmhPvwXmhQNRAdOtKJRBDWLog8efXBwC4/nvb7zBkEL7uSec9bZe629TsVO9OE6LqEfv/EHK1jEUvzLQrpgHu9wC0MNhzpwFo+xijO5pA+xjP0t9k1gE1OtCG8EYZEcRTiODRwr29AXLbeqsBlX8LRs8R5u1tHOF12tYbCZcA8u7qOGq7iQW2Z9ayJqRWc60fuFDyHDN5wOd1/jcMPlnzCK9ziIQx1s/mK8qNJK6PkWJzCM9TBhACdjX5rTLvzAKRzt5isONJNWgmy0vjXoP/ExiDZi+OtB9Dl1he8RhiN7mcQI7jYTp5RMtmtUmPUIM0WaJ4Oe5BrUgKTrG3QXLXaGhhNtkt6POJdiLKI3kkk4hxfxJuyKc5Gs2V3imlp+gJdRRDWnguGIXnqJ7uAypnEtTEmX3g7JqmXEZRUl8vMhR08M/is8j4BsIxE+C7PXcqrORTXSlyXFf0Oc5vYfELPwF4m1ZXqLr0FIAAAAAElFTkSuQmCC"
+desc	    				= [[
+<hr/><center><h2>Find Source Location</h2>(Version: %s)</center>
+<br><center><img width=38 height=42 src=']] .. icon .. [['/></center>
+<br><center><a href="https://github.com/midnight-studios/obs-lua/blob/main/find-source-location.lua">Find it on GitHub</a></center>
+<br><p>Find Source location and display results in the Script Log.</p><p>Find help on the <a href=
+"https://obsproject.com/forum/resources/">
+OBS Forum Thread</a>.</p><hr/></p>]]
+gversion = 0.1
 --[[
 ----------------------------------------------------------
 --	If testing and log event writing is needed
@@ -34,7 +43,7 @@ end
 ----------------------------------------------------------
 ]]
 function script_description()
-	return "Find Source location and display results in the Script Log"
+	return string.format(desc, tostring(gversion))
 end
 --[[
 ----------------------------------------------------------
