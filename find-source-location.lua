@@ -23,6 +23,7 @@ desc	    				= [[
 "https://obsproject.com/forum/resources/">
 OBS Forum Thread</a>.</p><hr/></p>]]
 gversion = 0.1
+goto   			= false
 --[[
 ----------------------------------------------------------
 --	If testing and log event writing is needed
@@ -62,7 +63,10 @@ function source_list(source_name)
 				source_name_parent = obs.obs_source_get_name(source)		
 				if source_name == source_name_parent then
 					local results = string.format('<Source:"%s"> <Scene:"%s">', tostring(source_name_parent), tostring(scenename))
-					print(results)				
+					print(results)
+					if goto then
+						set_current_scene(scenename)
+					end					
 				end		
 				if source_name == list_all then
 					local results = string.format('<Source:"%s"> <Scene:"%s">', tostring(source_name_parent), tostring(scenename))
@@ -76,7 +80,10 @@ function source_list(source_name)
 							source_name_child = obs.obs_source_get_name(groupitemsource)		
 							if source_name == source_name_child then
 								local results = string.format('<Source:"%s"> <Group:"%s"> <Scene:"%s">', tostring(source_name_child), tostring(source_name_parent), tostring(scenename))
-								print(results)	
+								print(results)
+								if goto then
+									set_current_scene(scenename)
+								end		
 							end
 							if source_name == list_all then
 								local results = string.format('<Source:"%s"> <Group:"%s"> <Scene:"%s">', tostring(source_name_child), tostring(source_name_parent), tostring(scenename))
@@ -130,7 +137,18 @@ function pairsByKeys(t, f)
 	end
 	return iter
 end
-
+--[[
+----------------------------------------------------------
+	Only used in Countdown mode
+----------------------------------------------------------
+]]
+function set_current_scene(source_name)
+		local source = obs.obs_get_source_by_name(source_name)
+		if source ~= nil then
+			obs.obs_frontend_set_current_scene(source)
+		end
+		obs.obs_source_release(source)
+end	
 --[[
 ----------------------------------------------------------
 Callback on list modification
@@ -161,7 +179,6 @@ function property_filter(props, property, settings)
 			for key, value in pairsByKeys(list) do
 				obs.obs_property_list_add_string(props, value, value)
 			end
-
 		end	
 	obs.source_list_release(sources)
   -- IMPORTANT: returns true to trigger refresh of the properties
@@ -190,7 +207,6 @@ function script_properties()
 		for key, value in pairsByKeys(list) do
 			obs.obs_property_list_add_string(p_a, value, value)
 		end
-	
 	end	
 	list = {}
 	local p_b = obs.obs_properties_add_list(props, "source_name", "Source Name", obs.OBS_COMBO_TYPE_EDITABLE, obs.OBS_COMBO_FORMAT_STRING)
@@ -203,8 +219,8 @@ function script_properties()
 		for key, value in pairsByKeys(list) do
 			obs.obs_property_list_add_string(p_b, value, value)
 		end
-	
 	end	
+	obs.obs_properties_add_bool(props, "goto", "Activate Found Scene")
 	obs.source_list_release(sources)
   	obs.obs_property_set_modified_callback(p_a, property_filter)
 	-- Calls the callback once to set-up current visibility
@@ -217,7 +233,16 @@ end
 ]]
 function script_update(settings)
 	source_name = obs.obs_data_get_string(settings, "source_name")
+    goto = obs.obs_data_get_bool(settings,"goto")
 	source_list(source_name)
 	-- Keep track of current settings
   	p_settings = settings 
+end
+--[[
+----------------------------------------------------------
+A function named script_defaults will be called to set the default settings
+----------------------------------------------------------
+]]
+function script_defaults(settings)
+		obs.obs_data_set_default_bool(settings, "goto", false)
 end
