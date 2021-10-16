@@ -62,10 +62,13 @@ function source_list(source_name)
 				local group = obs.obs_group_from_source(source)
 				source_name_parent = obs.obs_source_get_name(source)		
 				if source_name == source_name_parent then
-					log('"' .. source_name_parent ..'" <Source>', '"' .. scenename .. '" <Scene>')			
+					local results = string.format('<Source:"%s"> <Scene:"%s">', tostring(source_name_parent), tostring(scenename))
+					print(results)				
 				end		
 				if source_name == list_all then
-					log('"' .. source_name_parent ..'" <Source>', '"' .. scenename .. '" <Scene>')			
+					
+					local results = string.format('<Source:"%s"> <Scene:"%s">', tostring(source_name_parent), tostring(scenename))
+					print(results)			
 				end	
 				if group ~= nil then
 					local groupitems = obs.obs_scene_enum_items(group)	
@@ -74,10 +77,12 @@ function source_list(source_name)
 							local groupitemsource = obs.obs_sceneitem_get_source(value_groupitem)
 							source_name_child = obs.obs_source_get_name(groupitemsource)		
 							if source_name == source_name_child then
-								log('"' .. source_name_child ..'" <Source>', '"' .. scenename .. '" <Group> > "' ..source_name_parent .. '" <Scene>')	
+								local results = string.format('<Source:"%s"> <Group:"%s"> <Scene:"%s">', tostring(source_name_child), tostring(source_name_parent), tostring(scenename))
+								print(results)	
 							end
 							if source_name == list_all then
-								log('"' .. source_name_child ..'" <Source>', '"' .. scenename .. '" <Group> > "' ..source_name_parent .. '" <Scene>')	
+								local results = string.format('<Source:"%s"> <Group:"%s"> <Scene:"%s">', tostring(source_name_child), tostring(source_name_parent), tostring(scenename))
+								print(results)	
 							end					
 						end -- end for
 						obs.sceneitem_list_release(groupitems)
