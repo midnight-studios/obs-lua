@@ -1,9 +1,15 @@
--- Open Broadcaster Software®️
--- OBS > Tools > Scripts
---
--- @midnight-studios
---
---	Globals
+
+--[[
+----------------------------------------------------------
+Open Broadcaster Software®️
+OBS > Tools > Scripts
+@midnight-studios
+
+Simple Source Search Tool 0.1
+----------------------------------------------------------
+]]
+
+--Globals
 obs           = obslua
 source_name   = ""
 list_all = "List Everything"
