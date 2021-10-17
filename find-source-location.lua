@@ -245,4 +245,6 @@ A function named script_defaults will be called to set the default settings
 ]]
 function script_defaults(settings)
 		obs.obs_data_set_default_bool(settings, "goto", false)
+	obs.obs_data_set_default_string(settings, "source_name", list_all)
+	obs.obs_data_set_default_string(settings, "source_filter", list_all)
 end
