@@ -20,7 +20,7 @@ desc	    				= [[
 <br><center><img width=50 height=50 src=']] .. icon .. [['/></center>
 <br><center><a href="https://github.com/midnight-studios/obs-lua/blob/main/find-source-location.lua">Find it on GitHub</a></center>
 <br><p>Find Source location and display results in the Script Log.</p><p>Find help on the <a href=
-"https://obsproject.com/forum/resources/">
+"https://obsproject.com/forum/resources/source-search-helper.1380/">
 OBS Forum Thread</a>.</p><hr/></p>]]
 gversion = 0.1
 goto   			= false
