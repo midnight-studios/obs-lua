@@ -20,6 +20,15 @@ active_color				= 0xFF0FF781
 inactive_color				= 0xFF3838FF
 active_text					= 0xFF0B0E10
 inactive_text				= 0xFF0B0E10
+source_id_whitelist			= {
+	a = "wasapi_input_capture",
+	b = "wasapi_output_capture",
+	c = "dshow_input" -- Add ',' if this list continues
+	--d = "browser_source",
+	--e = "ffmpeg_source",
+	--f = "monitor_capture",
+	--g = "streamlink_source",
+}
 icon="data:image/png;base64,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"
 desc	    				= [[
 <hr/><center><h2>Audio Status Monitor</h2>(Version: %s)</center>
@@ -34,10 +43,10 @@ desc	    				= [[
 <p>Add The New Scene to a new Source dock.</p>
 <b>Dependencies</b>
 <ol>
-<li><a href="https://obsproject.com/forum/resources/source-copy.1261/">Source Dock</a></li><br></li>
+<li><a href="https://obsproject.com/forum/resources/source-dock.1317//">Source Dock</a></li><br></li>
 </ol>
 
-<p>Find help on the <a href="https://obsproject.com/forum/resources/source-dock.1317/]] .. obsurl ..[[">OBS Forum Thread</a>.</p>
+<p>Find help on the <a href="https://obsproject.com/forum/resources/]] .. obsurl ..[[">OBS Forum Thread</a>.</p>
 <hr/>]]
 goto   			= false
 --[[
@@ -160,6 +169,21 @@ function property_event(props, property, settings)
   -- IMPORTANT: returns true to trigger refresh of the properties
   return true
 end
+
+--[[
+----------------------------------------------------------
+----------------------------------------------------------
+]]
+function in_table(tbl, value)
+	local found = false
+	for k, v in pairs(tbl) do
+		if value == v then
+			found = true
+			break
+		end	
+	end
+	return found
+end
 --[[
 ----------------------------------------------------------
 ----------------------------------------------------------
@@ -177,7 +201,7 @@ function script_properties()
 		for _, source in pairs(sources) do
 			local name = obs.obs_source_get_name(source)
 			source_id = obs.obs_source_get_unversioned_id(source)
-			if source_id == "wasapi_output_capture" or  source_id == "wasapi_input_capture" then
+			if in_table(source_id_whitelist, source_id) then
 				obs.obs_property_list_add_string(p_a, name, name)
 			end	
 		end	
@@ -318,6 +342,29 @@ end
 ----------------------------------------------------------
 ----------------------------------------------------------
 ]]
+function set_color_bounds(settings)
+	monitor_scene = obs.obs_data_get_string(settings, "monitor_scene")
+	source = obs.obs_get_source_by_name(monitor_scene)
+	if source ~= nil then
+		scene_width = obs.obs_source_get_width(source)
+		scene_height = obs.obs_source_get_height(source)
+		obs.obs_source_release(source)
+		text_source = obs.obs_data_get_string(settings, "colour_source")
+		source = obs.obs_get_source_by_name(text_source)
+		if source ~= nil then
+			local source_settings = obs.obs_source_get_settings(source)
+			obs.obs_data_set_int(source_settings, "width", scene_width)
+			obs.obs_data_set_int(source_settings, "height", scene_height)
+			obs.obs_source_update(source, source_settings)
+			obs.obs_data_release(source_settings)
+		end
+	end
+end
+
+--[[
+----------------------------------------------------------
+----------------------------------------------------------
+]]
 function set_text_bounds(settings)
 	monitor_scene = obs.obs_data_get_string(settings, "monitor_scene")
 	source = obs.obs_get_source_by_name(monitor_scene)
@@ -356,4 +403,5 @@ end
 function script_load(settings)
 connect_signal(settings)
 set_text_bounds(settings)
+set_color_bounds(settings)
 end
