@@ -11,10 +11,8 @@ Source Monitor
 --Globals
 obs           				= obslua
 gversion = 0.1
-luafile						= ""
-obsurl						= ""
-source_name   				= ""
-list_all 					= "None"
+luafile						= "AudioStatusMonitor.lua"
+obsurl						= "audio-status-monitor.1381/"
 p_settings 					= nil
 active_color				= 0xFF0FF781
 inactive_color				= 0xFF3838FF
@@ -48,7 +46,6 @@ desc	    				= [[
 
 <p>Find help on the <a href="https://obsproject.com/forum/resources/]] .. obsurl ..[[">OBS Forum Thread</a>.</p>
 <hr/>]]
-goto   			= false
 --[[
 ----------------------------------------------------------
 --	If testing and log event writing is needed
@@ -62,7 +59,6 @@ local function log(name, msg)
   end
   obs.script_log(obs.LOG_DEBUG, name .. msg)
 end
-
 
 --[[
 ----------------------------------------------------------
@@ -157,14 +153,12 @@ function property_event(props, property, settings)
 		end
 		--obs.bfree(scene)
 		obs.obs_source_release(source)
-		
 		if not enumerated_text then
 			obs.obs_property_list_add_string(text_source, 'Nothing Available', 'none')
 		end
 		if not enumerated_color then
 			obs.obs_property_list_add_string(colour_source, 'Nothing Available', 'none')
 		end
-		
 	end
   -- IMPORTANT: returns true to trigger refresh of the properties
   return true
@@ -246,7 +240,6 @@ end
 ----------------------------------------------------------
 ]]
 function script_update(settings)
-    --goto = obs.obs_data_get_bool(settings,"goto")
 	set_text_bounds(settings)
 	connect_signal(settings)
 	-- Keep track of current settings
@@ -258,7 +251,6 @@ A function named script_defaults will be called to set the default settings
 ----------------------------------------------------------
 ]]
 function script_defaults(settings)
-	--obs.obs_data_set_default_bool(settings, "goto", false)
 	obs.obs_data_set_default_string(settings, "monitor_scene", "None")
 	obs.obs_data_set_default_string(settings, "colour_source", "None")
 	obs.obs_data_set_default_string(settings, "text_source", "None")
@@ -318,7 +310,6 @@ function source_mute(cd)
 				obs.obs_data_set_int(source_settings, "color", color_text)
 				obs.obs_source_update(source, source_settings)
 				obs.obs_data_release(source_settings)
-				
 				obs.obs_source_release(source)
 			end
 		end
