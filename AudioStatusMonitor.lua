@@ -10,7 +10,7 @@ Source Monitor
 
 --Globals
 obs           				= obslua
-gversion = 0.1
+gversion = 0.2
 luafile						= "AudioStatusMonitor.lua"
 obsurl						= "audio-status-monitor.1381/"
 p_settings 					= nil
@@ -67,10 +67,6 @@ end
 function script_description()
 	return string.format(desc, tostring(gversion))
 end
---[[
-----------------------------------------------------------
-----------------------------------------------------------
-]]
 
 --[[
 ----------------------------------------------------------
@@ -90,10 +86,6 @@ function set_visible(target_name, visible)
 		end --end for		
 	end
 end
---[[
-----------------------------------------------------------
-----------------------------------------------------------
-]]
 
 --[[
 ----------------------------------------------------------
@@ -178,6 +170,111 @@ function in_table(tbl, value)
 	end
 	return found
 end
+
+--[[
+----------------------------------------------------------
+----------------------------------------------------------
+]]
+function set_color_bounds(settings)
+	monitor_scene = obs.obs_data_get_string(settings, "monitor_scene")
+	source = obs.obs_get_source_by_name(monitor_scene)
+	if source ~= nil then
+		scene_width = obs.obs_source_get_width(source)
+		scene_height = obs.obs_source_get_height(source)
+		obs.obs_source_release(source)
+		text_source = obs.obs_data_get_string(settings, "colour_source")
+		source = obs.obs_get_source_by_name(text_source)
+		if source ~= nil then
+			local source_settings = obs.obs_source_get_settings(source)
+			obs.obs_data_set_int(source_settings, "width", scene_width)
+			obs.obs_data_set_int(source_settings, "height", scene_height)
+		end
+			obs.obs_source_update(source, source_settings)
+			obs.obs_data_release(source_settings)
+	end
+end
+
+--[[
+----------------------------------------------------------
+----------------------------------------------------------
+]]
+function set_text_bounds(settings)
+	monitor_scene = obs.obs_data_get_string(settings, "monitor_scene")
+	source = obs.obs_get_source_by_name(monitor_scene)
+	if source ~= nil then
+		scene_width = obs.obs_source_get_width(source)
+		scene_height = obs.obs_source_get_height(source)
+		obs.obs_source_release(source)
+		text_source = obs.obs_data_get_string(settings, "text_source")
+		source = obs.obs_get_source_by_name(text_source)
+		if source ~= nil then
+			local source_settings = obs.obs_source_get_settings(source)
+			obs.obs_data_set_int(source_settings, "extents_cx", scene_width)
+			obs.obs_data_set_int(source_settings, "extents_cy", scene_height)
+			obs.obs_data_set_bool(source_settings, "extents", true)
+			obs.obs_data_set_bool(source_settings, "extents_wrap", true)
+			obs.obs_data_set_bool(source_settings, "antialiasing", true)
+			obs.obs_data_set_string(source_settings, "align", "center")
+			obs.obs_data_set_string(source_settings, "valign", "center")
+			obs.obs_source_update(source, source_settings)
+		end
+		obs.obs_data_release(source_settings)
+		obs.obs_source_release(source)
+	end
+end	
+
+--[[
+----------------------------------------------------------
+	Called when a source is activated/deactivated
+----------------------------------------------------------
+]]
+function source_mute(cd)
+	if obs.obs_data_get_bool(p_settings, "disable_script") then
+		return
+	end 
+	local source = obs.calldata_source(cd, "source")
+	if source ~= nil then
+		local name = obs.obs_source_get_name(source)
+		if (name == monitor_source) then
+			muted = obs.obs_source_muted(source)
+			local color, text = nil, nil
+			if muted then
+				color_background = obs.obs_data_get_int(p_settings, "inactive_color")
+				color_text = obs.obs_data_get_int(p_settings, "inactive_text")
+				text = obs.obs_data_get_string(p_settings, "muted_color")
+			else
+				color_background = obs.obs_data_get_int(p_settings, "active_color")
+				color_text = obs.obs_data_get_int(p_settings, "active_text")
+				text = obs.obs_data_get_string(p_settings, "unmuted_color")
+			end	
+			if obs.obs_data_get_bool(p_settings, "include_name") then
+				text = name .. ' ' .. text .. ' '
+			end 
+				colour_source = obs.obs_data_get_string(p_settings, "colour_source")
+				text_source = obs.obs_data_get_string(p_settings, "text_source")
+				set_visible(colour_source, true)
+				set_visible(text_source, true)
+			source = obs.obs_get_source_by_name(colour_source)
+			if source ~= nil then
+				local source_settings = obs.obs_source_get_settings(source)
+				obs.obs_data_set_int(source_settings, "color", color_background)
+				obs.obs_source_update(source, source_settings)
+			end	
+				obs.obs_data_release(source_settings)
+				obs.obs_source_release(source)
+			source = obs.obs_get_source_by_name(text_source)
+			if source ~= nil then
+				local source_settings = obs.obs_source_get_settings(source)
+				obs.obs_data_set_string(source_settings, "text", text)
+				obs.obs_data_set_int(source_settings, "color", color_text)
+				obs.obs_source_update(source, source_settings)
+			end
+				obs.obs_data_release(source_settings)
+				obs.obs_source_release(source)
+		end
+	end
+end
+
 --[[
 ----------------------------------------------------------
 ----------------------------------------------------------
@@ -241,7 +338,7 @@ end
 ]]
 function script_update(settings)
 	set_text_bounds(settings)
-	connect_signal(settings)
+	set_color_bounds(settings)
 	-- Keep track of current settings
   	p_settings = settings 
 end
@@ -266,119 +363,20 @@ end
 
 --[[
 ----------------------------------------------------------
-	Called when a source is activated/deactivated
+	Called when a source is being loaded.
 ----------------------------------------------------------
 ]]
-function source_mute(cd)
-	if obs.obs_data_get_bool(p_settings, "disable_script") then
-		return
-	end 
+function source_load(cd)
+	monitor_source = obs.obs_data_get_string(p_settings, "monitor_source")
 	local source = obs.calldata_source(cd, "source")
 	if source ~= nil then
 		local name = obs.obs_source_get_name(source)
 		if (name == monitor_source) then
-			muted = obs.obs_source_muted(source)
-			local color, text = nil, nil
-			if muted then
-				color_background = obs.obs_data_get_int(p_settings, "inactive_color")
-				color_text = obs.obs_data_get_int(p_settings, "inactive_text")
-				text = obs.obs_data_get_string(p_settings, "muted_color")
-			else
-				color_background = obs.obs_data_get_int(p_settings, "active_color")
-				color_text = obs.obs_data_get_int(p_settings, "active_text")
-				text = obs.obs_data_get_string(p_settings, "unmuted_color")
-			end	
-			if obs.obs_data_get_bool(p_settings, "include_name") then
-				text = name .. ' ' .. text .. ' '
-			end 
-				colour_source = obs.obs_data_get_string(p_settings, "colour_source")
-				text_source = obs.obs_data_get_string(p_settings, "text_source")
-				set_visible(colour_source, true)
-				set_visible(text_source, true)
-			source = obs.obs_get_source_by_name(colour_source)
-			if source ~= nil then
-				local source_settings = obs.obs_source_get_settings(source)
-				obs.obs_data_set_int(source_settings, "color", color_background)
-				obs.obs_source_update(source, source_settings)
-				obs.obs_data_release(source_settings)
-				obs.obs_source_release(source)
-			end	
-			source = obs.obs_get_source_by_name(text_source)
-			if source ~= nil then
-				local source_settings = obs.obs_source_get_settings(source)
-				obs.obs_data_set_string(source_settings, "text", text)
-				obs.obs_data_set_int(source_settings, "color", color_text)
-				obs.obs_source_update(source, source_settings)
-				obs.obs_data_release(source_settings)
-				obs.obs_source_release(source)
-			end
-		end
+			local sh = obs.obs_source_get_signal_handler(source)
+			obs.signal_handler_connect(sh, "mute", source_mute)			
+		end	
 	end
 end
-
---[[
-----------------------------------------------------------
-----------------------------------------------------------
-]]
-function connect_signal(settings)
-	monitor_source = obs.obs_data_get_string(settings, "monitor_source")
-	local source = obs.obs_get_source_by_name(monitor_source)
-	if source ~= nil then
-		local sh = obs.obs_source_get_signal_handler(source)
-		obs.signal_handler_connect(sh, "mute", source_mute)
-	end
-end
-
---[[
-----------------------------------------------------------
-----------------------------------------------------------
-]]
-function set_color_bounds(settings)
-	monitor_scene = obs.obs_data_get_string(settings, "monitor_scene")
-	source = obs.obs_get_source_by_name(monitor_scene)
-	if source ~= nil then
-		scene_width = obs.obs_source_get_width(source)
-		scene_height = obs.obs_source_get_height(source)
-		obs.obs_source_release(source)
-		text_source = obs.obs_data_get_string(settings, "colour_source")
-		source = obs.obs_get_source_by_name(text_source)
-		if source ~= nil then
-			local source_settings = obs.obs_source_get_settings(source)
-			obs.obs_data_set_int(source_settings, "width", scene_width)
-			obs.obs_data_set_int(source_settings, "height", scene_height)
-			obs.obs_source_update(source, source_settings)
-			obs.obs_data_release(source_settings)
-		end
-	end
-end
-
---[[
-----------------------------------------------------------
-----------------------------------------------------------
-]]
-function set_text_bounds(settings)
-	monitor_scene = obs.obs_data_get_string(settings, "monitor_scene")
-	source = obs.obs_get_source_by_name(monitor_scene)
-	if source ~= nil then
-		scene_width = obs.obs_source_get_width(source)
-		scene_height = obs.obs_source_get_height(source)
-		obs.obs_source_release(source)
-		text_source = obs.obs_data_get_string(settings, "text_source")
-		source = obs.obs_get_source_by_name(text_source)
-		if source ~= nil then
-			local source_settings = obs.obs_source_get_settings(source)
-			obs.obs_data_set_int(source_settings, "extents_cx", scene_width)
-			obs.obs_data_set_int(source_settings, "extents_cy", scene_height)
-			obs.obs_data_set_bool(source_settings, "extents", true)
-			obs.obs_data_set_bool(source_settings, "extents_wrap", true)
-			obs.obs_data_set_bool(source_settings, "antialiasing", true)
-			obs.obs_data_set_string(source_settings, "align", "center")
-			obs.obs_data_set_string(source_settings, "valign", "center")
-			obs.obs_source_update(source, source_settings)
-			obs.obs_data_release(source_settings)
-		end
-	end
-end	
 --[[
 ----------------------------------------------------------
 	a function named script_load will be called on startup	
@@ -392,7 +390,6 @@ end
 ----------------------------------------------------------
 ]]
 function script_load(settings)
-connect_signal(settings)
-set_text_bounds(settings)
-set_color_bounds(settings)
+	local sh = obs.obs_get_signal_handler()
+	obs.signal_handler_connect(sh, "source_load", source_load)	
 end
