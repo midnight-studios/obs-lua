@@ -219,27 +219,7 @@ function source_settings_update()
 				obs.obs_data_release(source_settings)
 				obs.obs_source_release(source)	
 end	
---[[
---------------------------------------------------------------------
- custom function
-	Called when a source is activated/deactivated
---------------------------------------------------------------------
-]]
-function source_mute( cd )
-	if obs.obs_data_get_bool( p_settings, "disable_script" ) then
-		return
-	end 
-	local source = obs.calldata_source( cd, "source" )
-	if source ~= nil then
-		local name = obs.obs_source_get_name(source)
-		if (name == monitor_source) then
-			if mode ~= "Streaming" and mode ~= "Recording" then
-				monitor_state = not obs.obs_source_muted(source)
-			end
-		end
-	end
-	source_settings_update()
-end
+
 --[[
 --------------------------------------------------------------------
 
@@ -353,37 +333,7 @@ function scene_items_by_scene_name(scene_name, disp_name, prop_ref)
 	
 	return enumerated
 end	
---[[
---------------------------------------------------------------------
 
---------------------------------------------------------------------
-
---------------------------------------------------------------------
-]]
-function mode_item_set_status()
-	--[[
-		get mode for Monitor Type
-		use this here to determine visibility 
-		for property list item
-	]]	
-	mode = obs.obs_data_get_string( p_settings, "mode" )
-	if mode == 'Audio' then
-		monitor_source = obs.obs_data_get_string( p_settings, "monitor_source" )
-		source = obs.obs_get_source_by_name(monitor_source)
-		if source ~= nil then
-			monitor_state = not obs.obs_source_muted(source)
-		end
-		obs.obs_source_release(source)
-	end
-	--"Recording", "Streaming", "Media"
-	if mode == "Recording" then
-		monitor_state = obs.obs_frontend_recording_active()
-	end
-	if mode == "Streaming" then
-		monitor_state = obs.obs_frontend_streaming_active()
-	end
-	
-end	
 --[[
 --------------------------------------------------------------------
 
@@ -708,20 +658,6 @@ end
 
 --------------------------------------------------------------------
 ]]
-function connect_scene_signal()
-	source = obs.obs_frontend_get_current_scene()
-    sh = obs.obs_source_get_signal_handler(source)
-    obs.signal_handler_connect(sh, "item_add", scene_item_updated)
-    obs.signal_handler_connect(sh, "item_remove", scene_item_updated)
-    obs.obs_source_release(source)
-end	
---[[
---------------------------------------------------------------------
-
---------------------------------------------------------------------
-
---------------------------------------------------------------------
-]]
 function refresh_settings()
   -- IMPORTANT: returns true to trigger refresh of the properties
   return true
@@ -750,7 +686,7 @@ function script_update( settings )
 	--[[
 		connect handler to source
 	]]
-	connect_source_signal()
+	reconnect_source_signal()
 	--[[
 		check mode and relevant state and set variant accordingly
 	]]
@@ -808,7 +744,7 @@ settings – Settings associated with the script.
 ]]
 function script_load( settings )	
 	local sh = obs.obs_get_signal_handler()
-	obs.signal_handler_connect( sh, "source_load", source_load )
+	obs.signal_handler_connect( sh, "source_load", connect_source_signal )
 	obs.obs_frontend_add_event_callback( on_event )
 end
 --[[
@@ -821,6 +757,57 @@ Called when the script is being unloaded.
 function script_unload()
 	-- not in use by this script
 end
+
+
+	
+
+
+--[[
+--------------------------------------------------------------------
+
+--------------------------------------------------------------------
+
+--------------------------------------------------------------------
+]]
+function mode_item_set_status()
+	--[[
+		get mode for Monitor Type
+		use this here to determine visibility 
+		for property list item
+	]]	
+	mode = obs.obs_data_get_string( p_settings, "mode" )
+	if mode == 'Audio' then
+		monitor_source = obs.obs_data_get_string( p_settings, "monitor_source" )
+		source = obs.obs_get_source_by_name(monitor_source)
+		if source ~= nil then
+			monitor_state = not obs.obs_source_muted(source)
+		end
+		obs.obs_source_release(source)
+	end
+	--"Recording", "Streaming", "Media"
+	if mode == "Recording" then
+		monitor_state = obs.obs_frontend_recording_active()
+	end
+	if mode == "Streaming" then
+		monitor_state = obs.obs_frontend_streaming_active()
+	end
+	
+end	
+--[[
+--------------------------------------------------------------------
+
+--------------------------------------------------------------------
+
+--------------------------------------------------------------------
+]]
+function connect_scene_signal()
+	source = obs.obs_frontend_get_current_scene()
+    sh = obs.obs_source_get_signal_handler(source)
+    obs.signal_handler_connect(sh, "item_add", scene_item_updated)
+    obs.signal_handler_connect(sh, "item_remove", scene_item_updated)
+    obs.obs_source_release(source)
+end	
+
 --[[
 --------------------------------------------------------------------
  custom function
@@ -829,18 +816,17 @@ end
 	it is loaded
 --------------------------------------------------------------------
 ]]
-function source_load( cd )
+function connect_source_signal( cd )
 	monitor_source = obs.obs_data_get_string( p_settings, "monitor_source" )
 	local source = obs.calldata_source( cd, "source" )
 	if source ~= nil then
 		local name = obs.obs_source_get_name( source )
 		if ( name == monitor_source ) then
 			local sh = obs.obs_source_get_signal_handler( source )
-			obs.signal_handler_connect( sh, "mute", source_mute )			
+			obs.signal_handler_connect( sh, "mute", source_signal )			
 		end	
 	end
 end
-
 --[[
 --------------------------------------------------------------------
  custom function
@@ -848,7 +834,7 @@ end
 	
 --------------------------------------------------------------------
 ]]
-function connect_source_signal()
+function reconnect_source_signal()
 	if mode == "Streaming" or mode == "Recording" then
 		return
 	end
@@ -857,10 +843,32 @@ function connect_source_signal()
 	if source ~= nil then
 		monitor_state = not obs.obs_source_muted(source)
 		local sh = obs.obs_source_get_signal_handler( source )
-		obs.signal_handler_connect( sh, "mute", source_mute )
+		obs.signal_handler_connect( sh, "mute", source_signal )
 	end
 	obs.obs_source_release(source)	
-end	
+end
+--[[
+--------------------------------------------------------------------
+ custom function
+	Called when a source is activated/deactivated
+--------------------------------------------------------------------
+]]
+function source_signal( cd )
+	if obs.obs_data_get_bool( p_settings, "disable_script" ) then
+		return
+	end 
+	local source = obs.calldata_source( cd, "source" )
+	if source ~= nil then
+		local name = obs.obs_source_get_name(source)
+		if (name == monitor_source) then
+			if mode ~= "Streaming" and mode ~= "Recording" then
+				monitor_state = not obs.obs_source_muted(source)
+			end
+		end
+	end
+	source_settings_update()
+end
+
 --[[
 --------------------------------------------------------------------
  custom function
