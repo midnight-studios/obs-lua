@@ -28,7 +28,12 @@ props_monitor 				= nil -- property
 props_scene 				= nil -- property
 props_color 				= nil -- property
 props_text 					= nil -- property
-debug						= 0
+--[[
+0 General
+3 = Debug Load Signal
+]]
+debug = 3
+
 -- Add ',' if this list continues
 source_id_whitelist			= {
 	a = "wasapi_input_capture",
@@ -64,13 +69,13 @@ desc	    				= [[
 --	If testing and log event writing is needed
 ----------------------------------------------------------
 ]]
-local function log(name, msg)
+local function log( name, msg )
   if msg ~= nil then
-    msg = " > " .. tostring(msg)
+    msg = " > " .. tostring( msg )
   else
     msg = ""
   end
-  obs.script_log(obs.LOG_DEBUG, name .. msg)
+  obs.script_log( obs.LOG_DEBUG, name .. msg )
 end
 
 --[[
@@ -81,7 +86,7 @@ script_description()
 --------------------------------------------------------------------
 ]]
 function script_description()
-	return string.format(desc, tostring(gversion))
+	return string.format( desc, tostring( gversion ) )
 end
 
 --[[
@@ -90,32 +95,67 @@ end
 	set source visibility
 ----------------------------------------------------------
 ]]
-function set_visible(target_name, visible)
-	if debug > 1 then print("function: set_visible()") end 
-	local scenes = obs.obs_frontend_get_scenes() -- incremented scenes. Release with obs_frontend_source_list_free Release with source_list_release
+function set_visible( target_name, visible )
+	--[[
+		Get Scene list, check scene items recursively for a match
+		
+		Documentation suggets to release with 'obs_frontend_source_list_free', 
+		but it does not work here, instead release with 'source_list_release'
+	]]
+	local scenes = obs.obs_frontend_get_scenes() -- incremented scenes. Release with source_list_release
+	--[[
+		Found Scene Sources (Scenes)
+	]]
 	if scenes ~= nil then
+	--[[
+		Check scene source one by one
+	]]		
 		for _, scn in ipairs(scenes) do	
-			local scene = obs.obs_scene_from_source(scn) -- Does not increase the reference
-			local sceneitem = obs.obs_scene_find_source_recursive(scene, target_name)
+			--[[
+				get scene from source so that we can look at scene items
+			]]		
+			local scene = obs.obs_scene_from_source( scn ) -- Does not increase the reference
+			--[[
+				Check recursively to include any groups in scenes
+			]]				
+			local sceneitem = obs.obs_scene_find_source_recursive( scene, target_name )
+			--[[
+				Found what we are looking for:
+			]]			
 			if sceneitem ~= nil then
-				obs.obs_sceneitem_set_visible(sceneitem, visible)
+				--[[
+					Set item visibility
+				]]	
+				obs.obs_sceneitem_set_visible( sceneitem, visible )
+				--[[
+					we found the target, break out the loop
+				]]					
 				break	
 			end	
 		end --end for
-		obs.bfree(scn)
-		obs.source_list_release(scenes)
+		--[[
+			Frees allocated memory 
+		]]			
+		obs.bfree( scn )
+		--[[
+			Documentation suggets to release with 'obs_frontend_source_list_free', 
+			but it does not work here, instead release with 'source_list_release'
+		]]		
+		obs.source_list_release( scenes )
 	end
 end
 
 --[[
 --------------------------------------------------------------------
  custom function: helper
-----------------------------------------------------------
+--------------------------------------------------------------------
+Check if a value exist in table
+returns: boolean (bool)
+--------------------------------------------------------------------
 ]]
-function in_table(tbl, value)
-	if debug > 1 then print("function: in_table()") end 
+function in_table( tbl, value )
 	local found = false
-	for k, v in pairs(tbl) do
+	for k, v in pairs( tbl ) do
 		if value == v then
 			found = true
 			break
@@ -127,105 +167,318 @@ end
 --[[
 --------------------------------------------------------------------
  custom function
-----------------------------------------------------------
+--------------------------------------------------------------------
+Sets Scene Item Settings for the Status Source
+--------------------------------------------------------------------
 ]]
-function set_color_bounds(settings)
-	if debug > 1 then print("function: set_color_bounds()") end 
-	monitor_scene = obs.obs_data_get_string(settings, "monitor_scene")
-	source = obs.obs_get_source_by_name(monitor_scene) -- Increments the source reference counter, use obs_source_release() to release it when complete.
+function set_color_bounds( settings )
+	--[[
+		Monitor scene is where status results are sent
+	]]	
+	monitor_scene = obs.obs_data_get_string( settings, "monitor_scene" )
+	--[[
+		Get Source for Monitor scene.
+	
+		We want the Video Frame Size: Width and Height
+		to set the child elements (Scene Items) to match.
+	]]		
+	source = obs.obs_get_source_by_name( monitor_scene ) -- Increments the source reference counter, use obs_source_release() to release it when complete.
+	--[[
+		Found Source:
+	]]		
 	if source ~= nil then
-		scene_width = obs.obs_source_get_width(source)
-		scene_height = obs.obs_source_get_height(source)
-		obs.obs_source_release(source)
-		text_source = obs.obs_data_get_string(settings, "color_source")
-		source = obs.obs_get_source_by_name(text_source) -- Increments the source reference counter, use obs_source_release() to release it when complete.
+		--[[
+			Fetch parent current Settings: Width
+		]]	
+		scene_width = obs.obs_source_get_width( source )
+		--[[
+			Fetch parent current Settings: Height
+		]]
+		scene_height = obs.obs_source_get_height( source )
+		--[[
+			We're done, release referrence 
+		]]
+		obs.obs_source_release( source )
+		--[[
+			Lets apply the Width and Height to the 'Text Source'
+			We do this so that we can fill the frame with the color 
+		
+			Get the Source Name as defined by user in Script Settings
+		]]		
+		text_source = obs.obs_data_get_string( settings, "color_source" )
+		--[[
+			Sources have unique names
+			Load the Source, from the Name
+		]]			
+		source = obs.obs_get_source_by_name( text_source ) -- Increments the source reference counter, use obs_source_release() to release it when complete.
+		--[[
+			Found Source:
+		]]
 		if source ~= nil then
-			local source_settings = obs.obs_source_get_settings(source)
-			obs.obs_data_set_int(source_settings, "width", scene_width)
-			obs.obs_data_set_int(source_settings, "height", scene_height)
-			obs.obs_source_update(source, source_settings)
-			obs.obs_data_release(source_settings)
+			--[[
+				Fetch the Source settings so we can edit them
+			]]
+			local source_settings = obs.obs_source_get_settings( source)
+			--[[
+				Set width from previously retrieved scene width
+			]]
+			obs.obs_data_set_int( source_settings, "width", scene_width )
+			--[[
+				Set width from previously retrieved scene height
+			]]
+			obs.obs_data_set_int( source_settings, "height", scene_height )
+			--[[
+				All set, send the updated settings
+			]]
+			obs.obs_source_update( source, source_settings )
+			--[[
+				We are done with the source settings,
+				let's release the referrence 
+			]]
+			obs.obs_data_release( source_settings )
 		end
-		obs.obs_source_release(source)
+		--[[
+			We are done with the source,
+			let's release the referrence 
+		]]
+		obs.obs_source_release( source )
 	end
 end
 
 --[[
 --------------------------------------------------------------------
  custom function
-----------------------------------------------------------
+--------------------------------------------------------------------
+--------------------------------------------------------------------
 ]]
-function set_text_bounds(settings)
-	if debug > 1 then print("function: set_text_bounds()") end 
-	monitor_scene = obs.obs_data_get_string(settings, "monitor_scene")
-	source = obs.obs_get_source_by_name(monitor_scene) -- Increments the source reference counter, use obs_source_release() to release it when complete.
+function set_text_bounds( settings )
+	--[[
+		Monitor scene is where status results are sent
+	]]
+	monitor_scene = obs.obs_data_get_string( settings, "monitor_scene" )
+	--[[
+		Get Source for Monitor scene.
+	
+		We want the Video Frame Size: Width and Height
+		to set the child elements (Scene Items) to match.
+	]]
+	source = obs.obs_get_source_by_name( monitor_scene ) -- Increments the source reference counter, use obs_source_release() to release it when complete.
+		--[[
+			Found Source:
+		]]
 	if source ~= nil then
-		scene_width = obs.obs_source_get_width(source)
-		scene_height = obs.obs_source_get_height(source)
-		obs.obs_source_release(source)
-		text_source = obs.obs_data_get_string(settings, "text_source")
-		source = obs.obs_get_source_by_name(text_source) -- Increments the source reference counter, use obs_source_release() to release it when complete.
+		--[[
+			Fetch parent current Settings: Width
+		]]
+		scene_width = obs.obs_source_get_width( source )
+		--[[
+			Fetch parent current Settings: Height
+		]]
+		scene_height = obs.obs_source_get_height( source )
+		--[[
+			We're done, release referrence 
+		]]
+		obs.obs_source_release( source )
+		--[[
+			Lets apply the Width and Height to the 'Text Source'
+			We do this so that we can center the text properly
+		
+			Get the Source Name as defined by user in Script Settings
+		]]
+		text_source = obs.obs_data_get_string( settings, "text_source" )
+		--[[
+			Sources have unique names
+			Load the Source, from the Name
+		]]		
+		source = obs.obs_get_source_by_name( text_source ) -- Increments the source reference counter, use obs_source_release() to release it when complete.
+		--[[
+				Found Source:
+		]]
 		if source ~= nil then
-			local source_settings = obs.obs_source_get_settings(source)
-			obs.obs_data_set_int(source_settings, "extents_cx", scene_width)
-			obs.obs_data_set_int(source_settings, "extents_cy", scene_height)
-			obs.obs_data_set_bool(source_settings, "extents", true)
-			obs.obs_data_set_bool(source_settings, "extents_wrap", true)
-			obs.obs_data_set_bool(source_settings, "antialiasing", true)
-			obs.obs_data_set_string(source_settings, "align", "center")
-			obs.obs_data_set_string(source_settings, "valign", "center")
-			obs.obs_source_update(source, source_settings)
-			obs.obs_data_release(source_settings)
+			--[[
+				Fetch the Source settings so we can edit them
+			]]
+			local source_settings = obs.obs_source_get_settings( source )
+			--[[
+					set text bounds width
+			]]
+			obs.obs_data_set_int( source_settings, "extents_cx", scene_width )
+			--[[
+					set text bounds height
+			]]
+			obs.obs_data_set_int( source_settings, "extents_cy", scene_height )
+			--[[
+					Use extends
+			]]
+			obs.obs_data_set_bool( source_settings, "extents", true )
+			--[[
+					set text wrap
+			]]
+			obs.obs_data_set_bool( source_settings, "extents_wrap", true )
+			--[[
+					set text antialiasing
+			]]
+			obs.obs_data_set_bool( source_settings, "antialiasing", true )
+			--[[
+					text align horizontal
+			]]
+			obs.obs_data_set_string( source_settings, "align", "center" )
+			--[[
+					text align verticle
+			]]
+			obs.obs_data_set_string( source_settings, "valign", "center" )
+			--[[
+				All set, send the updated settings
+			]]
+			obs.obs_source_update( source, source_settings )
+			--[[
+				We are done with the source settings,
+				let's release the referrence 
+			]]
+			obs.obs_data_release( source_settings )
 		end
-		obs.obs_source_release(source)
+		--[[
+				we are done with the source, let's release the referrence
+		]]
+		obs.obs_source_release( source )
 	end
 end	
 
 --[[
 --------------------------------------------------------------------
  custom function
+--------------------------------------------------------------------
 	Update Source
 --------------------------------------------------------------------
 ]]
 function source_settings_update()
-	if debug > 1 then print("function: source_settings_update()") end 	
+	--[[
+		exit her if script is disabled
+	]]	
 	if obs.obs_data_get_bool( p_settings, "disable_script" ) then
 		return
 	end 
-		local color, text = nil, nil
-			if monitor_state then
-				color_background = obs.obs_data_get_int(p_settings, "active_color")
-				color_text = obs.obs_data_get_int(p_settings, "active_font")
-				text = obs.obs_data_get_string(p_settings, "active_text")
-			else
-				color_background = obs.obs_data_get_int(p_settings, "inactive_color")
-				color_text = obs.obs_data_get_int(p_settings, "inactive_font")
-				text = obs.obs_data_get_string(p_settings, "inactive_text")
-			end	
-			if obs.obs_data_get_bool(p_settings, "include_name") then
-				text = name .. ' ' .. text .. ' '
-			end 
-				color_source = obs.obs_data_get_string(p_settings, "color_source")
-				text_source = obs.obs_data_get_string(p_settings, "text_source")
-				set_visible(color_source, true)
-				set_visible(text_source, true)
-				source = obs.obs_get_source_by_name(color_source) -- Increments the source reference counter, use obs_source_release() to release it when complete.
+
+	--[[
+		
+	]]	
+	local color, text = nil, nil
+
+	--[[
+		
+	]]			
+	if monitor_state ~= nil then
+
+		--[[
+
+		]]	
+		if monitor_state then
+			color_background = obs.obs_data_get_int( p_settings, "active_color" )
+			color_text = obs.obs_data_get_int( p_settings, "active_font" )
+			text = obs.obs_data_get_string( p_settings, "active_text" )
+		else
+			color_background = obs.obs_data_get_int( p_settings, "inactive_color" )
+			color_text = obs.obs_data_get_int( p_settings, "inactive_font" )
+			text = obs.obs_data_get_string( p_settings, "inactive_text" )
+		end	
+		--[[
+
+		]]
+		if obs.obs_data_get_bool( p_settings, "include_name" ) then
+			text = name .. ' ' .. text .. ' '
+		end
+	
+	--[[
+		
+	]]
+	else
+		color_background =  0xFFFF9900	
+		color_text = 0xFF0B0E10
+		text = "Source Not Defined"
+	end
+				--[[
+
+				]]
+				color_source = obs.obs_data_get_string( p_settings, "color_source" )
+				--[[
+
+				]]
+				text_source = obs.obs_data_get_string( p_settings, "text_source" )
+				--[[
+
+				]]
+				set_visible( color_source, true )
+				--[[
+
+				]]
+				set_visible( text_source, true )
+				--[[
+					Sources have unique names
+					Load the Source, from the Name
+				]]		
+				source = obs.obs_get_source_by_name( color_source ) -- Increments the source reference counter, use obs_source_release() to release it when complete.
+			--[[
+					Found Source:
+			]]
 			if source ~= nil then
-				local source_settings = obs.obs_source_get_settings(source)
-				obs.obs_data_set_int(source_settings, "color", color_background)
-				obs.obs_source_update(source, source_settings)
-				obs.obs_data_release(source_settings)
+				--[[
+
+				]]
+				local source_settings = obs.obs_source_get_settings( source )
+				--[[
+
+				]]
+				obs.obs_data_set_int( source_settings, "color", color_background )
+				--[[
+
+				]]
+				obs.obs_source_update( source, source_settings )
+				--[[
+
+				]]
+				obs.obs_data_release( source_settings )
 			end	
+				--[[
+					we are done with the source, let's release the referrence
+				]]
 				obs.obs_source_release(source)
-				source = obs.obs_get_source_by_name(text_source) -- Increments the source reference counter, use obs_source_release() to release it when complete.
+				--[[
+					Sources have unique names
+					Load the Source, from the Name
+				]]	
+				source = obs.obs_get_source_by_name( text_source ) -- Increments the source reference counter, use obs_source_release() to release it when complete.
+			--[[
+				Found Source:
+			]]
 			if source ~= nil then
-				local source_settings = obs.obs_source_get_settings(source)
-				obs.obs_data_set_string(source_settings, "text", text)
-				obs.obs_data_set_int(source_settings, "color", color_text)
-				obs.obs_source_update(source, source_settings)
-				obs.obs_data_release(source_settings)
+				--[[
+
+				]]
+				local source_settings = obs.obs_source_get_settings( source )
+				--[[
+
+				]]
+				obs.obs_data_set_string( source_settings, "text", text )
+				--[[
+
+				]]
+				obs.obs_data_set_int( source_settings, "color", color_text )
+				--[[
+
+				]]
+				obs.obs_source_update( source, source_settings )
+				--[[
+
+				]]
+				obs.obs_data_release( source_settings )
+				--[[
+
+				]]
 			end	
-			obs.obs_source_release(source)
+			--[[
+
+			]]
+			obs.obs_source_release( source )
 end	
 
 --[[
@@ -235,19 +488,27 @@ end
 
 --------------------------------------------------------------------
 ]]
-function scene_items_by_scene_name(scene_name, disp_name, prop_ref)
-	if debug > 1 then print("function: scene_items_by_scene_name()") end 
-		
+function scene_items_by_scene_name( scene_name, disp_name, prop_ref )
+
 	local enumerated = false
 		--[[
 			'source' selected to provide monitor information
-		]]			
+		
+			Sources have unique names
+			Load the Source, from the Name
+		]]	
 		local source = obs.obs_get_source_by_name( scene_name ) -- Increments the source reference counter, use obs_source_release() to release it when complete.
 		--[[
 			'source' selected to provide monitor information
 		]]
 		if source ~= nil then
+			--[[
+
+			]]
 			local scene = obs.obs_scene_from_source( source ) -- Does not increase the reference
+			--[[
+
+			]]
 			local sceneitems = obs.obs_scene_enum_items( scene ) -- Release with sceneitem_list_release()
 			--[[
 				selected 'scene' has scene items
@@ -345,55 +606,105 @@ end
 
 --[[
 --------------------------------------------------------------------
-
+custom function
 --------------------------------------------------------------------
 
 --------------------------------------------------------------------
 ]]
 function update_properties_list_items(ref)
-	if debug > 1 then print("function: update_properties_list_items()") end 
-	
+	--[[
+
+	]]
 	if ref == "monitor_source" then
+		--[[
+
+		]]
 		obs.obs_property_list_clear( props_monitor )
+		--[[
+
+		]]
 		t_type = {"None"}
+		--[[
+
+		]]
 		for i,v in ipairs( t_type) do obs.obs_property_list_add_string( props_monitor, v, v ) end
 		--[[
 			build list
 			add to property
 		]] 	
 		local sources = obs.obs_enum_sources() -- Release with source_list_release().
+		--[[
+
+		]]
 		if sources ~= nil then
+			--[[
+
+			]]
 			for _, source in pairs( sources ) do
+				--[[
+
+				]]
 				local name = obs.obs_source_get_name( source )
+				--[[
+
+				]]
 				source_id = obs.obs_source_get_unversioned_id( source )
+				--[[
+
+				]]
 				if in_table( source_id_whitelist, source_id ) then
+					--[[
+
+					]]
 					obs.obs_property_list_add_string( props_monitor, name, name )
 				end	
 			end	
 		end	
+		--[[
+
+		]]
 		obs.source_list_release( sources ) -- releases the references of source list		
 	end
+	--[[
+
+	]]
 	if ref == "monitor_scene" then
+		--[[
+
+		]]
 		obs.obs_property_list_clear( props_scene )
+		--[[
+
+		]]
 		t_type = {"None"}
+		--[[
+
+		]]
 		for i,v in ipairs( t_type ) do obs.obs_property_list_add_string( props_scene, v, v ) end
 		--[[
 			build list
 			add to property
 		]] 	
 		local scenes = obs.obs_frontend_get_scene_names() -- The list is stored within one contiguous segment of memory, so freeing the returned pointer with bfree() will free the entire list
+		--[[
+
+		]]
 		if scenes ~= nil then
+			--[[
+
+			]]
 			for i, scene in ipairs( scenes ) do
+				--[[
+
+				]]
 				obs.obs_property_list_add_string( props_scene, scene, scene )
 			end
 		end
+		--[[
+
+		]]
 		obs.bfree( scene )
-	end
-	
-	if ref == "" then
-		
 	end	
-	
   -- IMPORTANT: returns true to trigger refresh of the properties
   return true
 end
@@ -403,7 +714,6 @@ Callback on property modification
 ----------------------------------------------------------
 ]]
 function property_onchange( props, property, settings )
-	if debug > 1 then print("function: property_onchange()") end 
 	
 	--[[
 		get mode for Monitor Type
@@ -411,7 +721,6 @@ function property_onchange( props, property, settings )
 		for property list item
 	]]	
 	mode = obs.obs_data_get_string( settings, "mode" )
-	
 		prop_names = {
 			"monitor_source",
 			"monitor_scene",
@@ -425,14 +734,25 @@ function property_onchange( props, property, settings )
 			"inactive_text",
 			"include_name",
 		}
-	
+	--[[
+
+	]]	
 	if mode ~= "select" then
 		for i,v in ipairs( prop_names ) do obs.obs_property_set_visible(obs.obs_properties_get( props, v ), true ) end
 	else
 		for i,v in ipairs( prop_names ) do obs.obs_property_set_visible(obs.obs_properties_get( props, v ), false ) end
 		return true
 	end
+	--[[
 
+	]]	
+	monitor_source = obs.obs_data_get_string( p_settings, "monitor_source" )
+	if monitor_source == "None" then
+		monitor_state = nil
+	end
+	--[[
+
+	]]	
 	mode_item_set_status()
 	source_settings_update()
 	
@@ -456,22 +776,15 @@ function property_onchange( props, property, settings )
 		set visibility for property list item
 	]]	
 	obs.obs_property_set_visible(obs.obs_properties_get( props, "monitor_source" ), in_table( monitor_source_list, mode ) )
-	
-	
+	--[[
+
+	]]	
 	assign_whitelist()	
-	
 	--[[
 		build list
 		add to property
 	]] 	
 	update_properties_list_items("monitor_source")
-	
-	--local mode_whitelist = {
-	--	a = "Color Source",
-	--	b = "Text (GDI+)"
-	--	
-	--}	
-
 	--[[
 		get the value in property list item
 	]]		
@@ -488,20 +801,22 @@ function property_onchange( props, property, settings )
 		if a 'scene' was defined to provide monitor information
 	]]
 	if monitor_scene ~= "None" then
-		
 		--[[
 			clear property list item, rebuild from fresh
 		]]		
 		obs.obs_property_list_clear( color_source )
-		obs.obs_property_list_clear( text_source )
-				
+		obs.obs_property_list_clear( text_source )	
 		--[[
 			nothing available for the list, instead of leaving it empty,
 			display a messasge to the user
 		]]		
 		if not scene_items_by_scene_name(monitor_scene, "Text (GDI+)", text_source) then
 			obs.obs_property_list_add_string( text_source, 'Nothing Available', 'none' )
-		end
+		end	
+		--[[
+			nothing available for the list, instead of leaving it empty,
+			display a messasge to the user
+		]]		
 		if not scene_items_by_scene_name(monitor_scene, "Color Source", color_source) then
 			obs.obs_property_list_add_string( color_source, 'Nothing Available', 'none' )
 		end
@@ -523,9 +838,6 @@ obs_properties_t object created via obs_properties_create().
 --------------------------------------------------------------------
 ]]
 function script_properties()
-	if debug > 1 then print("function: script_properties()") end 
-
-	
     --  create new properties
 	props = obs.obs_properties_create()
 	local sources = obs.obs_enum_sources() -- Release with source_list_release().
@@ -630,6 +942,7 @@ function script_properties()
 		OnChange Events
 	]]	
 	obs.obs_property_set_modified_callback( props_mode, property_onchange )
+	obs.obs_property_set_modified_callback( props_monitor, property_onchange )
   	obs.obs_property_set_modified_callback( props_scene, property_onchange )
 
 	--[[
@@ -644,9 +957,25 @@ function script_properties()
 	return props
 end
 
+--[[
+--------------------------------------------------------------------
+
+--------------------------------------------------------------------
+
+--------------------------------------------------------------------
+]]
 function is_audio_device()
+
+	--[[
+		load mode if available
+	]]
+	mode = obs.obs_data_get_string( p_settings, "mode" )
+	--[[
+		
+	]]
 	return ( mode == "Input Audio Device" or mode == "Output Audio Device" or mode == "Browser Audio" or mode == "Capture Device Audio" )
 end	
+
 --[[
 --------------------------------------------------------------------
 
@@ -655,12 +984,10 @@ end
 --------------------------------------------------------------------
 ]]
 function assign_whitelist()
-	if debug > 1 then print("function: assign_whitelist()") end 
 	
 	--[[
 		Audio Mute / Unmute types
 		"Input Audio Device", "Output Audio Device", "Browser Audio", "Capture Device Audio"
-	
 	]]		
 	if mode == "Input Audio Device" then
 		source_id_whitelist	= {
@@ -722,6 +1049,7 @@ function assign_whitelist()
 		}
 	end			
 end
+
 --[[
 --------------------------------------------------------------------
 
@@ -729,25 +1057,23 @@ end
 
 --------------------------------------------------------------------
 ]]
-
-function scene_item_updated( cd )
-	if debug > 1 then print("function: scene_item_updated()") end 
-	
-			--[[
+function scene_item_updated()
+	--[[
 		get the value in property list item
 	]]
 	local color_source = obs.obs_properties_get( props, "color_source" )
-		--[[
+	--[[
 		get the value in property list item
 	]]
 	local text_source = obs.obs_properties_get( props, "text_source" )
-	
 		--[[
 			clear property list item, rebuild from fresh
 		]]		
 		obs.obs_property_list_clear( color_source )
 		obs.obs_property_list_clear( text_source )
-	
+		--[[
+			
+		]]		
 		if not scene_items_by_scene_name(monitor_scene, "Text (GDI+)", text_source) then
 			obs.obs_property_list_add_string( text_source, 'Nothing Available', 'none' )
 		end
@@ -766,7 +1092,6 @@ end
 --------------------------------------------------------------------
 ]]
 function refresh_settings()
-	if debug > 1 then print("function: refresh_settings()") end 
   -- IMPORTANT: returns true to trigger refresh of the properties
   return true
 end	
@@ -782,7 +1107,6 @@ settings – Settings associated with the script.
 --------------------------------------------------------------------
 ]]
 function script_update( settings )
-	if debug > 1 then print("function: script_update()") end 
 	--[[
 		Update Global
 	]]	
@@ -825,7 +1149,7 @@ settings – Settings associated with the script.
 --------------------------------------------------------------------
 ]]
 function script_defaults( settings )
-	if debug > 1 then print("function: script_defaults()") end 
+
 	obs.obs_data_set_default_string( settings, "mode", "Select" )
 	obs.obs_data_set_default_string( settings, "monitor_scene", "None" )
 	obs.obs_data_set_default_string( settings, "color_source", "None" )
@@ -856,9 +1180,20 @@ settings – Settings associated with the script.
 --------------------------------------------------------------------
 ]]
 function script_load( settings )
-	if debug > 1 then print("function: script_load()") end 	
+	
+	--[[
+		Create Signal Handler 
+	]]	
 	local sh = obs.obs_get_signal_handler()
+	--[[
+		attach event listener callback [connect_source_signal]
+		for when a source is done loading.
+	]]	
 	obs.signal_handler_connect( sh, "source_load", connect_source_signal )
+	--[[
+		Adds a callback that will be called when a frontend event occurs. 
+		See obs_frontend_event on what sort of events can be triggered.
+	]]
 	obs.obs_frontend_add_event_callback( on_event )
 end
 
@@ -870,7 +1205,6 @@ Called when the script is being unloaded.
 --------------------------------------------------------------------
 ]]
 function script_unload()
-	if debug > 1 then print("function: script_unload()") end 
 	-- not in use by this script
 end
 --[[
@@ -881,7 +1215,6 @@ end
 --------------------------------------------------------------------
 ]]
 function mode_item_set_status()
-	if debug > 1 then print("function: mode_item_set_status()") end 
 	--[[
 		get mode for Monitor Type
 		use this here to determine visibility 
@@ -893,28 +1226,69 @@ function mode_item_set_status()
 	mode = obs.obs_data_get_string( p_settings, "mode" )
 	if is_audio_device() or mode == 'Media State' then
 		monitor_source = obs.obs_data_get_string( p_settings, "monitor_source" )
+		--[[
+			Sources have unique names
+			Load the Source, from the Name
+		]]	
 		source = obs.obs_get_source_by_name(monitor_source) -- Increments the source reference counter, use obs_source_release() to release it when complete.
+		--[[
+			Found Source:
+		]]	
 		if source ~= nil then
+			--[[
+
+			]]
 			if is_audio_device() then
+				--[[
+
+				]]
 				monitor_state = not obs.obs_source_muted(source)
+			--[[
+
+			]]
 			elseif mode == 'Media State' then
-				if debug > 1 then print("mode: [" .. mode .. "] media_started/ended") end
+				--[[
+
+				]]
 				local state = obs.obs_source_media_get_state(source)
+				--[[
+
+				]]
 				monitor_state = false
+				--[[
+
+				]]
 				if state == obs.OBS_MEDIA_STATE_STOPPED or state == obs.OBS_MEDIA_STATE_ENDED then
+					--[[
+
+					]]
 					monitor_state = false
 				end
+				--[[
+
+				]]
 				if state == obs.OBS_MEDIA_STATE_OPENING or state == obs.OBS_MEDIA_STATE_PLAYING then
+					--[[
+
+					]]
 					monitor_state = true
 				end
 			end	
 		end
+		--[[
+			we are done with the source, let's release the referrence
+		]]
 		obs.obs_source_release(source)
 	end
-	--"Recording", "Streaming", "Media State"
+	--[[
+			If mode match, get correct state
+	]]
 	if mode == "Recording" then
 		monitor_state = obs.obs_frontend_recording_active()
 	end
+	--[[
+			If mode match, get correct state
+	]]
 	if mode == "Streaming" then
 		monitor_state = obs.obs_frontend_streaming_active()
 	end
@@ -925,14 +1299,34 @@ end
  custom function connect_scene_signal()
 --------------------------------------------------------------------
 Event Listener when user adds/remove items to a scene
+The idea here is to refresh the Script Properties if the user 
+Edited Scene Items so that the may be inlcuded as options in the
+Script Property List. It doesn't work nicely, because the Script
+Property is not refreshed without some help. See Refresh Button
 --------------------------------------------------------------------
 ]]
 function connect_scene_signal()
-	if debug > 1 then print("function: connect_scene_signal()") end 
-	source = obs.obs_frontend_get_current_scene() -- A new reference to the currently active scene
-    sh = obs.obs_source_get_signal_handler(source)
-    obs.signal_handler_connect(sh, "item_add", scene_item_updated)
-    obs.signal_handler_connect(sh, "item_remove", scene_item_updated)
+	--[[
+		Get current scene source
+	]]
+	source = obs.obs_frontend_get_current_scene() -- A new reference to the currently active scene 
+	--[[
+		Create a signal handler for the source
+	]]
+    sh = obs.obs_source_get_signal_handler(source)  
+	--[[
+		Scene Signals
+		https://obsproject.com/docs/reference-scenes.html?highlight=item_add
+	]]
+    obs.signal_handler_connect(sh, "item_add", scene_item_updated)  
+	--[[
+		Scene Signals
+		https://obsproject.com/docs/reference-scenes.html?highlight=item_remove
+	]]
+    obs.signal_handler_connect(sh, "item_remove", scene_item_updated)  
+	--[[
+		we are done with the source, let's release the referrence
+	]]
     obs.obs_source_release(source)
 end
 --[[
@@ -940,27 +1334,62 @@ end
  custom function
 
 	we use this to get a signal handler for a specific source once
-	it is loaded
+	it is loaded to ensure it is connected when OBS starts up
 --------------------------------------------------------------------
 ]]
 function connect_source_signal( cd )
-	if debug > 1 then print("function: connect_source_signal()") end 
+	--[[
+		Fetch the settings defined in the Script Settings
+	]]
 	monitor_source = obs.obs_data_get_string( p_settings, "monitor_source" )
+	--[[
+		load mode if available
+	]]
+	mode = obs.obs_data_get_string( p_settings, "mode" )
+	--[[
+		Get source from CallData
+	]]
 	local source = obs.calldata_source( cd, "source" )
+	--[[
+		Found Source:
+	]]
 	if source ~= nil then
+		--[[
+			Get the Source Name
+		]]
 		local name = obs.obs_source_get_name( source )
-		if ( name == monitor_source ) then
+		--[[
+			Does the name match the defined Script Settings name?
+		]] 
+		if ( name == monitor_source ) then  
+			--[[
+			Create a signal handler for the source
+			]]
 			local sh = obs.obs_source_get_signal_handler( source )
 			--[[
 				Audio Mute / Unmute types
 				"Input Audio Device", "Output Audio Device", "Browser Audio", "Capture Device Audio"
 			]]	
-			if is_audio_device() then
-				obs.signal_handler_connect( sh, "mute", source_signal )	
+			if is_audio_device() then  
+				--[[
+					https://obsproject.com/docs/reference-sources.html?highlight=mute
+					attach event listener callback [source_signal]: Called when the source is muted/unmuted.
+				]]
+				obs.signal_handler_connect( sh, "mute", source_signal )	  
+			--[[
+					reserve for mode
+			]]
 			elseif mode == 'Media State' then
-				if debug > 1 then print( "media_started/ended" ) end
-				obs.signal_handler_connect( sh, "media_started", source_signal )	
-				obs.signal_handler_connect( sh, "media_ended ", source_signal )	
+				--[[
+					https://obsproject.com/docs/reference-sources.html?highlight=media_started
+					attach event listener callback [source_signal]: Called when media has started.
+				]]
+				obs.signal_handler_connect( sh, "media_started", source_signal )
+				--[[
+					https://obsproject.com/docs/reference-sources.html?highlight=media_started
+					attach event listener callback [source_signal]: Called when media has started.
+				]]	
+				obs.signal_handler_connect( sh, "media_ended", source_signal )	
 			end		
 		end	
 	end
@@ -970,30 +1399,67 @@ end
 --------------------------------------------------------------------
  custom function
 
-	
+	The user may have changed the monitor source, reconnect source
+	signals for the correct signal call
 --------------------------------------------------------------------
 ]]
 function reconnect_source_signal()
-	if debug > 1 then print("function: reconnect_source_signal()") end 
+	--[[
+		Reserve this for other modes
+	]]	
 	if mode == "Streaming" or mode == "Recording" then
 		return
-	end
-	monitor_source = obs.obs_data_get_string( p_settings, "monitor_source" )
-	source = obs.obs_get_source_by_name( monitor_source ) -- Increments the source reference counter, use obs_source_release() to release it when complete.
-	if source ~= nil then
-		monitor_state = not obs.obs_source_muted( source )
+	end  
+	--[[
+		Fetch the settings defined in the Script Settings
+	]]
+	monitor_source = obs.obs_data_get_string( p_settings, "monitor_source" )  
+	--[[
+		Sources have unique names
+		Load the Source, from the Name
+	]]	
+	source = obs.obs_get_source_by_name( monitor_source ) -- Increments the source reference counter, use obs_source_release() to release it when complete.  
+	--[[
+		Found Source:
+	]]
+	if source ~= nil then  
+		--[[
+			Check if the Source is unmuted
+		]]
+		monitor_state = not obs.obs_source_muted( source )  
+		--[[
+		Create a signal handler for the source
+		]]
 		local sh = obs.obs_source_get_signal_handler( source )	
 		--[[
 			Audio Mute / Unmute types
 			"Input Audio Device", "Output Audio Device", "Browser Audio", "Capture Device Audio"
 		]]	
-		if is_audio_device() then
-			obs.signal_handler_connect( sh, "mute", source_signal )	
-		elseif mode == 'Media State' then
-			obs.signal_handler_connect( sh, "media_started", source_signal )	
+		if is_audio_device() then  
+			--[[
+				https://obsproject.com/docs/reference-sources.html?highlight=mute
+				attach event listener callback [source_signal]: Called when the source is muted/unmuted.
+			]]
+			obs.signal_handler_connect( sh, "mute", source_signal )	  
+		--[[
+				reserve for mode
+		]]
+		elseif mode == 'Media State' then  
+			--[[
+				https://obsproject.com/docs/reference-sources.html?highlight=media_started
+				attach event listener callback [source_signal]: Called when media has started.
+			]]
+			obs.signal_handler_connect( sh, "media_started", source_signal )  
+			--[[
+				https://obsproject.com/docs/reference-sources.html?highlight=media_started
+				attach event listener callback [source_signal]: Called when media has ended.
+			]]	
 			obs.signal_handler_connect( sh, "media_ended", source_signal )	
 		end	
-	end
+	end  
+	--[[
+		we are done with the source, let's release the referrence
+	]]
 	obs.obs_source_release(source)	
 end	
 
@@ -1004,33 +1470,73 @@ end
 --------------------------------------------------------------------
 ]]
 function source_signal( cd )
-	if debug > 1 then print("function: source_signal()") end 
+	--[[
+		exit here if script is disabled
+	]]
 	if obs.obs_data_get_bool( p_settings, "disable_script" ) then
 		return
-	end 
-	local source = obs.calldata_source( cd, "source" )
-	if source ~= nil then
-		local name = obs.obs_source_get_name( source )
+	end  
+	--[[
+		Get source from CallData
+	]]
+	local source = obs.calldata_source( cd, "source" ) 
+	--[[
+		Found Source:
+	]]
+	if source ~= nil then 
+	--[[
+		Get the Source Name
+	]]
+		local name = obs.obs_source_get_name( source ) 
+		--[[
+			Does the name match the defined Script Settings name?
+		]]
 		if ( name == monitor_source ) then	
 			--[[
 				Audio Mute / Unmute types
 				"Input Audio Device", "Output Audio Device", "Browser Audio", "Capture Device Audio"
 			]]	
-			if is_audio_device() then
-				monitor_state = not obs.obs_source_muted( source )
-			elseif mode == 'Media State' then
+			if is_audio_device() then 
+				--[[
+					check if source state is unmuted 
+				]]
+				monitor_state = not obs.obs_source_muted( source ) 
+			--[[
+
+			]]
+			elseif mode == 'Media State' then 
+				--[[
+					Media play, active?
+				]]
 				local state = obs.obs_source_media_get_state( source )
+				--[[
+					Set default state
+				]]
 				monitor_state = false
+				--[[
+					Set state depending on media state
+				]]
 				if state == obs.OBS_MEDIA_STATE_STOPPED or state == obs.OBS_MEDIA_STATE_ENDED then
+				--[[
+					Let he user know this is not active
+				]]
 					monitor_state = false
 				end
+				--[[
+					Set state depending on media state
+				]]
 				if state == obs.OBS_MEDIA_STATE_OPENING or state == obs.OBS_MEDIA_STATE_PLAYING then
+				--[[
+					Let he user know this is active
+				]]
 					monitor_state = true
 				end
 			end				
 		end
 	end
-    --obs.obs_source_release(source)
+	--[[
+		update source settings
+	]]
 	source_settings_update()
 end
 --[[
@@ -1050,56 +1556,45 @@ end
 
 	function obslua.obs_frontend_remove_event_callback(callback, private_data)
 	obs.remove_current_callback()
-
-		if debug > 1 then print("") end 
 --------------------------------------------------------------------
 ]]
-function on_event(event)
-	if debug > 1 then print("function: on_event()") end 
+function on_event(event) 
 	if event == obs.OBS_FRONTEND_EVENT_STREAMING_STARTED then
-		if debug > 1 then print("OBS_FRONTEND_EVENT_STREAMING_STARTED") end 
 		if mode == "Streaming" then
 			monitor_state = true
 			source_settings_update()
 		end
-	elseif event == obs.OBS_FRONTEND_EVENT_STREAMING_STOPPED then
-		if debug > 1 then print("OBS_FRONTEND_EVENT_STREAMING_STOPPED") end 
+	elseif event == obs.OBS_FRONTEND_EVENT_STREAMING_STOPPED then 
 		if mode == "Streaming" then
 			monitor_state = false
 			source_settings_update()
 		end
 	elseif event == obs.OBS_FRONTEND_EVENT_RECORDING_STARTED then
-		if debug > 1 then print("OBS_FRONTEND_EVENT_RECORDING_STARTED") end 
 		if mode == "Recording" then
 			monitor_state = true
 			source_settings_update()
 		end
 	elseif event == obs.OBS_FRONTEND_EVENT_RECORDING_PAUSED then
-		if debug > 1 then print("OBS_FRONTEND_EVENT_RECORDING_PAUSED") end 
 		if mode == "Recording" then
 			monitor_state = false
 			source_settings_update()
 		end
 	elseif event == obs.OBS_FRONTEND_EVENT_RECORDING_UNPAUSED then
-		if debug > 1 then print("OBS_FRONTEND_EVENT_RECORDING_UNPAUSED") end 
 		if mode == "Recording" then
 			monitor_state = true
 			source_settings_update()	
 		end
 	elseif event == obs.OBS_FRONTEND_EVENT_RECORDING_STOPPED then
-		if debug > 1 then print("OBS_FRONTEND_EVENT_RECORDING_STOPPED") end 
 		if mode == "Recording" then
 			monitor_state = false
 			source_settings_update()
 		end
 	elseif event == obs.OBS_FRONTEND_EVENT_SCENE_LIST_CHANGED then
             --  update our source scene list
-		if debug > 1 then print("OBS_FRONTEND_EVENT_SCENE_LIST_CHANGED") end 
 		update_properties_list_items("monitor_scene")
 		
 	elseif event == obs.OBS_FRONTEND_EVENT_SCENE_CHANGED then
             --  update our source scene list
-		if debug > 1 then print("OBS_FRONTEND_EVENT_SCENE_CHANGED") end
 		connect_scene_signal()
 	end
 end
