@@ -4,15 +4,16 @@ Stopwatch Version 2.5
 ----------------------------------------------------------
 ]]
 obs           				= obslua
-last_text    				= ""
+gversion = 2.6
+luafile						= "StopWatch.lua"
+obsurl						= "simple-stopwatch.1364/"
 icon="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAVCAYAAACpF6WWAAAENElEQVQ4jY1UTUgjZxh+ksl/JuMkMYb4F40bNZqK0KJFqBZqS9ddyl76dyhdKPRQShH2sNDSnnopCz11D10KS/dSKNiDoD2I7KXFQ0XSSGpM1llFMYn5mZiMY2IymfIOhgazXfaDj5n53u975vme531fnaqqeMHxJYCvAOgAlABcAyA1jxLO1tYW1tbWoL+Kd3x8jGg0imw2C0VRWkMEYgNgBeAFYKTFRqOh7aVnE9xwFTSZTGJ7exszMzPQ6XSQZRk8z9P7YrVa/Y5hmKLBYHCpqirW63Wcn5/j7OwMHo9HA6bvNqY2mw1Op1N70qaTkxPkcjmbLMsDZrN5hOO4NxuNhlMUxTFiSCA0FEW5GQ6H/wmHwzfamDavUKlUYDKZAoFA4Gue52/r9f/9v6OjQ5uKojwpFAr3RFF8UCwWjW63OzQ/P/9yGyiBnZ6eEtN3eZ7/9XJZrlQqP2cymcf5fL4QDAbHdTrd2yzLXvd4PD9yHHdLEISFXC7nsdvtuTb3c7kcEokEJiYmhliWtaiqWs5ms4f1el0lE2lOTU0hn8/DYrF09vb23jebze9JkvRXNBqdMpvNaIJaLh1tHScAzpvsSd+joyOkUimEQiFNa4vFAlEU4Xa7HwYCgduFQuHRxsbGx5p+qqq+o/7/SF7uQSaTwcHBgZYdgiBMqKqa2dnZ8S8tLaFcLicIIR6PjzU13Qew+gzPKNEj9JJOp5tag+O41/v7+x/v7u7+sLOzc8BxHN1icXR0dMXlcn3xQhW1v7+PSCSC6enptxwOx3WWZRcbjcbTjY2NAJ1nWRYGgwHj4+OqoigFYnr/UlPlClYFwJ1arVYjU8bGxhZ8Pt9KMxiLxd5gGEbTlTSv1WqQJOmJw+G4RqCfPYfkN4qiFDs7O9HT0/Nqa4BhmKd2u10DrFaruLi4oJmncibQSUCrLHJabDlHzItGo1E7FIvFvg+FQjMmkykkCMK9eDwOivl8PvqhBspxXJAOEujfz2HazzBMdXh4OJNMJoupVGre7/cbBEGor6+vY2RkROsLlwY6jUajS5KkSGvtf0oVemUeAPiDgsFgUHMeQJ3MmZycxNzcnMZWkiT4/f67FJRl+UFrmcYB/N7y3UyLSHOBzNjb20MgEMDg4CC6urqwublJZo12d3ffVRRFEQTh4TNTqlQqaawoTShOVdOsqMPDQ8zOzmqFQK3PZrO91NPTs2U0GkmWG4lEYrWt9cViMSwvL1Ntvw9gRafT/aTX6z8AwFKcuhU5zjDMkNfr/XZgYCBKgMfHx3eSyeSqw+Fob9LEipxMp9MRp9P5uclkWuB5/hOKWa3Wvb6+vjLP8wNer5fXUkRRLkql0ofZbPY3ug019TZQ6jKU0AzD7Iqi+Josy6+4XK6P7Hb7LbvdPkS5SXpXKpU/ZVn+5ezs7FG9Xi9brVZNLr1ej38BVDs6EbSfFQsAAAAASUVORK5CYII="
 desc	    				= [[
-<hr/><center><h2>Advanced Stopwatch</h2></center>
+<hr/><center><h2>Advanced Stopwatch</h2>(Version: %s)</center>
 <br><center><img width=38 height=42 src=']] .. icon .. [['/></center>
-<br><center><a href="https://github.com/midnight-studios/obs-lua/blob/main/StopWatch.lua">Find it on GitHub</a></center>
-<br><p>The Properties for this script will adjust visibility as needed. Some advanced properties will only be visible if the Configuration is set to "Advanced". If the Configuration is set to "Basic" the defined values will still be used, so ensure you define those correctly.</p><p>Find help on the <a href=
-"https://obsproject.com/forum/resources/simple-stopwatch.1364/">
-OBS Forum Thread</a>.</p><hr/></p>]]
+<br><center><a href="https://github.com/midnight-studios/obs-lua/blob/main/]] .. luafile ..[[">Find it on GitHub</a></center>
+<br><p>The Properties for this script will adjust visibility as needed. Some advanced properties will only be visible if the Configuration is set to "Advanced". If the Configuration is set to "Basic" the defined values will still be used, so ensure you define those correctly.</p><p>Find help on the <a href="https://obsproject.com/forum/resources/]] .. obsurl ..[[">OBS Forum Thread</a>.</p><hr/>]]
+last_text    				= ""
 font_normal					= "#ffffff"
 font_dimmed					= "#bfbbbf"
 timer_source   				= ""
@@ -74,6 +75,15 @@ local function log(name, msg)
   obs.script_log(obs.LOG_DEBUG, name .. msg)
 end
 
+--[[
+----------------------------------------------------------
+	A function named script_description returns the description shown to
+	the user
+----------------------------------------------------------
+]]
+function script_description()
+	return string.format(desc, tostring(gversion))
+end
 --[[
 ----------------------------------------------------------
 	Assign a default Frequency based on the Frame Rate
@@ -221,10 +231,10 @@ function set_split_text(source_name)
 		if source ~= nil then
 			local settings = obs.obs_source_get_settings(source)
 			obs.obs_data_set_string(settings, "text", text)	
+		end
 			obs.obs_source_update(source, settings)
 			obs.obs_data_release(settings)
-		end
-		obs.obs_source_release(source)
+			obs.obs_source_release(source)
 	end
 	last_split_data = text
 end
@@ -281,10 +291,10 @@ function timer_ended(source_name)
 		if source ~= nil then
 			local settings = obs.obs_source_get_settings(source)
 			obs.obs_data_set_string(settings, "text", text)
+		end		
 			obs.obs_source_update(source, settings)
 			obs.obs_data_release(settings)
-		end		
-		obs.obs_source_release(source)
+			obs.obs_source_release(source)
 	end	
 end	
 
@@ -311,10 +321,10 @@ function set_time_text(source_name)
 			end		
 			media_activate(settings, 'caution')
 			media_activate(settings, 'warning')
+		end
 			obs.obs_source_update(source, settings)
 			obs.obs_data_release(settings)
-		end
-		obs.obs_source_release(source)
+			obs.obs_source_release(source)
 	end
 	stop_media('caution')
 	stop_media('warning')
@@ -465,7 +475,9 @@ function set_visible(target_name, visible)
 				obs.obs_sceneitem_set_visible(sceneitem, visible)
 				break	
 			end	
-		end --end for		
+		end --end for
+		obs.bfree(scn)
+		obs.source_list_release(scenes)		
 	end
 end	
 --[[
@@ -729,7 +741,22 @@ function split_unpack()
 	end	-- end for
 	split_data = data
 end
-
+--[[
+--------------------------------------------------------------------
+ custom function: helper
+----------------------------------------------------------
+]]
+function in_table(tbl, value)
+	--if debug > 1 then print("function: in_table()") end 
+	local found = false
+	for k, v in pairs(tbl) do
+		if value == v then
+			found = true
+			break
+		end	
+	end
+	return found
+end
 --[[
 ----------------------------------------------------------
 Callback on list modification
@@ -770,6 +797,8 @@ function property_visibility(props, property, settings)
 	obs.obs_property_set_visible(obs.obs_properties_get(props, "seconds"), false)	
 	end	
 	obs.obs_property_set_visible(obs.obs_properties_get(props, "split_button"), mode==1)
+  	obs.obs_property_set_visible(obs.obs_properties_get(props, "split_type"), false)
+	obs.obs_property_set_visible(obs.obs_properties_get(props, "split_source"), false)
 	obs.obs_property_set_visible(obs.obs_properties_get(props, "timer_trim"), config==2)
 	obs.obs_property_set_visible(obs.obs_properties_get(props, "audio_caution"), config==2)
 	obs.obs_property_set_visible(obs.obs_properties_get(props, "audio_warning"), config==2)
@@ -782,8 +811,6 @@ function property_visibility(props, property, settings)
 	obs.obs_property_set_visible(obs.obs_properties_get(props, "warning_text"), config==2)
 	obs.obs_property_set_visible(obs.obs_properties_get(props, "start_on_visible"), config==2)
 	obs.obs_property_set_visible(obs.obs_properties_get(props, "disable_script"), config==2)
-  	obs.obs_property_set_visible(obs.obs_properties_get(props, "split_type"), false)
-	obs.obs_property_set_visible(obs.obs_properties_get(props, "split_source"), false)
 	if mode == 1 then
   		obs.obs_property_set_visible(obs.obs_properties_get(props, "split_type"), config == 2)
 		obs.obs_property_set_visible(obs.obs_properties_get(props, "split_source"), config == 2)	
@@ -922,15 +949,6 @@ function script_properties()
   	obs.obs_properties_apply_settings(props, p_settings)
 	return props
 end
---[[
-----------------------------------------------------------
-	A function named script_description returns the description shown to
-	the user
-----------------------------------------------------------
-]]
-function script_description()
-	return desc
-end
 
 --[[
 ----------------------------------------------------------
@@ -981,7 +999,8 @@ end
 A function named script_defaults will be called to set the default settings
 ----------------------------------------------------------
 ]]
-function script_defaults(settings)assign_default_frequency()
+function script_defaults(settings)
+	assign_default_frequency()
 	assign_default_frequency()
 	obs.obs_data_set_default_int(settings, "timer_type", 1)
 	obs.obs_data_set_default_int(settings, "config", 1)
