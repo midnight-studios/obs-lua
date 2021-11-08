@@ -3,14 +3,12 @@
 Open Broadcaster Software®️
 OBS > Tools > Scripts
 @midnight-studios
-
-
 Stopwatch
 ----------------------------------------------------------
 ]]
 --Globals
 obs           				= obslua
-gversion = 2.6
+gversion = 2.7
 luafile						= "StopWatch.lua"
 obsurl						= "simple-stopwatch.1364/"
 icon="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAVCAYAAACpF6WWAAAENElEQVQ4jY1UTUgjZxh+ksl/JuMkMYb4F40bNZqK0KJFqBZqS9ddyl76dyhdKPRQShH2sNDSnnopCz11D10KS/dSKNiDoD2I7KXFQ0XSSGpM1llFMYn5mZiMY2IymfIOhgazXfaDj5n53u975vme531fnaqqeMHxJYCvAOgAlABcAyA1jxLO1tYW1tbWoL+Kd3x8jGg0imw2C0VRWkMEYgNgBeAFYKTFRqOh7aVnE9xwFTSZTGJ7exszMzPQ6XSQZRk8z9P7YrVa/Y5hmKLBYHCpqirW63Wcn5/j7OwMHo9HA6bvNqY2mw1Op1N70qaTkxPkcjmbLMsDZrN5hOO4NxuNhlMUxTFiSCA0FEW5GQ6H/wmHwzfamDavUKlUYDKZAoFA4Gue52/r9f/9v6OjQ5uKojwpFAr3RFF8UCwWjW63OzQ/P/9yGyiBnZ6eEtN3eZ7/9XJZrlQqP2cymcf5fL4QDAbHdTrd2yzLXvd4PD9yHHdLEISFXC7nsdvtuTb3c7kcEokEJiYmhliWtaiqWs5ms4f1el0lE2lOTU0hn8/DYrF09vb23jebze9JkvRXNBqdMpvNaIJaLh1tHScAzpvsSd+joyOkUimEQiFNa4vFAlEU4Xa7HwYCgduFQuHRxsbGx5p+qqq+o/7/SF7uQSaTwcHBgZYdgiBMqKqa2dnZ8S8tLaFcLicIIR6PjzU13Qew+gzPKNEj9JJOp5tag+O41/v7+x/v7u7+sLOzc8BxHN1icXR0dMXlcn3xQhW1v7+PSCSC6enptxwOx3WWZRcbjcbTjY2NAJ1nWRYGgwHj4+OqoigFYnr/UlPlClYFwJ1arVYjU8bGxhZ8Pt9KMxiLxd5gGEbTlTSv1WqQJOmJw+G4RqCfPYfkN4qiFDs7O9HT0/Nqa4BhmKd2u10DrFaruLi4oJmncibQSUCrLHJabDlHzItGo1E7FIvFvg+FQjMmkykkCMK9eDwOivl8PvqhBspxXJAOEujfz2HazzBMdXh4OJNMJoupVGre7/cbBEGor6+vY2RkROsLlwY6jUajS5KkSGvtf0oVemUeAPiDgsFgUHMeQJ3MmZycxNzcnMZWkiT4/f67FJRl+UFrmcYB/N7y3UyLSHOBzNjb20MgEMDg4CC6urqwublJZo12d3ffVRRFEQTh4TNTqlQqaawoTShOVdOsqMPDQ8zOzmqFQK3PZrO91NPTs2U0GkmWG4lEYrWt9cViMSwvL1Ntvw9gRafT/aTX6z8AwFKcuhU5zjDMkNfr/XZgYCBKgMfHx3eSyeSqw+Fob9LEipxMp9MRp9P5uclkWuB5/hOKWa3Wvb6+vjLP8wNer5fXUkRRLkql0ofZbPY3ug019TZQ6jKU0AzD7Iqi+Josy6+4XK6P7Hb7LbvdPkS5SXpXKpU/ZVn+5ezs7FG9Xi9brVZNLr1ej38BVDs6EbSfFQsAAAAASUVORK5CYII="
@@ -80,7 +78,15 @@ local function log( name, msg )
   end
   obs.script_log( obs.LOG_DEBUG, name .. msg )
 end
-
+--[[
+----------------------------------------------------------
+-- Get the name of this script
+----------------------------------------------------------
+]]
+function filename() 
+	local str = debug.getinfo(2).source:sub(2) 
+	return str:match("^.*/(.*).lua$") or str 
+end
 --[[
 ----------------------------------------------------------
 	A function named script_description returns the description shown to
@@ -92,14 +98,23 @@ function script_description()
 end
 --[[
 ----------------------------------------------------------
-	Assign a default Frequency based on the Frame Rate
+	Assign a default Frequency based on the Frame Rate	
+	video_info.base_width
+	video_info.base_height
+	video_info.fps_den
+	video_info.output_width
+	video_info.output_height
+	video_info.range
+	video_info.colorspace
 ----------------------------------------------------------
 ]]
 function assign_default_frequency()
-	local fps = obs.obs_get_active_fps()
-	local f = 60 -- 60 is the maximum supported frame rate
-	if fps ~= 'inf' then f = fps end	
-	time_frequency = ( 1/f )
+	local fps = 60 -- 60 is the maximum supported frame rate
+	local video_info = obs.obs_video_info()
+    if obs.obs_get_video_info(video_info) then
+		fps = video_info.fps_num		
+	end
+	time_frequency = ( 1/fps )
 end	
 --[[
 ----------------------------------------------------------
@@ -354,7 +369,7 @@ function set_time_text( source_name )
 	stop_media( 'warning' )
 	last_text = text
 		if cur_seconds <= 0.01 and timer_type ~= 1 then
-		activate( false )
+		activate( false, true )
 		--[[
 		Timer Ended
 		]]--
@@ -426,7 +441,7 @@ function stop_media_action( ref )
 	if source_name == nil or source_name  == "None" then
 		return
 	end	
-		--[[
+	--[[
 		Increments the source reference counter, 
 		use obs_source_release() to release it when complete.
 		
@@ -439,10 +454,10 @@ function stop_media_action( ref )
 			if get_source_looping( source_name ) then
 				--log( 'is looped', source_name )
 				if state == obs.OBS_MEDIA_STATE_PLAYING  then
-					local time_remaining = math.floor( media['cur_seconds_'..ref] ) + math.floor( media[ref..'_duration'] ) - math.floor( cur_seconds )
 					-- The source is looping, it will never stop
 					if source_name == media['source_name_audio_'..ref] then
-						local time_end = ( time_remaining == 0 )
+						local time_remaining = math.floor( media['cur_seconds_'..ref] ) + math.floor( media[ref..'_duration'] ) - math.floor( cur_seconds )
+						local time_end = ( time_remaining <= 0 )
 						if time_end then
 							media['last_state_'..ref] = state
 							set_visible( source_name, false )
@@ -589,22 +604,67 @@ end
 --[[
 ----------------------------------------------------------
 ----------------------------------------------------------
+]]	
+function disconnect_after_media_end( ref )
+
+	source = obs.obs_get_source_by_name( media['source_name_audio_'..ref] ) -- Increments the source reference counter, use obs_source_release() to release it when complete.  	--[[
+	--[[
+		Found Source:
+	]]
+	if source ~= nil then   
+		--[[
+		Create a signal handler for the source
+		]]
+		local sh = obs.obs_source_get_signal_handler( source )	
+			--[[
+				https://obsproject.com/docs/reference-sources.html?highlight=media_started
+				attach event listener callback [source_signal]: Called when media has ended.
+			]]	
+			obs.signal_handler_connect( sh, "media_ended", signal_media_ended )
+
+	end
+end
+--[[
+----------------------------------------------------------
+----------------------------------------------------------
+]]	
+function signal_media_ended( cd )
+	--[[
+		Get source from CallData
+	]]
+	local source = obs.calldata_source( cd, "source" )
+	--[[
+		Found Source:
+	]]
+	if source ~= nil then 
+		local name = obs.obs_source_get_name( source )
+		set_visible( name, false )
+		obs.remove_current_callback()
+	end	
+end
+--[[
+----------------------------------------------------------
+----------------------------------------------------------
 ]]
-function activate( activating )
+function activate( activating, timer_expired )
 	if disable_script then
 		return		
-
-
 	end	
 	activated = activating
 	if activating then	
 		--obs.obs_frontend_recording_start()
 		start_timer()
 	else
-		timer_active = false
-		obs.timer_remove( timer_callback )
-		stop_media( 'caution',true )
-		stop_media( 'warning',true )
+		if timer_expired then
+			obs.timer_remove( timer_callback )
+			disconnect_after_media_end( 'caution' )
+			disconnect_after_media_end( 'warning' )
+		else
+			timer_active = false
+			obs.timer_remove( timer_callback )
+			stop_media( 'caution',true )
+			stop_media( 'warning',true )	
+		end
 	end
 end
 
@@ -686,7 +746,8 @@ function on_pause( pressed )
 	if not pressed then
 		return
 	end
-		set_visible( timer_source, true )
+	
+	set_visible( timer_source, true )
 	
 	if timer_active then
 		timer_active = false
@@ -920,6 +981,7 @@ function script_properties()
 		end
 	end
 	local p_n = obs.obs_properties_add_int( props, "hours", "<font color=".. font_dimmed ..">Hours</font>", 0, 23, 1 )
+
 	obs.obs_property_int_set_suffix( p_n, " Hours" )
 	local p_o = obs.obs_properties_add_int( props, "minutes", "<font color=".. font_dimmed ..">Minutes</font>", 0, 59, 1 )
 	obs.obs_property_int_set_suffix( p_o, " Minutes" );
@@ -930,7 +992,6 @@ function script_properties()
 	for i,v in ipairs( t_type ) do obs.obs_property_list_add_int( p_m, v, i ) end
 	local p_d = obs.obs_properties_add_list( props, "split_source", "<i>Split Source</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
 	obs.obs_property_list_add_string( p_d, "Select", "select" )
-	
 	list = {}
 	if sources ~= nil then
 		for _, source in ipairs( sources ) do
@@ -1153,9 +1214,13 @@ function script_load( settings )
 	local sh = obs.obs_get_signal_handler()
 	obs.signal_handler_connect( sh, "source_activate", source_activated )
 	obs.signal_handler_connect( sh, "source_deactivate", source_deactivated )
-	hotkey_id_reset = obs.obs_hotkey_register_frontend( "reset_stopwatch_thingy", "Reset Stopwatch", reset )
-	hotkey_id_pause = obs.obs_hotkey_register_frontend( "pause_stopwatch_thingy", "Start/Pause Stopwatch", on_pause )
-	hotkey_id_split = obs.obs_hotkey_register_frontend( "split_stopwatch_thingy", "Split Time", on_split )
+	
+	
+	hotkey_id_reset = obs.obs_hotkey_register_frontend( "reset_stopwatch_" .. filename():lower():gsub('[%W%p%c%s]', ''), "Reset " .. filename(), reset )
+	hotkey_id_pause = obs.obs_hotkey_register_frontend( "pause_stopwatch_" .. filename():lower():gsub('[%W%p%c%s]', ''), "Start/Pause " .. filename(), on_pause )
+	hotkey_id_split = obs.obs_hotkey_register_frontend( "split_stopwatch_" .. filename():lower():gsub('[%W%p%c%s]', ''), "Split Time " .. filename(), on_split )
+	
+	
 	local hotkey_save_array_reset = obs.obs_data_get_array( settings, "reset_hotkey" )
 	local hotkey_save_array_pause = obs.obs_data_get_array( settings, "pause_hotkey" )
 	local hotkey_save_array_pause = obs.obs_data_get_array( settings, "pause_split" )
