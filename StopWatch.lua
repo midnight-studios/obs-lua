@@ -1040,7 +1040,7 @@ function property_visibility( props, property, settings )
 	obs.obs_property_set_visible( obs.obs_properties_get( props, "stop_text" ), false )
 	obs.obs_property_set_visible( obs.obs_properties_get( props, "text_prefix" ), false )
 	obs.obs_property_set_visible( obs.obs_properties_get( props, "recording_type" ), false )
-	obs.obs_property_set_visible( obs.obs_properties_get( props, "cycle_list" ), ( scene == 'Source List' or scene == 'Scene List' ) )
+	obs.obs_property_set_visible( obs.obs_properties_get( props, "cycle_list" ), ( (scene == 'Source List' or scene == 'Scene List') and config == 2 ) )
 	if scene == 'TIMER END TEXT' and  mode == 2 then
 		obs.obs_property_set_visible( obs.obs_properties_get( props, "stop_text" ), true )
 	end	
