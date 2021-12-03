@@ -351,7 +351,7 @@ end
 ----------------------------------------------------------
 ]]
 function cycle_list_activate(source_type)
-	print("cycle_list_activate")
+	
 	local list = {}
 	
 	if source_type ~= "source" then
