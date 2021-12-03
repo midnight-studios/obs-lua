@@ -8,7 +8,7 @@ Stopwatch
 ]]
 --Globals
 obs           				= obslua
-gversion = 2.7
+gversion = 2.8
 luafile						= "StopWatch.lua"
 obsurl						= "simple-stopwatch.1364/"
 icon="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAVCAYAAACpF6WWAAAENElEQVQ4jY1UTUgjZxh+ksl/JuMkMYb4F40bNZqK0KJFqBZqS9ddyl76dyhdKPRQShH2sNDSnnopCz11D10KS/dSKNiDoD2I7KXFQ0XSSGpM1llFMYn5mZiMY2IymfIOhgazXfaDj5n53u975vme531fnaqqeMHxJYCvAOgAlABcAyA1jxLO1tYW1tbWoL+Kd3x8jGg0imw2C0VRWkMEYgNgBeAFYKTFRqOh7aVnE9xwFTSZTGJ7exszMzPQ6XSQZRk8z9P7YrVa/Y5hmKLBYHCpqirW63Wcn5/j7OwMHo9HA6bvNqY2mw1Op1N70qaTkxPkcjmbLMsDZrN5hOO4NxuNhlMUxTFiSCA0FEW5GQ6H/wmHwzfamDavUKlUYDKZAoFA4Gue52/r9f/9v6OjQ5uKojwpFAr3RFF8UCwWjW63OzQ/P/9yGyiBnZ6eEtN3eZ7/9XJZrlQqP2cymcf5fL4QDAbHdTrd2yzLXvd4PD9yHHdLEISFXC7nsdvtuTb3c7kcEokEJiYmhliWtaiqWs5ms4f1el0lE2lOTU0hn8/DYrF09vb23jebze9JkvRXNBqdMpvNaIJaLh1tHScAzpvsSd+joyOkUimEQiFNa4vFAlEU4Xa7HwYCgduFQuHRxsbGx5p+qqq+o/7/SF7uQSaTwcHBgZYdgiBMqKqa2dnZ8S8tLaFcLicIIR6PjzU13Qew+gzPKNEj9JJOp5tag+O41/v7+x/v7u7+sLOzc8BxHN1icXR0dMXlcn3xQhW1v7+PSCSC6enptxwOx3WWZRcbjcbTjY2NAJ1nWRYGgwHj4+OqoigFYnr/UlPlClYFwJ1arVYjU8bGxhZ8Pt9KMxiLxd5gGEbTlTSv1WqQJOmJw+G4RqCfPYfkN4qiFDs7O9HT0/Nqa4BhmKd2u10DrFaruLi4oJmncibQSUCrLHJabDlHzItGo1E7FIvFvg+FQjMmkykkCMK9eDwOivl8PvqhBspxXJAOEujfz2HazzBMdXh4OJNMJoupVGre7/cbBEGor6+vY2RkROsLlwY6jUajS5KkSGvtf0oVemUeAPiDgsFgUHMeQJ3MmZycxNzcnMZWkiT4/f67FJRl+UFrmcYB/N7y3UyLSHOBzNjb20MgEMDg4CC6urqwublJZo12d3ffVRRFEQTh4TNTqlQqaawoTShOVdOsqMPDQ8zOzmqFQK3PZrO91NPTs2U0GkmWG4lEYrWt9cViMSwvL1Ntvw9gRafT/aTX6z8AwFKcuhU5zjDMkNfr/XZgYCBKgMfHx3eSyeSqw+Fob9LEipxMp9MRp9P5uclkWuB5/hOKWa3Wvb6+vjLP8wNer5fXUkRRLkql0ofZbPY3ug019TZQ6jKU0AzD7Iqi+Josy6+4XK6P7Hb7LbvdPkS5SXpXKpU/ZVn+5ezs7FG9Xi9brVZNLr1ej38BVDs6EbSfFQsAAAAASUVORK5CYII="
@@ -30,6 +30,7 @@ p_settings 					= nil
 last_split_data 			= ""
 split_type   				= ""
 split_source   				= ""
+active_source  				= ""
 timer_type   				= 0
 next_scene					= ""
 start_recording				= 0
@@ -39,6 +40,7 @@ orig_time     				= 0
 time_frequency				= 0
 completed_cycles			= 0
 ns_last					= 0
+cycle_index 				= 0
 timer_cycle 				= 10 --milliseconds
 activated     				= false
 timer_active  				= false
@@ -237,7 +239,7 @@ end
 
 --[[
 ----------------------------------------------------------
-	Function to set the time text
+	Function to set the split time text
 ----------------------------------------------------------
 ]]
 function set_split_text( source_name )
@@ -250,22 +252,33 @@ function set_split_text( source_name )
 	end	
 	local text = split_data
 	if text ~= last_split_data then
-		--[[
-			Increments the source reference counter, 
-			use obs_source_release() to release it when complete.
-		]]
-		local source = obs.obs_get_source_by_name( source_name )
-		if source ~= nil then
-			local settings = obs.obs_source_get_settings( source )
-			obs.obs_data_set_string( settings, "text", text )	
-		end
-			obs.obs_source_update( source, settings )
-			obs.obs_data_release( settings )
-			obs.obs_source_release( source )
+	set_text( source_name, text )
 	end
 	last_split_data = text
 end
+--[[
+----------------------------------------------------------
+	Function to set the source text
+----------------------------------------------------------
+]]
+function set_text( source_name, text )
+	if source_name == 'Select' or  source_name == 'select'then
+		return
+	end	
 
+	--[[
+		Increments the source reference counter, 
+		use obs_source_release() to release it when complete.
+	]]
+	local source = obs.obs_get_source_by_name( source_name )
+	if source ~= nil then
+		local settings = obs.obs_source_get_settings( source )
+		obs.obs_data_set_string( settings, "text", text )	
+	end
+		obs.obs_source_update( source, settings )
+		obs.obs_data_release( settings )
+		obs.obs_source_release( source )
+end
 --[[
 ----------------------------------------------------------
 ----------------------------------------------------------
@@ -298,13 +311,13 @@ end
 ----------------------------------------------------------
 	Only used in Countdown mode
 ----------------------------------------------------------
-]]
+]] 
 function timer_ended( source_name )
 	delayed_recording()
 	if next_scene == "" or next_scene == "Select" then
 		return
 	end	
-	if next_scene ~= "TIMER END TEXT" then
+	if next_scene ~= "TIMER END TEXT" and next_scene ~= "Source List"  and next_scene ~= "Scene List" then
 		set_visible( timer_source, false ) -- last thing, set visibility of timer to hide
 		--[[
 			Increments the source reference counter, 
@@ -316,21 +329,105 @@ function timer_ended( source_name )
 		fresh_start( true ) 
 		--obs.remove_current_callback()
 	end
+	if next_scene == "Source List" then
+		reset( true )
+		cycle_list_activate( 'source' )
+		on_pause( true )
+	end	
+	if next_scene == "Scene List" then
+		reset( true )
+		cycle_list_activate( 'scene' )
+		on_pause( true )
+	end	
 	if next_scene == "TIMER END TEXT" then
 		local text = stop_text
-		--[[
-			Increments the source reference counter, 
-			use obs_source_release() to release it when complete.
-		]]		
-		local source = obs.obs_get_source_by_name( source_name )
-		if source ~= nil then
-			local settings = obs.obs_source_get_settings( source )
-			obs.obs_data_set_string( settings, "text", text )
-		end		
-			obs.obs_source_update( source, settings )
-			obs.obs_data_release( settings )
-			obs.obs_source_release( source )
+		set_text( source_name, text )
 	end	
+end	
+
+--[[
+----------------------------------------------------------
+	Function to 
+----------------------------------------------------------
+]]
+function cycle_list_activate(source_type)
+	print("cycle_list_activate")
+	local list = {}
+	
+	if source_type ~= "source" then
+		
+		local scenes = obs.obs_frontend_get_scene_names(  )
+
+		if scenes ~= nil then
+			for _, scene in pairs( scenes ) do
+				if name ~= scene then
+					list[scene] = scene
+				end
+			end
+			obs.bfree( scene )
+		end	
+	else
+		list = {}
+		local sources = obs.obs_enum_sources()
+		if sources ~= nil then
+			for _, source in pairs( sources ) do
+				local name = obs.obs_source_get_name( source )
+				list[name] = name
+			end
+		end	
+		obs.source_list_release( sources )		
+	end
+
+		cycle_list = obs.obs_data_get_array( p_settings, "cycle_list" )
+
+		local count = obs.obs_data_array_count(cycle_list) - 1;
+			
+		for i = 0, count do 
+
+			local item = obs.obs_data_array_item(cycle_list, cycle_index);
+
+			local value = obs.obs_data_get_string(item, "value");
+		
+			cycle_index = cycle_index + 1
+
+			if cycle_index > count then
+				cycle_index = 0
+			end	
+		
+			if list[value] ~= nil then
+			
+				if source_type ~= "source" then
+					local scene_source = obs.obs_frontend_get_current_scene()
+					local name = obs.obs_source_get_name( scene_source )
+    				obs.obs_source_release( scene_source )
+				
+					if name == list[value] then 
+						-- goto next			
+					else
+						local source = obs.obs_get_source_by_name( list[value] )
+						if source ~= nil then
+							obs.obs_frontend_set_current_scene( source )
+						end
+						obs.obs_source_release( source )
+						set_text( active_source, list[value] )
+						break	
+					end	
+			
+				else
+					if is_visible(list[value]) then 
+						-- goto next			
+					else
+						set_visible( list[value], true )
+						set_text( active_source, list[value] )
+						break
+					end
+				end			
+			
+			end	
+
+		end
+
+		obs.obs_data_array_release(cycle_list)	
 end	
 
 --[[
@@ -529,7 +626,30 @@ function set_visible( target_name, visible )
 		obs.bfree( scn )
 		obs.source_list_release( scenes )		
 	end
-end	
+end
+--[[
+----------------------------------------------------------
+	set source visibility
+----------------------------------------------------------
+]]
+function is_visible( target_name )
+	local isvisible = false
+	local scenes = obs.obs_frontend_get_scenes()
+	if scenes ~= nil then
+		for i, scn in ipairs( scenes ) do	
+			local scene = obs.obs_scene_from_source( scn )
+			local sceneitem = obs.obs_scene_find_source_recursive( scene, target_name )
+			if sceneitem ~= nil then
+				isvisible = obs.obs_sceneitem_visible( sceneitem )
+				break	
+			end	
+		end --end for
+		obs.bfree( scn )
+		obs.source_list_release( scenes )		
+	end
+	
+	return isvisible
+end
 --[[
 ----------------------------------------------------------
 ----------------------------------------------------------
@@ -605,23 +725,55 @@ end
 ----------------------------------------------------------
 ----------------------------------------------------------
 ]]	
+function timer_caution_media_end_callback()
+	set_visible( media['source_name_audio_caution'], false )	
+	obs.remove_current_callback()
+end	
+--[[
+----------------------------------------------------------
+----------------------------------------------------------
+]]	
+function timer_warning_media_end_callback()
+	set_visible( media['source_name_audio_warning'], false )
+	obs.remove_current_callback()
+end	
+--[[
+----------------------------------------------------------
+----------------------------------------------------------
+]]	
 function disconnect_after_media_end( ref )
-
-	source = obs.obs_get_source_by_name( media['source_name_audio_'..ref] ) -- Increments the source reference counter, use obs_source_release() to release it when complete.  	--[[
+	
+	local source_name = media['source_name_audio_'..ref] 
+	
+	source = obs.obs_get_source_by_name( source_name ) -- Increments the source reference counter, use obs_source_release() to release it when complete.  	--[[
 	--[[
 		Found Source:
 	]]
 	if source ~= nil then   
-		--[[
-		Create a signal handler for the source
-		]]
-		local sh = obs.obs_source_get_signal_handler( source )	
-			--[[
-				https://obsproject.com/docs/reference-sources.html?highlight=media_started
-				attach event listener callback [source_signal]: Called when media has ended.
-			]]	
-			obs.signal_handler_connect( sh, "media_ended", signal_media_ended )
-
+		
+		local state = obs.obs_source_media_get_state( source ) -- get the current state for the source
+				
+			if get_source_looping( source_name ) then -- The source is looping, it will never stop
+				
+				if ref == "caution" then
+					obs.timer_add( timer_caution_media_end_callback, math.floor( media[ref..'_duration'] * 1000 ) ) --<- milliseconds
+				end
+			
+				if ref == "warning" then
+					obs.timer_add( timer_warning_media_end_callback, math.floor( media[ref..'_duration'] * 1000 ) ) --<- milliseconds
+				end
+			 
+			else
+				--[[
+				Create a signal handler for the source
+				]]
+				local sh = obs.obs_source_get_signal_handler( source )	
+				--[[
+					https://obsproject.com/docs/reference-sources.html?highlight=media_started
+					attach event listener callback [source_signal]: Called when media has ended.
+				]]	
+				obs.signal_handler_connect( sh, "media_ended", signal_media_ended )		
+			end
 	end
 end
 --[[
@@ -718,6 +870,8 @@ function reset( pressed )
 	set_time_text( timer_source )
 	activate( false )
 	set_split_text( split_source )
+	
+	set_text( active_source, "" )
 end
 
 --[[
@@ -886,6 +1040,7 @@ function property_visibility( props, property, settings )
 	obs.obs_property_set_visible( obs.obs_properties_get( props, "stop_text" ), false )
 	obs.obs_property_set_visible( obs.obs_properties_get( props, "text_prefix" ), false )
 	obs.obs_property_set_visible( obs.obs_properties_get( props, "recording_type" ), false )
+	obs.obs_property_set_visible( obs.obs_properties_get( props, "cycle_list" ), ( scene == 'Source List' or scene == 'Scene List' ) )
 	if scene == 'TIMER END TEXT' and  mode == 2 then
 		obs.obs_property_set_visible( obs.obs_properties_get( props, "stop_text" ), true )
 	end	
@@ -1064,7 +1219,7 @@ function script_properties()
   	t_type = {"Timer Expires", "Caution Time", "Warning Time", "Timer Visible", "Timer Start"}
   	for i,v in ipairs( t_type ) do obs.obs_property_list_add_int( p_k, v, i ) end
 	local p_l = obs.obs_properties_add_list( props, "next_scene", "<i>Next Scene</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
-	t_type = {"Select", "TIMER END TEXT"}
+	t_type = {"Select", "TIMER END TEXT", "Source List", "Scene List"}
 	for i,v in ipairs( t_type ) do obs.obs_property_list_add_string( p_l, v, v ) end
 	local scene_source = obs.obs_frontend_get_current_scene()
 	local name = obs.obs_source_get_name( scene_source )
@@ -1077,11 +1232,41 @@ function script_properties()
 		end
 		obs.bfree( scene )
 	end
+	
     obs.obs_source_release( scene_source )
+
 	local p_q = obs.obs_properties_add_text( props, "text_prefix", "<font color=#fefceb>Timer Prefix</font>", obs.OBS_TEXT_DEFAULT )
 	obs.obs_property_set_long_description( p_q, "\nDefine text placed before the Timer\n" )
 	local p_r = obs.obs_properties_add_text( props, "stop_text", "<font color=#fef1eb>Timer End Text</font>", obs.OBS_TEXT_DEFAULT )
 	obs.obs_property_set_long_description( p_r, "\nDefine text displayed when timer ended\n" )
+   	local p_s = obs.obs_properties_add_list( props, "active_source", "<i>Active Source</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
+	obs.obs_property_list_add_string( p_d, "Select", "select" )
+	list = {}
+	if sources ~= nil then
+		for _, source in ipairs( sources ) do
+			source_id = obs.obs_source_get_unversioned_id( source )
+			if source_id == "text_gdiplus" or source_id == "text_ft2_source" then
+				local name = obs.obs_source_get_name( source )
+				if name ~= timer_source then
+					--[[
+						add it to list so that it can be reordered
+					]]		
+					list[name] = name
+				else
+					--continue 
+				end
+			end
+		end
+			obs.bfree(source)
+		
+		for key, value in pairsByKeys(list) do
+			--[[
+				add item to property list
+			]]	
+			obs.obs_property_list_add_string( p_s, value, value )
+		end
+	end
+	local p_t = obs.obs_properties_add_editable_list(props, "cycle_list", "Cycle List",obs.OBS_EDITABLE_LIST_TYPE_STRINGS,nil,nil)
 	obs.obs_properties_add_button( props, "reset_button", "Reset Stopwatch", reset_button_clicked )
 	obs.obs_properties_add_button( props, "pause_button", "Start/Pause Stopwatch", pause_button_clicked )	
 	obs.obs_properties_add_button( props, "split_button", "Split Time", split_button_clicked )
@@ -1119,6 +1304,7 @@ function script_update( settings )
 	timer_trim = obs.obs_data_get_int( settings, "timer_trim" )
 	def_seconds = cur_seconds 
 	split_source = obs.obs_data_get_string( settings, "split_source" )
+	active_source = obs.obs_data_get_string( settings, "active_source" )
 	media['source_name_audio_warning'] = obs.obs_data_get_string( settings, "audio_warning" )
 	media['source_name_audio_caution'] = obs.obs_data_get_string( settings, "audio_caution" )											
 	media['normal_color'] = obs.obs_data_get_int( settings, "normal_color" )
