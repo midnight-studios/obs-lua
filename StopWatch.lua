@@ -8,7 +8,7 @@ Stopwatch
 ]]
 --Globals
 obs           				= obslua
-gversion = 2.8
+gversion = 2.9
 luafile						= "StopWatch.lua"
 obsurl						= "simple-stopwatch.1364/"
 icon="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAVCAYAAACpF6WWAAAENElEQVQ4jY1UTUgjZxh+ksl/JuMkMYb4F40bNZqK0KJFqBZqS9ddyl76dyhdKPRQShH2sNDSnnopCz11D10KS/dSKNiDoD2I7KXFQ0XSSGpM1llFMYn5mZiMY2IymfIOhgazXfaDj5n53u975vme531fnaqqeMHxJYCvAOgAlABcAyA1jxLO1tYW1tbWoL+Kd3x8jGg0imw2C0VRWkMEYgNgBeAFYKTFRqOh7aVnE9xwFTSZTGJ7exszMzPQ6XSQZRk8z9P7YrVa/Y5hmKLBYHCpqirW63Wcn5/j7OwMHo9HA6bvNqY2mw1Op1N70qaTkxPkcjmbLMsDZrN5hOO4NxuNhlMUxTFiSCA0FEW5GQ6H/wmHwzfamDavUKlUYDKZAoFA4Gue52/r9f/9v6OjQ5uKojwpFAr3RFF8UCwWjW63OzQ/P/9yGyiBnZ6eEtN3eZ7/9XJZrlQqP2cymcf5fL4QDAbHdTrd2yzLXvd4PD9yHHdLEISFXC7nsdvtuTb3c7kcEokEJiYmhliWtaiqWs5ms4f1el0lE2lOTU0hn8/DYrF09vb23jebze9JkvRXNBqdMpvNaIJaLh1tHScAzpvsSd+joyOkUimEQiFNa4vFAlEU4Xa7HwYCgduFQuHRxsbGx5p+qqq+o/7/SF7uQSaTwcHBgZYdgiBMqKqa2dnZ8S8tLaFcLicIIR6PjzU13Qew+gzPKNEj9JJOp5tag+O41/v7+x/v7u7+sLOzc8BxHN1icXR0dMXlcn3xQhW1v7+PSCSC6enptxwOx3WWZRcbjcbTjY2NAJ1nWRYGgwHj4+OqoigFYnr/UlPlClYFwJ1arVYjU8bGxhZ8Pt9KMxiLxd5gGEbTlTSv1WqQJOmJw+G4RqCfPYfkN4qiFDs7O9HT0/Nqa4BhmKd2u10DrFaruLi4oJmncibQSUCrLHJabDlHzItGo1E7FIvFvg+FQjMmkykkCMK9eDwOivl8PvqhBspxXJAOEujfz2HazzBMdXh4OJNMJoupVGre7/cbBEGor6+vY2RkROsLlwY6jUajS5KkSGvtf0oVemUeAPiDgsFgUHMeQJ3MmZycxNzcnMZWkiT4/f67FJRl+UFrmcYB/N7y3UyLSHOBzNjb20MgEMDg4CC6urqwublJZo12d3ffVRRFEQTh4TNTqlQqaawoTShOVdOsqMPDQ8zOzmqFQK3PZrO91NPTs2U0GkmWG4lEYrWt9cViMSwvL1Ntvw9gRafT/aTX6z8AwFKcuhU5zjDMkNfr/XZgYCBKgMfHx3eSyeSqw+Fob9LEipxMp9MRp9P5uclkWuB5/hOKWa3Wvb6+vjLP8wNer5fXUkRRLkql0ofZbPY3ug019TZQ6jKU0AzD7Iqi+Josy6+4XK6P7Hb7LbvdPkS5SXpXKpU/ZVn+5ezs7FG9Xi9brVZNLr1ej38BVDs6EbSfFQsAAAAASUVORK5CYII="
@@ -21,12 +21,22 @@ last_text    				= ""
 font_normal					= "#ffffff"
 font_dimmed					= "#bfbbbf"
 timer_source   				= ""
+countdown_type 				= ""
 cur_seconds   				= 0
 def_seconds   				= 0
 split	     				= 0
+timer_year	     			= 0
+timer_month	     			= 0
+timer_day	     			= 0
+timer_hours	     			= 0
+timer_minutes 	     		= 0
+timer_seconds	     		= 0
 split_itm					= {}
 split_data					= nil
 p_settings 					= nil
+p_prop 						= nil
+longtimetext_s 				= ""
+longtimetext_p 				= ""
 last_split_data 			= ""
 split_type   				= ""
 split_source   				= ""
@@ -164,33 +174,25 @@ end
 	Convert Seconds to hours:minutes:seconds:miliseconds
 ----------------------------------------------------------
 ]]
-function TimeFormat( time, notrim )
-	if time == nil then
-		return
+function delta_time(year, month, day, hour, minute, second)
+	local now = os.time()
+	if (year == -1) then
+		year = os.date("%Y", now)
 	end
-	local trim = ( timer_trim == 1 )
-	local hour, minutes, seconds, mili = 0, 0, 0, 0
-	hour = math.floor( time/3600 )
-	if hour < 10 and trim then
-		hour = "0"..hour
+	if (month == -1) then
+		month = os.date("%m", now)
 	end
-	minutes = math.floor( ( time - math.floor( time/3600 )*3600 )/60 )
-	if minutes < 10 and trim then
-		minutes = "0"..minutes
+	if (day == -1) then
+		day = os.date("%d", now)
 	end
-	seconds =  math.floor( time - math.floor( time/3600 )*3600 - math.floor( ( time - math.floor( time/3600 )*3600 )/60 )*60 )
-	if seconds < 10 and trim then
-		seconds = "0"..seconds
+	local future = os.time{year=year, month=month, day=day, hour=hour, min=minute, sec=second}
+	local seconds = os.difftime(future, now)
+	if (seconds < 0) then
+		seconds = 0
 	end
-	mili = math.floor( ( time - math.floor( time/3600 )*3600 - math.floor( ( time - math.floor( time/3600 )*3600 )/60 )*60 - math.floor( time - math.floor( time/3600 )*3600 - math.floor( ( time - math.floor( time/3600 )*3600 )/60 )*60 ) )*100 )
-	if mili < 10 and trim then
-		mili = "0"..mili
-	end 
-	if notrim then
-		return trim_time( hour, minutes, seconds, nil, true )		
-	end	
-	return trim_time( hour, minutes, seconds, ( ( timer_trim ~= 3 ) and mili or nil ), trim )
+	return seconds 
 end
+
 --[[
 ----------------------------------------------------------
 	
@@ -347,7 +349,7 @@ end
 
 --[[
 ----------------------------------------------------------
-	Function to 
+	Function  
 ----------------------------------------------------------
 ]]
 function cycle_list_activate(source_type)
@@ -432,6 +434,66 @@ end
 
 --[[
 ----------------------------------------------------------
+	Convert Seconds to hours:minutes:seconds:miliseconds
+----------------------------------------------------------
+]]
+function TimeFormat( time, notrim )
+	if time == nil then
+		return
+	end
+	local trim = ( timer_trim == 1 )
+	local hour, minutes, seconds, mili = 0, 0, 0, 0
+	--[[
+		If there is more than 24 hours in the time value
+		we need to remove the additional time value to leave only a 23:59:59
+		value. We will do this by calculating days
+	]]
+	-- If there is more than 24 hours, remove 23:59:59 as it will be in the clock 
+	if time > 86399 then -- 23:59:59
+		local c_time = ( math.floor( (time ) / 86400 ) * 86400 )
+		time = time - c_time
+	end
+	hour = math.floor( time/3600 )
+	if hour < 10 and trim then
+		hour = "0"..hour
+	end
+	minutes = math.floor( ( time - math.floor( time/3600 )*3600 )/60 )
+	if minutes < 10 and trim then
+		minutes = "0"..minutes
+	end
+	seconds =  math.floor( time - math.floor( time/3600 )*3600 - math.floor( ( time - math.floor( time/3600 )*3600 )/60 )*60 )
+	if seconds < 10 and trim then
+		seconds = "0"..seconds
+	end
+	mili = math.floor( ( time - math.floor( time/3600 )*3600 - math.floor( ( time - math.floor( time/3600 )*3600 )/60 )*60 - math.floor( time - math.floor( time/3600 )*3600 - math.floor( ( time - math.floor( time/3600 )*3600 )/60 )*60 ) )*100 )
+	if mili < 10 and trim then
+		mili = "0"..mili
+	end 
+	if notrim then
+		return trim_time( hour, minutes, seconds, nil, true )		
+	end	
+	return trim_time( hour, minutes, seconds, ( ( timer_trim ~= 3 ) and mili or nil ), trim )
+end
+
+--[[
+----------------------------------------------------------
+	
+----------------------------------------------------------
+]]
+function LongTimeFormat( time )
+	local c_time = time
+	-- If there is more than 24 hours, remove 23:59:59 as it will be in the clock 
+	if time > 86399 then -- 23:59:59
+		c_time = math.floor( ( time ) / 86400)
+	end
+	if time < 86400 then
+		c_time = 0
+	end
+	return c_time
+end
+
+--[[
+----------------------------------------------------------
 	Function to set the time text
 ----------------------------------------------------------
 ]]
@@ -442,7 +504,22 @@ function set_time_text( source_name )
 	end	
 	if cur_seconds <= 0.01 and timer_type ~= 1 then cur_seconds = 0 end
 	local text = tostring( TimeFormat( cur_seconds ) )
+	--[[
+		Format the Text 'Day/Days'
+	]]
+	if timer_type == 2 and countdown_type == 1 and cur_seconds ~= 0 then
+		local longtimetext = longtimetext_p
+		if math.floor( cur_seconds / 86400 ) <= 1 then
+			longtimetext = longtimetext_s
+		end
+		if math.floor( cur_seconds / 86400 ) <= 0 then
+			longtimetext = longtimetext_p
+		end		
+		text = LongTimeFormat( cur_seconds ) .. longtimetext .. text
+	end
+	
 	text = text_prefix .. text
+	
 	if text ~= last_text then
 		--[[
 			Increments the source reference counter, 
@@ -707,6 +784,12 @@ end
 ----------------------------------------------------------
 ]]
 function fresh_start( reset_curent )
+
+	if timer_type == 2 and countdown_type == 1 then
+		cur_seconds = delta_time( timer_year, timer_month, timer_day, timer_hours, timer_minutes, timer_seconds)
+		def_seconds = cur_seconds
+	end
+	
 	if reset_curent ~= nil then
 		if reset_curent then
 			cur_seconds = def_seconds
@@ -1028,19 +1111,84 @@ function in_table( tbl, value )
 end
 --[[
 ----------------------------------------------------------
+
+----------------------------------------------------------
+]]
+function is_leap_year(year)
+	if year % 4 == 0 then
+		if year % 100 == 0 then
+			if year % 400 == 0 then
+			  return true
+			else
+			  return false
+			end			
+		else
+		 return true
+		end
+	else
+		return false
+	end						
+end	
+--[[
+----------------------------------------------------------
 Callback on list modification
 ----------------------------------------------------------
 ]]
-function property_visibility( props, property, settings )
+function property_onchange( props, property, settings )
 	-- Retrieves value selected in list
 	local config = obs.obs_data_get_int( settings, "config" )
 	local mode = obs.obs_data_get_int( settings, "timer_type" )
 	local rec = obs.obs_data_get_int( settings, "start_recording" )
 	local scene = obs.obs_data_get_string( settings, "next_scene" )	
+	local t_source = obs.obs_data_get_string( settings, "timer_source" )
+	local a_source = obs.obs_data_get_string( settings, "active_source" )
+	local mth = obs.obs_data_get_int( settings, "month" )
+	local yr = obs.obs_data_get_int( settings, "year" )
+	local c_type = obs.obs_data_get_int( settings, "countdown_type" )
 	obs.obs_property_set_visible( obs.obs_properties_get( props, "stop_text" ), false )
 	obs.obs_property_set_visible( obs.obs_properties_get( props, "text_prefix" ), false )
 	obs.obs_property_set_visible( obs.obs_properties_get( props, "recording_type" ), false )
 	obs.obs_property_set_visible( obs.obs_properties_get( props, "cycle_list" ), ( (scene == 'Source List' or scene == 'Scene List') and config == 2 ) )
+	
+	obs.obs_property_set_visible( obs.obs_properties_get( props, "day_text" ), ( c_type == 1 and config == 2 and mode == 2 ) )
+	obs.obs_property_set_visible( obs.obs_properties_get( props, "days_text" ), ( c_type == 1 and config == 2 and mode == 2 ) )
+	obs.obs_property_set_visible( obs.obs_properties_get( props, "month" ), ( c_type == 1 and config == 2 and mode == 2 ) )
+	obs.obs_property_set_visible( obs.obs_properties_get( props, "day" ), ( c_type == 1 and config == 2 and mode == 2 ) )
+	obs.obs_property_set_visible( obs.obs_properties_get( props, "year" ), ( c_type == 1 and config == 2 and mode == 2 ) )
+	
+	obs.obs_property_set_visible( obs.obs_properties_get( props, "month" ), ( c_type == 1 and config == 2 and mode == 2 ) )
+
+	
+	if mth ~= 1 then
+	obs.obs_property_set_enabled( obs.obs_properties_get( props, "day" ), true )
+	obs.obs_property_set_enabled( obs.obs_properties_get( props, "year" ), true )
+	else
+	obs.obs_property_set_enabled( obs.obs_properties_get( props, "day" ), false )
+	obs.obs_property_set_enabled( obs.obs_properties_get( props, "year" ), false )
+	end
+	
+	obs.obs_property_int_set_limits(obs.obs_properties_get( props, "day" ), 1, 31, 1)
+	
+	if ( mth == 5 or mth == 7 or mth == 10 or mth == 12 ) then
+		obs.obs_property_int_set_limits(obs.obs_properties_get( props, "day" ), 1, 30, 1)
+	elseif ( mth == 3 ) then
+		local leap = 28
+		if is_leap_year(yr) then
+			 leap = 29
+		else
+			 leap = 28
+		end	
+		obs.obs_property_int_set_limits(obs.obs_properties_get( props, "day" ), 1, leap, 1)
+	end
+		
+	if ( t_source == a_source ) then
+		obs.obs_data_set_string(settings, "active_source", 'select') -- Don't allow timer and active text source to be the same
+	end
+	
+		
+	obs.obs_property_set_visible( obs.obs_properties_get( props, "countdown_type" ), false )
+	obs.obs_property_set_visible( obs.obs_properties_get( props, "countdown_type" ), (config == 2 and mode == 2 ) )
+	
 	if scene == 'TIMER END TEXT' and  mode == 2 then
 		obs.obs_property_set_visible( obs.obs_properties_get( props, "stop_text" ), true )
 	end	
@@ -1054,9 +1202,9 @@ function property_visibility( props, property, settings )
 	obs.obs_property_set_description( obs.obs_properties_get( props, "reset_button" ), "Reset Countdown" )	
 	obs.obs_property_set_visible( obs.obs_properties_get( props, "start_recording" ), config == 2 )
 	obs.obs_property_set_visible( obs.obs_properties_get( props, "next_scene" ), config == 2 )
-	obs.obs_property_set_visible( obs.obs_properties_get( props, "hours" ), config == 2 )
-	obs.obs_property_set_visible( obs.obs_properties_get( props, "minutes" ), config == 2 )
-	obs.obs_property_set_visible( obs.obs_properties_get( props, "seconds" ), config == 2 )
+	obs.obs_property_set_visible( obs.obs_properties_get( props, "hours" ), (config == 2 ) )
+	obs.obs_property_set_visible( obs.obs_properties_get( props, "minutes" ), (config == 2 ) )
+	obs.obs_property_set_visible( obs.obs_properties_get( props, "seconds" ), (config == 2 ) )
 	else
 	obs.obs_property_set_description( obs.obs_properties_get( props, "pause_button" ), "Start/Pause Stopwatch" )
 	obs.obs_property_set_description( obs.obs_properties_get( props, "reset_button" ), "Reset Stopwatch" )	
@@ -1135,6 +1283,37 @@ function script_properties()
 			obs.obs_property_list_add_string( p_c, value, value )
 		end
 	end
+	
+	local p_u = obs.obs_properties_add_list( props, "countdown_type", "<font color=".. font_dimmed ..">Countdown Type</font>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
+  	t_type = {"Specific Date & Time", "Hours, Minutes, Seconds"}
+  	for i,v in ipairs( t_type ) do obs.obs_property_list_add_int( p_u, v, i ) end
+	
+	
+	
+	
+
+	local p_y = obs.obs_properties_add_text( props, "day_text", "<font color=".. font_dimmed ..">Day Text Format</font>", obs.OBS_TEXT_DEFAULT )
+	obs.obs_property_set_long_description( p_y, "\nUsed to distinguish between singular and plural days format. Use this for singular.\n" )	
+	
+		local p_z = obs.obs_properties_add_text( props, "days_text", "<font color=".. font_dimmed ..">Days Text Format</font>", obs.OBS_TEXT_DEFAULT )
+	obs.obs_property_set_long_description( p_z, "\nUsed to distinguish between singular and plural days format. Use this for plural.\n" )
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+  	local p_v = obs.obs_properties_add_list( props, "month", "<font color=".. font_dimmed ..">Month</font>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
+  	t_type = {"Select", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"}
+	
+  	for i,v in ipairs( t_type ) do obs.obs_property_list_add_int( p_v, v, i ) end
+	
+  	local p_x = obs.obs_properties_add_int( props, "year", "<font color=".. font_dimmed ..">Year</font>", 2021, 212021221, 1 )
+  	local p_w = obs.obs_properties_add_int( props, "day", "<font color=".. font_dimmed ..">Day</font>", 1, 31, 1 )
 	local p_n = obs.obs_properties_add_int( props, "hours", "<font color=".. font_dimmed ..">Hours</font>", 0, 23, 1 )
 
 	obs.obs_property_int_set_suffix( p_n, " Hours" )
@@ -1240,7 +1419,8 @@ function script_properties()
 	local p_r = obs.obs_properties_add_text( props, "stop_text", "<font color=#fef1eb>Timer End Text</font>", obs.OBS_TEXT_DEFAULT )
 	obs.obs_property_set_long_description( p_r, "\nDefine text displayed when timer ended\n" )
    	local p_s = obs.obs_properties_add_list( props, "active_source", "<i>Active Source</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
-	obs.obs_property_list_add_string( p_d, "Select", "select" )
+	obs.obs_property_set_long_description( p_s, "\nSelect a text source, that will be used to show the name for the current active Source or Scene\n" )
+	obs.obs_property_list_add_string( p_s, "Select", "select" )
 	list = {}
 	if sources ~= nil then
 		for _, source in ipairs( sources ) do
@@ -1273,12 +1453,17 @@ function script_properties()
     obs.obs_properties_add_bool( props, "start_on_visible", "Start Timer on Source Visible" )
     obs.obs_properties_add_bool( props, "disable_script", "Disable Script" )
 	--Sets callback upon modification of the list Basically an Event Listener
-  	obs.obs_property_set_modified_callback( p_a, property_visibility )
-  	obs.obs_property_set_modified_callback( p_b, property_visibility )
-  	obs.obs_property_set_modified_callback( p_j, property_visibility )
-  	obs.obs_property_set_modified_callback( p_l, property_visibility )
+  	obs.obs_property_set_modified_callback( p_a, property_onchange )
+  	obs.obs_property_set_modified_callback( p_b, property_onchange )
+  	obs.obs_property_set_modified_callback( p_j, property_onchange )
+  	obs.obs_property_set_modified_callback( p_l, property_onchange )
+  	obs.obs_property_set_modified_callback( p_s, property_onchange )
+  	obs.obs_property_set_modified_callback( p_u, property_onchange )
+  	obs.obs_property_set_modified_callback( p_v, property_onchange )
+  	obs.obs_property_set_modified_callback( p_x, property_onchange )
 	-- Calls the callback once to set-up current visibility
   	obs.obs_properties_apply_settings( props, p_settings )
+	p_prop = prop
 	return props
 end
 
@@ -1293,6 +1478,7 @@ function script_update( settings )
 	activate( false )
 	timer_type = obs.obs_data_get_int( settings, "timer_type" )
 	timer_source = obs.obs_data_get_string( settings, "timer_source" )
+	countdown_type = obs.obs_data_get_int( settings, "countdown_type" )
 	if timer_type == 2 then
 		cur_seconds = 
 		( obs.obs_data_get_int( settings, "hours" )*60*60 ) + 
@@ -1300,7 +1486,20 @@ function script_update( settings )
 		obs.obs_data_get_int( settings, "seconds" )
 	else
 		cur_seconds = 0
-	end	
+	end		
+	longtimetext_s = obs.obs_data_get_string( p_settings, "day_text" )
+	longtimetext_p = obs.obs_data_get_string( p_settings, "days_text" )
+	timer_year = obs.obs_data_get_int( settings, "year" )
+	timer_month = obs.obs_data_get_int( settings, "month" ) - 1
+	timer_day = obs.obs_data_get_int( settings, "day" )
+	timer_hours = obs.obs_data_get_int( settings, "hours" )
+	timer_minutes = obs.obs_data_get_int( settings, "minutes" )
+	timer_seconds = obs.obs_data_get_int( settings, "seconds" )
+	
+	if timer_type == 2 and countdown_type == 1 then
+		cur_seconds = delta_time( timer_year, timer_month, timer_day, timer_hours, timer_minutes, timer_seconds)
+	end
+	
 	timer_trim = obs.obs_data_get_int( settings, "timer_trim" )
 	def_seconds = cur_seconds 
 	split_source = obs.obs_data_get_string( settings, "split_source" )
@@ -1338,10 +1537,14 @@ function script_defaults( settings )
 	obs.obs_data_set_default_int( settings, "timer_type", 1 )
 	obs.obs_data_set_default_int( settings, "config", 1 )
 	obs.obs_data_set_default_string( settings, "timer_source", "Select" )
-	obs.obs_data_set_default_int( props, "hours", 0 )
-	obs.obs_data_set_default_int( props, "minutes", 0 )
-	obs.obs_data_set_default_int( props, "seconds", 0 )
-	obs.obs_data_set_default_int( props, "timer_trim", 1 )
+	obs.obs_data_set_default_int( settings, "countdown_type", 2 )
+	obs.obs_data_set_default_int( settings, "year", os.date("%Y", os.time()) )
+	obs.obs_data_set_default_int( settings, "hours", 0 )
+	obs.obs_data_set_default_int( settings, "minutes", 0 )
+	obs.obs_data_set_default_int( settings, "seconds", 0 )
+	obs.obs_data_set_default_int( settings, "timer_trim", 1 )
+	obs.obs_data_set_default_string( settings, "day_text", " Day \n" )
+	obs.obs_data_set_default_string( settings, "days_text", " Days \n" )
 	obs.obs_data_set_default_string( settings, "split_source", "Select" )
 	obs.obs_data_set_default_string( settings, "audio_warning", "None" )
 	obs.obs_data_set_default_string( settings, "audio_caution", "None" )
