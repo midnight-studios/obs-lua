@@ -8,7 +8,7 @@ Stopwatch
 ]]
 --Globals
 obs           				= obslua
-gversion = 2.9
+gversion 					= "2.9.1"
 luafile						= "StopWatch.lua"
 obsurl						= "simple-stopwatch.1364/"
 icon="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAVCAYAAACpF6WWAAAENElEQVQ4jY1UTUgjZxh+ksl/JuMkMYb4F40bNZqK0KJFqBZqS9ddyl76dyhdKPRQShH2sNDSnnopCz11D10KS/dSKNiDoD2I7KXFQ0XSSGpM1llFMYn5mZiMY2IymfIOhgazXfaDj5n53u975vme531fnaqqeMHxJYCvAOgAlABcAyA1jxLO1tYW1tbWoL+Kd3x8jGg0imw2C0VRWkMEYgNgBeAFYKTFRqOh7aVnE9xwFTSZTGJ7exszMzPQ6XSQZRk8z9P7YrVa/Y5hmKLBYHCpqirW63Wcn5/j7OwMHo9HA6bvNqY2mw1Op1N70qaTkxPkcjmbLMsDZrN5hOO4NxuNhlMUxTFiSCA0FEW5GQ6H/wmHwzfamDavUKlUYDKZAoFA4Gue52/r9f/9v6OjQ5uKojwpFAr3RFF8UCwWjW63OzQ/P/9yGyiBnZ6eEtN3eZ7/9XJZrlQqP2cymcf5fL4QDAbHdTrd2yzLXvd4PD9yHHdLEISFXC7nsdvtuTb3c7kcEokEJiYmhliWtaiqWs5ms4f1el0lE2lOTU0hn8/DYrF09vb23jebze9JkvRXNBqdMpvNaIJaLh1tHScAzpvsSd+joyOkUimEQiFNa4vFAlEU4Xa7HwYCgduFQuHRxsbGx5p+qqq+o/7/SF7uQSaTwcHBgZYdgiBMqKqa2dnZ8S8tLaFcLicIIR6PjzU13Qew+gzPKNEj9JJOp5tag+O41/v7+x/v7u7+sLOzc8BxHN1icXR0dMXlcn3xQhW1v7+PSCSC6enptxwOx3WWZRcbjcbTjY2NAJ1nWRYGgwHj4+OqoigFYnr/UlPlClYFwJ1arVYjU8bGxhZ8Pt9KMxiLxd5gGEbTlTSv1WqQJOmJw+G4RqCfPYfkN4qiFDs7O9HT0/Nqa4BhmKd2u10DrFaruLi4oJmncibQSUCrLHJabDlHzItGo1E7FIvFvg+FQjMmkykkCMK9eDwOivl8PvqhBspxXJAOEujfz2HazzBMdXh4OJNMJoupVGre7/cbBEGor6+vY2RkROsLlwY6jUajS5KkSGvtf0oVemUeAPiDgsFgUHMeQJ3MmZycxNzcnMZWkiT4/f67FJRl+UFrmcYB/N7y3UyLSHOBzNjb20MgEMDg4CC6urqwublJZo12d3ffVRRFEQTh4TNTqlQqaawoTShOVdOsqMPDQ8zOzmqFQK3PZrO91NPTs2U0GkmWG4lEYrWt9cViMSwvL1Ntvw9gRafT/aTX6z8AwFKcuhU5zjDMkNfr/XZgYCBKgMfHx3eSyeSqw+Fob9LEipxMp9MRp9P5uclkWuB5/hOKWa3Wvb6+vjLP8wNer5fXUkRRLkql0ofZbPY3ug019TZQ6jKU0AzD7Iqi+Josy6+4XK6P7Hb7LbvdPkS5SXpXKpU/ZVn+5ezs7FG9Xi9brVZNLr1ej38BVDs6EbSfFQsAAAAASUVORK5CYII="
@@ -508,14 +508,14 @@ function set_time_text( source_name )
 		Format the Text 'Day/Days'
 	]]
 	if timer_type == 2 and countdown_type == 1 and cur_seconds ~= 0 then
-		local longtimetext = longtimetext_p
+		local longtimetext = string.gsub(longtimetext_p, "\\([n])", {n="\n"})
 		if math.floor( cur_seconds / 86400 ) <= 1 then
-			longtimetext = longtimetext_s
+			longtimetext = string.gsub(longtimetext_s, "\\([n])", {n="\n"})
 		end
 		if math.floor( cur_seconds / 86400 ) <= 0 then
-			longtimetext = longtimetext_p
+			longtimetext = string.gsub(longtimetext_p, "\\([n])", {n="\n"})
 		end		
-		text = LongTimeFormat( cur_seconds ) .. longtimetext .. text
+		text = string.gsub(longtimetext .. text, "[#]", LongTimeFormat( cur_seconds ))
 	end
 	
 	text = text_prefix .. text
@@ -1144,6 +1144,7 @@ function property_onchange( props, property, settings )
 	local a_source = obs.obs_data_get_string( settings, "active_source" )
 	local mth = obs.obs_data_get_int( settings, "month" )
 	local yr = obs.obs_data_get_int( settings, "year" )
+	local d = obs.obs_data_get_int( settings, "day" )
 	local c_type = obs.obs_data_get_int( settings, "countdown_type" )
 	obs.obs_property_set_visible( obs.obs_properties_get( props, "stop_text" ), false )
 	obs.obs_property_set_visible( obs.obs_properties_get( props, "text_prefix" ), false )
@@ -1157,7 +1158,6 @@ function property_onchange( props, property, settings )
 	obs.obs_property_set_visible( obs.obs_properties_get( props, "year" ), ( c_type == 1 and config == 2 and mode == 2 ) )
 	
 	obs.obs_property_set_visible( obs.obs_properties_get( props, "month" ), ( c_type == 1 and config == 2 and mode == 2 ) )
-
 	
 	if mth ~= 1 then
 	obs.obs_property_set_enabled( obs.obs_properties_get( props, "day" ), true )
@@ -1166,6 +1166,10 @@ function property_onchange( props, property, settings )
 	obs.obs_property_set_enabled( obs.obs_properties_get( props, "day" ), false )
 	obs.obs_property_set_enabled( obs.obs_properties_get( props, "year" ), false )
 	end
+	
+	if c_type == 1 and mth ~= 1 and d == 0 then
+		obs.obs_data_set_int(settings, "day", 1) -- set to at least 1, else the timer won't know it is at zero
+	end	
 	
 	obs.obs_property_int_set_limits(obs.obs_properties_get( props, "day" ), 1, 31, 1)
 	
@@ -1287,32 +1291,19 @@ function script_properties()
 	local p_u = obs.obs_properties_add_list( props, "countdown_type", "<font color=".. font_dimmed ..">Countdown Type</font>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
   	t_type = {"Specific Date & Time", "Hours, Minutes, Seconds"}
   	for i,v in ipairs( t_type ) do obs.obs_property_list_add_int( p_u, v, i ) end
-	
-	
-	
-	
 
 	local p_y = obs.obs_properties_add_text( props, "day_text", "<font color=".. font_dimmed ..">Day Text Format</font>", obs.OBS_TEXT_DEFAULT )
 	obs.obs_property_set_long_description( p_y, "\nUsed to distinguish between singular and plural days format. Use this for singular.\n" )	
 	
 		local p_z = obs.obs_properties_add_text( props, "days_text", "<font color=".. font_dimmed ..">Days Text Format</font>", obs.OBS_TEXT_DEFAULT )
 	obs.obs_property_set_long_description( p_z, "\nUsed to distinguish between singular and plural days format. Use this for plural.\n" )
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
   	local p_v = obs.obs_properties_add_list( props, "month", "<font color=".. font_dimmed ..">Month</font>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
   	t_type = {"Select", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"}
 	
   	for i,v in ipairs( t_type ) do obs.obs_property_list_add_int( p_v, v, i ) end
 	
-  	local p_x = obs.obs_properties_add_int( props, "year", "<font color=".. font_dimmed ..">Year</font>", 2021, 212021221, 1 )
+  	local p_x = obs.obs_properties_add_int( props, "year", "<font color=".. font_dimmed ..">Year</font>", 2022, 212021221, 1 )
   	local p_w = obs.obs_properties_add_int( props, "day", "<font color=".. font_dimmed ..">Day</font>", 1, 31, 1 )
 	local p_n = obs.obs_properties_add_int( props, "hours", "<font color=".. font_dimmed ..">Hours</font>", 0, 23, 1 )
 
@@ -1543,8 +1534,8 @@ function script_defaults( settings )
 	obs.obs_data_set_default_int( settings, "minutes", 0 )
 	obs.obs_data_set_default_int( settings, "seconds", 0 )
 	obs.obs_data_set_default_int( settings, "timer_trim", 1 )
-	obs.obs_data_set_default_string( settings, "day_text", " Day \n" )
-	obs.obs_data_set_default_string( settings, "days_text", " Days \n" )
+	obs.obs_data_set_default_string( settings, "day_text", "# Day \n" )
+	obs.obs_data_set_default_string( settings, "days_text", "# Days \n" )
 	obs.obs_data_set_default_string( settings, "split_source", "Select" )
 	obs.obs_data_set_default_string( settings, "audio_warning", "None" )
 	obs.obs_data_set_default_string( settings, "audio_caution", "None" )
