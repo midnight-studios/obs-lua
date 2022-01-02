@@ -10,7 +10,7 @@ Source Monitor
 
 --Globals
 obs           				= obslua
-gversion = 0.2
+gversion = 0.4
 luafileTitle				= "Source Status Monitor"
 luafile						= "SourceStatusMonitor.lua"
 obsurl						= "audio-status-monitor.1381/"
@@ -337,7 +337,12 @@ end
 	Update Source
 --------------------------------------------------------------------
 ]]
-function source_settings_update()
+function source_settings_update( a_settings )
+		
+	if a_settings ~= nil then	
+		p_settings = a_settings	
+	end	
+	
 	--[[
 		exit her if script is disabled
 	]]	
@@ -869,7 +874,7 @@ function script_properties()
 	]] 	
 	props_color = obs.obs_properties_add_list( props, "color_source", "<i>Colour Source</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
 	t_type = {"None"}
-	for i,v in ipairs( t_type) do obs.obs_property_list_add_string(props_color, v, v ) end
+	for i,v in ipairs( t_type ) do obs.obs_property_list_add_string(props_color, v, v ) end
 	
 	--[[
 		new property item: list
@@ -1166,7 +1171,16 @@ settings – Settings associated with the script.
 --------------------------------------------------------------------
 ]]
 function script_load( settings )
+
+	--[[
+		check mode and relevant state and set variant accordingly
+	]]
+	mode_item_set_status( settings )
 	
+	--[[
+		make sure the source is updated with the most recent changes
+	]]
+	source_settings_update( settings )
 	--[[
 		Create Signal Handler 
 	]]	
@@ -1181,6 +1195,11 @@ function script_load( settings )
 		See obs_frontend_event on what sort of events can be triggered.
 	]]
 	obs.obs_frontend_add_event_callback( on_event )
+		
+	source_settings_update( settings )	
+		
+	-- Keep track of current settings	
+  	p_settings = setti
 end
 
 --[[
@@ -1200,7 +1219,11 @@ end
 
 --------------------------------------------------------------------
 ]]
-function mode_item_set_status()
+function mode_item_set_status( a_settings )	
+		
+	if a_settings ~= nil then	
+		p_settings = a_settings	
+	end	
 	--[[
 		get mode for Monitor Type
 		use this here to determine visibility 
@@ -1210,13 +1233,16 @@ function mode_item_set_status()
 		"Input Audio Device", "Output Audio Device", "Browser Audio", "Capture Device Audio"
 	]]	
 	mode = obs.obs_data_get_string( p_settings, "mode" )
+	
 	if is_audio_device() or mode == 'Media State' then
+		
 		monitor_source = obs.obs_data_get_string( p_settings, "monitor_source" )
+		
 		--[[
 			Sources have unique names
 			Load the Source, from the Name
 		]]	
-		source = obs.obs_get_source_by_name(monitor_source) -- Increments the source reference counter, use obs_source_release() to release it when complete.
+		source = obs.obs_get_source_by_name( monitor_source ) -- Increments the source reference counter, use obs_source_release() to release it when complete.
 		--[[
 			Found Source:
 		]]	
@@ -1292,6 +1318,16 @@ Property is not refreshed without some help. See Refresh Button
 --------------------------------------------------------------------
 ]]
 function connect_scene_signal()
+	
+	--[[
+		check mode and relevant state and set variant accordingly
+	]]
+	mode_item_set_status( settings )
+	
+	--[[
+		make sure the source is updated with the most recent changes
+	]]	
+	source_settings_update( settings )
 	--[[
 		Get current scene source
 	]]
@@ -1324,6 +1360,11 @@ end
 --------------------------------------------------------------------
 ]]
 function connect_source_signal( cd )
+	
+	--[[
+		check mode and relevant state and set variant accordingly
+	]]
+	mode_item_set_status( p_settings )
 	--[[
 		Fetch the settings defined in the Script Settings
 	]]
