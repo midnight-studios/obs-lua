@@ -27,6 +27,7 @@ font_3						= "#bfbbbf"
 font_4						= "#bfbbbf"
 font_5						= "#bfbbbf"
 text_sources				= {}
+source_name_hotkey			= true
 p_h_a_value 				= 0
 p_h_b_value 				= 0
 p_h_c_value 				= 0
@@ -759,7 +760,7 @@ function script_properties()
 	
 	obs.source_list_release( sources )
 	obs.obs_properties_add_button( props, "reset_button", "Reset Scoreboard", reset_button_clicked )
-    --obs.obs_properties_add_bool( props, "disable_script", "Disable Script" )
+    obs.obs_properties_add_bool( props, "source_name_hotkey", "Source Name Hotkey" )
 	--Sets callback upon modification of the list Basically an Event Listener
   	obs.obs_property_set_modified_callback( p_h_a, property_onchange )
   	obs.obs_property_set_modified_callback( p_h_b, property_onchange )
@@ -835,7 +836,7 @@ function script_update( settings )
 	set_text( p_s_c_source, p_s_c_value )
 	set_text( p_s_d_source, p_s_d_value )
 	set_text( p_s_e_source, p_s_e_value )	
-    --disable_script = obs.obs_data_get_bool( settings,"disable_script" )
+    source_name_hotkey = obs.obs_data_get_bool( settings, "source_name_hotkey" )
 	-- Keep track of current settings
   	script_settings = settings 
 end
@@ -876,7 +877,7 @@ function script_defaults( settings )
 	obs.obs_data_set_default_int( settings, "p_s_c_int", 1 )
 	obs.obs_data_set_default_int( settings, "p_s_d_int", 1 )
 	obs.obs_data_set_default_int( settings, "p_s_e_int", 1 )	
-	--obs.obs_data_set_default_bool( settings, "disable_script", false )
+	obs.obs_data_set_default_bool( settings, "source_name_hotkey", true )
 end
 
 --[[
@@ -1001,36 +1002,86 @@ function script_load( settings )
 	local hotkey_save_array_reset = obs.obs_data_get_array( settings, "reset_hotkey" )
 	obs.obs_hotkey_load( reset_hotkey_id, reset_hotkey_save_array )			
 	obs.obs_data_array_release( reset_hotkey_save_array )	
-	p_h_a_1_hotkey_id = obs.obs_hotkey_register_frontend( "p_h_a_1_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " 1 Home Add ", p_h_a_1 )
-	p_h_b_1_hotkey_id = obs.obs_hotkey_register_frontend( "p_h_b_1_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " 2 Home Add ", p_h_b_1 )
-	p_h_c_1_hotkey_id = obs.obs_hotkey_register_frontend( "p_h_c_1_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " 3 Home Add ", p_h_c_1 )
-	p_h_d_1_hotkey_id = obs.obs_hotkey_register_frontend( "p_h_d_1_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " 4 Home Add ", p_h_d_1 )
-	p_h_e_1_hotkey_id = obs.obs_hotkey_register_frontend( "p_h_e_1_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " 5 Home Add ", p_h_e_1 )
-	p_v_a_1_hotkey_id = obs.obs_hotkey_register_frontend( "p_v_a_1_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " 1 Visitor Add ", p_v_a_1 )
-	p_v_b_1_hotkey_id = obs.obs_hotkey_register_frontend( "p_v_b_1_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " 2 Visitor Add ", p_v_b_1 )
-	p_v_c_1_hotkey_id = obs.obs_hotkey_register_frontend( "p_v_c_1_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " 3 Visitor Add ", p_v_c_1 )
-	p_v_d_1_hotkey_id = obs.obs_hotkey_register_frontend( "p_v_d_1_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " 4 Visitor Add ", p_v_d_1 )
-	p_v_e_1_hotkey_id = obs.obs_hotkey_register_frontend( "p_v_e_1_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " 5 Visitor Add ", p_v_e_1 )
-	p_s_a_1_hotkey_id = obs.obs_hotkey_register_frontend( "p_s_a_1_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " 1 Summary Add ", p_s_a_1 )
-	p_s_b_1_hotkey_id = obs.obs_hotkey_register_frontend( "p_s_b_1_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " 2 Summary Add ", p_s_b_1 )
-	p_s_c_1_hotkey_id = obs.obs_hotkey_register_frontend( "p_s_c_1_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " 3 Summary Add ", p_s_c_1 )
-	p_s_d_1_hotkey_id = obs.obs_hotkey_register_frontend( "p_s_d_1_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " 4 Summary Add ", p_s_d_1 )
-	p_s_e_1_hotkey_id = obs.obs_hotkey_register_frontend( "p_s_e_1_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " 5 Summary Add ", p_s_e_1 )			
-	p_h_a_0_hotkey_id = obs.obs_hotkey_register_frontend( "p_h_a_0_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " 1 Home Subtract ", p_h_a_0 )
-	p_h_b_0_hotkey_id = obs.obs_hotkey_register_frontend( "p_h_b_0_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " 2 Home Subtract ", p_h_b_0 )
-	p_h_c_0_hotkey_id = obs.obs_hotkey_register_frontend( "p_h_c_0_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " 3 Home Subtract ", p_h_c_0 )
-	p_h_d_0_hotkey_id = obs.obs_hotkey_register_frontend( "p_h_d_0_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " 4 Home Subtract ", p_h_d_0 )
-	p_h_e_0_hotkey_id = obs.obs_hotkey_register_frontend( "p_h_e_0_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " 5 Home Subtract ", p_h_e_0 )
-	p_v_a_0_hotkey_id = obs.obs_hotkey_register_frontend( "p_v_a_0_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " 1 Visitor Subtract ", p_v_a_0 )
-	p_v_b_0_hotkey_id = obs.obs_hotkey_register_frontend( "p_v_b_0_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " 2 Visitor Subtract ", p_v_b_0 )
-	p_v_c_0_hotkey_id = obs.obs_hotkey_register_frontend( "p_v_c_0_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " 3 Visitor Subtract ", p_v_c_0 )
-	p_v_d_0_hotkey_id = obs.obs_hotkey_register_frontend( "p_v_d_0_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " 4 Visitor Subtract ", p_v_d_0 )
-	p_v_e_0_hotkey_id = obs.obs_hotkey_register_frontend( "p_v_e_0_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " 5 Visitor Subtract ", p_v_e_0 )
-	p_s_a_0_hotkey_id = obs.obs_hotkey_register_frontend( "p_s_a_0_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " 1 Summary Subtract ", p_s_a_0 )
-	p_s_b_0_hotkey_id = obs.obs_hotkey_register_frontend( "p_s_b_0_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " 2 Summary Subtract ", p_s_b_0 )
-	p_s_c_0_hotkey_id = obs.obs_hotkey_register_frontend( "p_s_c_0_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " 3 Summary Subtract ", p_s_c_0 )
-	p_s_d_0_hotkey_id = obs.obs_hotkey_register_frontend( "p_s_d_0_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " 4 Summary Subtract ", p_s_d_0 )
-	p_s_e_0_hotkey_id = obs.obs_hotkey_register_frontend( "p_s_e_0_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " 5 Summary Subtract ", p_s_e_0 )				
+	local p_h_a_name = "Home"
+	local p_h_b_name = "Home"
+	local p_h_c_name = "Home"
+	local p_h_d_name = "Home"
+	local p_h_e_name = "Home"
+	local p_v_a_name = "Visitor"
+	local p_v_b_name = "Visitor"
+	local p_v_c_name = "Visitor"
+	local p_v_d_name = "Visitor"
+	local p_v_e_name = "Visitor"
+	local p_s_a_name = "Summary"
+	local p_s_b_name = "Summary"
+	local p_s_c_name = "Summary"
+	local p_s_d_name = "Summary"
+	local p_s_e_name = "Summary"
+	
+	p_h_a_source = obs.obs_data_get_string( settings, "p_h_a_source" )
+	p_h_b_source = obs.obs_data_get_string( settings, "p_h_b_source" )
+	p_h_c_source = obs.obs_data_get_string( settings, "p_h_c_source" )
+	p_h_d_source = obs.obs_data_get_string( settings, "p_h_d_source" )
+	p_h_e_source = obs.obs_data_get_string( settings, "p_h_e_source" )
+	p_v_a_source = obs.obs_data_get_string( settings, "p_v_a_source" )
+	p_v_b_source = obs.obs_data_get_string( settings, "p_v_b_source" )
+	p_v_c_source = obs.obs_data_get_string( settings, "p_v_c_source" )
+	p_v_d_source = obs.obs_data_get_string( settings, "p_v_d_source" )
+	p_v_e_source = obs.obs_data_get_string( settings, "p_v_e_source" )
+	p_s_a_source = obs.obs_data_get_string( settings, "p_s_a_source" )
+	p_s_b_source = obs.obs_data_get_string( settings, "p_s_b_source" )
+	p_s_c_source = obs.obs_data_get_string( settings, "p_s_c_source" )
+	p_s_d_source = obs.obs_data_get_string( settings, "p_s_d_source" )
+	p_s_e_source = obs.obs_data_get_string( settings, "p_s_e_source" )	
+	
+	if source_name_hotkey then
+		if p_h_a_source ~= "" and p_h_a_source ~= "Select" then p_h_a_name = p_h_a_source end
+		if p_h_b_source ~= "" and p_h_b_source ~= "Select" then p_h_b_name = p_h_b_source end
+		if p_h_c_source ~= "" and p_h_c_source ~= "Select" then p_h_c_name = p_h_c_source end
+		if p_h_d_source ~= "" and p_h_d_source ~= "Select" then p_h_d_name = p_h_d_source end
+		if p_h_e_source ~= "" and p_h_e_source ~= "Select" then p_h_e_name = p_h_e_source end
+		if p_v_a_source ~= "" and p_v_a_source ~= "Select" then p_v_a_name = p_v_a_source end
+		if p_v_b_source ~= "" and p_v_b_source ~= "Select" then p_v_b_name = p_v_b_source end
+		if p_v_c_source ~= "" and p_v_c_source ~= "Select" then p_v_c_name = p_v_c_source end
+		if p_v_d_source ~= "" and p_v_d_source ~= "Select" then p_v_d_name = p_v_d_source end
+		if p_v_e_source ~= "" and p_v_e_source ~= "Select" then p_v_e_name = p_v_e_source end
+		if p_s_a_source ~= "" and p_s_a_source ~= "Select" then p_s_a_name = p_s_a_source end
+		if p_s_b_source ~= "" and p_s_b_source ~= "Select" then p_s_b_name = p_s_b_source end
+		if p_s_c_source ~= "" and p_s_c_source ~= "Select" then p_s_c_name = p_s_c_source end
+		if p_s_d_source ~= "" and p_s_d_source ~= "Select" then p_s_d_name = p_s_d_source end
+		if p_s_e_source ~= "" and p_s_e_source ~= "Select" then p_s_e_name = p_s_e_source end	
+	end	
+	
+	p_h_a_1_hotkey_id = obs.obs_hotkey_register_frontend( "p_h_a_1_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " " .. p_h_a_name .. " Add ", p_h_a_1 )
+	p_h_b_1_hotkey_id = obs.obs_hotkey_register_frontend( "p_h_b_1_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " " .. p_h_b_name .. " Add ", p_h_b_1 )
+	p_h_c_1_hotkey_id = obs.obs_hotkey_register_frontend( "p_h_c_1_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " " .. p_h_c_name .. " Add ", p_h_c_1 )
+	p_h_d_1_hotkey_id = obs.obs_hotkey_register_frontend( "p_h_d_1_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " " .. p_h_d_name .. " Add ", p_h_d_1 )
+	p_h_e_1_hotkey_id = obs.obs_hotkey_register_frontend( "p_h_e_1_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " " .. p_h_e_name .. " Add ", p_h_e_1 )
+	p_v_a_1_hotkey_id = obs.obs_hotkey_register_frontend( "p_v_a_1_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " " .. p_v_a_name .. " Add ", p_v_a_1 )
+	p_v_b_1_hotkey_id = obs.obs_hotkey_register_frontend( "p_v_b_1_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " " .. p_v_b_name .. " Add ", p_v_b_1 )
+	p_v_c_1_hotkey_id = obs.obs_hotkey_register_frontend( "p_v_c_1_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " " .. p_v_c_name .. " Add ", p_v_c_1 )
+	p_v_d_1_hotkey_id = obs.obs_hotkey_register_frontend( "p_v_d_1_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " " .. p_v_d_name .. " Add ", p_v_d_1 )
+	p_v_e_1_hotkey_id = obs.obs_hotkey_register_frontend( "p_v_e_1_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " " .. p_v_e_name .. " Add ", p_v_e_1 )
+	p_s_a_1_hotkey_id = obs.obs_hotkey_register_frontend( "p_s_a_1_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " " .. p_s_a_name .. " Add ", p_s_a_1 )
+	p_s_b_1_hotkey_id = obs.obs_hotkey_register_frontend( "p_s_b_1_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " " .. p_s_b_name .. " Add ", p_s_b_1 )
+	p_s_c_1_hotkey_id = obs.obs_hotkey_register_frontend( "p_s_c_1_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " " .. p_s_c_name .. " Add ", p_s_c_1 )
+	p_s_d_1_hotkey_id = obs.obs_hotkey_register_frontend( "p_s_d_1_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " " .. p_s_d_name .. " Add ", p_s_d_1 )
+	p_s_e_1_hotkey_id = obs.obs_hotkey_register_frontend( "p_s_e_1_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " " .. p_s_e_name .. " Add ", p_s_e_1 )			
+	p_h_a_0_hotkey_id = obs.obs_hotkey_register_frontend( "p_h_a_0_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " " .. p_h_a_name .. " Subtract ", p_h_a_0 )
+	p_h_b_0_hotkey_id = obs.obs_hotkey_register_frontend( "p_h_b_0_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " " .. p_h_b_name .. " Subtract ", p_h_b_0 )
+	p_h_c_0_hotkey_id = obs.obs_hotkey_register_frontend( "p_h_c_0_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " " .. p_h_c_name .. " Subtract ", p_h_c_0 )
+	p_h_d_0_hotkey_id = obs.obs_hotkey_register_frontend( "p_h_d_0_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " " .. p_h_d_name .. " Subtract ", p_h_d_0 )
+	p_h_e_0_hotkey_id = obs.obs_hotkey_register_frontend( "p_h_e_0_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " " .. p_h_e_name .. " Subtract ", p_h_e_0 )
+	p_v_a_0_hotkey_id = obs.obs_hotkey_register_frontend( "p_v_a_0_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " " .. p_v_a_name .. " Subtract ", p_v_a_0 )
+	p_v_b_0_hotkey_id = obs.obs_hotkey_register_frontend( "p_v_b_0_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " " .. p_v_b_name .. " Subtract ", p_v_b_0 )
+	p_v_c_0_hotkey_id = obs.obs_hotkey_register_frontend( "p_v_c_0_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " " .. p_v_c_name .. " Subtract ", p_v_c_0 )
+	p_v_d_0_hotkey_id = obs.obs_hotkey_register_frontend( "p_v_d_0_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " " .. p_v_d_name .. " Subtract ", p_v_d_0 )
+	p_v_e_0_hotkey_id = obs.obs_hotkey_register_frontend( "p_v_e_0_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " " .. p_v_e_name .. " Subtract ", p_v_e_0 )
+	p_s_a_0_hotkey_id = obs.obs_hotkey_register_frontend( "p_s_a_0_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " " .. p_s_a_name .. " Subtract ", p_s_a_0 )
+	p_s_b_0_hotkey_id = obs.obs_hotkey_register_frontend( "p_s_b_0_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " " .. p_s_b_name .. " Subtract ", p_s_b_0 )
+	p_s_c_0_hotkey_id = obs.obs_hotkey_register_frontend( "p_s_c_0_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " " .. p_s_c_name .. " Subtract ", p_s_c_0 )
+	p_s_d_0_hotkey_id = obs.obs_hotkey_register_frontend( "p_s_d_0_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " " .. p_s_d_name .. " Subtract ", p_s_d_0 )
+	p_s_e_0_hotkey_id = obs.obs_hotkey_register_frontend( "p_s_e_0_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), filename() .. " " .. p_s_e_name .. " Subtract ", p_s_e_0 )				
 	local p_h_a_1_hotkey_save_array = obs.obs_data_get_array( settings, "p_h_a_1_hotkey" )
 	local p_h_b_1_hotkey_save_array = obs.obs_data_get_array( settings, "p_h_b_1_hotkey" )
 	local p_h_c_1_hotkey_save_array = obs.obs_data_get_array( settings, "p_h_c_1_hotkey" )
