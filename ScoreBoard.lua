@@ -103,7 +103,7 @@ p_s_b_0_hotkey_id			= obs.OBS_INVALID_HOTKEY_ID
 p_s_c_0_hotkey_id			= obs.OBS_INVALID_HOTKEY_ID
 p_s_d_0_hotkey_id			= obs.OBS_INVALID_HOTKEY_ID
 p_s_e_0_hotkey_id			= obs.OBS_INVALID_HOTKEY_ID
-reset_hotkey_id				= obs.OBS_INVALID_HOTKEY_ID
+reset_scoreboard_hotkey_id	= obs.OBS_INVALID_HOTKEY_ID
 
 --[[
 ----------------------------------------------------------
@@ -889,9 +889,9 @@ end
 ----------------------------------------------------------
 ]]
 function script_save( settings )
-	local reset_hotkey_save_array = obs.obs_hotkey_save( reset_hotkey_id )
-	obs.obs_data_set_array( settings, "reset_hotkey", reset_hotkey_save_array )
-	obs.obs_data_array_release( reset_hotkey_save_array )
+	local reset_scoreboard_hotkey_save_array = obs.obs_hotkey_save( reset_scoreboard_hotkey_id )
+	obs.obs_data_set_array( settings, "reset_scoreboard_hotkey", reset_scoreboard_hotkey_save_array )
+	obs.obs_data_array_release( reset_scoreboard_hotkey_save_array )
 	local p_h_a_1_hotkey_save_array = obs.obs_hotkey_save( p_h_a_1_hotkey_id )
 	local p_h_b_1_hotkey_save_array = obs.obs_hotkey_save( p_h_b_1_hotkey_id )
 	local p_h_c_1_hotkey_save_array = obs.obs_hotkey_save( p_h_c_1_hotkey_id )
@@ -998,10 +998,10 @@ end
 ]]
 function script_load( settings )
 
-	reset_hotkey_id = obs.obs_hotkey_register_frontend( "reset_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), "Reset " .. filename(), reset )		
-	local hotkey_save_array_reset = obs.obs_data_get_array( settings, "reset_hotkey" )
-	obs.obs_hotkey_load( reset_hotkey_id, reset_hotkey_save_array )			
-	obs.obs_data_array_release( reset_hotkey_save_array )	
+	reset_scoreboard_hotkey_id = obs.obs_hotkey_register_frontend( "reset_scoreboard_" .. filename():lower():gsub('[%W%p%c%s]', ''), "Reset " .. filename(), reset )		
+	local reset_scoreboard_hotkey_save_array = obs.obs_data_get_array( settings, "reset_scoreboard_hotkey" )
+	obs.obs_hotkey_load( reset_scoreboard_hotkey_id, reset_scoreboard_hotkey_save_array )			
+	obs.obs_data_array_release( reset_scoreboard_hotkey_save_array )	
 	local p_h_a_name = "Home"
 	local p_h_b_name = "Home"
 	local p_h_c_name = "Home"
