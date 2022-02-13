@@ -848,6 +848,8 @@ function get_source_looping( source_name )
 				enabled = obs.obs_data_get_bool( s, property )
 				obs.obs_data_release( s )
 			end
+
+
 	end
     obs.obs_source_release( source )
 	return enabled
@@ -1517,6 +1519,7 @@ function property_onchange( props, property, settings )
 	obs.obs_property_set_visible( audio_warning_prop, config==2 )
 	obs.obs_property_set_visible( caution_duration_prop, config==2 )
 	obs.obs_property_set_visible( warning_duration_prop, config==2 )
+
 	obs.obs_property_set_visible( normal_color_prop, config==2 )
 	obs.obs_property_set_visible( caution_color_prop, config==2 )
 	obs.obs_property_set_visible( warning_color_prop, config==2 )
@@ -1609,7 +1612,7 @@ function script_properties()
 	t_type = {"Display full format", "Remove leading zeros", "No leading zeros, no split seconds", "No split seconds", "Custom Time Format"}
 	for i,v in ipairs( t_type ) do obs.obs_property_list_add_int( p_13, v, i ) end
 	local p_37 = obs.obs_properties_add_text( props, "custom_time_format", "<font color=".. font_dimmed ..">Time Format</font>", obs.OBS_TEXT_DEFAULT )
-	obs.obs_property_set_long_description( p_37, "\n Timestamp is represented by $D = day, $H = hour, $M = minute, $S = second, $F = split second.\n\n To trim leading zeros, include $T = truncate leading zeros. This will ONLY affect a format matching '$D:$H:$M:$,$F' (00:00:00:00,00)\n" )	
+	obs.obs_property_set_long_description( p_37, "\n Timestamp is represented by $D = day, $H = hour, $M = minute, $S = second, $F = split second.\n\n To trim leading zeros, include $T = truncate leading zeros. This will ONLY affect a format matching '$D:$H:$M:$S,$F' (00:00:00:00,00)\n" )	
 	local p_14 = obs.obs_properties_add_list( props, "split_source", "<i>Split Source</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
 	obs.obs_property_list_add_string( p_14, "Select", "select" )
 	list = {}
@@ -1946,6 +1949,7 @@ function script_defaults( settings )
 end
 --[[
 ----------------------------------------------------------
+
 	A function named script_save will be called when the script is saved
 	NOTE: This function is usually used for saving extra data ( such as in this
 	case, a hotkey's save data ).  Settings set via the properties are saved
