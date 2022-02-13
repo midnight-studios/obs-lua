@@ -18,22 +18,10 @@ desc	    				= [[
 <br><center><a href="https://github.com/midnight-studios/obs-lua/blob/main/]] .. luafile ..[[">Find it on GitHub</a></center>
 <br><p>The Properties for this script will adjust visibility as needed. Some advanced properties will only be visible if the Configuration is set to "Advanced". If the Configuration is set to "Basic" the defined values will still be used, so ensure you define those correctly.</p><p>Find help on the <a href="https://obsproject.com/forum/resources/]] .. obsurl ..[[">OBS Forum Thread</a>.</p><hr/>]]
 last_text    				= ""
-custom_time_format			= ""
 font_normal					= "#ffffff"
 font_dimmed					= "#bfbbbf"
 timer_source   				= ""
 countdown_type 				= ""
-backup_folder 				= ""
-import_list 				= ""
-output_file_name 			= "-backup($date_stamp).json";
-longtimetext_s 				= ""
-longtimetext_p 				= ""
-last_split_data 			= ""
-split_type   				= ""
-split_source   				= ""
-active_source  				= ""
-next_scene					= ""
-stop_text					= ""
 cur_seconds   				= 0
 def_seconds   				= 0
 split	     				= 0
@@ -43,20 +31,28 @@ timer_day	     			= 0
 timer_hours	     			= 0
 timer_minutes 	     		= 0
 timer_seconds	     		= 0
+split_itm					= {}
+split_data					= nil
+script_settings 			= nil
+props 						= nil
+longtimetext_s 				= ""
+longtimetext_p 				= ""
+last_split_data 			= ""
+split_type   				= ""
+split_source   				= ""
+active_source  				= ""
 timer_type   				= 0
+next_scene					= ""
 start_recording				= 0
 recording_type				= 0
 trigger_text				= 1
+stop_text					= ""
 orig_time     				= 0
 time_frequency				= 0
 completed_cycles			= 0
 ns_last						= 0
 cycle_index 				= 0
 timer_cycle 				= 10 --milliseconds
-split_itm					= {}
-split_data					= nil
-script_settings 			= nil
-props 						= nil
 activated     				= false
 timer_active  				= false
 reset_activated				= false
@@ -66,11 +62,7 @@ media = {
 warning_text				= "",
 caution_text				= "",
 source_name_audio_warning	= "",
-source_name_audio_caution	= "", 
-caution_note_source 		= "",
-warning_note_source 		= "",
-caution_note 				= "",
-warning_note 				= "",
+source_name_audio_caution	= "",
 warning_activated			= false,
 caution_activated			= false, 
 cur_seconds_caution			= 0,
@@ -79,13 +71,20 @@ caution_duration			= 0,
 warning_duration			= 0, 
 normal_color				= 0xFFFFFFFF,
 caution_color				= 0x40f3ed,
-warning_color				= 0x05055a,
+warning_color				= 0x05055a, 
+caution_note_source 		= "",
+warning_note_source 		= "",
+caution_note 				= "",
+warning_note 				= "",
 last_state_caution			= obs.OBS_MEDIA_STATE_NONE,
 last_state_warning			= obs.OBS_MEDIA_STATE_NONE
 }
 hotkey_id_reset			= obs.OBS_INVALID_HOTKEY_ID
 hotkey_id_pause			= obs.OBS_INVALID_HOTKEY_ID
 hotkey_id_split			= obs.OBS_INVALID_HOTKEY_ID
+backup_folder = ""
+import_list = ""
+output_file_name = "-backup($date_stamp).json";
 --[[
 ----------------------------------------------------------
 -- Use this to create a Script Log Output used in testing
@@ -290,6 +289,48 @@ function trim_zero( int )
    end   
    return int
 end
+
+--[[
+----------------------------------------------------------
+	Function to set the split time text
+----------------------------------------------------------
+]]
+function set_split_text( source_name )
+	if source_name == 'Select' then
+		return
+	end	
+	if reset_activated then 
+		reset_activated = false
+		fresh_start( true ) 
+	end	
+	local text = split_data
+	if text ~= last_split_data then
+	set_text( source_name, text )
+	end
+	last_split_data = text
+end
+--[[
+----------------------------------------------------------
+	Function to set the source text
+----------------------------------------------------------
+]]
+function set_text( source_name, text )
+	if source_name == 'Select' or  source_name == 'select'then
+		return
+	end	
+	--[[
+		Increments the source reference counter, 
+		use obs_source_release() to release it when complete.
+	]]
+	local source = obs.obs_get_source_by_name( source_name )
+	if source ~= nil then
+		local settings = obs.obs_source_get_settings( source )
+		obs.obs_data_set_string( settings, "text", text )	
+	end
+		obs.obs_source_update( source, settings )
+		obs.obs_data_release( settings )
+		obs.obs_source_release( source )
+end
 --[[
 ----------------------------------------------------------
 ----------------------------------------------------------
@@ -461,9 +502,6 @@ function TimeFormat( time, notrim )
 	if notrim or ( timer_trim == 4 ) then
 		return trim_time( hour, minutes, seconds, nil, true )		
 	end	
-	if ( timer_trim == 5 ) then
-		return trim_time( hour, minutes, seconds, mili, true )		
-	end	
 	return trim_time( hour, minutes, seconds, ( ( timer_trim ~= 3 ) and mili or nil ), trim )
 end
 --[[
@@ -482,115 +520,6 @@ function LongTimeFormat( time )
 	end
 	return c_time
 end
-
-
---[[
-----------------------------------------------------------
-	
-----------------------------------------------------------
-]]
-function explode(str,delim)
-   local t, ll
-   t={}
-   ll=0
-   if(#str == 1) then
-      return {str}
-   end
-   while true do
-      l = string.find(str, delim, ll, true) -- find the next d in the string
-      if l ~= nil then -- if "not not" found then..
-         table.insert(t, string.sub(str,ll,l-1)) -- Save it in our array.
-         ll = l + 1 -- save just after where we found it for searching next time.
-      else
-         table.insert(t, string.sub(str,ll)) -- Save what's left in our array.
-         break -- Break at end, as it should be, according to the lua manual.
-      end
-   end
-   return t
-end
---[[
-----------------------------------------------------------
-----------------------------------------------------------
-]]
-function tablelength(T)
-  local count = 0
-  for _ in pairs(T) do count = count + 1 end
-  return count
-end
---[[
-----------------------------------------------------------
-	
-----------------------------------------------------------
-]]
-function format_time_stamp( timestamp, format )
-	local table1 = explode( timestamp, ':' )
-	if table1 == nil then return timestamp end
-	local c = tablelength( table1 )
-	local _, d = timestamp:gsub(":","")
-	local _, t = format:gsub("$T","")
-	local day, hour, minute, seconds, mili = 0, 0, 0, 0, 0
-	if d == 3 then
-		if tableHasKey( table1, 1 ) then
-			day = table1[1]
-		end
-		if tableHasKey( table1, 2 ) then
-			hour = table1[2]
-		end
-		if tableHasKey( table1, 3 ) then
-			minute = table1[3]
-		end
-		if tableHasKey( table1, 4 ) then
-			seconds = table1[4]
-			local table2 = explode( table1[4], ',' )
-			if tableHasKey( table2, 1 ) and tableHasKey( table2, 2 ) then
-				seconds = table2[1]
-				mili = table2[2]
-			end	
-		end
-	end
-	if d == 2 then
-		if tableHasKey( table1, 1 ) then
-			hour = table1[1]
-		end
-		if tableHasKey( table1, 2 ) then
-			minute = table1[2]
-		end
-		if tableHasKey( table1, 3 ) then
-			seconds = table1[3]
-			local table2 = explode( table1[3], ',' )
-			if tableHasKey( table2, 1 ) and tableHasKey( table2, 2 ) then
-				seconds = table2[1]
-				mili = table2[2]
-			end	
-		end
-	end
-	if d == 1 then
-		if tableHasKey( table1, 1 ) then
-			minute = table1[1]
-		end
-		if tableHasKey( table1, 2 ) then
-			seconds = table1[2]
-			local table2 = explode( table1[2], ',' )
-			if tableHasKey( table2, 1 ) and tableHasKey( table2, 2 ) then
-				seconds = table2[1]
-				mili = table2[2]
-			end	
-		end
-	end
-	if tonumber(day) < 10 then 
-		day = "0"..day
-	end
-	timestamp = format:gsub("$T", ""):gsub("$D", day):gsub( "$H", hour):gsub("$M", minute):gsub("$S", seconds):gsub("$F", mili)
-	if t ~= 0 and cur_seconds > 0.01 then
-		--local reg = '^[0]+[:]?[0]+[:]?[0]+[:]?[0]?'
-		local reg = "^[0:,]*" -- close, but misses 1 instance
-		timestamp = timestamp:gsub(reg,"")
-	end	
-	if cur_seconds < 0.01 then -- else it will show 00:00:00
-		timestamp = ""
-	end	
-	return timestamp
-end
 --[[
 ----------------------------------------------------------
 	Function to set the time text
@@ -603,25 +532,19 @@ function set_time_text( source_name )
 	end	
 	if cur_seconds <= 0.01 and timer_type ~= 1 then cur_seconds = 0 end
 	local text = tostring( TimeFormat( cur_seconds ) )
-	if timer_trim ~= 5 then
-		--[[
-			Format the Text 'Day/Days'
-		]]
-		if timer_type == 2 and countdown_type == 1 and cur_seconds ~= 0 then
-			local longtimetext = longtimetext_p
-			if math.floor( cur_seconds / 86400 ) <= 1 then
-				longtimetext = longtimetext_s
-			end
-			if math.floor( cur_seconds / 86400 ) <= 0 then
-				longtimetext = longtimetext_p
-			end		
-			text = string.gsub(longtimetext .. text, "[#]", LongTimeFormat( cur_seconds ))
+	--[[
+		Format the Text 'Day/Days'
+	]]
+	if timer_type == 2 and countdown_type == 1 and cur_seconds ~= 0 then
+		local longtimetext = longtimetext_p
+		if math.floor( cur_seconds / 86400 ) <= 1 then
+			longtimetext = longtimetext_s
+		end
+		if math.floor( cur_seconds / 86400 ) <= 0 then
+			longtimetext = longtimetext_p
 		end		
-	else	
-		local l_time = LongTimeFormat( cur_seconds )
-		local t_time = TimeFormat( cur_seconds )
-		text = format_time_stamp( ( l_time ~= 0 ) and string.format("%s:%s", l_time, t_time ) or string.format("%s", t_time ), custom_time_format )
-	end	
+		text = string.gsub(longtimetext .. text, "[#]", LongTimeFormat( cur_seconds ))
+	end
 	if timer_type ~= 2 then
 		--text_prefix = ""
 		--   text_suffix = ""
@@ -660,47 +583,6 @@ function set_time_text( source_name )
 	end		
 	timer_ended( source_name )
 	end	
-end
---[[
-----------------------------------------------------------
-	Function to set the split time text
-----------------------------------------------------------
-]]
-function set_split_text( source_name )
-	if source_name == 'Select' then
-		return
-	end	
-	if reset_activated then 
-		reset_activated = false
-		fresh_start( true ) 
-	end	
-	local text = split_data
-	if text ~= last_split_data then
-	set_text( source_name, text )
-	end
-	last_split_data = text
-end
---[[
-----------------------------------------------------------
-	Function to set the source text
-----------------------------------------------------------
-]]
-function set_text( source_name, text )
-	if source_name == 'Select' or  source_name == 'select'then
-		return
-	end	
-	--[[
-		Increments the source reference counter, 
-		use obs_source_release() to release it when complete.
-	]]
-	local source = obs.obs_get_source_by_name( source_name )
-	if source ~= nil then
-		local settings = obs.obs_source_get_settings( source )
-		obs.obs_data_set_string( settings, "text", text )	
-	end
-		obs.obs_source_update( source, settings )
-		obs.obs_data_release( settings )
-		obs.obs_source_release( source )
 end
 --[[
 ----------------------------------------------------------
@@ -1191,10 +1073,20 @@ end
 ----------------------------------------------------------
 ----------------------------------------------------------
 ]]
-function import_button_clicked( props, p, settings )
+function import_button_clicked( props, p )
+	on_import( true )
 	return false
 end
-
+--[[
+----------------------------------------------------------
+----------------------------------------------------------
+]]
+function on_import( pressed )
+	if not pressed then
+		return
+	end
+	return true
+end
 --[[
 ----------------------------------------------------------
 ----------------------------------------------------------
@@ -1302,14 +1194,6 @@ end
  custom function: helper
 ----------------------------------------------------------
 ]]
-function tableHasKey(table,key)
-    return table[key] ~= nil
-end
---[[
---------------------------------------------------------------------
- custom function: helper
-----------------------------------------------------------
-]]
 function in_table( tbl, value )
 	local found = false
 	for k, v in pairs( tbl ) do
@@ -1346,12 +1230,12 @@ Callback on list modification
 ----------------------------------------------------------
 ]]
 function property_onchange( props, property, settings )
+	backup_folder = obs.obs_data_get_string( settings, "backup_folder" )
 	local filenames = get_filenames( backup_folder )
 	local has_file_list = (table.getn( filenames ) > 0)
+	local import_list_prop = obs.obs_properties_get( props, "import_list" )
+	
 	-- Retrieves value selected in list
-	backup_folder = obs.obs_data_get_string( settings, "backup_folder" )
-	local custom_time_format = obs.obs_data_get_string( settings, "custom_time_format" )
-	local timer_trim = obs.obs_data_get_int( settings, "timer_trim" )
 	local import_list = obs.obs_data_get_string( settings, "import_list" )
 	local backup_m = obs.obs_data_get_bool( settings, "backup_mode" )
 	local config = obs.obs_data_get_int( settings, "config" )
@@ -1369,8 +1253,6 @@ function property_onchange( props, property, settings )
 	local cn_source = obs.obs_data_get_string( settings, "caution_note_source" )
 	local wn_source = obs.obs_data_get_string( settings, "warning_note_source" )
 	-- Retrieves property reference
-	local import_list_prop = obs.obs_properties_get( props, "import_list" )
-	local custom_time_format_prop = obs.obs_properties_get( props, "custom_time_format" )
 	local t_text_prop = obs.obs_properties_get( props, "trigger_text" )
 	local cn_source_prop = obs.obs_properties_get( props, "caution_note_source" )
 	local wn_source_prop = obs.obs_properties_get( props, "warning_note_source" )
@@ -1413,11 +1295,6 @@ function property_onchange( props, property, settings )
 	local export_button_prop = obs.obs_properties_get( props, "export_button" )
 	local import_button_prop = obs.obs_properties_get( props, "import_button" )
 	local export_folder_prop = obs.obs_properties_get( props, "backup_folder" )
-	if timer_trim ~= 5 then
-		obs.obs_property_set_visible( custom_time_format_prop, false )
-	else
-		obs.obs_property_set_visible( custom_time_format_prop, true )
-	end	
 	if backup_m then 
 		obs.obs_property_set_visible( import_list_prop, true )
 		obs.obs_property_set_visible( export_button_prop, true )
@@ -1429,11 +1306,13 @@ function property_onchange( props, property, settings )
 		obs.obs_property_set_visible( import_button_prop, false )
 		obs.obs_property_set_visible( export_folder_prop, false )
 	end	
+
 	if import_list ~= "select" then
 		obs.obs_property_set_visible( import_button_prop, true )
 	else
 		obs.obs_property_set_visible( import_button_prop, false )
 	end
+	
 	if ( in_table( {t_source, s_source, a_source, wn_source}, cn_source ) ) then
 		obs.obs_data_set_string(settings, "caution_note_source", 'select') -- Don't allow timer and caution note text source to be the same
 	end 
@@ -1454,8 +1333,8 @@ function property_onchange( props, property, settings )
 	obs.obs_property_set_visible( recording_type_prop, false )
 	obs.obs_property_set_visible( cycle_list_prop, ( (scene == 'Source List' or scene == 'Scene List') and config == 2 ) )
 	obs.obs_property_set_visible( active_source_prop, ( (scene == 'Source List' or scene == 'Scene List') and config == 2 ) )
-	obs.obs_property_set_visible( day_text_prop, ( c_type == 1 and config == 2 and mode == 2 and timer_trim ~= 5 ) )
-	obs.obs_property_set_visible( days_text_prop, ( c_type == 1 and config == 2 and mode == 2 and timer_trim ~= 5 ) )
+	obs.obs_property_set_visible( day_text_prop, ( c_type == 1 and config == 2 and mode == 2 ) )
+	obs.obs_property_set_visible( days_text_prop, ( c_type == 1 and config == 2 and mode == 2 ) )
 	obs.obs_property_set_visible( month_prop, ( c_type == 1 and config == 2 and mode == 2 ) )
 	obs.obs_property_set_visible( day_prop, ( c_type == 1 and config == 2 and mode == 2 ) )
 	obs.obs_property_set_visible( year_prop, ( c_type == 1 and config == 2 and mode == 2 ) )
@@ -1490,8 +1369,10 @@ function property_onchange( props, property, settings )
 	if rec == 1 and mode == 2 then
 	obs.obs_property_set_visible( recording_type_prop, config == 2 )
 	end
+	
 	obs.obs_property_set_visible( text_prefix_prop, config == 2 )
 	obs.obs_property_set_visible( text_suffix_prop, config == 2 )
+	
 	if mode == 2 then		
 	obs.obs_property_set_visible( start_recording_prop, config == 2 )
 	obs.obs_property_set_visible( next_scene_prop, config == 2 )
@@ -1606,10 +1487,8 @@ function script_properties()
 	local p_12 = obs.obs_properties_add_int( props, "seconds", "<font color=".. font_dimmed ..">Seconds</font>", 0, 59, 1 )
 	obs.obs_property_int_set_suffix( p_12, " Seconds" );
 	local p_13 = obs.obs_properties_add_list( props, "timer_trim", "Timer Format", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
-	t_type = {"Display full format", "Remove leading zeros", "No leading zeros, no split seconds", "No split seconds", "Custom Time Format"}
+	t_type = {"Display full format", "Remove leading zeros", "No leading zeros, no split seconds", "No split seconds"}
 	for i,v in ipairs( t_type ) do obs.obs_property_list_add_int( p_13, v, i ) end
-	local p_37 = obs.obs_properties_add_text( props, "custom_time_format", "<font color=".. font_dimmed ..">Time Format</font>", obs.OBS_TEXT_DEFAULT )
-	obs.obs_property_set_long_description( p_37, "\n Timestamp is represented by $D = day, $H = hour, $M = minute, $S = second, $F = split second.\n\n To trim leading zeros, include $T = truncate leading zeros. This will ONLY affect a format matching '$D:$H:$M:$,$F' (00:00:00:00,00)\n" )	
 	local p_14 = obs.obs_properties_add_list( props, "split_source", "<i>Split Source</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
 	obs.obs_property_list_add_string( p_14, "Select", "select" )
 	list = {}
@@ -1801,8 +1680,8 @@ function script_properties()
 	
 	local p_32 = obs.obs_properties_add_bool( props, "backup_mode", "Backup Mode" )
 	local p_33 = obs.obs_properties_add_path( props, "backup_folder", "Backup Folder", obs.OBS_PATH_DIRECTORY, nil, nil)
-	local p_34 = obs.obs_properties_add_list( props, "import_list", "<i>Load Settings</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
-	obs.obs_property_list_add_string( p_34, 'Select ', 'select' )
+	local p_34 = obs.obs_properties_add_list( props, "import_list", "<i>Settings file</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
+	obs.obs_property_list_add_string( p_34, 'Select', 'select' )
 	obs.obs_property_set_long_description( p_34, "\nSelect the Settings file to import.\n" )
 	local filenames = get_filenames( path )
 	if table.getn( filenames ) > 0 then
@@ -1819,7 +1698,6 @@ function script_properties()
   	obs.obs_property_set_modified_callback( p_4, property_onchange )
   	obs.obs_property_set_modified_callback( p_7, property_onchange )
   	obs.obs_property_set_modified_callback( p_8, property_onchange )
-  	obs.obs_property_set_modified_callback( p_13, property_onchange )
   	obs.obs_property_set_modified_callback( p_19, property_onchange )
   	obs.obs_property_set_modified_callback( p_24, property_onchange )
   	obs.obs_property_set_modified_callback( p_26, property_onchange )
@@ -1856,8 +1734,7 @@ function script_update( settings )
 		obs.obs_data_get_int( settings, "seconds" )
 	else
 		cur_seconds = 0
-	end	
-	custom_time_format = obs.obs_data_get_string( settings, "custom_time_format" )
+	end		
 	longtimetext_s = string.gsub(obs.obs_data_get_string( settings, "day_text" ), "\\([n])", {n="\n"})
 	longtimetext_p = string.gsub(obs.obs_data_get_string( settings, "days_text" ), "\\([n])", {n="\n"})
 	timer_year = obs.obs_data_get_int( settings, "year" )
@@ -1905,7 +1782,6 @@ A function named script_defaults will be called to set the default settings
 function script_defaults( settings )
 	assign_default_frequency()
 	obs.obs_data_set_default_int( settings, "trigger_text", 1 )
-	obs.obs_data_set_default_string( settings, "custom_time_format", "$T$D:$H:$M:$S,$F" )
 	obs.obs_data_set_default_string( settings, "caution_note", "" )
 	obs.obs_data_set_default_string( settings, "warning_note", "" )
 	obs.obs_data_set_default_string( settings, "caution_note_source", "Select" )

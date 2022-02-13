@@ -848,6 +848,7 @@ function get_source_looping( source_name )
 				enabled = obs.obs_data_get_bool( s, property )
 				obs.obs_data_release( s )
 			end
+
 	end
     obs.obs_source_release( source )
 	return enabled
@@ -1517,6 +1518,7 @@ function property_onchange( props, property, settings )
 	obs.obs_property_set_visible( audio_warning_prop, config==2 )
 	obs.obs_property_set_visible( caution_duration_prop, config==2 )
 	obs.obs_property_set_visible( warning_duration_prop, config==2 )
+
 	obs.obs_property_set_visible( normal_color_prop, config==2 )
 	obs.obs_property_set_visible( caution_color_prop, config==2 )
 	obs.obs_property_set_visible( warning_color_prop, config==2 )
@@ -1946,6 +1948,7 @@ function script_defaults( settings )
 end
 --[[
 ----------------------------------------------------------
+
 	A function named script_save will be called when the script is saved
 	NOTE: This function is usually used for saving extra data ( such as in this
 	case, a hotkey's save data ).  Settings set via the properties are saved
