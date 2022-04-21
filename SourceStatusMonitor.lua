@@ -10,7 +10,7 @@ Source Monitor
 
 --Globals
 obs           				= obslua
-gversion = 0.4
+gversion 					= 0.5
 luafileTitle				= "Source Status Monitor"
 luafile						= "SourceStatusMonitor.lua"
 obsurl						= "audio-status-monitor.1381/"
@@ -479,6 +479,7 @@ end
 
 --------------------------------------------------------------------
 ]]
+--function scene_items_by_scene_name( scene_name, source_id, prop_ref )
 function scene_items_by_scene_name( scene_name, disp_name, prop_ref )
 
 	local enumerated = false
@@ -525,13 +526,16 @@ function scene_items_by_scene_name( scene_name, disp_name, prop_ref )
 					local name 				= obs.obs_source_get_name( sceneitem_source )	
 					local id 				= obs.obs_source_get_id( sceneitem_source )
 					local display_name 		= obs.obs_source_get_display_name( id )
+					local display_type		= obs.obs_source_get_type( sceneitem_source )
 
 					--[[
 						if we find the source we want
 						add it to the list
 						match it with 'display name'
 						TODO> instead of checking this one by one, lets perhaps use a json object 
-					]]				
+					]]		
+					
+					--if source_id == id then
 					if display_name == disp_name then
 						enumerated = true
 						obs.obs_property_list_add_string( prop_ref, name, name )
@@ -575,6 +579,7 @@ function scene_items_by_scene_name( scene_name, disp_name, prop_ref )
 									match it with 'display name'
 									TODO> instead of checking this one by one, lets perhaps use a json object 
 								]]	
+								--if source_id == id then
 								if display_name == disp_name then
 									enumerated = true
 									obs.obs_property_list_add_string( prop_ref, name, name )
@@ -801,6 +806,7 @@ function property_onchange( props, property, settings )
 			nothing available for the list, instead of leaving it empty,
 			display a messasge to the user
 		]]		
+		-- if not scene_items_by_scene_name(monitor_scene, "text_gdiplus_v2", text_source) then
 		if not scene_items_by_scene_name(monitor_scene, "Text (GDI+)", text_source) then
 			obs.obs_property_list_add_string( text_source, 'Nothing Available', 'none' )
 		end	
@@ -808,6 +814,7 @@ function property_onchange( props, property, settings )
 			nothing available for the list, instead of leaving it empty,
 			display a messasge to the user
 		]]		
+		-- if not scene_items_by_scene_name(monitor_scene, "color_source_v3", color_source) then
 		if not scene_items_by_scene_name(monitor_scene, "Color Source", color_source) then
 			obs.obs_property_list_add_string( color_source, 'Nothing Available', 'none' )
 		end
@@ -1065,9 +1072,11 @@ function scene_item_updated()
 		--[[
 			
 		]]		
+		-- if not scene_items_by_scene_name(monitor_scene, "color_source_v3", color_source) then
 		if not scene_items_by_scene_name(monitor_scene, "Text (GDI+)", text_source) then
 			obs.obs_property_list_add_string( text_source, 'Nothing Available', 'none' )
 		end
+		-- if not scene_items_by_scene_name(monitor_scene, "text_gdiplus_v2", text_source) then
 		if not scene_items_by_scene_name(monitor_scene, "Color Source", color_source) then
 			obs.obs_property_list_add_string( color_source, 'Nothing Available', 'none' )
 		end
