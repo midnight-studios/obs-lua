@@ -18,7 +18,7 @@ desc	    				= [[
 <br><p>Find Source location and display results.</p><p>Find help on the <a href=
 "https://obsproject.com/forum/resources/source-search-helper.1380/">
 OBS Forum Thread</a>.</p><hr/></p>]]
-gversion = 0.2
+gversion = 0.3
 --  global context information
 local ctx = {
     propsDef    = nil,  -- property definition
@@ -308,7 +308,11 @@ function doSearch()
 				if source_name == source_name_parent then
 					if search_param == 1 then
 						found_scenename = scenename
-						results = string.format('<Source:"%s"> <Scene:"%s">%s', tostring(source_name_parent), tostring(scenename), "\n")
+						if results ~= "" then 
+							results = string.format('%s<Source:"%s"> <Scene:"%s">%s', results, tostring(source_name_parent), tostring(scenename), "\n")
+						else
+							results = string.format('<Source:"%s"> <Scene:"%s">%s', tostring(source_name_parent), tostring(scenename), "\n")
+						end
 					else 
 						if search_param ~= 2 then
 							found_scenename = scenename
