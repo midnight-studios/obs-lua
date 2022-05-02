@@ -10,11 +10,11 @@ Source Monitor
 
 --Globals
 obs           				= obslua
-gversion 					= 0.5
+gversion 					= 0.6
 luafileTitle				= "Source Status Monitor"
 luafile						= "SourceStatusMonitor.lua"
 obsurl						= "audio-status-monitor.1381/"
-p_settings 					= nil
+script_settings 					= nil
 active_color				= 0xFF0FF781
 inactive_color				= 0xFF3838FF
 active_font					= 0xFF0B0E10
@@ -340,13 +340,13 @@ end
 function source_settings_update( a_settings )
 		
 	if a_settings ~= nil then	
-		p_settings = a_settings	
+		script_settings = a_settings	
 	end	
 	
 	--[[
 		exit her if script is disabled
 	]]	
-	if obs.obs_data_get_bool( p_settings, "disable_script" ) then
+	if obs.obs_data_get_bool( script_settings, "disable_script" ) then
 		return
 	end 
 
@@ -364,18 +364,18 @@ function source_settings_update( a_settings )
 
 		]]	
 		if monitor_state then
-			color_background = obs.obs_data_get_int( p_settings, "active_color" )
-			color_text = obs.obs_data_get_int( p_settings, "active_font" )
-			text = obs.obs_data_get_string( p_settings, "active_text" )
+			color_background = obs.obs_data_get_int( script_settings, "active_color" )
+			color_text = obs.obs_data_get_int( script_settings, "active_font" )
+			text = obs.obs_data_get_string( script_settings, "active_text" )
 		else
-			color_background = obs.obs_data_get_int( p_settings, "inactive_color" )
-			color_text = obs.obs_data_get_int( p_settings, "inactive_font" )
-			text = obs.obs_data_get_string( p_settings, "inactive_text" )
+			color_background = obs.obs_data_get_int( script_settings, "inactive_color" )
+			color_text = obs.obs_data_get_int( script_settings, "inactive_font" )
+			text = obs.obs_data_get_string( script_settings, "inactive_text" )
 		end	
 		--[[
 
 		]]
-		if obs.obs_data_get_bool( p_settings, "include_name" ) then
+		if obs.obs_data_get_bool( script_settings, "include_name" ) then
 			text = name .. ' ' .. text .. ' '
 		end
 	
@@ -390,11 +390,11 @@ function source_settings_update( a_settings )
 				--[[
 
 				]]
-				color_source = obs.obs_data_get_string( p_settings, "color_source" )
+				color_source = obs.obs_data_get_string( script_settings, "color_source" )
 				--[[
 
 				]]
-				text_source = obs.obs_data_get_string( p_settings, "text_source" )
+				text_source = obs.obs_data_get_string( script_settings, "text_source" )
 				--[[
 
 				]]
@@ -479,7 +479,6 @@ end
 
 --------------------------------------------------------------------
 ]]
---function scene_items_by_scene_name( scene_name, source_id, prop_ref )
 function scene_items_by_scene_name( scene_name, disp_name, prop_ref )
 
 	local enumerated = false
@@ -526,16 +525,13 @@ function scene_items_by_scene_name( scene_name, disp_name, prop_ref )
 					local name 				= obs.obs_source_get_name( sceneitem_source )	
 					local id 				= obs.obs_source_get_id( sceneitem_source )
 					local display_name 		= obs.obs_source_get_display_name( id )
-					local display_type		= obs.obs_source_get_type( sceneitem_source )
 
 					--[[
 						if we find the source we want
 						add it to the list
 						match it with 'display name'
 						TODO> instead of checking this one by one, lets perhaps use a json object 
-					]]		
-					
-					--if source_id == id then
+					]]				
 					if display_name == disp_name then
 						enumerated = true
 						obs.obs_property_list_add_string( prop_ref, name, name )
@@ -579,7 +575,6 @@ function scene_items_by_scene_name( scene_name, disp_name, prop_ref )
 									match it with 'display name'
 									TODO> instead of checking this one by one, lets perhaps use a json object 
 								]]	
-								--if source_id == id then
 								if display_name == disp_name then
 									enumerated = true
 									obs.obs_property_list_add_string( prop_ref, name, name )
@@ -596,6 +591,7 @@ function scene_items_by_scene_name( scene_name, disp_name, prop_ref )
 		end --  source ~= nil
 		--obs.bfree(scene)
 		obs.obs_source_release( source ) -- release reference to source [scene_name]
+
 	
 	return enumerated
 end	
@@ -742,7 +738,7 @@ function property_onchange( props, property, settings )
 	--[[
 
 	]]	
-	monitor_source = obs.obs_data_get_string( p_settings, "monitor_source" )
+	monitor_source = obs.obs_data_get_string( script_settings, "monitor_source" )
 	if monitor_source == "None" then
 		monitor_state = nil
 	end
@@ -806,7 +802,6 @@ function property_onchange( props, property, settings )
 			nothing available for the list, instead of leaving it empty,
 			display a messasge to the user
 		]]		
-		-- if not scene_items_by_scene_name(monitor_scene, "text_gdiplus_v2", text_source) then
 		if not scene_items_by_scene_name(monitor_scene, "Text (GDI+)", text_source) then
 			obs.obs_property_list_add_string( text_source, 'Nothing Available', 'none' )
 		end	
@@ -814,7 +809,6 @@ function property_onchange( props, property, settings )
 			nothing available for the list, instead of leaving it empty,
 			display a messasge to the user
 		]]		
-		-- if not scene_items_by_scene_name(monitor_scene, "color_source_v3", color_source) then
 		if not scene_items_by_scene_name(monitor_scene, "Color Source", color_source) then
 			obs.obs_property_list_add_string( color_source, 'Nothing Available', 'none' )
 		end
@@ -946,7 +940,7 @@ function script_properties()
 	--[[
 		Calls the callback once to set-up current visibility
 	]]	
-  	obs.obs_properties_apply_settings( props, p_settings )
+  	obs.obs_properties_apply_settings( props, script_settings )
 	
 	--[[
 		End of function
@@ -967,7 +961,7 @@ function is_audio_device()
 	--[[
 		load mode if available
 	]]
-	mode = obs.obs_data_get_string( p_settings, "mode" )
+	mode = obs.obs_data_get_string( script_settings, "mode" )
 	--[[
 		
 	]]
@@ -1072,11 +1066,9 @@ function scene_item_updated()
 		--[[
 			
 		]]		
-		-- if not scene_items_by_scene_name(monitor_scene, "color_source_v3", color_source) then
 		if not scene_items_by_scene_name(monitor_scene, "Text (GDI+)", text_source) then
 			obs.obs_property_list_add_string( text_source, 'Nothing Available', 'none' )
 		end
-		-- if not scene_items_by_scene_name(monitor_scene, "text_gdiplus_v2", text_source) then
 		if not scene_items_by_scene_name(monitor_scene, "Color Source", color_source) then
 			obs.obs_property_list_add_string( color_source, 'Nothing Available', 'none' )
 		end
@@ -1133,7 +1125,7 @@ function script_update( settings )
 	source_settings_update()
 	
 	-- Keep track of current settings
-  	p_settings = settings 
+  	script_settings = settings 
 end
 
 --[[
@@ -1208,7 +1200,7 @@ function script_load( settings )
 	source_settings_update( settings )	
 		
 	-- Keep track of current settings	
-  	p_settings = setti
+  	script_settings = settings
 end
 
 --[[
@@ -1231,7 +1223,7 @@ end
 function mode_item_set_status( a_settings )	
 		
 	if a_settings ~= nil then	
-		p_settings = a_settings	
+		script_settings = a_settings	
 	end	
 	--[[
 		get mode for Monitor Type
@@ -1241,11 +1233,11 @@ function mode_item_set_status( a_settings )
 		Audio Mute / Unmute types
 		"Input Audio Device", "Output Audio Device", "Browser Audio", "Capture Device Audio"
 	]]	
-	mode = obs.obs_data_get_string( p_settings, "mode" )
+	mode = obs.obs_data_get_string( script_settings, "mode" )
 	
 	if is_audio_device() or mode == 'Media State' then
 		
-		monitor_source = obs.obs_data_get_string( p_settings, "monitor_source" )
+		monitor_source = obs.obs_data_get_string( script_settings, "monitor_source" )
 		
 		--[[
 			Sources have unique names
@@ -1373,15 +1365,15 @@ function connect_source_signal( cd )
 	--[[
 		check mode and relevant state and set variant accordingly
 	]]
-	mode_item_set_status( p_settings )
+	mode_item_set_status( script_settings )
 	--[[
 		Fetch the settings defined in the Script Settings
 	]]
-	monitor_source = obs.obs_data_get_string( p_settings, "monitor_source" )
+	monitor_source = obs.obs_data_get_string( script_settings, "monitor_source" )
 	--[[
 		load mode if available
 	]]
-	mode = obs.obs_data_get_string( p_settings, "mode" )
+	mode = obs.obs_data_get_string( script_settings, "mode" )
 	--[[
 		Get source from CallData
 	]]
@@ -1449,7 +1441,7 @@ function reconnect_source_signal()
 	--[[
 		Fetch the settings defined in the Script Settings
 	]]
-	monitor_source = obs.obs_data_get_string( p_settings, "monitor_source" )  
+	monitor_source = obs.obs_data_get_string( script_settings, "monitor_source" )  
 	--[[
 		Sources have unique names
 		Load the Source, from the Name
@@ -1509,7 +1501,7 @@ function source_signal( cd )
 	--[[
 		exit here if script is disabled
 	]]
-	if obs.obs_data_get_bool( p_settings, "disable_script" ) then
+	if obs.obs_data_get_bool( script_settings, "disable_script" ) then
 		return
 	end  
 	--[[
