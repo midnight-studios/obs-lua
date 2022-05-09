@@ -10,7 +10,7 @@ Source Monitor
 
 --Globals
 obs           				= obslua
-gversion 					= 0.6
+gversion 					= 0.7
 luafileTitle				= "Source Status Monitor"
 luafile						= "SourceStatusMonitor.lua"
 obsurl						= "audio-status-monitor.1381/"
@@ -288,6 +288,9 @@ function set_text_bounds( settings )
 			--[[
 					set text bounds width
 			]]
+
+
+
 			obs.obs_data_set_int( source_settings, "extents_cx", scene_width )
 			--[[
 					set text bounds height
@@ -454,6 +457,7 @@ function source_settings_update( a_settings )
 
 				]]
 				obs.obs_data_set_int( source_settings, "color", color_text )
+
 				--[[
 
 				]]
@@ -479,7 +483,7 @@ end
 
 --------------------------------------------------------------------
 ]]
-function scene_items_by_scene_name( scene_name, disp_name, prop_ref )
+function scene_items_by_scene_name( scene_name, source_id, prop_ref )
 
 	local enumerated = false
 		--[[
@@ -525,14 +529,14 @@ function scene_items_by_scene_name( scene_name, disp_name, prop_ref )
 					local name 				= obs.obs_source_get_name( sceneitem_source )	
 					local id 				= obs.obs_source_get_id( sceneitem_source )
 					local display_name 		= obs.obs_source_get_display_name( id )
-
 					--[[
 						if we find the source we want
 						add it to the list
 						match it with 'display name'
 						TODO> instead of checking this one by one, lets perhaps use a json object 
-					]]				
-					if display_name == disp_name then
+						NOTE: We use type_ID as this is not affected by language packs, display_name is dependent on language setting
+					]]	
+					if id == source_id then
 						enumerated = true
 						obs.obs_property_list_add_string( prop_ref, name, name )
 					end
@@ -568,14 +572,14 @@ function scene_items_by_scene_name( scene_name, disp_name, prop_ref )
 								name 			= obs.obs_source_get_name( groupitemsource )	
 								id 				= obs.obs_source_get_id( groupitemsource )
 								display_name 	= obs.obs_source_get_display_name( id )	
-
 								--[[
 									if we find the source we want
 									add it to the list
 									match it with 'display name'
 									TODO> instead of checking this one by one, lets perhaps use a json object 
+									NOTE: We use type_ID as this is not affected by language packs, display_name is dependent on language setting
 								]]	
-								if display_name == disp_name then
+								if id == source_id then
 									enumerated = true
 									obs.obs_property_list_add_string( prop_ref, name, name )
 								end
@@ -780,6 +784,7 @@ function property_onchange( props, property, settings )
 	--[[
 		get the value in property list item
 	]]		
+
 	local monitor_scene = obs.obs_data_get_string( settings, "monitor_scene" )
 		--[[
 		get the value in property list item
@@ -802,14 +807,14 @@ function property_onchange( props, property, settings )
 			nothing available for the list, instead of leaving it empty,
 			display a messasge to the user
 		]]		
-		if not scene_items_by_scene_name(monitor_scene, "Text (GDI+)", text_source) then
+		if not scene_items_by_scene_name( monitor_scene, "text_gdiplus_v2", text_source ) then
 			obs.obs_property_list_add_string( text_source, 'Nothing Available', 'none' )
 		end	
 		--[[
 			nothing available for the list, instead of leaving it empty,
 			display a messasge to the user
 		]]		
-		if not scene_items_by_scene_name(monitor_scene, "Color Source", color_source) then
+		if not scene_items_by_scene_name( monitor_scene, "color_source_v3", color_source ) then
 			obs.obs_property_list_add_string( color_source, 'Nothing Available', 'none' )
 		end
 	end
@@ -1066,12 +1071,20 @@ function scene_item_updated()
 		--[[
 			
 		]]		
-		if not scene_items_by_scene_name(monitor_scene, "Text (GDI+)", text_source) then
+		if not scene_items_by_scene_name( monitor_scene, "text_gdiplus_v2", text_source ) then
 			obs.obs_property_list_add_string( text_source, 'Nothing Available', 'none' )
-		end
-		if not scene_items_by_scene_name(monitor_scene, "Color Source", color_source) then
+		end	
+		--[[
+			nothing available for the list, instead of leaving it empty,
+			display a messasge to the user
+		]]		
+		if not scene_items_by_scene_name( monitor_scene, "color_source_v3", color_source ) then
 			obs.obs_property_list_add_string( color_source, 'Nothing Available', 'none' )
-		end
+		end	
+	
+	
+	
+	
   -- IMPORTANT: returns true to trigger refresh of the properties
   return true
 end
