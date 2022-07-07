@@ -69,31 +69,35 @@ function script_properties()
 	local property_sf = obs.obs_properties_add_list( ctx.propsDef, "source_type", "Source Type", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
 	obs.obs_property_list_add_string( property_sf, list_all, list_all )	
 	local source_list = get_source_list( )
-	source_list = remove_duplicates( source_list )
-	for key, value in pairsByKeys( source_list ) do
+	local temp_source_list = remove_duplicates( source_list )
+	for key, value in pairsByKeys( temp_source_list ) do
 		obs.obs_property_list_add_string( property_sf, value, value )
 	end
 	local property_ff = obs.obs_properties_add_list( ctx.propsDef, "filter_type", "Filter Type", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
 	obs.obs_property_list_add_string( property_ff, list_all, list_all )	
 	list = {}
-
-	if sources ~= nil then
-		for _, source in pairs( sources ) do
-			local filters = obs.obs_source_enum_filters( source )
-			for _, f in pairs( filters ) do
-				filter_name = obs.obs_source_get_name( f ) 
-				filter_id = obs.obs_source_get_id( f )
-				filter_display_name = obs.obs_source_get_display_name( filter_id )
-				if filter_display_name ~= nil then
-					list[filter_display_name] = filter_display_name
-				end
+	
+	
+	
+	
+	
+	
+	for key, value in pairsByKeys( source_list ) do
+		source = obs.obs_get_source_by_name( key )				
+		local filters = obs.obs_source_enum_filters( source )
+		for _, f in pairs( filters ) do
+			filter_name = obs.obs_source_get_name( f ) 
+			filter_id = obs.obs_source_get_id( f )
+			filter_display_name = obs.obs_source_get_display_name( filter_id )
+			if filter_display_name ~= nil then
+				list[filter_display_name] = filter_display_name
 			end
-		end	
+		end
+	end
 		list = remove_duplicates( list )
 		for key, value in pairsByKeys( list ) do
 			obs.obs_property_list_add_string( property_ff, value, value )
 		end
-	end	
 	--obs.obs_property_set_visible( property_ff, false )
 	list = {}
 	local property_sn = obs.obs_properties_add_list( ctx.propsDef, "source_name", "Source Name", obs.OBS_COMBO_TYPE_EDITABLE, obs.OBS_COMBO_FORMAT_STRING )
