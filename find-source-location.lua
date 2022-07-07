@@ -18,7 +18,7 @@ desc	    				= [[
 <br><p>Find Source location and display results.</p><p>Find help on the <a href=
 "https://obsproject.com/forum/resources/source-search-helper.1380/">
 OBS Forum Thread</a>.</p><hr/></p>]]
-gversion = 0.4
+gversion = 0.5
 --  global context information
 local ctx = {
     propsDef    = nil,  -- property definition
@@ -28,8 +28,8 @@ local ctx = {
     propsValSrc = nil,  -- property values (first source scene)
 }
 source_name   				= ""
-source_filter				= ""
-filter_types   				= ""
+source_type				= ""
+filter_type   				= ""
 search_param				= 1
 list_all 					= "List Everything"
 goto 						= false
@@ -66,25 +66,14 @@ function script_properties()
 	local sources = obs.obs_enum_sources()
     local notice = obs.obs_properties_add_text( ctx.propsDef, "statusMessage", "Results:", obs.OBS_TEXT_MULTILINE )
     --obs.obs_property_set_enabled( notice, false )
-	
-	
-	local property_sf = obs.obs_properties_add_list( ctx.propsDef, "source_filter", "Source Filter", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
+	local property_sf = obs.obs_properties_add_list( ctx.propsDef, "source_type", "Source Type", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
 	obs.obs_property_list_add_string( property_sf, list_all, list_all )	
-	if sources ~= nil then
-		for _, source in pairs( sources ) do
-			local name = obs.obs_source_get_name( source )
-			local id = obs.obs_source_get_id( source )
-			local display_name = obs.obs_source_get_display_name( id )
-			if display_name ~= nil then
-				list[display_name] = display_name
-			end
-		end	
-		list = remove_duplicates( list )
-		for key, value in pairsByKeys( list ) do
-			obs.obs_property_list_add_string( property_sf, value, value )
-		end
+	local source_list = get_source_list( )
+	source_list = remove_duplicates( source_list )
+	for key, value in pairsByKeys( source_list ) do
+		obs.obs_property_list_add_string( property_sf, value, value )
 	end
-	local property_ff = obs.obs_properties_add_list( ctx.propsDef, "filter_types", "Filter Types", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
+	local property_ff = obs.obs_properties_add_list( ctx.propsDef, "filter_type", "Filter Type", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
 	obs.obs_property_list_add_string( property_ff, list_all, list_all )	
 	list = {}
 
@@ -147,8 +136,8 @@ function script_defaults( settings )
 	obs.obs_data_set_default_bool( settings, "goto", false )
 	obs.obs_data_set_default_bool( settings, "print_log", false )
 	obs.obs_data_set_default_string( settings, "source_name", list_all )
-	obs.obs_data_set_default_string( settings, "source_filter", list_all )
-	obs.obs_data_set_default_string( settings, "filter_types", list_all )
+	obs.obs_data_set_default_string( settings, "source_type", list_all )
+	obs.obs_data_set_default_string( settings, "filter_type", list_all )
     obs.obs_data_set_default_string( settings, "statusMessage", "" )
     obs.obs_data_set_default_int( settings, "search_param", 1 )
 end
@@ -160,9 +149,9 @@ function script_update( settings )
     --  remember settings
     ctx.propsSet = settings
 	source_name = obs.obs_data_get_string( settings, "source_name" )
-	source_filter = obs.obs_data_get_string( settings, "source_filter" )
+	source_type = obs.obs_data_get_string( settings, "source_type" )
 	search_param = obs.obs_data_get_int( settings, "search_param" )
-	filter_types = obs.obs_data_get_string( settings, "filter_types" )
+	filter_type = obs.obs_data_get_string( settings, "filter_type" )
     goto = obs.obs_data_get_bool( settings, "goto" )
     print_log = obs.obs_data_get_bool( settings, "print_log" )
     ctx.propsVal.statusMessage = obs.obs_data_get_string( settings, "statusMessage" )
@@ -188,39 +177,44 @@ function property_onchange( props, property, settings )
 	local prop_val = obs.obs_data_get_string( settings, prop_name )
 	local prop = obs.obs_properties_get( props, prop_name )
 	--obs.obs_data_set_string( settings, "statusMessage", "" )
-	local source_filter = obs.obs_data_get_string( ctx.propsSet, "source_filter" )
-	local filter_types = obs.obs_data_get_string( ctx.propsSet, "filter_types" )
+	local source_type = obs.obs_data_get_string( ctx.propsSet, "source_type" )
+	local filter_type = obs.obs_data_get_string( ctx.propsSet, "filter_type" )
 	local search_param = obs.obs_data_get_int( ctx.propsSet, "search_param" )
 	local src_name = obs.obs_data_get_string( ctx.propsSet, "source_name" )
 	local source_name_props = obs.obs_properties_get( props, "source_name" )
-	local filter_types_props = obs.obs_properties_get( props, "filter_types" )
-	obs.obs_property_set_visible( filter_types_props, ( search_param == 2) )
+	local filter_type_props = obs.obs_properties_get( props, "filter_type" )
+	obs.obs_property_set_visible( filter_type_props, ( search_param == 2) )
 	obs.obs_property_list_clear( source_name_props )
 	obs.obs_property_list_add_string( source_name_props, list_all, list_all )
-	if prop_name == "source_filter" then
-		obs.obs_data_set_string( settings, "filter_types", list_all ) -- Don't allow timer and active text source to be the same
+	if prop_name == "source_type" then
+		obs.obs_data_set_string( settings, "filter_type", list_all ) -- Don't allow timer and active text source to be the same
 		obs.obs_data_set_string( settings, "source_name", list_all ) -- Don't allow timer and active text source to be the same
 	end	
-	if prop_name == "filter_types" then
+	if prop_name == "filter_type" then
 		obs.obs_data_set_string( settings, "source_name", list_all ) -- Don't allow timer and active text source to be the same
 	end
 	local list = {}
-	local sources = obs.obs_enum_sources()
-		if sources ~= nil then
-			for _, source in ipairs( sources ) do
+
+	local source_list = get_source_list( )
+	--source_list = remove_duplicates( source_list )
+	for key, value in pairsByKeys( source_list ) do
+		
+		source = obs.obs_get_source_by_name( key )
+		
+		if source ~= nil then
 				local name = obs.obs_source_get_name( source )
 				local id = obs.obs_source_get_id( source )
 				local display_name = obs.obs_source_get_display_name( id )
-				if source_filter ~= list_all then
-					if display_name == source_filter then	
-						if filter_types ~= list_all then
+				if source_type ~= list_all then
+					if display_name == source_type then	
+						if filter_type ~= list_all then
 							local filters = obs.obs_source_enum_filters( source )
 							local found_filter = false
 							for _, f in pairs( filters ) do
 								filter_name = obs.obs_source_get_name( f ) 
 								filter_id = obs.obs_source_get_id( f )
 								filter_display_name = obs.obs_source_get_display_name( filter_id )
-								if filter_display_name == filter_types then
+								if filter_display_name == filter_type then
 									if not found_filter then
 										list[name] = name
 									end	
@@ -232,13 +226,13 @@ function property_onchange( props, property, settings )
 						end
 					end	
 				else
-						if filter_types ~= list_all then
+						if filter_type ~= list_all then
 							local filters = obs.obs_source_enum_filters( source )
 							for _, f in pairs( filters ) do
 								filter_name = obs.obs_source_get_name( f ) 
 								filter_id = obs.obs_source_get_id( f )
 								filter_display_name = obs.obs_source_get_display_name( filter_id )
-								if filter_display_name == filter_types then
+								if filter_display_name == filter_type then
 									list[name] = name
 									break -- if this sources has one or more match we stop the search
 								end	
@@ -246,14 +240,14 @@ function property_onchange( props, property, settings )
 						else
 							list[name] = name
 						end				
-				end							
-			end	
-			for key, value in pairsByKeys( list ) do
-				obs.obs_property_list_add_string( source_name_props, value, value )
-			end
+				end	
 		end	
-	obs.source_list_release( sources )
+		
+	end
 	
+	for key, value in pairsByKeys( list ) do
+		obs.obs_property_list_add_string( source_name_props, value, value )
+	end
 	--obs.obs_property_set_visible( obs.obs_properties_get( props, "action_button" ), true )
   -- IMPORTANT: returns true to trigger refresh of the properties
   return true
@@ -281,6 +275,66 @@ function script_load( settings )
         end
         return true
     end )
+end
+--[[
+----------------------------------------------------------
+	This is basically obs.obs_enum_sources()
+	but 'Nested Scenes' are not listed in "obs.obs_enum_sources()"
+TODO> 
+----------------------------------------------------------
+]]
+function get_source_list( )
+	
+	local scenes = obs.obs_frontend_get_scenes()
+	local s_list = {}
+	--[[
+	
+	
+	]]
+    if scenes ~= nil then
+		--[[
+
+
+		]]
+        for key_scenesource, value_scenesource in pairs( scenes ) do
+			
+            local scenename = obs.obs_source_get_name( value_scenesource )
+            local scene = obs.obs_scene_from_source( value_scenesource )
+            local sceneitems = obs.obs_scene_enum_items( scene )
+			--[[
+
+
+			]]
+            for key_sceneitem, value_sceneitem in pairs( sceneitems ) do
+                local source = obs.obs_sceneitem_get_source( value_sceneitem )
+				local source_name_parent = obs.obs_source_get_name( source )
+				local group = obs.obs_group_from_source( source )
+				local id_parent = obs.obs_source_get_id( source )
+				local display_name_parent = obs.obs_source_get_display_name( id_parent )
+				s_list[source_name_parent] = display_name_parent					
+				if group ~= nil then
+					local groupitems = obs.obs_scene_enum_items( group )	
+					if groupitems ~= nil then
+						for key_groupitem, value_groupitem in pairs( groupitems ) do
+							local groupitemsource = obs.obs_sceneitem_get_source( value_groupitem )
+							local source_name_group = obs.obs_source_get_name( groupitemsource )
+							local id_group = obs.obs_source_get_id( groupitemsource )
+							local display_name_group = obs.obs_source_get_display_name( id_group )	
+							s_list[source_name_group] = display_name_group			
+						end -- end for
+						obs.sceneitem_list_release( groupitems )
+					end
+				end	
+            end -- end for in pairs( sceneitems )
+            obs.sceneitem_list_release( sceneitems )
+		end -- end for in pairs( scenes )
+		--[[
+
+
+		]]		
+        obs.source_list_release( scenes )
+    end -- scenes ~= nil
+	return s_list
 end
 --[[
 ----------------------------------------------------------
@@ -346,9 +400,9 @@ function doSearch( do_search )
 				local fi = 0					
 				
 				local include_results = true
-				if source_filter ~= list_all then
+				if source_type ~= list_all then
 					include_results = false
-					if display_name_parent == source_filter then
+					if display_name_parent == source_type then
 						include_results = true
 					end	
 				end	
@@ -397,8 +451,8 @@ function doSearch( do_search )
 							filter_name = obs.obs_source_get_name( f ) 
 							filter_id = obs.obs_source_get_id( f )
 							filter_display_name = obs.obs_source_get_display_name( filter_id )		
-							if filter_types ~= list_all then
-								if filter_display_name == filter_types then
+							if filter_type ~= list_all then
+								if filter_display_name == filter_type then
 									found_scenename = scenename
 									results = string.format( '%s< Filter:  %s (%s) > ... < Source:  "%s" {%s} > ... < Scene:  "%s" >%s', results, tostring( filter_name ), tostring( filter_display_name ), tostring( source_name_parent ), tostring( display_name_parent ), tostring( scenename ), "\n" )
 								end
@@ -435,8 +489,8 @@ function doSearch( do_search )
 								filter_name = obs.obs_source_get_name( f ) 
 								filter_id = obs.obs_source_get_id( f )
 								filter_display_name = obs.obs_source_get_display_name( filter_id )
-								if filter_types ~= list_all then
-									if filter_display_name == filter_types then
+								if filter_type ~= list_all then
+									if filter_display_name == filter_type then
 										found_scenename = scenename
 										results = string.format( '%s< Filter:  %s (%s) > ... < Source:  "%s" {%s} > ... < Scene:  "%s" >%s', results, tostring( filter_name ), tostring( filter_display_name ), tostring( source_name_parent ), tostring( display_name_parent ), tostring( scenename ), "\n" )
 									end	
@@ -461,9 +515,9 @@ function doSearch( do_search )
                 			local grp_filter_count = obs.obs_source_filter_count( source )
 							local grp_fi = 0	
 							local include_group_results = true
-							if source_filter ~= list_all then
+							if source_type ~= list_all then
 								include_group_results = false
-								if display_name_group == source_filter then
+								if display_name_group == source_type then
 									include_group_results = true
 								end	
 							end	
@@ -483,8 +537,8 @@ function doSearch( do_search )
 										filter_name = obs.obs_source_get_name( f ) 
 										filter_id = obs.obs_source_get_id( f )
 										filter_display_name = obs.obs_source_get_display_name( filter_id )
-										if filter_types ~= list_all then
-											if filter_display_name == filter_types then
+										if filter_type ~= list_all then
+											if filter_display_name == filter_type then
 												found_scenename = scenename
 												results = string.format( '%s< Filter:  %s (%s) > ... < Source:  "%s" {%s} > ... < Group:  "%s" > ... < Scene:  "%s" >%s', results, tostring( filter_name ), tostring( filter_display_name ), tostring( source_name_group ), tostring( display_name_group ), tostring( source_name_parent ), tostring( scenename ), "\n" )
 											end	
@@ -516,8 +570,8 @@ function doSearch( do_search )
 											filter_name = obs.obs_source_get_name( f ) 
 											filter_id = obs.obs_source_get_id( f )
 											filter_display_name = obs.obs_source_get_display_name( filter_id )
-											if filter_types ~= list_all then
-												if filter_display_name == filter_types then
+											if filter_type ~= list_all then
+												if filter_display_name == filter_type then
 													found_scenename = scenename
 													results = string.format( '%s< Filter:  %s (%s) > ... < Source:  "%s" {%s} > ... < Group:  "%s" > ... < Scene:  "%s" >%s', results, tostring( filter_name ), tostring( filter_display_name ), tostring( source_name_group ), tostring( display_name_group ), tostring( source_name_parent ), tostring( scenename ), "\n" )
 												end
