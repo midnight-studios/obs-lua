@@ -8,7 +8,7 @@ Stopwatch
 ]]
 --Globals
 obs           				= obslua
-gversion 					= "3.7"
+gversion 					= "3.8"
 luafile						= "StopWatch.lua"
 obsurl						= "simple-stopwatch.1364/"
 icon="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAVCAYAAACpF6WWAAAENElEQVQ4jY1UTUgjZxh+ksl/JuMkMYb4F40bNZqK0KJFqBZqS9ddyl76dyhdKPRQShH2sNDSnnopCz11D10KS/dSKNiDoD2I7KXFQ0XSSGpM1llFMYn5mZiMY2IymfIOhgazXfaDj5n53u975vme531fnaqqeMHxJYCvAOgAlABcAyA1jxLO1tYW1tbWoL+Kd3x8jGg0imw2C0VRWkMEYgNgBeAFYKTFRqOh7aVnE9xwFTSZTGJ7exszMzPQ6XSQZRk8z9P7YrVa/Y5hmKLBYHCpqirW63Wcn5/j7OwMHo9HA6bvNqY2mw1Op1N70qaTkxPkcjmbLMsDZrN5hOO4NxuNhlMUxTFiSCA0FEW5GQ6H/wmHwzfamDavUKlUYDKZAoFA4Gue52/r9f/9v6OjQ5uKojwpFAr3RFF8UCwWjW63OzQ/P/9yGyiBnZ6eEtN3eZ7/9XJZrlQqP2cymcf5fL4QDAbHdTrd2yzLXvd4PD9yHHdLEISFXC7nsdvtuTb3c7kcEokEJiYmhliWtaiqWs5ms4f1el0lE2lOTU0hn8/DYrF09vb23jebze9JkvRXNBqdMpvNaIJaLh1tHScAzpvsSd+joyOkUimEQiFNa4vFAlEU4Xa7HwYCgduFQuHRxsbGx5p+qqq+o/7/SF7uQSaTwcHBgZYdgiBMqKqa2dnZ8S8tLaFcLicIIR6PjzU13Qew+gzPKNEj9JJOp5tag+O41/v7+x/v7u7+sLOzc8BxHN1icXR0dMXlcn3xQhW1v7+PSCSC6enptxwOx3WWZRcbjcbTjY2NAJ1nWRYGgwHj4+OqoigFYnr/UlPlClYFwJ1arVYjU8bGxhZ8Pt9KMxiLxd5gGEbTlTSv1WqQJOmJw+G4RqCfPYfkN4qiFDs7O9HT0/Nqa4BhmKd2u10DrFaruLi4oJmncibQSUCrLHJabDlHzItGo1E7FIvFvg+FQjMmkykkCMK9eDwOivl8PvqhBspxXJAOEujfz2HazzBMdXh4OJNMJoupVGre7/cbBEGor6+vY2RkROsLlwY6jUajS5KkSGvtf0oVemUeAPiDgsFgUHMeQJ3MmZycxNzcnMZWkiT4/f67FJRl+UFrmcYB/N7y3UyLSHOBzNjb20MgEMDg4CC6urqwublJZo12d3ffVRRFEQTh4TNTqlQqaawoTShOVdOsqMPDQ8zOzmqFQK3PZrO91NPTs2U0GkmWG4lEYrWt9cViMSwvL1Ntvw9gRafT/aTX6z8AwFKcuhU5zjDMkNfr/XZgYCBKgMfHx3eSyeSqw+Fob9LEipxMp9MRp9P5uclkWuB5/hOKWa3Wvb6+vjLP8wNer5fXUkRRLkql0ofZbPY3ug019TZQ6jKU0AzD7Iqi+Josy6+4XK6P7Hb7LbvdPkS5SXpXKpU/ZVn+5ezs7FG9Xi9brVZNLr1ej38BVDs6EbSfFQsAAAAASUVORK5CYII="
@@ -71,6 +71,7 @@ activated     				= false
 timer_active  				= false
 reset_activated				= false
 start_on_visible  			= false
+start_on_scene_active		= false
 disable_script   			= false
 media = {
 warning_text				= "",
@@ -932,6 +933,74 @@ function get_source_looping( source_name )
 end	
 --[[
 ----------------------------------------------------------
+	This is basically obs.obs_enum_sources()
+	but 'Nested Scenes' are not listed in "obs.obs_enum_sources()"
+TODO> 
+----------------------------------------------------------
+]]
+function scene_name_has_source_name( scene_name, source_name )
+			scene_source = obs.obs_get_source_by_name( scene_name )
+            local scenename = obs.obs_source_get_name( scene_source )
+            local scene = obs.obs_scene_from_source( scene_source )
+            local sceneitems = obs.obs_scene_enum_items( scene )
+			local result = false
+            for key_sceneitem, value_sceneitem in pairs( sceneitems ) do
+		
+                local source = obs.obs_sceneitem_get_source( value_sceneitem )
+				local source_name_parent = obs.obs_source_get_name( source )
+				local group = obs.obs_group_from_source( source )
+				if source_name_parent == source_name then
+					result = true
+					break
+				end				
+				if group ~= nil then
+					local groupitems = obs.obs_scene_enum_items( group )	
+					if groupitems ~= nil then
+						for key_groupitem, value_groupitem in pairs( groupitems ) do
+							local groupitemsource = obs.obs_sceneitem_get_source( value_groupitem )
+							local source_name_group = obs.obs_source_get_name( groupitemsource )
+					
+							if source_name_group == source_name then
+								result = true
+								break
+							end
+						end -- end for
+						obs.sceneitem_list_release( groupitems )
+					end
+				end	
+            end -- end for in pairs( sceneitems )
+            obs.sceneitem_list_release( sceneitems )
+		obs.obs_source_release( scene_source )
+	return result
+end
+
+--[[
+----------------------------------------------------------
+	Called when a scene is activated/deactivated
+----------------------------------------------------------
+]]
+function activate_timer_on_scene( source, activating )
+			--[[ 
+				Reset to starting point
+				if, start_on_scene_active then set to visible
+		]] 
+		if start_on_scene_active and activating then
+			local source_id = obs.obs_source_get_id( source )
+			local current_scene_source = obs.obs_frontend_get_current_scene()
+			local current_scene_name = obs.obs_source_get_name( current_scene_source )
+			obs.obs_source_release( current_scene_source )	
+			if source_id == "scene" then
+				if scene_name_has_source_name( current_scene_name, timer_source ) then			
+					if not is_visible( timer_source ) then 
+						set_visible( timer_source, true )
+					end
+				end	
+			end
+		end
+	
+end	
+--[[
+----------------------------------------------------------
 	set source visibility
 ----------------------------------------------------------
 ]]
@@ -1171,12 +1240,19 @@ end
 ----------------------------------------------------------
 ]]
 function activate_signal( cd, activating )
+	
 	local source = obs.calldata_source( cd, "source" )
 	if source ~= nil then
 		local name = obs.obs_source_get_name( source )
+		activate_timer_on_scene( source, activating )
+		--[[
+		
+			Check if scene has source
+		
+		]]
 		if ( name == timer_source ) then
 			if activating then record( 4, 300 ) end
-			if start_on_visible then
+			if start_on_visible or start_on_scene_active then
 				fresh_start( true )
 				activate( activating )
 			end
@@ -1555,6 +1631,7 @@ function property_onchange( props, property, settings )
 	local caution_text_prop = obs.obs_properties_get( props, "caution_text" )
 	local warning_text_prop = obs.obs_properties_get( props, "warning_text" )
 	local start_on_visible_prop = obs.obs_properties_get( props, "start_on_visible" )
+	local start_on_scene_active_prop = obs.obs_properties_get( props, "start_on_scene_active" )
 	local disable_script_prop = obs.obs_properties_get( props, "disable_script" )
 	local export_button_prop = obs.obs_properties_get( props, "export_button" )
 	local import_button_prop = obs.obs_properties_get( props, "import_button" )
@@ -1674,6 +1751,7 @@ function property_onchange( props, property, settings )
 	obs.obs_property_set_visible( caution_text_prop, config==2 )
 	obs.obs_property_set_visible( warning_text_prop, config==2 )
 	obs.obs_property_set_visible( start_on_visible_prop, config==2 )
+	obs.obs_property_set_visible( start_on_scene_active_prop, config==2 )
 	obs.obs_property_set_visible( disable_script_prop, config==2 )
 	if mode == 1 then
   		obs.obs_property_set_visible( split_type_prop, config == 2 )
@@ -2002,6 +2080,7 @@ function script_properties()
     
 	local p_42 = obs.obs_properties_add_bool( props, "set_stopwatch", "Set Stopwatch" )
     obs.obs_properties_add_bool( props, "start_on_visible", "Start Timer on Source Visible" )
+    obs.obs_properties_add_bool( props, "start_on_scene_active", "Start Timer on Scene Active" )
     obs.obs_properties_add_bool( props, "disable_script", "Disable Script" )
 	
 	local p_43 = obs.obs_properties_add_bool( props, "backup_mode", "Backup Mode" )
@@ -2141,6 +2220,7 @@ function load_settings_globals( settings )
 	text_suffix = string.gsub(obs.obs_data_get_string( settings, "text_suffix" ), "\\([n])", {n="\n"})
 	stop_text = obs.obs_data_get_string( settings, "stop_text" )
     start_on_visible = obs.obs_data_get_bool( settings,"start_on_visible" )
+    start_on_scene_active = obs.obs_data_get_bool( settings,"start_on_scene_active" )
 	backup_folder = obs.obs_data_get_string( settings, "backup_folder" )
     disable_script = obs.obs_data_get_bool( settings,"disable_script" )
 	import_list = obs.obs_data_get_string( settings, "import_list" )
@@ -2194,6 +2274,7 @@ function script_defaults( settings )
 	obs.obs_data_set_default_bool( settings, "set_stopwatch", false )
 	obs.obs_data_set_default_bool( settings, "load_saved_time", false )
 	obs.obs_data_set_default_bool( settings, "start_on_visible", false )
+	obs.obs_data_set_default_bool( settings, "start_on_scene_active", false )
 	obs.obs_data_set_default_bool( settings, "disable_script", false )
 	obs.obs_data_set_default_bool( settings, "backup_mode", false )
 	-- Keep track of current settings
