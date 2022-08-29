@@ -1076,7 +1076,7 @@ end
 ]]
 function timer_callback()
 	time_frequency = get_frequency( ns_last )
-	calculate()
+	calculate( false )
 	completed_cycles = completed_cycles + 1
 	set_time_text( timer_source )
 	--log( 'Applied frequency', time_frequency ) 
@@ -1085,11 +1085,11 @@ end
 ----------------------------------------------------------
 ----------------------------------------------------------
 ]]
-function calculate()
+function calculate( update_settings )
 	if timer_type ~= 2 then
-		timer_value( cur_seconds + time_frequency )
+		timer_value( cur_seconds + time_frequency, update_settings )
 	else
-		timer_value( cur_seconds - time_frequency )
+		timer_value( cur_seconds - time_frequency, update_settings )
 	end
 end
 --[[
