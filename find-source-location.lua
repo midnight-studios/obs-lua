@@ -18,7 +18,7 @@ desc	    				= [[
 <br><p>Find Source location and display results.</p><p>Find help on the <a href=
 "https://obsproject.com/forum/resources/source-search-helper.1380/">
 OBS Forum Thread</a>.</p><hr/></p>]]
-gversion = 0.5
+gversion = 0.6
 --  global context information
 local ctx = {
     propsDef    = nil,  -- property definition
@@ -63,9 +63,7 @@ end
 function script_properties()
 	local list = {}
 	ctx.propsDef = obs.obs_properties_create()
-	local sources = obs.obs_enum_sources()
     local notice = obs.obs_properties_add_text( ctx.propsDef, "statusMessage", "Results:", obs.OBS_TEXT_MULTILINE )
-    --obs.obs_property_set_enabled( notice, false )
 	local property_sf = obs.obs_properties_add_list( ctx.propsDef, "source_type", "Source Type", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
 	obs.obs_property_list_add_string( property_sf, list_all, list_all )	
 	local source_list = get_source_list( )
@@ -74,35 +72,32 @@ function script_properties()
 		obs.obs_property_list_add_string( property_sf, value, value )
 	end
 	local property_ff = obs.obs_properties_add_list( ctx.propsDef, "filter_type", "Filter Type", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
-	obs.obs_property_list_add_string( property_ff, list_all, list_all )	
-	list = {}
-	
-	
-	
-	
-	
-	
-	for key, value in pairsByKeys( source_list ) do
-		source = obs.obs_get_source_by_name( key )				
-		local filters = obs.obs_source_enum_filters( source )
-		for _, f in pairs( filters ) do
-			filter_name = obs.obs_source_get_name( f ) 
-			filter_id = obs.obs_source_get_id( f )
-			filter_display_name = obs.obs_source_get_display_name( filter_id )
-			if filter_display_name ~= nil then
-				list[filter_display_name] = filter_display_name
+		obs.obs_property_list_add_string( property_ff, list_all, list_all )	
+		list = {}
+		for key, value in pairsByKeys( source_list ) do
+			f_source = obs.obs_get_source_by_name( key )				
+			local filters = obs.obs_source_enum_filters( f_source )
+			obs.obs_source_release( f_source )
+			for _, f in pairs( filters ) do
+				filter_name = obs.obs_source_get_name( f ) 
+				filter_id = obs.obs_source_get_id( f )
+				filter_display_name = obs.obs_source_get_display_name( filter_id )
+				if filter_display_name ~= nil then
+					list[filter_display_name] = filter_display_name
+				end
 			end
 		end
-	end
 		list = remove_duplicates( list )
 		for key, value in pairsByKeys( list ) do
 			obs.obs_property_list_add_string( property_ff, value, value )
 		end
-	--obs.obs_property_set_visible( property_ff, false )
+	
 	list = {}
 	local property_sn = obs.obs_properties_add_list( ctx.propsDef, "source_name", "Source Name", obs.OBS_COMBO_TYPE_EDITABLE, obs.OBS_COMBO_FORMAT_STRING )
 	obs.obs_property_list_add_string( property_sn, "Select", "Select" )	
 	obs.obs_property_list_add_string( property_sn, list_all, list_all )	
+	
+	local sources = obs.obs_enum_sources()
 	if sources ~= nil then
 		for _, source in ipairs( sources ) do
 			local name = obs.obs_source_get_name( source )
@@ -122,7 +117,7 @@ function script_properties()
 	obs.source_list_release( sources )
 	
 	obs.obs_properties_add_button( ctx.propsDef, "search", "Search", doSearch )
-	--obs.obs_property_set_visible( p_c, false )
+	
 	
   	obs.obs_property_set_modified_callback( property_sf, property_onchange )
   	obs.obs_property_set_modified_callback( property_sn, property_onchange )
@@ -230,23 +225,23 @@ function property_onchange( props, property, settings )
 						end
 					end	
 				else
-						if filter_type ~= list_all then
-							local filters = obs.obs_source_enum_filters( source )
-							for _, f in pairs( filters ) do
-								filter_name = obs.obs_source_get_name( f ) 
-								filter_id = obs.obs_source_get_id( f )
-								filter_display_name = obs.obs_source_get_display_name( filter_id )
-								if filter_display_name == filter_type then
-									list[name] = name
-									break -- if this sources has one or more match we stop the search
-								end	
+					if filter_type ~= list_all then
+						local filters = obs.obs_source_enum_filters( source )
+						for _, f in pairs( filters ) do
+							filter_name = obs.obs_source_get_name( f ) 
+							filter_id = obs.obs_source_get_id( f )
+							filter_display_name = obs.obs_source_get_display_name( filter_id )
+							if filter_display_name == filter_type then
+								list[name] = name
+								break -- if this sources has one or more match we stop the search
 							end	
-						else
-							list[name] = name
-						end				
+						end	
+					else
+						list[name] = name
+					end				
 				end	
 		end	
-		
+		obs.obs_source_release( source )
 	end
 	
 	for key, value in pairsByKeys( list ) do
