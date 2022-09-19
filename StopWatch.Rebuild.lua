@@ -70,7 +70,6 @@ script_settings 			= nil
 props 						= nil
 activated     				= false
 prevent_callback  			= false
-send_callback	  			= false
 timer_active  				= false
 reset_activated				= false
 start_on_visible  			= false
@@ -879,28 +878,13 @@ function timer_ended( source_name )
 	end
 	--[[
 		
-		We want to update the timer start button description at this point.
+		TODO> We want to update the timer start button description at this point.
 		
-		To achieve this we need to trigger the callback for the properties
-		and the only way to do this is to update some property value.
-	
 	]]
 
-	trigger_callback()
 	return true
 end
---[[
---------------------------------------------------------------------
-	Function to trigger properties callback
---------------------------------------------------------------------
-]]
-function trigger_callback()
-	send_callback = true
-	obs.obs_data_set_string( script_settings, "trigger_callback", tostring(os.time()) )
-	obs.obs_properties_apply_settings( props, script_settings )
-	send_callback = false
-	return true
-end	
+
 --[[
 --------------------------------------------------------------------
 	Function to set the split time text
@@ -1857,14 +1841,6 @@ function property_onchange( props, property, settings )
 	]]
 	if prevent_callback then return true end
 	local property_name = obs.obs_property_name( property )
-	--[[
-	
-		Optimization: limit callbacks
-	
-	]]	
-	if send_callback and property_name ~= "trigger_callback" then
-		return true
-	end	
 	
 	local filenames = get_filenames( backup_folder )
 	local has_file_list = (table.getn( filenames ) > 0)
@@ -2455,13 +2431,6 @@ function script_properties()
 	local p_49 = obs.obs_properties_add_button( props, "export_button", "Export Settings", export_button_clicked )
 	
 	local p_50 = obs.obs_properties_add_button( props, "import_button", "Import Settings", import_button_clicked )
-	--[[
-	
-		We use this field only to trigger the properties callback event from a task.
-	
-	]]
-	local p_51 = obs.obs_properties_add_text( props, "trigger_callback", "dummy field", obs.OBS_TEXT_DEFAULT )
-	obs.obs_property_set_visible( p_51, false )
 	
 	obs.source_list_release( sources )
 	--Sets callback upon modification of the list Basically an Event Listener
@@ -2482,7 +2451,6 @@ function script_properties()
 	obs.obs_property_set_modified_callback( p_47, property_onchange )		-- backup_folder
 	obs.obs_property_set_modified_callback( p_48, property_onchange )		-- import_list *
 	obs.obs_property_set_modified_callback( p_50, import_properties )		-- import_button
-	obs.obs_property_set_modified_callback( p_51, property_onchange )		-- trigger_callback
 	-- Calls the callback once to set-up current visibility
   	obs.obs_properties_apply_settings( props, script_settings )
 	return props
