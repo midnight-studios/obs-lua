@@ -69,12 +69,15 @@ split_data					= nil
 script_settings 			= nil
 props 						= nil
 activated     				= false
+prevent_callback  			= false
+send_callback	  			= false
 timer_active  				= false
 reset_activated				= false
 start_on_visible  			= false
 start_on_scene_active		= false
 disable_script   			= false
 show_mili   				= true
+mili_toggle_triggered		= false
 media = {
 warning_text				= "",
 caution_text				= "",
@@ -141,7 +144,7 @@ end
 	$function status: in service
 --------------------------------------------------------------------
 ]]
-function raw_time( time )
+function raw_time( time, analyze )
 	local hour, minutes, seconds, mili = 0, 0, 0, 0
 	--[[
 		If there is more than 24 hours in the time value
@@ -168,7 +171,17 @@ function raw_time( time )
 	mili = math.floor( ( time - math.floor( time/3600 )*3600 - math.floor( ( time - math.floor( time/3600 )*3600 )/60 )*60 - math.floor( time - math.floor( time/3600 )*3600 - math.floor( ( time - math.floor( time/3600 )*3600 )/60 )*60 ) )*100 )
 	if mili < 10 and trim then
 		mili = "0"..mili
-	end 
+	end
+	--[[
+		
+		Use this to see if time stamp matches certain criteria
+		This looks at HH:MM:SS only and is used to trigger stuff
+		
+	]]	
+	if analyze then
+		return config_time( hour, minutes, seconds,  nil )
+	end
+	
 	return config_time( hour, minutes, seconds,  mili )
 end	
 --[[
@@ -212,6 +225,8 @@ end
 	
 	Take the raw time format "HH:MM:SS:FF" and allow the user to
 	define a custom format.
+
+
 
 	$function status: in service
 --------------------------------------------------------------------
@@ -321,7 +336,7 @@ function set_stopwatch()
 end	
 --[[
 --------------------------------------------------------------------
-	Function to set the time text
+	Function to set the defined time text source value 
 --------------------------------------------------------------------
 ]]
 function set_time_text( source_name )
@@ -330,7 +345,8 @@ function set_time_text( source_name )
 		fresh_start( true ) 
 	end	
 	if cur_seconds <= 0.01 and timer_type ~= 1 then timer_value( 0 ) end
-	local text = tostring( raw_time( cur_seconds ) )
+	toggle_mili()
+	local text = tostring( raw_time( cur_seconds ) )	
 	if timer_format ~= 5 then
 		--[[
 			Format the Text 'Day/Days'
@@ -370,23 +386,26 @@ function set_time_text( source_name )
 			media_activate( settings, 'caution' )
 			media_activate( settings, 'warning' )
 		end
-			obs.obs_source_update( source, settings )
-			obs.obs_data_release( settings )
-			obs.obs_source_release( source )
+		obs.obs_source_update( source, settings )
+		obs.obs_data_release( settings )
+		obs.obs_source_release( source )
 	end
 	stop_media( 'caution' )
 	stop_media( 'warning' )
 	last_text = text
-	if cur_seconds <= 0.01 and timer_type ~= 1 then
-	activate( false, true )
 	--[[
-	Timer Ended
+		Timer Ended
 	]]--
-	if trigger_text ~= 1 then 
-		set_visible( media["caution_note_source"], false )
-		set_visible( media["warning_note_source"], false )  
-	end		
-	timer_ended( source_name )
+	if cur_seconds <= 0.01 and timer_type ~= 1 then
+		activate( false, true )
+		--[[
+		Timer Ended
+		]]--
+		if trigger_text ~= 1 then 
+			set_visible( media["caution_note_source"], false )
+			set_visible( media["warning_note_source"], false )  
+		end		
+		timer_ended( source_name )
 	end	
 end
 --[[
@@ -402,7 +421,6 @@ end
 ]]
 function show_split( props, settings )
 	local config = obs.obs_data_get_int( settings, "config" )
-	local toggle_mili_trigger_prop = obs.obs_properties_get( props, "toggle_mili_trigger" )
 	local mode = obs.obs_data_get_int( settings, "timer_type" )
 	local shw = false
 	shw = ( config==2 and mode==2 and in_table( {1, 2}, timer_format ) )
@@ -415,7 +433,63 @@ function show_split( props, settings )
 	end
 	return shw
 end
+--[[
+----------------------------------------------------------
+	
+	Function to toggle milliseconds
+	
+----------------------------------------------------------
+]]
+function toggle_mili()
+	--[[
+		
+		This feature will only activate if 'Trigger Value' is defined
+		and if 'Trigger Value' matches 'Current Time' and if
+		'Timer Type' is 'Countdown'
+	
+	]]
+	if toggle_mili_trigger ~= "" and timer_type == 2 and not mili_toggle_triggered then
+		if raw_time( cur_seconds, true ) == toggle_mili_trigger then
+			--[[
 
+				The action trigger a toggle, so if the
+				active state at the time of the trigger
+				is 'Show' the toggle will 'Hide' and
+				Vicas Versa. 
+
+				Should we force a state? 
+				To force define: show_mili = false
+
+			]]
+			mili_toggle( true )
+			mili_toggle_triggered = true
+		end
+	end	
+	return true
+end
+--[[
+----------------------------------------------------------
+
+----------------------------------------------------------
+]]
+function reset_mili()
+	if timer_type ~= 2 then
+		return true
+	end	
+	--[[
+		
+		This feature will only activate if 'Trigger Value' is defined
+		and if 'Timer Type' is 'Countdown'
+	
+	]]
+	if toggle_mili_trigger ~= "" then
+		show_mili = false
+	else
+		show_mili = true
+		set_time_text( timer_source )
+	end	
+	return true
+end
 
 
 
@@ -771,10 +845,7 @@ end
 ]] 
 function timer_ended( source_name )
 	delayed_recording()
-	if next_scene == "" or next_scene == "Select" then
-		return
-	end	
-	if next_scene ~= "TIMER END TEXT" and next_scene ~= "Source List"  and next_scene ~= "Scene List" then
+	if next_scene ~= "TIMER END TEXT" and next_scene ~= "Source List"  and next_scene ~= "Scene List" and next_scene ~= "Select" then
 		set_visible( timer_source, false ) -- last thing, set visibility of timer to hide
 		--[[
 			Increments the source reference counter, 
@@ -786,21 +857,46 @@ function timer_ended( source_name )
 		fresh_start( true ) 
 		--obs.remove_current_callback()
 	end
+
 	if next_scene == "Source List" then
 		reset( true )
 		cycle_list_activate( 'source' )
 		on_pause( true )
 	end	
+
 	if next_scene == "Scene List" then
 		reset( true )
 		cycle_list_activate( 'scene' )
 		on_pause( true )
 	end	
+
 	if next_scene == "TIMER END TEXT" then
 		local text = stop_text
 		set_text( source_name, text )
-	end	
+	end
+	--[[
+		
+		We want to update the timer start button description at this point.
+		
+		To achieve this we need to trigger the callback for the properties
+		and the only way to do this is to update some property value.
+	
+	]]
+
+	trigger_callback()
 end
+--[[
+--------------------------------------------------------------------
+	Function to trigger properties callback
+--------------------------------------------------------------------
+]]
+function trigger_callback()
+	send_callback = true
+	obs.obs_data_set_string( script_settings, "trigger_callback", tostring(os.time()) )
+	obs.obs_properties_apply_settings( props, script_settings )
+	send_callback = false
+	return true
+end	
 --[[
 --------------------------------------------------------------------
 	Function to set the split time text
@@ -865,7 +961,7 @@ end
 --------------------------------------------------------------------
 ]]
 function media_activate( settings, ref )
-	if raw_time( cur_seconds ) == media[ref..'_text'] then
+	if raw_time( cur_seconds, true ) == media[ref..'_text'] then
 		if trigger_text ~= 1 and ref == 'caution' then 
 			set_visible( media[ref .. "_note_source"], true ) 
 			set_visible( media["warning_note_source"], false )
@@ -942,7 +1038,6 @@ function stop_media_action( ref )
         local state = obs.obs_source_media_get_state( source ) -- get the current state for the source
 		if media['last_state_'..ref] ~= state then -- The state has changed
 			if get_source_looping( source_name ) then
-				--log( 'is looped', source_name )
 				if state == obs.OBS_MEDIA_STATE_PLAYING  then
 					-- The source is looping, it will never stop
 					if source_name == media['source_name_audio_'..ref] then
@@ -955,7 +1050,6 @@ function stop_media_action( ref )
 					end
 				end
 			else
-				--log( 'not looped', source_name )
 				media['last_state_'..ref] = state
 				if state == obs.OBS_MEDIA_STATE_STOPPED or state == obs.OBS_MEDIA_STATE_ENDED then
 					set_visible( source_name, false )
@@ -1270,8 +1364,20 @@ end
 --------------------------------------------------------------------
 ]]
 function update_prop_settings_cur_seconds( value )
+	--[[
+		When this is updated it will trigger a 
+		callback 'property_onchange', let's 
+		disable that for a moment.
+	]]
+	prevent_callback = true
 	obs.obs_data_set_double( script_settings, "sw_cur_seconds", value )
 	obs.obs_properties_apply_settings( props, script_settings )
+	--[[
+		When this is updated it will trigger a 
+		callback 'property_onchange', let's 
+		enable it again
+	]]
+	prevent_callback = false
 end
 --[[
 --------------------------------------------------------------------
@@ -1309,7 +1415,6 @@ function timer_callback()
 	calculate( false )
 	completed_cycles = completed_cycles + 1
 	set_time_text( timer_source )
-	--log( 'Applied frequency', time_frequency ) 
 end
 --[[
 --------------------------------------------------------------------
@@ -1357,6 +1462,7 @@ function fresh_start( reset_curent )
 	orig_time = obs.os_gettime_ns()
 	set_visible( media["caution_note_source"], false )
 	set_visible( media["warning_note_source"], false ) 
+	mili_toggle_triggered = false
 end	
 --[[
 --------------------------------------------------------------------
@@ -1437,7 +1543,6 @@ end
 --------------------------------------------------------------------
 ]]
 function activate_signal( cd, activating )
-	
 	local source = obs.calldata_source( cd, "source" )
 	if source ~= nil then
 		local name = obs.obs_source_get_name( source )
@@ -1478,6 +1583,7 @@ end
 --------------------------------------------------------------------
 ]]
 function activate( activating, timer_expired )
+	log("activate","")
 	if disable_script then
 		return		
 	end	
@@ -1486,7 +1592,9 @@ function activate( activating, timer_expired )
 		--obs.obs_frontend_recording_start()
 		start_timer()
 	else
+		timer_active = false
 		if timer_expired then
+			log("activate timer_expired",tostring(timer_expired))
 			obs.timer_remove( timer_callback )
 			disconnect_after_media_end( 'caution' )
 			disconnect_after_media_end( 'warning' )
@@ -1515,7 +1623,6 @@ function reset( pressed )
 	set_time_text( timer_source )
 	activate( false )
 	set_split_text( split_source )
-	
 	set_text( active_source, "" )
 end
 --[[
@@ -1524,7 +1631,14 @@ end
 ]]
 function pause_button_clicked( props, p )
 	on_pause( true )
-
+	reset_property_button_start()
+	return true
+end
+--[[
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+]]
+function reset_property_button_start()
 	--[[
 		
 		A button has it's own callback so we can not action anything
@@ -1534,7 +1648,6 @@ function pause_button_clicked( props, p )
 	]]
 	local mode = obs.obs_data_get_int( script_settings, "timer_type" )
 	local pause_button_prop = obs.obs_properties_get( props, "pause_button" )
-
 	--[[
 		
 		We are only setting the button label depending if the timer is active
@@ -1554,7 +1667,6 @@ function pause_button_clicked( props, p )
 			obs.obs_property_set_description( pause_button_prop, "Start Stopwatch" )
 		end
 	end	
-	
 	return true
 end
 --[[
@@ -1569,12 +1681,9 @@ function on_pause( pressed )
 	set_visible( timer_source, true )
 	
 	if timer_active then
-		timer_active = false
 		activate( false )
 		split_unpack()
 		set_split_text( split_source )
-		--log( 'OBS Video Frame Time', obs.obs_get_video_frame_time() )
-		--log( completed_cycles..' Cycles', get_time_lapsed() )	
 	else
 		if activated == false then	
 			activate( true )
@@ -1702,7 +1811,7 @@ function mili_toggle( pressed )
 		
 	]]
 	if show_mili then
-			obs.obs_property_set_description( mili_button_prop, "Hide Milliseconds" )
+		obs.obs_property_set_description( mili_button_prop, "Hide Milliseconds" )
 	else
 		obs.obs_property_set_description( mili_button_prop, "Show Milliseconds" )
 	end
@@ -1734,8 +1843,22 @@ end
 --------------------------------------------------------------------
 ]]
 function property_onchange( props, property, settings )
-
-	local property_name = obs.obs_property_name ( property )
+	--[[
+	
+		Optimization: prevent unnecessary callbacks
+	
+	]]
+	if prevent_callback then return true end
+	local property_name = obs.obs_property_name( property )
+	--[[
+	
+		Optimization: limit callbacks
+	
+	]]	
+	if send_callback and property_name ~= "trigger_callback" then
+		return true
+	end	
+	
 	local filenames = get_filenames( backup_folder )
 	local has_file_list = (table.getn( filenames ) > 0)
 	-- Retrieves value selected in list
@@ -1827,7 +1950,7 @@ function property_onchange( props, property, settings )
 		obs.obs_property_set_visible( import_button_prop, false )
 		obs.obs_property_set_visible( export_folder_prop, false )
 	end	
-	if import_list ~= "select" and config == 2 then
+	if import_list ~= "select" and  import_list ~= "" and config == 2 then
 		obs.obs_property_set_visible( import_button_prop, true )
 	else
 		obs.obs_property_set_visible( import_button_prop, false )
@@ -1861,7 +1984,7 @@ function property_onchange( props, property, settings )
 	obs.obs_property_set_visible( month_prop, ( c_type == 1 and config == 2 and mode == 2 ) )
 	obs.obs_property_set_visible( day_prop, ( c_type == 1 and config == 2 and mode == 2 ) )
 	obs.obs_property_set_visible( year_prop, ( c_type == 1 and config == 2 and mode == 2 ) )
-	obs.obs_property_set_visible( mili_button_prop, ( mode == 2 ) )
+	
 	if mth ~= 1 then
 	obs.obs_property_set_enabled( day_prop, true )
 	obs.obs_property_set_enabled( year_prop, true )
@@ -1895,12 +2018,26 @@ function property_onchange( props, property, settings )
 	end
 	obs.obs_property_set_visible( text_prefix_prop, config == 2 )
 	obs.obs_property_set_visible( text_suffix_prop, config == 2 )
+	--[[
+		
+		Defind same label titles
 	
+	]]	
 	if show_mili then
-			obs.obs_property_set_description( mili_button_prop, "Hide Milliseconds" )
+		obs.obs_property_set_description( mili_button_prop, "Hide Milliseconds" )
 	else
 		obs.obs_property_set_description( mili_button_prop, "Show Milliseconds" )
 	end
+	--[[
+		
+		User defined a value for the millisecond trigger?
+		If value defined, then hide millisecond button.
+		If value not defined, then show millisecond button.
+	
+	]]	
+	
+	reset_mili()	
+	obs.obs_property_set_visible( mili_button_prop, ( toggle_mili_trigger == "" and mode == 2 ) )
 	--[[
 		
 		Timer type is Countdown?
@@ -1912,7 +2049,6 @@ function property_onchange( props, property, settings )
 		obs.obs_property_set_visible( hours_prop, (config == 2 ) )
 		obs.obs_property_set_visible( minutes_prop, (config == 2 ) )
 		obs.obs_property_set_visible( seconds_prop, (config == 2 ) )
-		obs.obs_property_set_description( pause_button_prop, "Start Countdown" )
 		obs.obs_property_set_description( reset_button_prop, "Reset Countdown" )
 	else
 		
@@ -1926,8 +2062,24 @@ function property_onchange( props, property, settings )
 		obs.obs_property_set_visible( hours_prop, false )
 		obs.obs_property_set_visible( minutes_prop, false )
 		obs.obs_property_set_visible( seconds_prop, false )
-		obs.obs_property_set_description( pause_button_prop, "Start Stopwatch" )
 		obs.obs_property_set_description( reset_button_prop, "Reset Stopwatch" )	
+	end	
+	
+	log("property_onchange timer_active",tostring( timer_active ))
+	
+	if mode == 2 then
+		if timer_active then
+			obs.obs_property_set_description( pause_button_prop, "Pause Countdown" )
+		else
+			log("Timer Ended","Should Update button?")
+			obs.obs_property_set_description( pause_button_prop, "Start Countdown" )
+		end
+	else
+		if timer_active then
+			obs.obs_property_set_description( pause_button_prop, "Pause Stopwatch" )
+		else
+			obs.obs_property_set_description( pause_button_prop, "Start Stopwatch" )
+		end
 	end	
 	obs.obs_property_set_visible( split_button_prop, mode==1 )
   	obs.obs_property_set_visible( split_type_prop, false )
@@ -1937,10 +2089,7 @@ function property_onchange( props, property, settings )
 	obs.obs_property_set_visible( audio_warning_prop, config==2 )
 	obs.obs_property_set_visible( caution_duration_prop, config==2 )
 	obs.obs_property_set_visible( warning_duration_prop, config==2 )
-	
-	
 	obs.obs_property_set_visible( toggle_mili_trigger_prop, show_split( props, settings ) )
-
 	obs.obs_property_set_visible( normal_color_prop, config==2 )
 	obs.obs_property_set_visible( caution_color_prop, config==2 )
 	obs.obs_property_set_visible( warning_color_prop, config==2 )
@@ -2126,7 +2275,7 @@ function script_properties()
 	
 	local p_22 = obs.obs_properties_add_list( props, "trigger_text", "<i>Trigger Text</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
 	 t_type = {"Disabled", "Enabled"}
-  	for i,v in ipairs( t_type ) do obs.obs_property_list_add_int( p_21, v, i ) end
+  	for i,v in ipairs( t_type ) do obs.obs_property_list_add_int( p_22, v, i ) end
 	obs.obs_property_set_long_description( p_22, "\nDisplay a note when the timer trigger warning and caution states.\n" )
 	
 	local p_23 = obs.obs_properties_add_list( props, "caution_note_source", "<i>Caution Note Source</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
@@ -2274,52 +2423,59 @@ function script_properties()
 
 	local p_42 = obs.obs_properties_add_button( props, "pause_button", "Start", pause_button_clicked )	
 	obs.obs_properties_add_button( props, "split_button", "Split Time", split_button_clicked )
-    
-	local p_43 = obs.obs_properties_add_bool( props, "set_stopwatch", "Set Stopwatch" )
+	
+	local p_43 = obs.obs_properties_add_button( props, "mili_button", "Show Milliseconds", mili_button_clicked )
+	local p_44 = obs.obs_properties_add_button( props, "reset_button", "Reset Stopwatch", reset_button_clicked )	
+	local p_45 = obs.obs_properties_add_bool( props, "set_stopwatch", "Set Stopwatch" )
     obs.obs_properties_add_bool( props, "start_on_visible", "Start Timer on Source Visible" )
     obs.obs_properties_add_bool( props, "start_on_scene_active", "Start Timer on Scene Active" )
     obs.obs_properties_add_bool( props, "disable_script", "Disable Script" )
 	
-	local p_44 = obs.obs_properties_add_bool( props, "backup_mode", "Backup Mode" )
+	local p_46 = obs.obs_properties_add_bool( props, "backup_mode", "Backup Mode" )
 	
-	local p_45 = obs.obs_properties_add_path( props, "backup_folder", "Backup Folder", obs.OBS_PATH_DIRECTORY, nil, nil)
+	local p_47 = obs.obs_properties_add_path( props, "backup_folder", "Backup Folder", obs.OBS_PATH_DIRECTORY, nil, nil)
 	
-	local p_46 = obs.obs_properties_add_list( props, "import_list", "<i>Load Settings</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
-	obs.obs_property_list_add_string( p_46, 'Select ', 'select' )
-	obs.obs_property_set_long_description( p_46, "\nSelect the Settings file to import.\n" )
+	local p_48 = obs.obs_properties_add_list( props, "import_list", "<i>Load Settings</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
+	obs.obs_property_list_add_string( p_48, 'Select ', 'select' )
+	obs.obs_property_set_long_description( p_48, "\nSelect the Settings file to import.\n" )
 	local filenames = get_filenames( path )
 	if table.getn( filenames ) > 0 then
   		for i,v in pairs( filenames ) do 
-			obs.obs_property_list_add_string( p_46, v, v )
+			obs.obs_property_list_add_string( p_48, v, v )
 		end
 	end
 	
-	local p_47 = obs.obs_properties_add_button( props, "export_button", "Export Settings", export_button_clicked )
+	local p_49 = obs.obs_properties_add_button( props, "export_button", "Export Settings", export_button_clicked )
 	
-	local p_48 = obs.obs_properties_add_button( props, "import_button", "Import Settings", import_button_clicked )
+	local p_50 = obs.obs_properties_add_button( props, "import_button", "Import Settings", import_button_clicked )
+	--[[
 	
-	local p_49 = obs.obs_properties_add_button( props, "mili_button", "Show Milliseconds", mili_button_clicked )
+		We use this field only to trigger the properties callback event from a task.
 	
-	local p_50 = obs.obs_properties_add_button( props, "reset_button", "Reset Stopwatch", reset_button_clicked )
+	]]
+	local p_51 = obs.obs_properties_add_text( props, "trigger_callback", "dummy field", obs.OBS_TEXT_DEFAULT )
+	obs.obs_property_set_visible( p_51, false )
 	
 	obs.source_list_release( sources )
 	--Sets callback upon modification of the list Basically an Event Listener
-  	obs.obs_property_set_modified_callback( p_1, property_onchange )		-- timer_type
-  	obs.obs_property_set_modified_callback( p_2, property_onchange )		-- config
-  	obs.obs_property_set_modified_callback( p_4, property_onchange )		-- countdown_type
-  	obs.obs_property_set_modified_callback( p_7, property_onchange )		-- month
-  	obs.obs_property_set_modified_callback( p_8, property_onchange )		-- year
-  	obs.obs_property_set_modified_callback( p_13, property_onchange )		-- timer_format
-  	obs.obs_property_set_modified_callback( p_14, property_onchange )		-- custom_time_format
-  	obs.obs_property_set_modified_callback( p_22, property_onchange )		-- trigger_text
-  	obs.obs_property_set_modified_callback( p_27, property_onchange )		-- start_recording
-  	obs.obs_property_set_modified_callback( p_29, property_onchange )		-- next_scene
-  	obs.obs_property_set_modified_callback( p_33, property_onchange ) 		-- active_source
-	obs.obs_property_set_modified_callback( p_43, property_onchange )		-- set_stopwatch
-	obs.obs_property_set_modified_callback( p_44, property_onchange )		-- backup_mode
-	obs.obs_property_set_modified_callback( p_45, property_onchange )		-- backup_folder
-	obs.obs_property_set_modified_callback( p_46, property_onchange )		-- import_list
-	obs.obs_property_set_modified_callback( p_48, import_properties )		-- import_button
+  	obs.obs_property_set_modified_callback( p_1, property_onchange )		-- timer_type *
+  	obs.obs_property_set_modified_callback( p_2, property_onchange )		-- config *
+  	obs.obs_property_set_modified_callback( p_4, property_onchange )		-- countdown_type *
+  	obs.obs_property_set_modified_callback( p_7, property_onchange )		-- month *
+  	obs.obs_property_set_modified_callback( p_8, property_onchange )		-- year *
+  	obs.obs_property_set_modified_callback( p_13, property_onchange )		-- timer_format *
+  	obs.obs_property_set_modified_callback( p_14, property_onchange )		-- custom_time_format *
+  	obs.obs_property_set_modified_callback( p_15, property_onchange )		-- toggle_mili_trigger
+  	obs.obs_property_set_modified_callback( p_22, property_onchange )		-- trigger_text *
+  	obs.obs_property_set_modified_callback( p_27, property_onchange )		-- start_recording *
+  	obs.obs_property_set_modified_callback( p_29, property_onchange )		-- next_scene *
+  	obs.obs_property_set_modified_callback( p_33, property_onchange )		-- active_source
+	obs.obs_property_set_modified_callback( p_45, property_onchange )		-- set_stopwatch
+	obs.obs_property_set_modified_callback( p_46, property_onchange )		-- backup_mode
+	obs.obs_property_set_modified_callback( p_47, property_onchange )		-- backup_folder
+	obs.obs_property_set_modified_callback( p_48, property_onchange )		-- import_list *
+	obs.obs_property_set_modified_callback( p_50, import_properties )		-- import_button
+	obs.obs_property_set_modified_callback( p_51, property_onchange )		-- trigger_callback
 	-- Calls the callback once to set-up current visibility
   	obs.obs_properties_apply_settings( props, script_settings )
 	return props
@@ -2345,7 +2501,7 @@ function script_update( settings )
 		timer_value( calculated_time, false )
 		
 	else
-			timer_value( 0, false )
+		timer_value( 0, false )
 	end	
 	if timer_type == 1 then
 		if load_saved_time then
@@ -2365,6 +2521,7 @@ function script_update( settings )
 		def_seconds = cur_seconds 
 		reset( true )
 	end	
+	reset_mili()
 	-- Keep track of current settings
   	script_settings = settings 
 end
@@ -2592,6 +2749,7 @@ function connect_source_signal( cd )
 			end	
 		end	
 	end
+
 end
 --[[
 --------------------------------------------------------------------
