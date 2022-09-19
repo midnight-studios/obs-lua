@@ -407,6 +407,7 @@ function set_time_text( source_name )
 		end		
 		timer_ended( source_name )
 	end	
+	return true
 end
 --[[
 --------------------------------------------------------------------
@@ -449,7 +450,8 @@ function toggle_mili()
 	
 	]]
 	if toggle_mili_trigger ~= "" and timer_type == 2 and not mili_toggle_triggered then
-		if raw_time( cur_seconds, true ) == toggle_mili_trigger then
+		local time_offset = 1 -- offset by 1 second to allow user to achieve accurate setting
+		if raw_time( ( cur_seconds + time_offset ), true ) == toggle_mili_trigger then
 			--[[
 
 				The action trigger a toggle, so if the
@@ -478,12 +480,13 @@ function reset_mili()
 	end	
 	--[[
 		
-		This feature will only activate if 'Trigger Value' is defined
-		and if 'Timer Type' is 'Countdown'
+		Is the 'Trigger Value' defined
+		and is 'Timer Type' set to 'Countdown'
 	
 	]]
 	if toggle_mili_trigger ~= "" then
 		show_mili = false
+		set_time_text( timer_source )
 	else
 		show_mili = true
 		set_time_text( timer_source )
@@ -884,6 +887,7 @@ function timer_ended( source_name )
 	]]
 
 	trigger_callback()
+	return true
 end
 --[[
 --------------------------------------------------------------------
@@ -1240,6 +1244,7 @@ function set_visible( target_name, visible )
 		obs.bfree( scn )
 		obs.source_list_release( scenes )		
 	end
+	return true
 end
 --[[
 --------------------------------------------------------------------
@@ -1415,6 +1420,7 @@ function timer_callback()
 	calculate( false )
 	completed_cycles = completed_cycles + 1
 	set_time_text( timer_source )
+	return true
 end
 --[[
 --------------------------------------------------------------------
@@ -1742,6 +1748,7 @@ function reset_button_clicked( props, p, settings )
 	timer_value( 0 )
 	update_prop_settings_cur_seconds( 0 )
 	reset( true )
+	reset_mili()
 	return true
 end
 --[[
@@ -1862,31 +1869,31 @@ function property_onchange( props, property, settings )
 	local filenames = get_filenames( backup_folder )
 	local has_file_list = (table.getn( filenames ) > 0)
 	-- Retrieves value selected in list
-	backup_folder = obs.obs_data_get_string( settings, "backup_folder" )
-	local custom_time_format = obs.obs_data_get_string( settings, "custom_time_format" )
+	backup_folder = obs.obs_data_get_string( script_settings, "backup_folder" )
+	local custom_time_format = obs.obs_data_get_string( script_settings, "custom_time_format" )
 	--local timer_format = obs.obs_data_get_int( settings, "timer_format" )
-	local import_list = obs.obs_data_get_string( settings, "import_list" )
-	local backup_m = obs.obs_data_get_bool( settings, "backup_mode" )
-	local set_stopwatch = obs.obs_data_get_bool( settings, "set_stopwatch" )
-	local config = obs.obs_data_get_int( settings, "config" )
-	local mode = obs.obs_data_get_int( settings, "timer_type" )
-	local rec = obs.obs_data_get_int( settings, "start_recording" )
-	local scene = obs.obs_data_get_string( settings, "next_scene" )	
-	local t_source = obs.obs_data_get_string( settings, "timer_source" )
-	local s_source = obs.obs_data_get_string( settings, "split_source" )
-	local a_source = obs.obs_data_get_string( settings, "active_source" )
-	local mth = obs.obs_data_get_int( settings, "month" )
-	local yr = obs.obs_data_get_int( settings, "year" )
-	local d = obs.obs_data_get_int( settings, "day" )
-	local c_type = obs.obs_data_get_int( settings, "countdown_type" )
-	local t_text = obs.obs_data_get_int( settings, "trigger_text" )
-	local cn_source = obs.obs_data_get_string( settings, "caution_note_source" )
-	local wn_source = obs.obs_data_get_string( settings, "warning_note_source" )
+	local import_list = obs.obs_data_get_string( script_settings, "import_list" )
+	local backup_m = obs.obs_data_get_bool( script_settings, "backup_mode" )
+	local set_stopwatch = obs.obs_data_get_bool( script_settings, "set_stopwatch" )
+	local config = obs.obs_data_get_int( script_settings, "config" )
+	local mode = obs.obs_data_get_int( script_settings, "timer_type" )
+	local rec = obs.obs_data_get_int( script_settings, "start_recording" )
+	local scene = obs.obs_data_get_string( script_settings, "next_scene" )	
+	local t_source = obs.obs_data_get_string( script_settings, "timer_source" )
+	local s_source = obs.obs_data_get_string( script_settings, "split_source" )
+	local a_source = obs.obs_data_get_string( script_settings, "active_source" )
+	local mth = obs.obs_data_get_int( script_settings, "month" )
+	local yr = obs.obs_data_get_int( script_settings, "year" )
+	local d = obs.obs_data_get_int( script_settings, "day" )
+	local c_type = obs.obs_data_get_int( script_settings, "countdown_type" )
+	local t_text = obs.obs_data_get_int( script_settings, "trigger_text" )
+	local cn_source = obs.obs_data_get_string( script_settings, "caution_note_source" )
+	local wn_source = obs.obs_data_get_string( script_settings, "warning_note_source" )
+	
+	-- Retrieves property reference
 	local pause_button_prop = obs.obs_properties_get( props, "pause_button" )
 	local mili_button_prop = obs.obs_properties_get( props, "mili_button" )
 	local toggle_mili_trigger_prop = obs.obs_properties_get( props, "toggle_mili_trigger" )
-	
-	-- Retrieves property reference
 	local backup_mode_prop = obs.obs_properties_get( props, "backup_mode" )
 	local _group_1_prop = obs.obs_properties_get( props, "_group_1" )
 	local set_stopwatch_prop = obs.obs_properties_get( props, "set_stopwatch" )
@@ -2036,7 +2043,7 @@ function property_onchange( props, property, settings )
 	
 	]]	
 	
-	reset_mili()	
+	--reset_mili()	
 	obs.obs_property_set_visible( mili_button_prop, ( toggle_mili_trigger == "" and mode == 2 ) )
 	--[[
 		
