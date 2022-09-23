@@ -1,5 +1,5 @@
 --[[
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
 Open Broadcaster Software®️
 OBS > Tools > Scripts
 @midnight-studios
@@ -7,6 +7,8 @@ Stopwatch
 
 
 Version 3.9
+
+Published / Released: 2022-09
 
 NEW FEATURES
 
@@ -43,9 +45,12 @@ BUGS
 - Fixed a critical memory leak for media sources that caused OBS to crash
 - Fixed Media Playback time limit
 
-TODO> No tasks outstanding 
+TODO> 
 
---------------------------------------------------------------------
+- Descend / Ascend is incorrect
+- No tasks outstanding 
+
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 --Globals
 obs           				= obslua
@@ -85,7 +90,7 @@ next_scene					= ""
 stop_text					= ""
 toggle_mili_trigger			= ""
 cur_seconds   				= 0
-cycle_direction				= 0
+cycle_direction				= 1
 --[[
 	TODO> please identify which function need this
 ]]
@@ -148,109 +153,234 @@ hotkey_id_reset			= obs.OBS_INVALID_HOTKEY_ID
 hotkey_id_pause			= obs.OBS_INVALID_HOTKEY_ID
 hotkey_id_split			= obs.OBS_INVALID_HOTKEY_ID
 hotkey_id_mili			= obs.OBS_INVALID_HOTKEY_ID
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Dumps input to string, if input is a table it returns the expanded table
+	
+	Credit:			
 
+	Modified:		
 
-
--- Dumps Input to String, if input is a table it returns the expanded table
-function dump(o)
-  if type(o) == 'table' then
-    local s = '{ '
-    for k, v in pairs(o) do
-      if type(k) ~= 'number' then k = '"' .. k .. '"' end
-      s = s .. '[' .. k .. '] = ' .. dump(v) .. ','
+	function:		
+	type:			Support (debug tool)
+	input type: 	variable
+	returns:		string
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function pre_dump( input )
+  if type( input ) == 'table' then
+    local str = '{ '
+    for key, value in pairs( input ) do
+      if type( key ) ~= 'number' then key = '"' .. key .. '"' end
+      str = str .. '[' .. key .. '] = ' .. pre_dump( value ) .. ','
     end
-    return s .. '} '
+    return str .. '} '
   else
-    return tostring(o)
+    return tostring( input )
   end
 end
-
 --[[
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Use this to create a Script Log Output used in testing	
 	
---------------------------------------------------------------------
+	Credit:			
+
+	Modified:		No	
+
+	function:		
+	type:			Support (debug tool)
+	input type: 	variable	
+	returns:		string
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
-local function explode(str,delim)
-   local t, ll
-   t={}
-   ll=0
-   if(#str == 1) then
-      return {str}
-   end
+local function log( name, msg )
+  if msg ~= nil then
+    msg = " > " .. tostring( msg )
+  else
+    msg = ""
+  end
+  obs.script_log( obs.LOG_DEBUG, name .. msg )
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Builds a table by splitting a string by defined character or sequence of characters marking 
+					the beginning or end of a unit of data. That which delimits, that separates.	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	string, delimiter	
+	returns:		table		
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function explode( str, delim )
+   local tbl, index
+   tbl = {}
+   index = 0
+   if( #str == 1 ) then return {str} end -- returns a table with the input string as the only value
    while true do
-      l = string.find(str, delim, ll, true) -- find the next d in the string
-      if l ~= nil then -- if "not not" found then..
-         table.insert(t, string.sub(str,ll,l-1)) -- Save it in our array.
-         ll = l + 1 -- save just after where we found it for searching next time.
+      local trace_index = string.find( str, delim, index, true ) -- find the next d in the string
+      if trace_index ~= nil then -- if "not not" found then..
+         table.insert( tbl, string.sub( str, index, trace_index - 1 ) ) -- Save it in our array.
+         index = trace_index + 1 -- save just after where we found it for searching next time.
       else
-         table.insert(t, string.sub(str,ll)) -- Save what's left in our array.
+         table.insert( tbl, string.sub( str, index ) ) -- Save what's left in our array.
          break -- Break at end, as it should be, according to the lua manual.
       end
    end
-   return t
+   return tbl
 end
 --[[
---------------------------------------------------------------------
- custom function: helper
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Gives you an iterator that moves through an 
+					ordinary table (eg. string keys) but sorted 
+					into key sequence.
+					It does that by copying the table keys into
+					a temporary table and sorting that.
+	
+	Credit:			https://github.com/nickgammon/mushclient/blob/master/lua/pairsbykeys.lua
+					https://github.com/nickgammon/mushclient/tree/master/lua
+					If you need to sort keys other than strings, see:
+					See: http://lua-users.org/wiki/SortedIteration
+
+	Modified:		Yes, minor changes
+
+	function:		support: This prints the math functions in key order
+	type:			sort table
+	input type: 	table, function (optional)
+	returns:		table
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
-local function pairsByKeys( t, f )
-	local a = {}
-	for n in pairs( t ) do table.insert( a, n ) end
-	table.sort( a, f )
-	local i = 0      -- iterator variable
-	local iter = function ()   -- iterator function
+local function pairsByKeys( tbl, input_function )
+	if type( tbl ) ~= 'table' then return tbl end -- if the input table is not of type table return input
+	local temp_tbl = {} -- build temporary table of the keys
+	for items in pairs( tbl ) do table.insert( temp_tbl, items ) end
+	table.sort( temp_tbl, input_function ) -- sort using supplied function, if any
+	local i = 0 -- iterator variable
+	local iter = function () -- iterator function
 		i = i + 1
-		if a[i] == nil then return nil
-		else return a[i], t[a[i]]
+		if temp_tbl[i] == nil then return nil
+		else return temp_tbl[i], tbl[temp_tbl[i]]
 		end
 	end
 	return iter
 end
 --[[
---------------------------------------------------------------------
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Provides the length of a table 
+					(how many items the table contains)
+	
+	Credit:			midnight-studios	
+
+	Modified:		Author
+
+	function:		Create a table with unique items
+	type:			Support
+	input type:		table 	
+	returns:		int		
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
-local function tablelength(T)
-  local count = 0
-  for _ in pairs(T) do count = count + 1 end
-  return count
+local function tablelength( tbl )
+	local count = 0
+	if type( tbl ) == 'table' then -- if the input table is not of type table return 0
+		for _ in pairs( tbl ) do count = count + 1 end
+	end 
+	return count
 end
 --[[
---------------------------------------------------------------------
- custom function: helper
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Remove duplicated values from table
+	
+	Credit:			midnight-studios	
+
+	Modified:		Author
+
+	function:		Create a table with unique items
+	type:			Support
+	input type:		table, string 	
+	returns:		bool	
+	function:		Support
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
-function tableHasKey(table,key)
-    return table[key] ~= nil
+local function tableHasKey( tbl, key )
+	if type( tbl ) ~= 'table' then return false end -- if the input table is not of type table return bool(false)
+    return tbl[key] ~= nil
 end
 --[[
---------------------------------------------------------------------
- custom function: helper
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Remove duplicated values from table
+	
+	Credit:			midnight-studios	
+
+	Modified:		Author
+
+	function:		Create a table with unique items
+	type:			Support
+	input type:		table, string 	
+	returns:		bool	
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
-local function in_table( tbl, value )
-	local found = false
-	for k, v in pairs( tbl ) do
-		if value == v then
-			found = true
-			break
+local function in_table( tbl, input_value )
+	if type( tbl ) ~= 'table' then return false end -- if the input table is not of type table return bool(false)
+	local found = false -- set result default bool (not found)
+	for key, value in pairs( tbl ) do
+		if value == input_value then -- compare search value against table value
+			found = true -- found, update result bool
+			break -- found, end and exit here
 		end	
 	end
-	return found
+	return found -- return bool
 end
-
 --[[
 ----------------------------------------------------------
-	This is basically obs.obs_enum_sources()
-	but 'Nested Scenes' are not listed in "obs.obs_enum_sources()"
-	RETURNS TABLE
+	Description:	Remove duplicated values from table
+	
+	Credit:			midnight-studios	
+
+	Modified:		Author
+
+	function:		Create a table with unique items
+	type:			Support
+	input type:		table 	
+	returns:		table
 ----------------------------------------------------------
 ]]
-function get_source_list( )
+local function remove_duplicates( tbl )
+	if type( tbl ) ~= 'table' then return table end -- if the input table is not of type table return input
+	local hash = {}
+	local clean_tbl = {}
+	for _, value in pairsByKeys( tbl ) do
+	   if ( not hash[value] ) then
+		   clean_tbl[#clean_tbl+1] = value -- you could print here instead of saving to result table if you wanted
+		   hash[value] = true
+	   end
+	end	
+	return clean_tbl -- return final result
+end	
+--[[
+----------------------------------------------------------
+	Description:	This is basically obs.obs_enum_sources()
+					but 'Nested Scenes' are not listed in "obs.obs_enum_sources()"
+	
+	Credit:			midnight-studios	
+
+	Modified:		Author
+
+	function:		Used to build a list from OBS source names into a table
+	type:			Support			
+	input type: 	"id", "unversioned_id", "display_name", "source_name"
+	returns:		default table with 'source_name' or define return_ref: "id" or "unversioned_id" or "display_name" or "source_name"
+----------------------------------------------------------
+]]
+function get_source_list( return_ref )
 	
 	local scenes = obs.obs_frontend_get_scenes()
-	local s_list = {}
+	local source_list = {}
+	local list = {}
+	local sub = {}
 	--[[
 	
 	
@@ -269,22 +399,39 @@ function get_source_list( )
 
 
 			]]
+			local index = 0
             for key_sceneitem, value_sceneitem in pairs( sceneitems ) do
+				index = index + 1
+				sub = {}
                 local source = obs.obs_sceneitem_get_source( value_sceneitem )
 				local source_name_parent = obs.obs_source_get_name( source )
 				local group = obs.obs_group_from_source( source )
 				local id_parent = obs.obs_source_get_id( source )
+				local unversioned_id_parent = obs.obs_source_get_unversioned_id( source )
 				local display_name_parent = obs.obs_source_get_display_name( id_parent )
-				s_list[source_name_parent] = source_name_parent					
+				sub["id"] = id_parent
+				sub["unversioned_id"] = unversioned_id_parent
+				sub["display_name"] = display_name_parent
+				sub["source_name"] = source_name_parent
+				list[index] = sub
+				source_list[source_name_parent] = source_name_parent -- will return this by default if return_ref not defined as the name is a unique id					
 				if group ~= nil then
 					local groupitems = obs.obs_scene_enum_items( group )	
 					if groupitems ~= nil then
 						for key_groupitem, value_groupitem in pairs( groupitems ) do
+							index = index + 1
+							sub = {}
 							local groupitemsource = obs.obs_sceneitem_get_source( value_groupitem )
 							local source_name_group = obs.obs_source_get_name( groupitemsource )
 							local id_group = obs.obs_source_get_id( groupitemsource )
-							local display_name_group = obs.obs_source_get_display_name( id_group )	
-							s_list[source_name_group] = source_name_group -- Target to list			
+							local unversioned_id_group = obs.obs_source_get_unversioned_id( groupitemsource )
+							local display_name_group = obs.obs_source_get_display_name( id_group )
+							sub["id"] = id_group
+							sub["unversioned_id"] = unversioned_id_group
+							sub["display_name"] = display_name_group
+							sub["source_name"] = source_name_group
+							list[index] = sub
+							source_list[source_name_group] = source_name_group -- will return this by default if return_ref not defined as the name is a unique id
 						end -- end for
 						obs.sceneitem_list_release( groupitems )
 					end
@@ -298,30 +445,42 @@ function get_source_list( )
 		]]		
         obs.source_list_release( scenes )
     end -- scenes ~= nil
-	return s_list
+	
+	--[[
+			is "return_ref" defined and a valid (existing) reference?
+	]]
+	local tmp_list = {}
+	local found = false
+	if return_ref ~= nil then
+		for key, value in pairs( list ) do
+			if type( list[key] ) == "table" then
+				if tableHasKey( list[key], return_ref ) then
+					found = true
+					tmp_list[list[key]["source_name"]] = list[key][return_ref]
+				end 
+			end
+		end
+	end	
+	if found then source_list = tmp_list end
+	return source_list
 end
 --[[
-----------------------------------------------------------
-----------------------------------------------------------
-]]
-function remove_duplicates( t )
-	local hash = {}
-	local res = {}
-	for _,v in pairsByKeys( t ) do
-	   if ( not hash[v] ) then
-		   res[#res+1] = v -- you could print here instead of saving to result table if you wanted
-		   hash[v] = true
-	   end
-
-	end	
-	return res
-end	
---[[
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
 	Function to conver OBS data array to table
 
 	obs_data_array_to_table( settings, "reference" )
---------------------------------------------------------------------
+
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:		
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function obs_data_array_to_table( set, item )
 	
@@ -346,40 +505,56 @@ function obs_data_array_to_table( set, item )
 	
 end	
 --[[
---------------------------------------------------------------------
-	Use this to create a Script Log Output used in testing
---------------------------------------------------------------------
-]]
-local function log( name, msg )
-  if msg ~= nil then
-    msg = " > " .. tostring( msg )
-  else
-    msg = ""
-  end
-  obs.script_log( obs.LOG_DEBUG, name .. msg )
-end
---[[
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
 	Get the name of this script
---------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function filename() 
 	local str = debug.getinfo(2).source:sub(2) 
 	return str:match("^.*/(.*).lua$") or str 
 end
 --[[
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
 	A function named script_description returns the description shown to
 	the user
---------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function script_description()
 	return string.format( desc, tostring( gversion ) )
 end
 --[[
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
 	
---------------------------------------------------------------------
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:	
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function get_filenames( path )
 	local filenames = {}
@@ -399,9 +574,18 @@ local function get_filenames( path )
 	return filenames
 end
 --[[
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
 	
---------------------------------------------------------------------
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function write_to_json( data )
 	output_folder = backup_folder
@@ -422,7 +606,7 @@ local function write_to_json( data )
 	return obs.obs_data_save_json( data, output_path )
 end
 --[[
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
 	Assign a default Frequency based on the Frame Rate	
 	video_info.base_width
 	video_info.base_height
@@ -431,7 +615,17 @@ end
 	video_info.output_height
 	video_info.range
 	video_info.colorspace
---------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function assign_default_frequency()
 	local fps = 60 -- 60 is the maximum supported frame rate
@@ -442,13 +636,23 @@ local function assign_default_frequency()
 	time_frequency = ( 1/fps )
 end	
 --[[
---------------------------------------------------------------------
-	Used this in testing to measure accuracy
+----------------------------------------------------------------------------------------------------------------------------------------
+	
+	Description:	Used this in testing to measure accuracy
 
-	The Text Source and the Log should produce the same value
-	The Text source is updated by the time function while the debug 
-	uses start and end time stamps to get a value
---------------------------------------------------------------------
+					The Text Source and the Log should produce the same value
+					The Text source is updated by the time function while the debug 
+					uses start and end time stamps to get a value	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function get_time_lapsed()
 	local ns = obs.os_gettime_ns()
@@ -456,22 +660,32 @@ local function get_time_lapsed()
 	return raw_time( delta )
 end	
 --[[
---------------------------------------------------------------------
-	The true frequency between cycles varies due to script
-	and system task processing, therefore a static frequency
-	will produce inaccuarte results over time. 
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	The true frequency between cycles varies due to script
+					and system task processing, therefore a static frequency
+					will produce inaccuarte results over time. 
 
-	Start with a default frequency of 1 second devided by
-	the assigned active fps and then update the frequency 
-	calculated from the difference between cycles for the 
-	previous and current cycle using high-precision system 
-	time, in nanoseconds.
+					Start with a default frequency of 1 second devided by
+					the assigned active fps and then update the frequency 
+					calculated from the difference between cycles for the 
+					previous and current cycle using high-precision system 
+					time, in nanoseconds.
 
-	It should be noted, the frequency is based on the
-	script defined cycle time, which in this case is 
-	10 miliseconds. Based on testing 10 Miliseconds is the
-	fastest cycle supported in OBS lua.
---------------------------------------------------------------------
+					It should be noted, the frequency is based on the
+					script defined cycle time, which in this case is 
+					10 miliseconds. Based on testing 10 Miliseconds is the
+					fastest cycle supported in OBS lua.
+	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function get_frequency( previous )
 	local ns = obs.os_gettime_ns()
@@ -481,8 +695,18 @@ local function get_frequency( previous )
 	return f	
 end
 --[[
---------------------------------------------------------------------
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function wait( ms )
 	if ms ~= nil then
@@ -491,13 +715,23 @@ local function wait( ms )
 	end 
 end
 --[[
---------------------------------------------------------------------
-	"Timer Expires" 	= 1 
-	"Caution Time" 		= 2 
-	"Warning Time" 		= 3 
-	"Timer Visible" 	= 4 
-	"Timer Start" 		= 5
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	"Timer Expires" 	= 1 
+					"Caution Time" 		= 2 
+					"Warning Time" 		= 3 
+					"Timer Visible" 	= 4 
+					"Timer Start" 		= 5
+	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function record( mark, ms )
 	if timer_type ~= 2 then return end
@@ -507,17 +741,25 @@ local function record( mark, ms )
 	if ms ~= nil then wait( ms ) end 
 end
 --[[
---------------------------------------------------------------------
-
-	Convert hours:minutes:seconds to Seconds 
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Convert hours:minutes:seconds to Seconds 
 	
-	When the user defines the Hours, Minutes & Seconds
-	we need to convert it to seconds as the timer works
-	on the value 'seconds'
+					When the user defines the Hours, Minutes & Seconds
+					we need to convert it to seconds as the timer works
+					on the value 'seconds'
 
-	$function status: in service
+					$function status: in service
+		
+	
+	Credit:			
 
---------------------------------------------------------------------
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function delta_time( year, month, day, hour, minute, second )
 	local now = os.time()
@@ -538,19 +780,26 @@ local function delta_time( year, month, day, hour, minute, second )
 	return seconds 
 end
 --[[
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Take the time segments:
+
+					Hours, Minutes, Seconds, Millisieconds
+
+					Configure to standard format:
+
+					HH:MM:SS:FF
+
+					$function status: in service
 	
-	Take the time segments:
+	Credit:			
 
-	Hours, Minutes, Seconds, Millisieconds
+	Modified:		
 
-	Configure to standard format:
-
-	HH:MM:SS:FF
-
-	$function status: in service
-
---------------------------------------------------------------------
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function config_time( hour, minutes, seconds, mili )
 	local format_hour, 
@@ -573,12 +822,20 @@ local function config_time( hour, minutes, seconds, mili )
 	return time
 end
 --[[
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Convert Seconds to hours:minutes:seconds:miliseconds
 	
-	Convert Seconds to hours:minutes:seconds:miliseconds
+					$function status: in service	
 	
-	$function status: in service
---------------------------------------------------------------------
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function raw_time( time, analyze )
 	local hour, minutes, seconds, mili = 0, 0, 0, 0
@@ -622,13 +879,21 @@ local function raw_time( time, analyze )
 end	
 
 --[[
---------------------------------------------------------------------
-	
-	Take the raw time format "HH:MM:SS:FF" and allow the user to
-	define a custom format.
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Take the raw time format "HH:MM:SS:FF" and allow the user to
+					define a custom format.
 
-	$function status: in service
---------------------------------------------------------------------
+					$function status: in service	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:	
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function format_time( timestamp, format )
 	local table1 = explode( timestamp, ':' )
@@ -704,9 +969,18 @@ local function format_time( timestamp, format )
 	return timestamp
 end
 --[[
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
 	
---------------------------------------------------------------------
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function long_time( time )
 	local c_time = time
@@ -720,15 +994,24 @@ local function long_time( time )
 	return c_time
 end
 --[[
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
 	
-	Callback on properties modification
+
+	Description:	Callback on properties modification
 	
-	Show/Hide a field in the properties based on a 
-	some criteria. In this case, show or hide the field 
-	"Toggle Milliseconds" only when required.
+					Show/Hide a field in the properties based on a 
+					some criteria. In this case, show or hide the field 
+					"Toggle Milliseconds" only when required.	
 	
---------------------------------------------------------------------
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function show_split( props, settings )
 	local config_value = obs.obs_data_get_int( settings, "config" )
@@ -745,9 +1028,18 @@ local function show_split( props, settings )
 	return shw
 end
 --[[
---------------------------------------------------------------------
-	Function to set the source text
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Function to set the source text
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function set_text( source_name, text )
 	if source_name == 'Select' or  source_name == 'select'then
@@ -767,9 +1059,18 @@ local function set_text( source_name, text )
 		obs.obs_source_release( source )
 end
 --[[
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
 	
---------------------------------------------------------------------
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function set_text_note_color( ref )
 	if media[ref .. "_note_source"] == 'Select' then return end
@@ -784,9 +1085,9 @@ local function set_text_note_color( ref )
 	obs.obs_source_release( source )
 end	
 --[[
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
 	set source visibility
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function set_visible( target_name, visible )
 	if in_table( {'','None', 'Select','none', 'select'}, target_name ) then return end
@@ -806,9 +1107,9 @@ local function set_visible( target_name, visible )
 	return true
 end
 --[[
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
 	Set source visble = true
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function start_media_action( source_name, ref )
 	
@@ -835,17 +1136,35 @@ local function start_media_action( source_name, ref )
 	end
 end
 --[[
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
 	
---------------------------------------------------------------------
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function start_media( source_name, ref )
 start_media_action( source_name, ref )
 end
 --[[
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
 	
---------------------------------------------------------------------
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function media_activate( settings, ref )
 	if raw_time( cur_seconds, true ) == media[ref..'_text'] then
@@ -870,9 +1189,18 @@ local function media_activate( settings, ref )
 end
 
 --[[
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
 	
---------------------------------------------------------------------
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function get_source_looping( source_name )
 	local property = "looping"
@@ -897,21 +1225,41 @@ local function get_source_looping( source_name )
 	return enabled
 end	
 --[[
---------------------------------------------------------------------
-	Check if the source state changed, 
-	if so, set source visble = false
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	
+	Description:	Check if the source state changed, 
+					if so, set source visble = false
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function stop_media_action( ref )
 end
 --[[
---------------------------------------------------------------------
-	Stop Media is designed to reset the Source to the
-	starting state. In other words, make the source
-	invisible again. This sould only happen if the media
-	ended, or if it is looped, end the media after a
-	defined time.
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	
+	Description:	Stop Media is designed to reset the Source to the
+					starting state. In other words, make the source
+					invisible again. This sould only happen if the media
+					ended, or if it is looped, end the media after a
+					defined time.
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function stop_media( ref, bypass )
 	if bypass then -- No checks, just stop it
@@ -922,7 +1270,16 @@ local function stop_media( ref, bypass )
 end
 --[[
 ----------------------------------------------------------
-	check source visibility
+	Description:	check source visibility	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
 ----------------------------------------------------------
 ]]
 function is_visible( target_name )
@@ -945,9 +1302,18 @@ function is_visible( target_name )
 end
 
 --[[
---------------------------------------------------------------------
-	Function to cycle through a list for sources or scenes
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Function to cycle through a list for sources or scenes
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function cycle_list_activate( source_type )
 	--[[
@@ -964,7 +1330,7 @@ local function cycle_list_activate( source_type )
 	
 	]]	
 	if source_type ~= "source" then -- List Scenes names
-		direction = 1
+		direction = 1 -- Descend Ascend change direction to 1 or 2
 		local scenes = obs.obs_frontend_get_scene_names()
 		if scenes ~= nil then
 			for i, scene in ipairs( scenes ) do
@@ -973,8 +1339,8 @@ local function cycle_list_activate( source_type )
 			obs.bfree( scene )
 		end
 	else -- List Source names
-		direction = 2
-		local sources = get_source_list()
+		direction = 1 -- Descend Ascend change direction to 1 or 2
+		local sources = get_source_list() -- "id" or "unversioned_id" or "display_name" or "source_name"
 		--sources = remove_duplicates( sources )
 		for key, value in pairsByKeys( sources ) do
 			item_list[value] = value
@@ -1050,11 +1416,20 @@ local function cycle_list_activate( source_type )
 	cycle_index = cycle_index + 1		
 end
 --[[
---------------------------------------------------------------------
-	This is basically obs.obs_enum_sources()
-	but 'Nested Scenes' are not listed in "obs.obs_enum_sources()"
-TODO> 
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	This is basically obs.obs_enum_sources()
+					but 'Nested Scenes' are not listed in "obs.obs_enum_sources()"
+	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function scene_name_has_source_name( scene_name, source_name )
 			scene_source = obs.obs_get_source_by_name( scene_name )
@@ -1090,11 +1465,19 @@ local function scene_name_has_source_name( scene_name, source_name )
 		obs.obs_source_release( scene_source )
 	return result
 end
-
 --[[
---------------------------------------------------------------------
-	Called when a scene is activated/deactivated
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Called when a scene is activated/deactivated	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function activate_timer_on_scene( source, activating )
 			--[[ 
@@ -1117,10 +1500,19 @@ local function activate_timer_on_scene( source, activating )
 	
 end	
 --[[
---------------------------------------------------------------------
-	Everytime the timer value is updated, 
-	it will happen here
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Everytime the timer value is updated, 
+					it will happen here
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function timer_value( value, update_settings )
 	cur_seconds = value
@@ -1130,8 +1522,18 @@ local function timer_value( value, update_settings )
 	return cur_seconds
 end
 --[[
---------------------------------------------------------------------
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function calculate( update_settings )
 	if timer_type ~= 2 then
@@ -1141,11 +1543,18 @@ local function calculate( update_settings )
 	end
 end
 --[[
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Take the values from the properties and assign it to the timer
 	
-	Take the values from the properties and assign it to the timer
-	
---------------------------------------------------------------------
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function set_stopwatch()
 	time_frequency = get_frequency( ns_last )
@@ -1158,13 +1567,22 @@ local function set_stopwatch()
 	set_time_text( timer_source )
 end	
 --[[
---------------------------------------------------------------------
-	This captures the split times and unpack it in the
-	correct format.
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	This captures the split times and unpack it in the
+					correct format.
 
-	The text source only permits linebreaks ( '\n' ) this 
-	limitation affects how the data can be formated  ):
---------------------------------------------------------------------
+					The text source only permits linebreaks ( '\n' ) this 
+					limitation affects how the data can be formated  ):
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function split_unpack()
 	local data = nil
@@ -1209,9 +1627,18 @@ local function split_unpack()
 	split_data = data
 end
 --[[
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
 
---------------------------------------------------------------------
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function is_leap_year( year )
 	if year % 4 == 0 then
@@ -1231,9 +1658,16 @@ end
 
 --[[
 ----------------------------------------------------------
+	Description:	Function to toggle milliseconds
 	
-	Function to toggle milliseconds
-	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
 ----------------------------------------------------------
 ]]
 local function toggle_mili()
@@ -1266,7 +1700,16 @@ local function toggle_mili()
 end
 --[[
 ----------------------------------------------------------
+	Description:	
+	
+	Credit:			
 
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
 ----------------------------------------------------------
 ]]
 local function reset_mili()
@@ -1289,9 +1732,18 @@ local function reset_mili()
 	--return true
 end
 --[[
---------------------------------------------------------------------
-	Update Properties
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Update Properties
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function update_prop_settings_cur_seconds( value )
 	--[[
@@ -1310,24 +1762,53 @@ function update_prop_settings_cur_seconds( value )
 	prevent_callback = false
 end
 --[[
---------------------------------------------------------------------
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function delayed_recording()
 	obs.timer_add( recording_callback, 100 ) --<- milliseconds 
 end	
 --[[
---------------------------------------------------------------------
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function recording_callback()
 	obs.timer_remove( recording_callback )
 	record( 1 )
 end
 --[[
---------------------------------------------------------------------
-	Called if the counter is starting fresh
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Called if the counter is starting fresh
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function fresh_start( reset_curent )
 	if timer_type == 2 and countdown_type == 1 then
@@ -1375,9 +1856,18 @@ function fresh_start( reset_curent )
 end
 	
 --[[
---------------------------------------------------------------------
-	Function to set the split time text
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Function to set the split time text
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function set_split_text( source_name )
 	if source_name == 'Select' then
@@ -1394,9 +1884,18 @@ local function set_split_text( source_name )
 	last_split_data = text
 end
 --[[
---------------------------------------------------------------------
-	Play / Pause Media
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Play / Pause Media
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function pause_play_media( source_name, play )
 	
@@ -1418,9 +1917,18 @@ function pause_play_media( source_name, play )
 		obs.obs_source_release( source )
 end
 --[[
---------------------------------------------------------------------
-	Add timer here so we have a global setting
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Add timer here so we have a global setting
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function start_timer()
 	
@@ -1433,9 +1941,19 @@ function start_timer()
 	obs.timer_add( timer_callback, timer_cycle ) --<- milliseconds 
 end		
 --[[
---------------------------------------------------------------------
-	Add timer here so we have a global setting
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	
+	Description:	Add timer here so we have a global setting
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function timer_callback()
 	
@@ -1445,8 +1963,18 @@ function timer_callback()
 	set_time_text( timer_source )
 end	
 --[[
---------------------------------------------------------------------
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]	
 function caution_media_end_callback( )
 	set_visible( media['source_name_audio_caution'], false )
@@ -1454,18 +1982,36 @@ function caution_media_end_callback( )
 	obs.remove_current_callback()
 end	
 --[[
---------------------------------------------------------------------
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]	
 function warning_media_end_callback( )
 	set_visible( media['source_name_audio_warning'], false )	
 	obs.remove_current_callback()
 end		
 --[[
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
 
+	Modified:		
 
---------------------------------------------------------------------
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]	
 function disconnect_after_media_end( ref )
 
@@ -1491,8 +2037,18 @@ function disconnect_after_media_end( ref )
 	obs.obs_source_release( source )
 end
 --[[
---------------------------------------------------------------------
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]	
 function signal_media_ended( cd )
 	--[[
@@ -1518,8 +2074,18 @@ function signal_media_ended( cd )
 	end	
 end
 --[[
---------------------------------------------------------------------
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function activate( activating, timer_expired )
 	--[[
@@ -1585,9 +2151,18 @@ local function activate( activating, timer_expired )
 	end
 end
 --[[
---------------------------------------------------------------------
-	Called when a source is activated/deactivated
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Called when a source is activated/deactivated
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function activate_signal( cd, activating )
 	--[[
@@ -1626,8 +2201,18 @@ local function activate_signal( cd, activating )
 	end
 end
 --[[
---------------------------------------------------------------------
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function reset( pressed )
 	if not pressed then
@@ -1676,8 +2261,18 @@ function reset( pressed )
 
 end
 --[[
---------------------------------------------------------------------
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function reset_property_button_start()
 	--[[
@@ -1710,9 +2305,18 @@ local function reset_property_button_start()
 	end	
 end	
 --[[
---------------------------------------------------------------------
-	Usually called by a button or hotkey press
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Usually called by a button or hotkey press
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function on_pause( pressed )
 	if not pressed then
@@ -1739,9 +2343,18 @@ local function on_pause( pressed )
 	return true
 end
 --[[
---------------------------------------------------------------------
-	Callback for button press
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Callback for button press
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function pause_button_clicked( props, p )
 	on_pause( true )
@@ -1749,9 +2362,18 @@ local function pause_button_clicked( props, p )
 	return true
 end
 --[[
---------------------------------------------------------------------
-	Usually called by a button or hotkey press
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Usually called by a button or hotkey press
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function on_export( pressed )
 	if not pressed then
@@ -1760,26 +2382,53 @@ local function on_export( pressed )
 	local file_exported = write_to_json( script_settings )
 end
 --[[
---------------------------------------------------------------------
-	Callback for button press
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Callback for button press
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function export_button_clicked( props, p )
 	on_export( true )
 	return false
 end
 --[[
---------------------------------------------------------------------
-	Callback for button press
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Callback for button press	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function import_button_clicked( props, p, settings )
 	return true
 end
 --[[
---------------------------------------------------------------------
-	Callback for button press
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Callback for button press
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function sw_saved_button_clicked( props, p, settings )
 	if timer_type == 1 then
@@ -1788,9 +2437,18 @@ local function sw_saved_button_clicked( props, p, settings )
 	return false
 end
 --[[
---------------------------------------------------------------------
-	Callback for button press
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Callback for button press
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function reset_button_clicked( props, p, settings )
 	timer_value( 0 )
@@ -1800,9 +2458,18 @@ local function reset_button_clicked( props, p, settings )
 	return true
 end
 --[[
---------------------------------------------------------------------
-	Usually called by a button or hotkey press
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Usually called by a button or hotkey press
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function on_split( pressed )
 	if not pressed then
@@ -1816,27 +2483,45 @@ local function on_split( pressed )
 	end
 end
 --[[
---------------------------------------------------------------------
-	Callback for button press
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Callback for button press
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function split_button_clicked( props, p )
 	on_split( true )
 	return false
 end
 --[[
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
 	Callback for button press
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function mili_button_clicked( props, p, settings )
 	mili_toggle( true )
 	return true
 end	
 --[[
---------------------------------------------------------------------
-	Only used in Countdown mode
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Only used in Countdown mode
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]] 
 local function timer_ended( source_name )
 	delayed_recording()
@@ -1891,9 +2576,18 @@ local function timer_ended( source_name )
 end
 
 --[[
---------------------------------------------------------------------
-	Function to set the defined time text source value 
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Function to set the defined time text source value 
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function set_time_text( source_name )
 	if reset_activated then 
@@ -2022,8 +2716,18 @@ function set_time_text( source_name )
 	--return true
 end
 --[[
---------------------------------------------------------------------
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function mili_toggle( pressed )	
 	if not pressed then
@@ -2070,12 +2774,22 @@ function mili_toggle( pressed )
 	return true
 end
 --[[
---------------------------------------------------------------------
- custom function
+----------------------------------------------------------------------------------------------------------------------------------------
 
-	we use this to get a signal handler for a specific source once
-	it is loaded to ensure it is connected when OBS starts up
---------------------------------------------------------------------
+	Description:	 custom function
+
+					we use this to get a signal handler for a specific source once
+					it is loaded to ensure it is connected when OBS starts up
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function connect_source_signal( cd )
 	
@@ -2110,8 +2824,18 @@ function connect_source_signal( cd )
 end
 
 --[[
---------------------------------------------------------------------
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function source_activated( cd )
    if disable_script then
@@ -2120,16 +2844,35 @@ local function source_activated( cd )
 	activate_signal( cd, true )
 end
 --[[
---------------------------------------------------------------------
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function source_deactivated( cd )
 	activate_signal( cd, false )
 end
 --[[
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
 
---------------------------------------------------------------------
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function load_settings_globals( settings )
 	media_playback_limit = obs.obs_data_get_int( settings, "media_playback_limit" )
@@ -2190,9 +2933,18 @@ local function load_settings_globals( settings )
 	load_saved_time = obs.obs_data_get_bool( settings, "load_saved_time" )
 end
 --[[
---------------------------------------------------------------------
-	Callback on property modification
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Callback on property modification
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function import_properties( props, property, settings )
 	local import_folder = backup_folder
@@ -2210,9 +2962,18 @@ function import_properties( props, property, settings )
 	return true
 end
 --[[
---------------------------------------------------------------------
-	Callback on property modification
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Callback on property modification
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function property_onchange( props, property, settings )
 	--[[
@@ -2538,12 +3299,22 @@ function property_onchange( props, property, settings )
   return true
 end
 --[[
---------------------------------------------------------------------
-	A function named script_properties defines the properties that the user
-	can change for the entire script module itself
+----------------------------------------------------------------------------------------------------------------------------------------
 
-	last used reference: p_55
---------------------------------------------------------------------
+	Description:		A function named script_properties defines the properties that the user
+						can change for the entire script module itself
+
+						last used reference: p_55
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function script_properties()
 	
@@ -2926,9 +3697,18 @@ function script_properties()
 	return props
 end
 --[[
---------------------------------------------------------------------
-	A function named script_update will be called when settings are changed
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	A function named script_update will be called when settings are changed
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 -- Called upon settings initialization and modification
 function script_update( settings )
@@ -2971,9 +3751,18 @@ function script_update( settings )
   	script_settings = settings 	
 end
 --[[
---------------------------------------------------------------------
-A function named script_defaults will be called to set the default settings
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	A function named script_defaults will be called to set the default settings
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function script_defaults( settings )
 	assign_default_frequency()
@@ -3030,13 +3819,21 @@ function script_defaults( settings )
   	script_settings = settings 
 end
 --[[
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:		A function named script_save will be called when the script is saved
+						NOTE: This function is usually used for saving extra data ( such as in this
+						case, a hotkey's save data ).  Settings set via the properties are saved
+						automatically.
+	
+	Credit:			
 
-	A function named script_save will be called when the script is saved
-	NOTE: This function is usually used for saving extra data ( such as in this
-	case, a hotkey's save data ).  Settings set via the properties are saved
-	automatically.
---------------------------------------------------------------------
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function script_save( settings )
 	local hotkey_save_array_reset = obs.obs_hotkey_save( hotkey_id_reset )
@@ -3053,16 +3850,25 @@ function script_save( settings )
 	obs.obs_data_array_release( hotkey_save_array_mili )
 end	
 --[[
---------------------------------------------------------------------
-	a function named script_load will be called on startup	
-	Connect hotkey and activation/deactivation signal callbacks
-	--
-	NOTE: These particular script callbacks do not necessarily have to
-	be disconnected, as callbacks will automatically destroy themselves
-	if the script is unloaded.  So there's no real need to manually
-	disconnect callbacks that are intended to last until the script is
-	unloaded.
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	
+	Description:	a function named script_load will be called on startup	
+					Connect hotkey and activation/deactivation signal callbacks
+					--
+					NOTE: These particular script callbacks do not necessarily have to
+					be disconnected, as callbacks will automatically destroy themselves
+					if the script is unloaded.  So there's no real need to manually
+					disconnect callbacks that are intended to last until the script is
+					unloaded.
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function script_load( settings )
 	assign_default_frequency()
