@@ -47,6 +47,7 @@ BUGS
 
 TODO> 
 
+- if the timer text is hidden and start timer button is pressed, the script crash
 - Testing
 - No tasks outstanding 
 
@@ -1125,25 +1126,34 @@ end
 	function:		Update Text Source		
 	type:			Support, Render			
 	input type: 	
-	returns:		true 
+	returns:		bool 
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function set_visible( target_name, visible )
-	if in_table( {'','None', 'Select','none', 'select'}, target_name ) then return end
+	
+	if visible == nil then visible = true end
+	local action_completed = false
+	if in_table( {'','None', 'Select','none', 'select'}, target_name ) then return action_completed; end
 	local scenes = obs.obs_frontend_get_scenes()
 	if scenes ~= nil then
 		for i, scn in ipairs( scenes ) do	
 			local scene = obs.obs_scene_from_source( scn )
 			local sceneitem = obs.obs_scene_find_source_recursive( scene, target_name )
 			if sceneitem ~= nil then
-				obs.obs_sceneitem_set_visible( sceneitem, visible )
+				if visible and not obs.obs_sceneitem_visible( sceneitem ) then -- only set visible if not visible
+					obs.obs_sceneitem_set_visible( sceneitem, visible )
+				end	
+				if not visible and obs.obs_sceneitem_visible( sceneitem ) then -- only set visible if visible
+					obs.obs_sceneitem_set_visible( sceneitem, visible )
+				end	
+				action_completed = true
 				break	
 			end	
 		end --end for
 		obs.bfree( scn )
 		obs.source_list_release( scenes )		
 	end
-	return true
+	return action_completed
 end
 
 --[[
@@ -1175,7 +1185,6 @@ local function is_visible( target_name )
 		obs.bfree( scn )
 		obs.source_list_release( scenes )		
 	end
-	
 	return isvisible
 end
 --[[
@@ -1194,11 +1203,13 @@ end
 ]]
 local function start_media_action( source_name, ref )
 	
+	
 	if in_table( {'','None', 'Select','none', 'select'}, source_name ) then return end
 	
 	if not media[ref..'_activated'] then 
 		media['cur_seconds_'..ref] = math.ceil(cur_seconds)
 		set_visible( source_name, true );
+		
 		--[[
 		
 			connect signal handler to ensure we reset the source if the media ended.
@@ -1342,25 +1353,23 @@ local function stop_media_action( ref )
 	local source_name = media['source_name_audio_'..ref]
 	
 	if in_table( {nil, '','None', 'Select','none', 'select'}, source_name ) and not media[ref..'_media_ended']	then return end
-		
 	--[[
 		Increments the source reference counter, 
 		use obs_source_release() to release it when complete.
 		
 		we got a source name, let's see if it exist...
 	]]
-    local source = obs.obs_get_source_by_name( source_name )
-	
-    if source ~= nil then -- source is valid
-		
-        local state = obs.obs_source_media_get_state( source ) -- get the current state for the source
-		
-		--if media['last_state_'..ref] ~= state then -- The state has changed
-			if state == obs.OBS_MEDIA_STATE_PLAYING  then
 			
-				if media[ref..'_duration'] ~= 0 and media_playback_limit ~= 1 then
-					--[[
+	if media[ref..'_duration'] ~= 0 and media_playback_limit ~= 1 then
+		local source = obs.obs_get_source_by_name( source_name )
 
+		if source ~= nil then -- source is valid
+
+			local state = obs.obs_source_media_get_state( source ) -- get the current state for the source
+
+			--if media['last_state_'..ref] ~= state then -- The state has changed
+			if state == obs.OBS_MEDIA_STATE_PLAYING  then
+					--[[
 
 					]]
 					local media_time_started = math.ceil( media['cur_seconds_'..ref] )
@@ -1372,16 +1381,11 @@ local function stop_media_action( ref )
 						media['last_state_'..ref] = state
 						media[ref..'_media_ended'] = true
 						set_visible( source_name, false )
-					end 	
-				end
-			end	
-		
-			if state == obs.OBS_MEDIA_STATE_STOPPED or state == obs.OBS_MEDIA_STATE_ENDED then
-				media['last_state_'..ref] = state
-				set_visible( source_name, false )
+					end
 			end			
-		--end	 
-    end
+			--end	 
+		end 	
+	end
     obs.obs_source_release( source )	
 end
 --[[
@@ -1404,6 +1408,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function stop_media( ref, bypass )
+	if bypass == nil then bypass = false end
 	if bypass then -- No checks, just stop it
 		set_visible( media['source_name_audio_'..ref], false )
 	else -- do some checks
@@ -1624,10 +1629,17 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function timer_value( value, update_settings )
+	
+	if update_settings == nil then
+		update_settings = false
+	end	
+	
 	cur_seconds = value
-	if update_settings ~= false then 
+	
+	if update_settings then 
 		update_prop_settings_cur_seconds( cur_seconds ) 
 	end
+	
 	return cur_seconds
 end
 --[[
@@ -1646,9 +1658,9 @@ end
 ]]
 local function calculate( update_settings )
 	if timer_type ~= 2 then
-		timer_value( cur_seconds + time_frequency, update_settings )
+		timer_value( cur_seconds + time_frequency, update_settings ) -- value, update_settings 
 	else
-		timer_value( cur_seconds - time_frequency, update_settings )
+		timer_value( cur_seconds - time_frequency, update_settings ) -- value, update_settings 
 	end
 end
 --[[
@@ -1914,7 +1926,43 @@ function recording_callback()
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Called if the counter is starting fresh
+	Description:	Decide if cur_seconds needs to reset to def_seconds
+	
+	Credit:			
+
+	Modified:		
+
+	function:		Check if cur_seconds needs to reset to def_seconds
+	type:			check
+	input type: 	next_scene
+	returns:		bool
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+function update_default_time()
+	
+	if next_scene == "Source List" or next_scene == "Scene List" then
+		return true
+	end	
+	
+	return false
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Called if the counter is starting fresh				
+					def_seconds is used for source cycling
+		
+					def_seconds: Default Seconds
+
+					the default timer state
+
+					This is the state of the timer that will set or
+					reset the time ( cur_seconds ) 
+
+					If the timer expires because cur_seconds == 0, 
+					then the time ( cur_seconds ) will be be restarted
+					from def_seconds for another function such as source cycling.
+
+					Every instance that a timer time is defined, we must record it to def_seconds
 	
 	Credit:			
 
@@ -1927,67 +1975,79 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function fresh_start( reset_curent )
+	
+	if reset_curent == nil then reset_curent = false end
+	
+	reset_timer()
+	
 	if timer_type == 2 and countdown_type == 1 then
-		timer_value( delta_time( timer_year, timer_month, timer_day, timer_hours, timer_minutes, timer_seconds ) )
 		--[[
-			** Commment marked for removal ** 
-			TODO> please identify which function need this
-			used for split in stopwatch?
-		
-			OUTCOME> Now I am not sure what issue this caused
-			or it has been resolved by another bug patch. Let's
-			see if an issue related to this surfaces again and
-			please remember to describe with comprehensive details
-			of the problem (bug)
-			** Commment marked for removal ** 
+			update def_seconds
 		]]
 		def_seconds = cur_seconds
 	end
-	if reset_curent ~= nil then
-		if reset_curent and timer_type == 2 then
+		
+		--[[
+			if reset_curent == true
+			and timer_type == 2	(Countdown)
+		]]	
+	if reset_curent then
+		
+		if timer_type == 2 and update_default_time() then
 			--[[
-				TODO> 
-				** Commment marked for removal ** 
-				please identify which function need this
-				used for split in stopwatch? 
+				Used for source cycling
 			
-				Used in Countdown mode (Timer Type)
+				def_seconds: Default Seconds
+		
+				the default timer state
+		
+				This is the state of the timer that will set or
+				reset the time ( cur_seconds ) 
+		
+				If the timer expires because cur_seconds == 0, 
+				then the time ( cur_seconds ) will be be restarted
+				from def_seconds for another function such as source cycling.
+		
+				Every instance that a timer time is defined, we must record it to def_seconds
 			
-				This interferes with stopwatch saved time 
-				** Commment marked for removal ** 
+				THIS WILL UPDATE cur_seconds to the value cur_seconds
 			]]
-			timer_value( def_seconds, false )
+			timer_value( def_seconds, false ) -- value, update_settings 
 		end
-	end
-	if reset_curent ~= nil then
-		if reset_curent then
+
+		
 			--[[
-				** Commment marked for removal ** 
-				TODO> please identify which function need this
-				used for split in stopwatch?
+				Used for source cycling
 			
-				OUTCOME> Now I am not sure what issue this caused
-				or it has been resolved by another bug patch. Let's
-				see if an issue related to this surfaces again and
-				please remember to describe with comprehensive details
-				of the problem (bug)
+				def_seconds: Default Seconds
+		
+				the default timer state
+		
+				This is the state of the timer that will set or
+				reset the time ( cur_seconds ) 
+		
+				If the timer expires because cur_seconds == 0, 
+				then the time ( cur_seconds ) will be be restarted
+				from def_seconds for another function such as source cycling.
+		
+				Every instance that a timer time is defined, we must record it to def_seconds
 			
-				This interferes with stopwatch saved time
-				** Commment marked for removal ** 
+				THIS WILL UPDATE cur_seconds to the value cur_seconds
 			]]
-			--timer_value( def_seconds, false )	
+			--if reset_curent and timer_type == 2 and update_default_time() then
+			--timer_value( def_seconds, false )	 -- value, update_settings 
+			--end	
 			completed_cycles = 0
 			split = 0
 			split_itm = {}
 			split_data = nil
-			media['caution_activated'] = false
-			media['warning_activated'] = false
-		end
 	end
+	
 	orig_time = obs.os_gettime_ns()
 	set_visible( media["caution_note_source"], false )
 	set_visible( media["warning_note_source"], false ) 
 	mili_toggle_triggered = false
+	
 end
 	
 --[[
@@ -2034,8 +2094,8 @@ end
 ]]
 function pause_play_media( source_name, play )
 	
-	if in_table( {'','None', 'Select','none', 'select'}, source_name ) then return end
-	
+	if in_table( {'','None', 'Select','none', 'select'}, source_name ) or not is_visible( source_name )then return end
+			
 		local source = obs.obs_get_source_by_name( source_name )
 	
 		if source ~= nil then
@@ -2218,6 +2278,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function activate( activating, timer_expired )
+	
 	--[[
 	
 		We skip/cancel anything requested if the 
@@ -2227,6 +2288,7 @@ local function activate( activating, timer_expired )
 	if disable_script then
 		return		
 	end
+
 	--[[
 	
 		Pass the activating state to a globle
@@ -2263,20 +2325,7 @@ local function activate( activating, timer_expired )
 		else
 			obs.timer_remove( timer_callback ) -- Removing the callback stops the timer	
 		end
-		
-			--stop_media( 'caution', true ) -- Hold.
-			--stop_media( 'warning', true ) -- Hold.
-		
 		--[[
-			
-			We need to know if the timer is still active.
-			
-			Tow possibilities:
-			
-			1: ON HOLD (PAUSED)
-			2: EXPIRED (ENDED)
-		
-			Either case, the timer is not active at the moment.
 		
 		]]
 		timer_active = false
@@ -2325,10 +2374,102 @@ local function activate_signal( cd, activating )
 			if activating then record( 4, 300 ) end
 			if start_on_visible or start_on_scene_active then
 				fresh_start( true )
-				activate( activating )
+				activate( activating, false )
 			end
 		end
 	end
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		reset timer	
+	type:			
+	input type: 	
+	returns:		none
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+function reset_timer( current_settings )
+	
+	--if timer_expired and timer_active then
+	
+	if current_settings == nil then current_settings = script_settings	end
+	--[[
+		Countdown
+	]]
+	if timer_type == 2 then
+		--[[
+			Countdown and a specific date.
+			The specific date will be converted
+			to seconds.
+		]]
+		local calculated_time = 0
+		if countdown_type == 1 then
+			calculated_time = ( delta_time( timer_year, timer_month, timer_day, timer_hours, timer_minutes, timer_seconds ) )
+			timer_value( calculated_time, false )
+		else
+			calculated_time = (  
+			( obs.obs_data_get_int( current_settings, "hours" )*60*60 ) + 
+			( obs.obs_data_get_int( current_settings, "minutes" )*60 ) + 
+			obs.obs_data_get_int( current_settings, "seconds" )
+				)	
+		end
+		timer_value( calculated_time, false )
+	else
+		timer_value( 0, false )
+	end	
+	--[[
+		Stopwatch mus always be reset to zero
+		unless if the time is loaded from a previous session
+	]]
+	if timer_type == 1 then
+		if load_saved_time then
+			timer_value( sw_cur_seconds, true ) -- value, update_settings 
+		else
+			timer_value( 0, false ) -- value, update_settings 
+		end	
+	end	
+	--[[	
+		Used for countdown only
+		NB: This must always be called 
+		last in this routine so that 
+		cur_seconds can be updated first
+	]]
+	if timer_type == 2 then
+	--[[
+			Used for source cycling
+		
+			def_seconds: Default Seconds
+
+			the default timer state
+
+			This is the state of the timer that will set or
+			reset the time ( cur_seconds ) 
+
+			If the timer expires because cur_seconds == 0, 
+			then the time ( cur_seconds ) will be be restarted
+			from def_seconds for another function such as source cycling.
+
+			Every instance that a timer time is defined, we must record it to def_seconds
+			In this instance a Setting may be updated, so update def_seconds
+	]]		
+		def_seconds = cur_seconds 
+	end	
+	
+	media['caution_activated'] = false
+	media['warning_activated'] = false
+	--[[
+	
+		Update the timer text
+		cause a crash if text source is hidden
+		due to a loop. Tested without it and does not need it?
+	
+	]]
+	--set_time_text( timer_source )
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
@@ -2355,24 +2496,20 @@ function reset( pressed )
 	
 	]]
 	last_text = tostring( obs.os_gettime_ns() )
+
 	--[[
 	
-		Set the timer value to absolute 0
+		Update cur_settings
 	
-	]]
-	timer_value( 0 )
-	--[[
+	]]	
+	reset_timer() -- based on UI Settings
 	
-		Update the timer text
-	
-	]]
-	set_time_text( timer_source )
 	--[[
 	
 		Handle Timer Callback
 	
 	]]
-	activate( false )
+	activate( false, true )
 	--[[
 	
 		Reset timer split seconds text
@@ -2393,19 +2530,19 @@ function reset( pressed )
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	
+	Description:	Set the titles / labels of the Start / Pause Button
 	
 	Credit:			
 
 	Modified:		
 
-	function:		
+	function:		Update start/puase button label
 	type:			
-	input type: 	
-	returns:
+	input type: 	mode, timer_active
+	returns:		props
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
-local function reset_property_button_start()
+local function property_button_update_start()
 	--[[
 		
 		A button has it's own callback so we can not action anything
@@ -2434,6 +2571,7 @@ local function reset_property_button_start()
 			obs.obs_property_set_description( pause_button_prop, "Start Stopwatch" )
 		end
 	end	
+	return props
 end	
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
@@ -2461,12 +2599,12 @@ local function on_pause( pressed )
 	set_visible( timer_source, true )
 	
 	if timer_active then
-		activate( false )
+		activate( false, false )
 		split_unpack()
 		set_split_text( split_source )
 	else
 		if activated == false then	
-			activate( true )
+			activate( true, false )
 		end	
 	end
 		pause_play_media( media['source_name_audio_caution'], not timer_active )
@@ -2489,7 +2627,7 @@ end
 ]]
 local function pause_button_clicked( props, p )
 	on_pause( true )
-	reset_property_button_start()
+	property_button_update_start()
 	return true
 end
 --[[
@@ -2582,8 +2720,6 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function reset_button_clicked( props, p, settings )
-	timer_value( 0 )
-	update_prop_settings_cur_seconds( 0 )
 	reset( true )
 	reset_mili()
 	return true
@@ -2655,23 +2791,40 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]] 
 local function timer_ended( source_name )
+	
 	delayed_recording()
+	
+	--[[
+		Timer expired and a scene change is requested.
+	]]	
 	if next_scene ~= "TIMER END TEXT" and next_scene ~= "Source List"  and next_scene ~= "Scene List" and next_scene ~= "Select" then
-		set_visible( timer_source, false ) -- last thing, set visibility of timer to hide
+		--[[
+			The timer expired and the timer will not restart.
+		]]	
+		set_visible( timer_source, false ) -- last thing, set visibility of timer to hide because we are changing to another scene
 		--[[
 			Increments the source reference counter, 
 			use obs_source_release() to release it when complete.
 		]]
 		
-		--local source = obs.obs_get_scene_by_name( next_scene )	
 		local source = obs.obs_get_source_by_name( next_scene )
 		
 		if source ~= nil then
 			obs.obs_frontend_set_current_scene( source )
 			obs.obs_source_release( source )
-			fresh_start( true ) 
-			--obs.remove_current_callback()	
+			fresh_start( true ) 	
 		end
+		
+		--[[
+			The timer expired and the timer will not restart.
+		]]
+		timer_expired = true
+		timer_active = false
+		
+		--[[
+			This will remove the callback.
+		]]
+		activate( false, true )
 		
 	end
 
@@ -2721,11 +2874,19 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function set_time_text( source_name )
+	
 	if reset_activated then 
 		reset_activated = false
 		fresh_start( true ) 
 	end	
-	if cur_seconds <= 0.01 and timer_type ~= 1 then timer_value( 0 ) end
+	
+	--[[
+		Force absolute zero at this point
+	]]
+	if cur_seconds <= 0.01 and timer_type ~= 1 then 
+		timer_value( 0, false )   -- value, update_settings 
+	end
+	
 	toggle_mili()
 	
 	local l_time = long_time( cur_seconds )
@@ -2847,6 +3008,9 @@ function set_time_text( source_name )
 			Final check, if cur_seconds == 0 then
 			deactivate (end/remove) the timer callback
 		
+			This is a fallback but should not be needed
+			as the timer callback may be removed by 
+			timer_ended() if neded
 		]]--
 		if cur_seconds == 0 then activate( false, true ) end
 	end	
@@ -2948,7 +3112,7 @@ function connect_source_signal( cd )
 		if ( name == timer_source ) then
 			if timer_type == 1 then
 				if not load_saved_time then
-					timer_value( 0 )
+					timer_value( 0, false )
 					reset( true )	
 				end	
 			else
@@ -3039,14 +3203,20 @@ local function load_settings_globals( settings )
 	media["caution_note"] = string.gsub(obs.obs_data_get_string( settings, "caution_note" ), "\\([n])", {n="\n"})
 	media["warning_note"] = string.gsub(obs.obs_data_get_string( settings, "warning_note" ), "\\([n])", {n="\n"})
 	--[[
-		** Commment marked for removal ** 
-		TODO> please identify which function need this
-		OUTCOME> Now I am not sure what issue this caused
-		or it has been resolved by another bug patch. Let's
-		see if an issue related to this surfaces again and
-		please remember to describe with comprehensive details
-		of the problem (bug)
-		** Commment marked for removal ** 
+				Used for source cycling
+		
+				def_seconds: Default Seconds
+		
+				the default timer state
+		
+				This is the state of the timer that will set or
+				reset the time ( cur_seconds ) 
+		
+				If the timer expires because cur_seconds == 0, 
+				then the time ( cur_seconds ) will be be restarted
+				from def_seconds for another function such as source cycling.
+		
+				Every instance that a timer time is defined, we must record it to def_seconds
 	]]
 	def_seconds = cur_seconds 
 	stop_text = obs.obs_data_get_string( settings, "stop_text" )
@@ -3856,56 +4026,8 @@ function script_update( settings )
 	]]
 	load_settings_globals( settings )
 	
-	activate( false )
-	--[[
-		Countdown
-	]]
-	if timer_type == 2 then
-		local calculated_time = (  
-		( obs.obs_data_get_int( settings, "hours" )*60*60 ) + 
-		( obs.obs_data_get_int( settings, "minutes" )*60 ) + 
-		obs.obs_data_get_int( settings, "seconds" )
-			)
-		
-		timer_value( calculated_time, false )
-		
-	else
-		timer_value( 0, false )
-	end	
-	--[[
-		Stopwatch
-	]]
-	if timer_type == 1 then
-		if load_saved_time then
-			timer_value( sw_cur_seconds )
-		else
-			timer_value( 0 )
-		end	
-	end	
-	--[[
-		Countdown
-	]]
-	if timer_type == 2 and countdown_type == 1 then
-		local calculated_time = ( delta_time( timer_year, timer_month, timer_day, timer_hours, timer_minutes, timer_seconds ) )
-		timer_value( calculated_time, false )
-	end
-	--[[	
-		Used for countdown only
-	]]
-	if timer_type == 2 then
-	--[[
-		** Commment marked for removal ** 
-		TODO> please identify which function need this
-		OUTCOME> Now I am not sure what issue this caused
-		or it has been resolved by another bug patch. Let's
-		see if an issue related to this surfaces again and
-		please remember to describe with comprehensive details
-		of the problem (bug)
-		** Commment marked for removal ** 
-	]]		
-		def_seconds = cur_seconds 
-		reset( true )
-	end	
+	activate( false, false )
+
 	reset_mili()
 	-- Keep track of current settings
   	script_settings = settings 	
@@ -4125,7 +4247,7 @@ function script_load( settings )
 	]]
 	if timer_type == 1 then
 		if not load_saved_time then
-			timer_value( 0 )
+			timer_value( 0, false ) -- value, update_settings 
 			reset( true )	
 		end	
 	else
