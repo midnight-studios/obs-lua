@@ -52,6 +52,71 @@ TODO>
 - Testing
 - No tasks outstanding 
 
+PROPERTIES UI TEST:
+
+- Advanced Basic swicth hides and shows feature													ok
+- Timer Options visible in advanced mode														ok
+- Trigger Options visible in advanced mode														ok
+
+
+PROPERTIES BACKUP TEST:
+
+- Backup options visible if enabled: 															ok
+- Backup options hidden if disabled: 															ok
+- Backup export and create file if export button activated										ok
+- Backup update import file list if settings refreshed											ok
+- Backup auto loads settings from import file when file selected from list:						ok
+
+TIMER TEST:
+
+- Timestamp prefix operational:																	ok
+- Timestamp suffix operational:																	ok
+- Timestamp trigger caution text font colour operational:										ok
+- Timestamp trigger warning text font colour operational:										ok
+- Timestamp trigger text show / hide features when enabled/disabled:							ok
+- Timestamp trigger caution note source select operational:										ok
+- Timestamp trigger warning note source select operational:										ok
+- Timestamp trigger caution note source text contents operational:								ok
+- Timestamp trigger warning note source text contents operational:								ok
+- Timestamp trigger caution note hides on reset:												ok
+- Timestamp trigger warning note hides on reset:												ok
+- Timestamp trigger caution media source select operational:									ok
+- Timestamp trigger warning media source select operational:									ok
+- Timestamp trigger caution media play on timestamp trigger:									ok
+- Timestamp trigger warning media play on timestamp trigger:									ok
+- Caution media pause on timer pause:															ok
+- Warning media pause on timer pause:															ok
+- Caution media unpause on timer pause:															ok
+- Warning media unpause on timer pause:															ok
+- Caution media source visibilty hidden when media ends:										ok
+- Warning media source visibilty hidden when media ends:										ok
+- Media Playback limit enable / disable show hides limit sliders:								ok
+- Countdown mode Caution media ends if media playback limit enabled and time limit is met:		error
+- Countdown mode Warning media ends if media playback limit enabled and time limit is met:		error
+- Stopwatch Caution media ends if media playback limit enabled and time limit is met:			ok
+- Stopwatch Warning media ends if media playback limit enabled and time limit is met:			ok
+- 
+
+STOPWATCH TEST:
+
+- Stopwatch auto loads last saved timestamp if enabled: 										ok
+- Stopwatch continue from last saved timestamp if enabled:										ok
+- Stopwatch last saved timestamp set to zero if reset activated:								ok
+- Stopwatch last saved timestamp cleared if feature not enabled:								ok 
+- Stopwatch manually set timestamp operational:													ok 	
+- Stopwatch continue from manually set timestamp if enabled:									ok	
+- Stopwatch last saved timestamp property field hidden:											error
+- Stopwatch manually set timestamp options hidden if not enabled:								ok
+- Stopwatch auto start if enabled for timer text source is set visible:							ok
+- Stopwatch auto start disabled if not enabled for timer text source is set visible:			ok
+- Stopwatch auto start if enabled for scene with timer text source is active:					ok
+- Stopwatch auto start disabled if not enabled for scene with timer text source is active:		ok
+- Stopwatch auto stop if enabled for scene with timer text source is inactive:					error
+- Stopwatch if script is disabled the timer wont initiate:										ok
+- 
+- 
+
+
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 --Globals
@@ -92,7 +157,7 @@ output_file_name 			= '-backup($date_stamp).json';
 font_normal					= '#ffffff'
 font_dimmed					= '#bfbbbf'
 font_highlight				= '#fffdcf'
-cur_seconds   				= 0
+current_seconds   				= 0
 cycle_direction				= 1
 --[[
 	** Commment marked for removal ** 
@@ -104,7 +169,7 @@ cycle_direction				= 1
 	of the problem (bug)
 	** Commment marked for removal ** 
 ]]
-def_seconds   				= 0
+default_seconds   				= 0
 split	     				= 0
 timer_year	     			= 0
 timer_month	     			= 0
@@ -112,7 +177,7 @@ timer_day	     			= 0
 timer_hours	     			= 0
 timer_minutes 	     		= 0
 timer_seconds	     		= 0
-timer_type   				= 0
+timer_mode   				= 0
 timer_format				= 1
 timer_display  				= 1
 start_recording				= 0
@@ -151,8 +216,8 @@ note_caution 				= '',
 note_warning 				= '',
 activated_warning			= false,
 activated_caution			= false, 
-cur_seconds_caution			= 0,
-cur_seconds_warning			= 0, 
+current_seconds_caution			= 0,
+current_seconds_warning			= 0, 
 duration_caution			= 0, 
 duration_warning			= 0, 
 media_ended_caution			= false, 
@@ -754,7 +819,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function record( mark, ms )
-	if timer_type ~= 2 then return end
+	if timer_mode ~= 2 then return end
 	if start_recording == 1 and mark == recording_type then
 		obs.obs_frontend_recording_start()
 	end
@@ -998,15 +1063,15 @@ local function format_time( timestamp, format )
 	]]	
 	timestamp = format:gsub('$T', ''):gsub('$D', day):gsub( '$H', hour):gsub('$M', minute):gsub('$S', seconds):gsub('$F', mili)
 	
-	if t ~= 0 and cur_seconds > 0.01 then
+	if t ~= 0 and current_seconds > 0.01 then
 		--local reg = '^[0]+[:]?[0]+[:]?[0]+[:]?[0]?'
 		local reg = '^[0:,]*' -- close, but misses 1 instance
 		timestamp = timestamp:gsub(reg,'')
 	end	
-	if cur_seconds < 0.01 and timer_display == 1 then
+	if current_seconds < 0.01 and timer_display == 1 then
 		if timer_format ~= 1 then timestamp = '0' end -- the user wants the timer to end with a reminder that it is Game Over
 	end	
-	if cur_seconds < 0.01 and timer_display == 2 then -- else it will show 00:00:00
+	if current_seconds < 0.01 and timer_display == 2 then -- else it will show 00:00:00
 		timestamp = '' -- the user wants the timer to disapear
 	end	
 	return timestamp
@@ -1058,7 +1123,7 @@ end
 ]]
 local function show_split( props, settings )
 	local config_value = obs.obs_data_get_int( settings, 'config' )
-	local mode = obs.obs_data_get_int( settings, 'timer_type' )
+	local mode = obs.obs_data_get_int( settings, 'timer_mode' )
 	local shw = false
 	shw = ( config_value == 2 and mode == 2 and in_table( {1, 2}, timer_format ) )
 	if ( timer_format == 5 and config_value == 2 and mode == 2 ) then
@@ -1330,7 +1395,7 @@ local function start_media_action( source_name, ref )
 	if in_table( {'','None', 'Select','none', 'select'}, source_name ) then return end
 	
 	if not media['activated_'.. ref] then 
-		media['cur_seconds_'.. ref] = math.ceil(cur_seconds)
+		media['current_seconds_'.. ref] = math.ceil(current_seconds)
 		set_visible( source_name, true );
 		
 		--[[
@@ -1397,10 +1462,10 @@ local function media_activate( settings, ref )
 	 		if the user's time stamp is for example 00:00:05
 			the trigger will happen at for example 00:00:05,99
 			thus it will be inaccurate by roughly 0,9 seconds
-			math.ceil(cur_seconds) will round positively to 
+			math.ceil(current_seconds) will round positively to 
 			give an accurate trigger
 	]]
-	if raw_time( math.ceil( cur_seconds ), true ) == media['text_'.. ref] then
+	if raw_time( math.ceil( current_seconds ), true ) == media['text_'.. ref] then
 		if trigger_text ~= 1 and ref == 'caution' then 
 			set_visible( media['note_source_' .. ref], true ) 
 			set_visible( media['note_source_warning'], false )
@@ -1488,23 +1553,39 @@ local function stop_media_action( ref )
 		if source ~= nil then -- source is valid
 
 			local state = obs.obs_source_media_get_state( source ) -- get the current state for the source
-
+			--log(ref .. " last state: " .. ( state == obs.OBS_MEDIA_STATE_PLAYING and "Playing" or state == obs.OBS_MEDIA_STATE_STOPPED and "Stopped" or state == obs.OBS_MEDIA_STATE_ENDED and "Ended" or "undefined: " .. state ) )
+			
 			if media['last_state_'.. ref] ~= state then -- The state has changed
-				if state == obs.OBS_MEDIA_STATE_PLAYING  then
+				if state == obs.OBS_MEDIA_STATE_PLAYING then
 						--[[
-
+								time remaining is calculated differently depending on the timer_mode (count is up or down)
 						]]
-						local media_time_started = math.ceil( media['cur_seconds_'.. ref] )
+						local media_time_started = math.ceil( media['current_seconds_'.. ref] )
 						local media_time_limit = math.floor( media['duration_'.. ref] )
-						local time_remaining = math.ceil( cur_seconds ) -- 
-						local media_time_remaining = media_time_started - media_time_limit 
-						local time_end = ( media_time_remaining == time_remaining )
+						
+						local time_currently = math.ceil( current_seconds ) --
+						local media_time_remaining = 0
+						local time_end = false
+					
+						if timer_mode == 1 then
+							media_time_remaining = media_time_started + media_time_limit 
+							time_end = ( time_currently >= media_time_remaining  ) -- time is equal to or greater than the limit
+						end						
+						if timer_mode == 2 then 
+							media_time_remaining = media_time_started - media_time_limit
+							time_end = ( time_currently <= media_time_remaining  ) -- time is equal to or less than the limit
+						end
 						if time_end then
 							media['last_state_'.. ref] = state
 							media['media_ended_'.. ref] = true
 							set_visible( source_name, false )
 						end
-				end			
+				end	
+			else
+				media['last_state_'.. ref] = state
+				if state == obs.OBS_MEDIA_STATE_STOPPED or state == obs.OBS_MEDIA_STATE_ENDED then
+					set_visible( source_name, false )
+				end
 			end	 
 		end 	
 	end
@@ -1757,15 +1838,15 @@ end
 	returns:
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
-local function update_prop_settings_cur_seconds( value )
+local function update_prop_settings_current_seconds( value )
 	--[[
 		When this is updated it will trigger a 
 		callback 'property_onchange', let's 
 		disable that for a moment.
 	]]
 	prevent_callback = true
-	obs.obs_data_set_double( script_settings, 'sw_cur_seconds', value )
-	sw_cur_seconds = value
+	obs.obs_data_set_double( script_settings, 'sw_current_seconds', value )
+	sw_current_seconds = value
 	obs.obs_properties_apply_settings( props, script_settings )
 	--[[
 		When this is updated it will trigger a 
@@ -1786,7 +1867,7 @@ end
 	function:		update the timer value
 	type:			Dependency / Support 
 	input type: 	double
-	returns:		cur_seconds
+	returns:		current_seconds
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function timer_value( value, update_settings )
@@ -1795,13 +1876,13 @@ local function timer_value( value, update_settings )
 		update_settings = false
 	end	
 	
-	cur_seconds = value
+	current_seconds = value
 	
 	if update_settings then 
-		update_prop_settings_cur_seconds( cur_seconds ) 
+		update_prop_settings_current_seconds( current_seconds ) 
 	end
 	
-	return cur_seconds
+	return current_seconds
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
@@ -1818,10 +1899,10 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function calculate( update_settings )
-	if timer_type ~= 2 then
-		timer_value( cur_seconds + time_frequency, update_settings ) -- value, update_settings 
+	if timer_mode ~= 2 then
+		timer_value( current_seconds + time_frequency, update_settings ) -- value, update_settings 
 	else
-		timer_value( cur_seconds - time_frequency, update_settings ) -- value, update_settings 
+		timer_value( current_seconds - time_frequency, update_settings ) -- value, update_settings 
 	end
 end
 --[[
@@ -1846,16 +1927,16 @@ local function set_time_text( source_name )
 	--[[
 		Force absolute zero at this point
 	]]
-	if cur_seconds <= 0.01 and timer_type ~= 1 then 
+	if current_seconds <= 0.01 and timer_mode ~= 1 then 
 		timer_value( 0, false )   -- value, update_settings 
 	end
 	
-	local l_time = long_time( cur_seconds )
-	local t_time = raw_time( cur_seconds )
+	local l_time = long_time( current_seconds )
+	local t_time = raw_time( current_seconds )
 	--[[
 		Timer Format Type: Full Format
 	]]
-	local text = tostring( raw_time( cur_seconds ) )
+	local text = tostring( raw_time( current_seconds ) )
 	--[[
 		Timer Format Type: Remove Leading Zeros
 	]]
@@ -1882,15 +1963,15 @@ local function set_time_text( source_name )
 		--[[
 			Format the Text 'Day/Days'
 		]]
-		if timer_type == 2 and countdown_type == 1 and cur_seconds ~= 0 then
+		if timer_mode == 2 and countdown_type == 1 and current_seconds ~= 0 then
 			local longtimetext = longtimetext_p
-			if math.floor( cur_seconds / 86400 ) <= 1 then
+			if math.floor( current_seconds / 86400 ) <= 1 then
 				longtimetext = longtimetext_s
 			end
-			if math.floor( cur_seconds / 86400 ) <= 0 then
+			if math.floor( current_seconds / 86400 ) <= 0 then
 				longtimetext = longtimetext_p
 			end		
-			text = string.gsub(longtimetext .. text, '[#]', long_time( cur_seconds ))
+			text = string.gsub(longtimetext .. text, '[#]', long_time( current_seconds ))
 		end		
 	end
 	--[[
@@ -1900,7 +1981,7 @@ local function set_time_text( source_name )
 		text = format_time( ( l_time ~= 0 ) and string.format('%s:%s', l_time, t_time ) or string.format('%s', t_time ), custom_time_format )
 	end	
 
-	if timer_type ~= 2 then
+	if timer_mode ~= 2 then
 		--text_prefix = ''
 		--   text_suffix = ''
 	end
@@ -1936,7 +2017,7 @@ local function set_time_text( source_name )
 	--[[
 		Timer Ended
 	]]--
-	if cur_seconds <= 0.01 and timer_type ~= 1 then
+	if current_seconds <= 0.01 and timer_mode ~= 1 then
 		--[[
 		
 			Timer is shutting down, this would be a 
@@ -1962,28 +2043,28 @@ local function set_time_text( source_name )
 		
 			'timer_ended()' offer options to
 			restart the timer and may define
-			a value to 'cur_seconds'. 
+			a value to 'current_seconds'. 
 		
-			Final check, if cur_seconds == 0 then
+			Final check, if current_seconds == 0 then
 			deactivate (end/remove) the timer callback
 		
 			This is a fallback but should not be needed
 			as the timer callback may be removed by 
 			timer_ended() if neded
 		]]--
-		if cur_seconds == 0 then timer_expired = true; end
+		if current_seconds == 0 then timer_expired = true; end
 	end	
 	--return true
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Decide if cur_seconds needs to reset to def_seconds
+	Description:	Decide if current_seconds needs to reset to default_seconds
 	
 	Credit:			
 
 	Modified:		
 
-	function:		Check if cur_seconds needs to reset to def_seconds
+	function:		Check if current_seconds needs to reset to default_seconds
 	type:			check
 	input type: 	next_scene
 	returns:		bool
@@ -1999,21 +2080,8 @@ local function update_default_time()
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-Description:		Called if the counter is starting fresh				
-					def_seconds is used for source cycling
-
-					def_seconds: Default Seconds
-
-					the default timer state
-
-					This is the state of the timer that will set or
-					reset the time ( cur_seconds ) 
-
-					If the timer expires because cur_seconds == 0, 
-					then the time ( cur_seconds ) will be be restarted
-					from def_seconds for another function such as source cycling.
-
-					Every instance that a timer time is defined, we must record it to def_seconds
+	
+	Description:	Used when we need to set some gloabsl for the timer to default state
 	
 	Credit:			
 
@@ -2025,15 +2093,142 @@ Description:		Called if the counter is starting fresh
 	returns:
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
-local function timer_reset( reset_curent, current_settings )
-
-	if reset_curent == nil then reset_curent = false end -- incase not defined, set default
-	if current_settings == nil then current_settings = script_settings	end -- incase not defined, set default
+local function default_timer_globals( set_to_default )
 	
 	--[[
+		if set_to_default == true
+		and timer_mode == 2	(Countdown)
+	]]	
+	if set_to_default then
+		--[[
+			Used for source cycling
+
+			default_seconds: Default Seconds
+
+			the default timer state
+
+			This is the state of the timer that will set or
+			reset the time ( current_seconds ) 
+
+			If the timer expires because current_seconds == 0, 
+			then the time ( current_seconds ) will be be restarted
+			from default_seconds for another function such as source cycling.
+
+			Every instance that a timer time is defined, we must record it to default_seconds
+
+			THIS WILL UPDATE current_seconds to the value current_seconds
+		]]
+		--if set_to_default and timer_mode == 2 and update_default_time() then
+		--timer_value( default_seconds, false )	 -- value, update_settings 
+		--end	
+		timer_expired = true
+		completed_cycles = 0
+		split = 0
+		split_itm = {}
+		split_data = nil
+		--[[
+		
+			If timer is Stopwatch type and user pressed 'reset' the timer must always be reset to zero
+
+		]]
+		if timer_mode == 1 and reset_activated then
+			update_prop_settings_current_seconds( 0 ) 
+			current_seconds = 0 
+			sw_current_seconds = 0
+		end	
+	end
+	orig_time = obs.os_gettime_ns()
+	set_visible( media['note_source_caution'], false )
+	set_visible( media['note_source_warning'], false ) 
+	mili_toggle_triggered = false
+	media['activated_caution'] 		= false
+	media['activated_warning'] 		= false
+	media['last_state_caution']		= obs.OBS_MEDIA_STATE_NONE
+	media['last_state_warning']		= obs.OBS_MEDIA_STATE_NONE
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+Description:		Called if the timer setting change and needsto be updated.
+
+					default_seconds is used for source cycling
+
+					default_seconds: Default Seconds
+
+					the default timer state
+
+					This is the state of the timer that will set or
+					reset the time ( current_seconds ) 
+
+					If the timer expires because current_seconds == 0, 
+					then the time ( current_seconds ) will be be restarted
+					from default_seconds for another function such as source cycling.
+
+					Every instance that a timer time is defined, we must record it to default_seconds
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function update_timer_settings( set_to_default, new_settings ) -- optional inputs: set_to_default(bool), new_settings(obs_property_data/obs_userdata)
+
+	if set_to_default == nil then set_to_default = false end -- incase not defined, set default
+	if new_settings == nil then new_settings = script_settings end -- incase not defined, set default
+	--[[
+	
+		STOPWATCH
+	
+	
+		We will look at some tasks if the timer mode is set to stopwatch
+	
+		Stopwatch must always be reset to zero
+		unless if the time is loaded from a previous session
+	]]	
+	if timer_mode == 1 then
+		 --[[
+			Timer expired: Yes, reset, no continue
+		]]
+		if timer_expired then
+			--[[
+				Timer expired: Yes, reset, no continue
+			]]
+			if load_saved_time then
+				timer_value( sw_current_seconds, false ) -- value, update_settings
+			else
+				 --[[
+					The timer expired, it must now be reset to zero.
+				]]
+				timer_value( 0, false ) -- value, update_settings
+				--[[
+					Feature not enabled, set zero
+				
+				]]
+				update_prop_settings_current_seconds( 0 ) 
+			end	
+		end	
+		--[[
+		
+			We may require timer globals to be reset to defaults
+		]]
+		default_timer_globals( set_to_default )	
+		--[[
+
+			At this stage the timer display may need to be updated
+
+		]]
+		set_time_text( timer_source )
+	end		
+	--[[
 		COUNTDOWN
+	
+		We will look at some tasks if the timer mode is set to countdown
 	]]
-	if timer_type == 2 then
+	if timer_mode == 2 then
 		
 		--[[
 			Countdown and a specific date.
@@ -2047,9 +2242,9 @@ local function timer_reset( reset_curent, current_settings )
 			timer_value( calculated_time, false )
 		else
 			calculated_time = (  
-			( obs.obs_data_get_int( current_settings, 'hours' )*60*60 ) + 
-			( obs.obs_data_get_int( current_settings, 'minutes' )*60 ) + 
-			obs.obs_data_get_int( current_settings, 'seconds' )
+			( obs.obs_data_get_int( new_settings, 'hours' )*60*60 ) + 
+			( obs.obs_data_get_int( new_settings, 'minutes' )*60 ) + 
+			obs.obs_data_get_int( new_settings, 'seconds' )
 				)	
 		end
 		
@@ -2060,125 +2255,60 @@ local function timer_reset( reset_curent, current_settings )
 				Used for countdown only
 				NB: This must always be called 
 				last in this routine so that 
-				cur_seconds can be updated first
+				current_seconds can be updated first
 
 				Used for source cycling
 
-				def_seconds: Default Seconds
+				default_seconds: Default Seconds
 
 				the default timer state
 
 				This is the state of the timer that will set or
-				reset the time ( cur_seconds ) 
+				reset the time ( current_seconds ) 
 
-				If the timer expires because cur_seconds == 0, 
-				then the time ( cur_seconds ) will be be restarted
-				from def_seconds for another function such as source cycling.
+				If the timer expires because current_seconds == 0, 
+				then the time ( current_seconds ) will be be restarted
+				from default_seconds for another function such as source cycling.
 
-				Every instance that a timer time is defined, we must record it to def_seconds
-				In this instance a Setting may be updated, so update def_seconds
+				Every instance that a timer time is defined, we must record it to default_seconds
+				In this instance a Setting may be updated, so update default_seconds
 		]]		
-		def_seconds = cur_seconds
+		default_seconds = current_seconds
 		
 
-		if reset_curent and update_default_time() then
+		if set_to_default and update_default_time() then
 			--[[
 				Used for source cycling
 			
-				def_seconds: Default Seconds
+				default_seconds: Default Seconds
 		
 				the default timer state
 		
 				This is the state of the timer that will set or
-				reset the time ( cur_seconds ) 
+				reset the time ( current_seconds ) 
 		
-				If the timer expires because cur_seconds == 0, 
-				then the time ( cur_seconds ) will be be restarted
-				from def_seconds for another function such as source cycling.
+				If the timer expires because current_seconds == 0, 
+				then the time ( current_seconds ) will be be restarted
+				from default_seconds for another function such as source cycling.
 		
-				Every instance that a timer time is defined, we must record it to def_seconds
+				Every instance that a timer time is defined, we must record it to default_seconds
 			
-				THIS WILL UPDATE cur_seconds to the value cur_seconds
+				THIS WILL UPDATE current_seconds to the value current_seconds
 			]]
-			timer_value( def_seconds, false ) -- value, update_settings 
-		end		
-		
-	end	
-	--[[
-	
-		STOPWATCH
-	
-		Stopwatch must always be reset to zero
-		unless if the time is loaded from a previous session
-	]]
-	if timer_type == 1 then
-		 --[[
-			Timer expired: Yes, reset, no continue
-		]]
-		if timer_expired then
-			--[[
-				Timer expired: Yes, reset, no continue
-			]]
-			if load_saved_time then
-				timer_value( sw_cur_seconds, false ) -- value, update_settings
-				update_prop_settings_cur_seconds( 0 ) -- timer time loaded from saved time, set saved time to zero
-			else
-				 --[[
-					The timer expired, it must now be reset to zero.
-				]]
-				timer_value( 0, false ) -- value, update_settings
-			end	
+			timer_value( default_seconds, false ) -- value, update_settings 
 		end	
-	end	
-	--[[
-		if reset_curent == true
-		and timer_type == 2	(Countdown)
-	]]	
-	if reset_curent then
 		--[[
-			Used for source cycling
-
-			def_seconds: Default Seconds
-
-			the default timer state
-
-			This is the state of the timer that will set or
-			reset the time ( cur_seconds ) 
-
-			If the timer expires because cur_seconds == 0, 
-			then the time ( cur_seconds ) will be be restarted
-			from def_seconds for another function such as source cycling.
-
-			Every instance that a timer time is defined, we must record it to def_seconds
-
-			THIS WILL UPDATE cur_seconds to the value cur_seconds
-		]]
-		--if reset_curent and timer_type == 2 and update_default_time() then
-		--timer_value( def_seconds, false )	 -- value, update_settings 
-		--end	
-		timer_expired = true
-		completed_cycles = 0
-		split = 0
-		split_itm = {}
-		split_data = nil
-		cur_seconds = 0 
-		sw_cur_seconds = 0
-	end
-	
-	orig_time = obs.os_gettime_ns()
-	set_visible( media['note_source_caution'], false )
-	set_visible( media['note_source_warning'], false ) 
-	mili_toggle_triggered = false
-	media['activated_caution'] 		= false
-	media['activated_warning'] 		= false
-	media['last_state_caution']		= obs.OBS_MEDIA_STATE_NONE
-	media['last_state_warning']		= obs.OBS_MEDIA_STATE_NONE		
-	--[[
 		
-		At this stage the timer display may need to be updated
-	
-	]]
-	set_time_text( timer_source )
+			We may require timer globals to be reset to defaults
+		]]
+		default_timer_globals( set_to_default )	
+		--[[
+
+			At this stage the timer display may need to be updated
+
+		]]
+		set_time_text( timer_source )		
+	end
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
@@ -2218,7 +2348,19 @@ end
 local function start_timer()
 	record( 5, 100 ) -- wait 100 miliseconds
 	timer_active = true
-	timer_reset( false )
+	--[[
+		update_timer_settings:
+
+		timer_mode: either
+
+		timer_active: no, we need to initiate the timer
+
+		define > set_to_default: (false) * we are continuing the timer from whatever state it was last stopped at, so we do not want to set the settings to default.
+		define > new_settings: not required here because we will use the global (script_settings)
+
+		purpose: User is activating the timer and we need to provide instant feedback output to the timer display (timer text source)
+	]]
+	update_timer_settings( false ) -- optional inputs: set_to_default(bool), new_settings(obs_property_data/obs_userdata)
 	obs.timer_add( timer_callback, timer_cycle ) --<- milliseconds 
 end	
 --[[
@@ -2286,6 +2428,21 @@ local function activate( activating )
 		else
 			obs.timer_remove( timer_callback ) -- Removing the callback stops the timer	
 		end
+		--[[
+			update_timer_settings:
+			
+			timer_mode: countdown only
+		
+			timer_active: timer not running
+		
+			define > set_to_default: (false) * we are receiving new settings, so we do not want to set the settings to default.
+			define > new_settings: not required here because we will use the global (script_settings)
+		
+			purpose: User is changing the countdown time settings and we need to provide instant feedback output to the timer display (timer text source)
+		]]
+		if not timer_active then -- update timer display when the timer settings changed
+			update_timer_settings( false ) -- optional inputs: set_to_default(bool), new_settings(obs_property_data/obs_userdata) < BUG
+		end	
 		--[[
 		
 		]]
@@ -2423,7 +2580,7 @@ end
 
 	function:		mili_toggle
 	type:			
-	input type: 	globals toggle_mili_trigger, timer_type, mili_toggle_triggered, raw_time()
+	input type: 	globals toggle_mili_trigger, timer_mode, mili_toggle_triggered, raw_time()
 	returns:		none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
@@ -2435,9 +2592,9 @@ local function toggle_mili()
 		'Timer Type' is 'Countdown'
 	
 	]]
-	if toggle_mili_trigger ~= '' and timer_type == 2 and not mili_toggle_triggered then
+	if toggle_mili_trigger ~= '' and timer_mode == 2 and not mili_toggle_triggered then
 		local time_offset = 1 -- offset by 1 second to allow user to achieve accurate setting
-		if raw_time( ( cur_seconds + time_offset ), true ) == toggle_mili_trigger then
+		if raw_time( ( current_seconds + time_offset ), true ) == toggle_mili_trigger then
 			--[[
 
 				The action trigger a toggle, so if the
@@ -2465,12 +2622,12 @@ end
 
 	function:		
 	type:			
-	input type: 	toggle_mili_trigger, set_time_text, timer_type
+	input type: 	toggle_mili_trigger, set_time_text, timer_mode
 	returns:		show_mili (bool)
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function reset_mili()
-	if timer_type ~= 2 then
+	if timer_mode ~= 2 then
 		return true
 	end	
 	--[[
@@ -2539,7 +2696,7 @@ function mili_toggle( pressed )
 		we will action it on the button Callback directly.
 		
 	]]
-	local mode = obs.obs_data_get_int( script_settings, 'timer_type' )
+	local mode = obs.obs_data_get_int( script_settings, 'timer_mode' )
 	local mili_button_prop = obs.obs_properties_get( props, 'mili_button' )
 
 	--[[
@@ -2609,8 +2766,19 @@ local function set_split_text( source_name )
 		return
 	end	
 	if reset_activated then 
-		reset_activated = false
-		timer_reset( true ) 
+		--[[
+			update_timer_settings:
+			
+			timer_mode: stopwatch only
+		
+			timer_active: not defined / required
+		
+			define > set_to_default: (true) * we are requesting default settings.
+			define > new_settings: not required here because we will use the global (script_settings)
+		
+			purpose: User is resetting the stopwatch and we need to set the split seconds and timer settings to default.
+		]]
+		update_timer_settings( true ) -- optional inputs: set_to_default(bool), new_settings(obs_property_data/obs_userdata)
 	end	
 	local text = split_data
 	if text ~= last_split_data then
@@ -2693,7 +2861,19 @@ local function activate_signal( cd, activating )
 		if ( name == timer_source ) then
 			if activating then record( 4, 300 ) end
 			if start_on_visible or start_on_scene_active then
-				timer_reset( true )
+				--[[
+					update_timer_settings:
+
+					timer_mode: either
+
+					timer_active: timer not running
+
+					define > set_to_default: (true) * we are starting the timer from the default position and therfore want to set the settings to default.
+					define > new_settings: not required here because we will use the global (script_settings)
+
+					purpose: User requires the timer to intiate.
+				]]
+				update_timer_settings( true ) -- optional inputs: set_to_default(bool), new_settings(obs_property_data/obs_userdata)
 				activate( activating )
 			end
 		end
@@ -2717,20 +2897,25 @@ local function reset( pressed )
 	if not pressed then
 		return
 	end
-	reset_activated = true
 	--[[
 	
 		force text update by changing last_text
 	
 	]]
 	last_text = tostring( obs.os_gettime_ns() )
-
 	--[[
-	
-		Update cur_settings
-	
-	]]	
-	timer_reset( true ) -- based on UI Settings
+		update_timer_settings:
+
+		timer_mode: eiher
+
+		timer_active: either
+
+		define > set_to_default: (true) * User requested a reset, so we do not want to set the settings to default.
+		define > new_settings: not required here because we will use the global (script_settings)
+
+		purpose: User is resetting the timer settings and we need to provide instant feedback output to the timer display (timer text source)
+	]]
+	update_timer_settings( true ) -- optional inputs: set_to_default(bool), new_settings(obs_property_data/obs_userdata) -- based on UI Settings
 	
 	--[[
 	
@@ -2791,7 +2976,7 @@ local function property_button_update_start()
 		we will action it on the button Callback directly.
 		
 	]]
-	local mode = obs.obs_data_get_int( script_settings, 'timer_type' )
+	local mode = obs.obs_data_get_int( script_settings, 'timer_mode' )
 	local pause_button_prop = obs.obs_properties_get( props, 'pause_button' )
 	--[[
 		
@@ -2833,7 +3018,7 @@ local function on_pause( pressed )
 		return true
 	end
 	
-	update_prop_settings_cur_seconds( cur_seconds ) -- update current time to last time in properties
+	update_prop_settings_current_seconds( current_seconds ) -- update current time to last time in properties
 	--[[
 		
 		Set timer source  visibility to visible
@@ -2943,7 +3128,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function sw_saved_button_clicked( props, p, settings )
-	if timer_type == 1 then
+	if timer_mode == 1 then
 		set_stopwatch()
 	end
 	return false
@@ -2963,8 +3148,10 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function reset_button_clicked( props, p, settings )
+	reset_activated = true
 	reset( true )
 	reset_mili()
+	reset_activated = false
 	return true
 end
 --[[
@@ -2987,7 +3174,7 @@ local function on_split( pressed )
 	end
 	if timer_active then
 		split = split + 1
-		split_itm[split] = cur_seconds
+		split_itm[split] = current_seconds
 		split_unpack()
 		set_split_text( split_source )
 	end
@@ -3046,9 +3233,9 @@ local function connect_source_signal( cd )
 			Does the name match the defined Script Settings name?
 		]] 
 		if ( name == timer_source ) then
-			if timer_type == 1 then
+			if timer_mode == 1 then
 				if load_saved_time then
-					timer_value( sw_cur_seconds, false ) -- value, update_settings 
+					timer_value( sw_current_seconds, false ) -- value, update_settings 
 				else
 					timer_value( 0, false )
 					reset( true )	
@@ -3117,7 +3304,7 @@ local function load_settings_globals( settings )
 	timer_year = obs.obs_data_get_int( settings, 'year' )
 	timer_hours = obs.obs_data_get_int( settings, 'hours' )
 	timer_month = obs.obs_data_get_int( settings, 'month' ) - 1
-	timer_type = obs.obs_data_get_int( settings, 'timer_type' )
+	timer_mode = obs.obs_data_get_int( settings, 'timer_mode' )
 	timer_minutes = obs.obs_data_get_int( settings, 'minutes' )
 	timer_seconds = obs.obs_data_get_int( settings, 'seconds' )
 	trigger_text = obs.obs_data_get_int( settings, 'trigger_text' )
@@ -3127,7 +3314,7 @@ local function load_settings_globals( settings )
 	countdown_type = obs.obs_data_get_int( settings, 'countdown_type' )
 	sw_hours_saved = obs.obs_data_get_int( settings, 'sw_hours_saved' )
 	cycle_direction = obs.obs_data_get_int( settings, 'cycle_direction' )
-	sw_cur_seconds = obs.obs_data_get_double( settings, 'sw_cur_seconds' )
+	sw_current_seconds = obs.obs_data_get_double( settings, 'sw_current_seconds' )
 	load_saved_time = obs.obs_data_get_bool( settings, 'load_saved_time' )
 	sw_minutes_saved = obs.obs_data_get_int( settings, 'sw_minutes_saved' )
 	sw_seconds_saved = obs.obs_data_get_int( settings, 'sw_seconds_saved' )	
@@ -3143,20 +3330,20 @@ local function load_settings_globals( settings )
 	--[[
 				Used for source cycling
 		
-				def_seconds: Default Seconds
+				default_seconds: Default Seconds
 		
 				the default timer state
 		
 				This is the state of the timer that will set or
-				reset the time ( cur_seconds ) 
+				reset the time ( current_seconds ) 
 		
-				If the timer expires because cur_seconds == 0, 
-				then the time ( cur_seconds ) will be be restarted
-				from def_seconds for another function such as source cycling.
+				If the timer expires because current_seconds == 0, 
+				then the time ( current_seconds ) will be be restarted
+				from default_seconds for another function such as source cycling.
 		
-				Every instance that a timer time is defined, we must record it to def_seconds
+				Every instance that a timer time is defined, we must record it to default_seconds
 	]]
-	def_seconds = cur_seconds 
+	default_seconds = current_seconds 
 	stop_text = obs.obs_data_get_string( settings, 'stop_text' )
 	next_scene = obs.obs_data_get_string( settings, 'next_scene' )
 	split_type = obs.obs_data_get_string( settings, 'split_type' )
@@ -3250,7 +3437,7 @@ local function property_onchange( props, property, settings )
 	local year_value = obs.obs_data_get_int( script_settings, 'year' )-- -- Retrieves property value from reference
 	local month_value = obs.obs_data_get_int( script_settings, 'month' )-- -- Retrieves property value from reference
 	local config_value = obs.obs_data_get_int( script_settings, 'config' )-- -- Retrieves property value from reference
-	local timer_type_value = obs.obs_data_get_int( script_settings, 'timer_type' )-- -- Retrieves property value from reference
+	local timer_mode_value = obs.obs_data_get_int( script_settings, 'timer_mode' )-- -- Retrieves property value from reference
 	local backup_mode_value = obs.obs_data_get_bool( script_settings, 'backup_mode' )-- -- Retrieves property value from reference
 	local trigger_text_value = obs.obs_data_get_int( script_settings, 'trigger_text' )-- -- Retrieves property value from reference
 	local import_list_value = obs.obs_data_get_string( script_settings, 'import_list' )-- -- Retrieves property value from reference
@@ -3363,7 +3550,7 @@ local function property_onchange( props, property, settings )
 	]]	
 	obs.obs_property_set_visible( custom_time_format_prop, timer_format == 5 )
 	obs.obs_property_set_visible( timer_options_prop, config_value == 2 )
-	obs.obs_property_set_visible( timer_display_prop, config_value == 2 and timer_type_value == 2 and timer_options_value == 2  )
+	obs.obs_property_set_visible( timer_display_prop, config_value == 2 and timer_mode_value == 2 and timer_options_value == 2  )
 	--[[
 	
 			TIMER STOPWATCH INPUTS
@@ -3371,16 +3558,16 @@ local function property_onchange( props, property, settings )
 			if config is set to basic then hide
 			if config is set to advanced then check if timer_options are expanded then show
 	]]	
-	obs.obs_property_set_visible( split_button_prop, timer_type_value == 1 )
+	obs.obs_property_set_visible( split_button_prop, timer_mode_value == 1 )
 	obs.obs_property_set_visible( text_prefix_prop, config_value == 2 and timer_options_value == 2 )
 	obs.obs_property_set_visible( text_suffix_prop, config_value == 2 and timer_options_value == 2 )
 	obs.obs_property_set_visible( timer_format_prop, config_value == 2 and timer_options_value == 2 )	
 	obs.obs_property_set_visible( normal_color_prop, config_value == 2 and timer_options_value == 2  )
-	obs.obs_property_set_visible( set_stopwatch_prop, ( config_value == 2 and timer_type_value == 1 ) )
+	obs.obs_property_set_visible( set_stopwatch_prop, ( config_value == 2 and timer_mode_value == 1 ) )
 	obs.obs_property_set_visible( timer_source_prop, ( config_value == 2 and timer_options_value == 2 ) )
-	obs.obs_property_set_visible( split_type_prop, timer_type_value == 1 and config_value == 2 and timer_options_value == 2 )
-	obs.obs_property_set_visible( split_source_prop, timer_type_value == 1 and config_value == 2 and timer_options_value == 2 )
-	obs.obs_property_set_visible( _group_1_prop, ( config_value == 2 and set_stopwatch_value and timer_type_value == 1 and timer_options_value == 2 ) )
+	obs.obs_property_set_visible( split_type_prop, timer_mode_value == 1 and config_value == 2 and timer_options_value == 2 )
+	obs.obs_property_set_visible( split_source_prop, timer_mode_value == 1 and config_value == 2 and timer_options_value == 2 )
+	obs.obs_property_set_visible( _group_1_prop, ( config_value == 2 and set_stopwatch_value and timer_mode_value == 1 and timer_options_value == 2 ) )
 	--[[
 	
 			TIMER COUNTDOWN INPUTS
@@ -3392,25 +3579,25 @@ local function property_onchange( props, property, settings )
 	obs.obs_property_set_visible( recording_type_prop, false )
 	obs.obs_property_set_enabled( day_prop, month_value ~= 1 )
 	obs.obs_property_set_enabled( year_prop, month_value ~= 1 )
-	obs.obs_property_set_visible( mili_button_prop, toggle_mili_trigger == '' and timer_type_value == 2  )
+	obs.obs_property_set_visible( mili_button_prop, toggle_mili_trigger == '' and timer_mode_value == 2  )
 	obs.obs_property_set_visible( toggle_mili_trigger_prop, show_split( props, settings ) and timer_options_value == 2 )
-	obs.obs_property_set_visible( hours_prop, config_value == 2 and timer_type_value == 2 and timer_options_value == 2  )
-	obs.obs_property_set_visible( minutes_prop, config_value == 2 and timer_type_value == 2 and timer_options_value == 2  ) 
-	obs.obs_property_set_visible( seconds_prop, config_value == 2 and timer_type_value == 2 and timer_options_value == 2  ) 
-	obs.obs_property_set_visible( next_scene_prop, config_value == 2 and timer_type_value == 2 and timer_options_value == 2  )
-	obs.obs_property_set_visible( countdown_type_prop, config_value == 2 and timer_type_value == 2 and timer_options_value == 2 )
-	obs.obs_property_set_visible( start_recording_prop, config_value == 2 and timer_type_value == 2 and timer_options_value == 2 )
-	obs.obs_property_set_visible( recording_type_prop, config_value == 2 and start_recording_value == 1 and timer_type_value == 2 )	
-	obs.obs_property_set_visible( stop_text_prop, next_scene_value == 'TIMER END TEXT' and  timer_type_value == 2 and timer_options_value == 2 )	
-	obs.obs_property_set_visible( day_prop, countdown_type_value == 1 and config_value == 2 and timer_type_value == 2 and timer_options_value == 2 )
-	obs.obs_property_set_visible( year_prop, countdown_type_value == 1 and config_value == 2 and timer_type_value == 2 and timer_options_value == 2 )
-	obs.obs_property_set_visible( month_prop, countdown_type_value == 1 and config_value == 2 and timer_type_value == 2 and timer_options_value == 2 )
-	obs.obs_property_set_visible( day_text_prop, countdown_type_value == 1 and config_value == 2 and timer_type_value == 2 and timer_format ~= 5 and timer_options_value == 2 )
-	obs.obs_property_set_visible( days_text_prop, countdown_type_value == 1 and config_value == 2 and timer_type_value == 2 and timer_format ~= 5 and timer_options_value == 2 )
-	obs.obs_property_set_visible( cycle_list_prop, ( (next_scene_value == 'Source List' or next_scene_value == 'Scene List') and timer_type_value == 2 and config_value == 2 and timer_options_value == 2 ) )
-	obs.obs_property_set_visible( active_source_prop, ( (next_scene_value == 'Source List' or next_scene_value == 'Scene List') and timer_type_value == 2 and config_value == 2 and timer_options_value == 2 ) )
-	obs.obs_property_set_visible( as_visible_prop, ( (next_scene_value == 'Source List' or next_scene_value == 'Scene List') and timer_type_value == 2 and config_value == 2 and timer_options_value == 2 ) )
-	obs.obs_property_set_visible( cycle_direction_prop, ( (next_scene_value == 'Source List' or next_scene_value == 'Scene List') and timer_type_value == 2 and config_value == 2 and timer_options_value == 2 ) )
+	obs.obs_property_set_visible( hours_prop, config_value == 2 and timer_mode_value == 2 and timer_options_value == 2  )
+	obs.obs_property_set_visible( minutes_prop, config_value == 2 and timer_mode_value == 2 and timer_options_value == 2  ) 
+	obs.obs_property_set_visible( seconds_prop, config_value == 2 and timer_mode_value == 2 and timer_options_value == 2  ) 
+	obs.obs_property_set_visible( next_scene_prop, config_value == 2 and timer_mode_value == 2 and timer_options_value == 2  )
+	obs.obs_property_set_visible( countdown_type_prop, config_value == 2 and timer_mode_value == 2 and timer_options_value == 2 )
+	obs.obs_property_set_visible( start_recording_prop, config_value == 2 and timer_mode_value == 2 and timer_options_value == 2 )
+	obs.obs_property_set_visible( recording_type_prop, config_value == 2 and start_recording_value == 1 and timer_mode_value == 2 )	
+	obs.obs_property_set_visible( stop_text_prop, next_scene_value == 'TIMER END TEXT' and  timer_mode_value == 2 and timer_options_value == 2 )	
+	obs.obs_property_set_visible( day_prop, countdown_type_value == 1 and config_value == 2 and timer_mode_value == 2 and timer_options_value == 2 )
+	obs.obs_property_set_visible( year_prop, countdown_type_value == 1 and config_value == 2 and timer_mode_value == 2 and timer_options_value == 2 )
+	obs.obs_property_set_visible( month_prop, countdown_type_value == 1 and config_value == 2 and timer_mode_value == 2 and timer_options_value == 2 )
+	obs.obs_property_set_visible( day_text_prop, countdown_type_value == 1 and config_value == 2 and timer_mode_value == 2 and timer_format ~= 5 and timer_options_value == 2 )
+	obs.obs_property_set_visible( days_text_prop, countdown_type_value == 1 and config_value == 2 and timer_mode_value == 2 and timer_format ~= 5 and timer_options_value == 2 )
+	obs.obs_property_set_visible( cycle_list_prop, ( (next_scene_value == 'Source List' or next_scene_value == 'Scene List') and timer_mode_value == 2 and config_value == 2 and timer_options_value == 2 ) )
+	obs.obs_property_set_visible( active_source_prop, ( (next_scene_value == 'Source List' or next_scene_value == 'Scene List') and timer_mode_value == 2 and config_value == 2 and timer_options_value == 2 ) )
+	obs.obs_property_set_visible( as_visible_prop, ( (next_scene_value == 'Source List' or next_scene_value == 'Scene List') and timer_mode_value == 2 and config_value == 2 and timer_options_value == 2 ) )
+	obs.obs_property_set_visible( cycle_direction_prop, ( (next_scene_value == 'Source List' or next_scene_value == 'Scene List') and timer_mode_value == 2 and config_value == 2 and timer_options_value == 2 ) )
 	--[[
 	
 			WARNING & CAUTION INPUTS
@@ -3509,7 +3696,7 @@ local function property_onchange( props, property, settings )
 		Set button labels
 	
 	]]
-	if timer_type_value == 2 then
+	if timer_mode_value == 2 then
 		obs.obs_property_set_description( reset_button_prop, 'Reset Countdown' )
 	else
 		--[[
@@ -3525,7 +3712,7 @@ local function property_onchange( props, property, settings )
 		Set button labels
 
 	]]
-	if timer_type_value == 2 then
+	if timer_mode_value == 2 then
 		if timer_active then
 			obs.obs_property_set_description( pause_button_prop, 'Start/Pause Countdown' )
 		else
@@ -3594,7 +3781,19 @@ function timer_ended( source_name )
 		if source ~= nil then
 			obs.obs_frontend_set_current_scene( source )
 			obs.obs_source_release( source )
-			timer_reset( true ) 	
+			--[[
+				update_timer_settings:
+
+				timer_mode: countdown only
+
+				timer_active: timer not running
+
+				define > set_to_default: (true) * Timer time expired and the timer time needs to be set to the default state, so we do want to set the settings to default.
+				define > new_settings: not required here because we will use the global (script_settings)
+
+				purpose: The timer is completed and we need to provide instant feedback output to the timer display (timer text source)
+			]]
+			update_timer_settings( true ) -- optional inputs: set_to_default(bool), new_settings(obs_property_data/obs_userdata) 	
 		end
 		
 		--[[
@@ -3664,7 +3863,7 @@ function script_properties()
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]	 	
-	local p_1 = obs.obs_properties_add_list( props, 'timer_type', '<b>Timer Type</b>', obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
+	local p_1 = obs.obs_properties_add_list( props, 'timer_mode', '<b>Timer Type</b>', obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
   	t_type = {'Stopwatch', 'Countdown'} -- Add options to the list
   	for i,v in ipairs( t_type ) do obs.obs_property_list_add_int( p_1, v, i ) end -- This list is auto indexed thus have an interger reference containing a string value
  	--[[
@@ -4174,7 +4373,7 @@ function script_properties()
 		Hidden Value
 		We save last count in the properties for when OBS shuts down and starts again
 	]]
-	local p_46 = obs.obs_properties_add_float( group_props_1, 'sw_cur_seconds', 'Saved Seconds', 0, 3600000000, 0.1)
+	local p_46 = obs.obs_properties_add_float( group_props_1, 'sw_current_seconds', 'Saved Seconds', 0, 3600000000, 0.1)
 	obs.obs_property_set_visible( p_46 , true)
 	 --[[
 		Property Button: User interaction that will start, pause or stop a timer.
@@ -4288,7 +4487,7 @@ function script_properties()
 		Event Listener
 		Each entry provides a callback to a referenced proeprty along with a target callback handler
 		]]--
-  	obs.obs_property_set_modified_callback( p_1, property_onchange )		-- timer_type
+  	obs.obs_property_set_modified_callback( p_1, property_onchange )		-- timer_mode
   	obs.obs_property_set_modified_callback( p_2, property_onchange )		-- config
 	obs.obs_property_set_modified_callback( p_3, property_onchange )		-- timer_options
   	obs.obs_property_set_modified_callback( p_5, property_onchange )		-- countdown_type
@@ -4335,6 +4534,7 @@ function script_update( settings )
 	--[[
 		load any property values available to globals
 	]]
+	
 	load_settings_globals( settings )
 	
 	activate( false )
@@ -4373,7 +4573,7 @@ function script_defaults( settings )
 	obs.obs_data_set_default_int( settings, 'minutes', 0 )
 	obs.obs_data_set_default_int( settings, 'seconds', 0 )
 	obs.obs_data_set_default_int( settings, 'split_type', 2 )
-	obs.obs_data_set_default_int( settings, 'timer_type', 1 )
+	obs.obs_data_set_default_int( settings, 'timer_mode', 1 )
 	obs.obs_data_set_default_int( settings, 'trigger_text', 1 )
 	obs.obs_data_set_default_int( settings, 'timer_format', 1 )
 	obs.obs_data_set_default_int( settings, 'timer_display', 1 )
@@ -4557,9 +4757,9 @@ function script_load( settings )
 		if timer is stopwatch and if user has not enabled save of last time
 		we will reset the timer to default state (zero)
 	]]
-	if timer_type == 1 then
+	if timer_mode == 1 then
 		if load_saved_time then
-			timer_value( sw_cur_seconds, false ) -- value, update_settings 
+			timer_value( sw_current_seconds, false ) -- value, update_settings 
 		else
 			timer_value( 0, false ) -- value, update_settings 
 			reset( true )	
