@@ -2,7 +2,7 @@
 ----------------------------------------------------------------------------------------------------------------------------------------
 Open Broadcaster Software®️
 OBS > Tools > Scripts
-"midnight-studios
+@midnight-studios
 Stopwatch
 
 Version 4.0
@@ -35,7 +35,7 @@ NEW FEATURES
 - Added Timer text output options (Still not convinvinced this makes sense)
 - Added Hotkey for Show / Hide Milliseconds
 - Pause Media if timer is paused
-- Added option to force visibility of the 'Active Source'
+- Added option to force visibility of the "Active Source"
 
 OPTIMIZATION
 
@@ -68,8 +68,8 @@ BUGS
 ***************************************************************************************************************************************
 TODO> 
 
-- Switching 'split type' does not reset the timer display
-- Changing 'Mark Time' does not reset the timer display
+- Switching "split type" does not reset the timer display
+- Changing "Mark Time" does not reset the timer display
 - Add new function: timer reset delay. Used to delay between timer cycles
 - Testing
 - No tasks outstanding 
@@ -77,18 +77,18 @@ TODO>
 ]]
 --Globals
 obs           				= obslua
-gversion 					= '4.0'
-luafile						= 'StopWatch.lua'
-obsurl						= 'comprehensive-stopwatch-countdown-timer.1364/'
-patch_notes					= 'Patch Notes'
-icon='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAVCAYAAACpF6WWAAAENElEQVQ4jY1UTUgjZxh+ksl/JuMkMYb4F40bNZqK0KJFqBZqS9ddyl76dyhdKPRQShH2sNDSnnopCz11D10KS/dSKNiDoD2I7KXFQ0XSSGpM1llFMYn5mZiMY2IymfIOhgazXfaDj5n53u975vme531fnaqqeMHxJYCvAOgAlABcAyA1jxLO1tYW1tbWoL+Kd3x8jGg0imw2C0VRWkMEYgNgBeAFYKTFRqOh7aVnE9xwFTSZTGJ7exszMzPQ6XSQZRk8z9P7YrVa/Y5hmKLBYHCpqirW63Wcn5/j7OwMHo9HA6bvNqY2mw1Op1N70qaTkxPkcjmbLMsDZrN5hOO4NxuNhlMUxTFiSCA0FEW5GQ6H/wmHwzfamDavUKlUYDKZAoFA4Gue52/r9f/9v6OjQ5uKojwpFAr3RFF8UCwWjW63OzQ/P/9yGyiBnZ6eEtN3eZ7/9XJZrlQqP2cymcf5fL4QDAbHdTrd2yzLXvd4PD9yHHdLEISFXC7nsdvtuTb3c7kcEokEJiYmhliWtaiqWs5ms4f1el0lE2lOTU0hn8/DYrF09vb23jebze9JkvRXNBqdMpvNaIJaLh1tHScAzpvsSd+joyOkUimEQiFNa4vFAlEU4Xa7HwYCgduFQuHRxsbGx5p+qqq+o/7/SF7uQSaTwcHBgZYdgiBMqKqa2dnZ8S8tLaFcLicIIR6PjzU13Qew+gzPKNEj9JJOp5tag+O41/v7+x/v7u7+sLOzc8BxHN1icXR0dMXlcn3xQhW1v7+PSCSC6enptxwOx3WWZRcbjcbTjY2NAJ1nWRYGgwHj4+OqoigFYnr/UlPlClYFwJ1arVYjU8bGxhZ8Pt9KMxiLxd5gGEbTlTSv1WqQJOmJw+G4RqCfPYfkN4qiFDs7O9HT0/Nqa4BhmKd2u10DrFaruLi4oJmncibQSUCrLHJabDlHzItGo1E7FIvFvg+FQjMmkykkCMK9eDwOivl8PvqhBspxXJAOEujfz2HazzBMdXh4OJNMJoupVGre7/cbBEGor6+vY2RkROsLlwY6jUajS5KkSGvtf0oVemUeAPiDgsFgUHMeQJ3MmZycxNzcnMZWkiT4/f67FJRl+UFrmcYB/N7y3UyLSHOBzNjb20MgEMDg4CC6urqwublJZo12d3ffVRRFEQTh4TNTqlQqaawoTShOVdOsqMPDQ8zOzmqFQK3PZrO91NPTs2U0GkmWG4lEYrWt9cViMSwvL1Ntvw9gRafT/aTX6z8AwFKcuhU5zjDMkNfr/XZgYCBKgMfHx3eSyeSqw+Fob9LEipxMp9MRp9P5uclkWuB5/hOKWa3Wvb6+vjLP8wNer5fXUkRRLkql0ofZbPY3ug019TZQ6jKU0AzD7Iqi+Josy6+4XK6P7Hb7LbvdPkS5SXpXKpU/ZVn+5ezs7FG9Xi9brVZNLr1ej38BVDs6EbSfFQsAAAAASUVORK5CYII='
+gversion 					= "3.9"
+luafile						= "StopWatch.lua"
+obsurl						= "comprehensive-stopwatch-countdown-timer.1364/"
+patch_notes					= "Patch Notes"
+icon="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAVCAYAAACpF6WWAAAENElEQVQ4jY1UTUgjZxh+ksl/JuMkMYb4F40bNZqK0KJFqBZqS9ddyl76dyhdKPRQShH2sNDSnnopCz11D10KS/dSKNiDoD2I7KXFQ0XSSGpM1llFMYn5mZiMY2IymfIOhgazXfaDj5n53u975vme531fnaqqeMHxJYCvAOgAlABcAyA1jxLO1tYW1tbWoL+Kd3x8jGg0imw2C0VRWkMEYgNgBeAFYKTFRqOh7aVnE9xwFTSZTGJ7exszMzPQ6XSQZRk8z9P7YrVa/Y5hmKLBYHCpqirW63Wcn5/j7OwMHo9HA6bvNqY2mw1Op1N70qaTkxPkcjmbLMsDZrN5hOO4NxuNhlMUxTFiSCA0FEW5GQ6H/wmHwzfamDavUKlUYDKZAoFA4Gue52/r9f/9v6OjQ5uKojwpFAr3RFF8UCwWjW63OzQ/P/9yGyiBnZ6eEtN3eZ7/9XJZrlQqP2cymcf5fL4QDAbHdTrd2yzLXvd4PD9yHHdLEISFXC7nsdvtuTb3c7kcEokEJiYmhliWtaiqWs5ms4f1el0lE2lOTU0hn8/DYrF09vb23jebze9JkvRXNBqdMpvNaIJaLh1tHScAzpvsSd+joyOkUimEQiFNa4vFAlEU4Xa7HwYCgduFQuHRxsbGx5p+qqq+o/7/SF7uQSaTwcHBgZYdgiBMqKqa2dnZ8S8tLaFcLicIIR6PjzU13Qew+gzPKNEj9JJOp5tag+O41/v7+x/v7u7+sLOzc8BxHN1icXR0dMXlcn3xQhW1v7+PSCSC6enptxwOx3WWZRcbjcbTjY2NAJ1nWRYGgwHj4+OqoigFYnr/UlPlClYFwJ1arVYjU8bGxhZ8Pt9KMxiLxd5gGEbTlTSv1WqQJOmJw+G4RqCfPYfkN4qiFDs7O9HT0/Nqa4BhmKd2u10DrFaruLi4oJmncibQSUCrLHJabDlHzItGo1E7FIvFvg+FQjMmkykkCMK9eDwOivl8PvqhBspxXJAOEujfz2HazzBMdXh4OJNMJoupVGre7/cbBEGor6+vY2RkROsLlwY6jUajS5KkSGvtf0oVemUeAPiDgsFgUHMeQJ3MmZycxNzcnMZWkiT4/f67FJRl+UFrmcYB/N7y3UyLSHOBzNjb20MgEMDg4CC6urqwublJZo12d3ffVRRFEQTh4TNTqlQqaawoTShOVdOsqMPDQ8zOzmqFQK3PZrO91NPTs2U0GkmWG4lEYrWt9cViMSwvL1Ntvw9gRafT/aTX6z8AwFKcuhU5zjDMkNfr/XZgYCBKgMfHx3eSyeSqw+Fob9LEipxMp9MRp9P5uclkWuB5/hOKWa3Wvb6+vjLP8wNer5fXUkRRLkql0ofZbPY3ug019TZQ6jKU0AzD7Iqi+Josy6+4XK6P7Hb7LbvdPkS5SXpXKpU/ZVn+5ezs7FG9Xi9brVZNLr1ej38BVDs6EbSfFQsAAAAASUVORK5CYII="
 desc	    				= 
 [[
 <hr/><center><h2>Advanced Stopwatch</h2>( Version: %s )</center>
-<br><center><img width=38 height=42 src=']] .. icon .. [['/></center>
-<br><center><a href='https://github.com/midnight-studios/obs-lua/blob/main/]] .. luafile ..[['>Find it on GitHub</a></center>
-<center><a href='https://obsproject.com/forum/resources/]] .. obsurl ..[[updates]] .. patch_notes ..[['>Patch Notes</a></center>
-<br><p>The Properties for this script will adjust visibility as needed. Some advanced properties will only be visible if the Configuration is set to 'Advanced'. If the Configuration is set to 'Basic' the defined values will still be used, so ensure you define those correctly.</p><p>Find help on the <a href='https://obsproject.com/forum/resources/]] .. obsurl ..[['>OBS Forum Thread</a>.</p><hr/>
+<br><center><img width=38 height=42 src="]] .. icon .. [["/></center>
+<br><center><a href="https://github.com/midnight-studios/obs-lua/blob/main/]] .. luafile ..[[">Find it on GitHub</a></center>
+<center><a href="https://obsproject.com/forum/resources/]] .. obsurl ..[[updates]] .. patch_notes ..[[">Patch Notes</a></center>
+<br><p>The Properties for this script will adjust visibility as needed. Some advanced properties will only be visible if the Configuration is set to "Advanced". If the Configuration is set to "Basic" the defined values will still be used, so ensure you define those correctly.</p><p>Find help on the <a href="https://obsproject.com/forum/resources/]] .. obsurl ..[[">OBS Forum Thread</a>.</p><hr/>
 ]]
 sources_loaded 				= 0
 total_sources 				= 0
@@ -97,26 +97,26 @@ sw_minutes_saved 			= 0
 sw_seconds_saved 			= 0
 sw_milliseconds_saved 		= 0
 split_type   				= 2
-text_prefix 				= ''
-text_suffix 				= ''
-last_text    				= ''
-custom_time_format			= ''
-timer_source   				= ''
-countdown_type 				= ''
-backup_folder 				= ''
-import_list 				= ''
-longtimetext_s 				= ''
-longtimetext_p 				= ''
-last_split_data 			= ''
-split_source   				= ''
-active_source  				= ''
-next_scene					= ''
-stop_text					= ''
-toggle_mili_trigger			= ''
-output_file_name 			= '-backup($date_stamp).json';
-font_normal					= '#ffffff'
-font_dimmed					= '#bfbbbf'
-font_highlight				= '#fffdcf'
+text_prefix 				= ""
+text_suffix 				= ""
+last_text    				= ""
+custom_time_format			= ""
+timer_source   				= ""
+countdown_type 				= ""
+backup_folder 				= ""
+import_list 				= ""
+longtimetext_s 				= ""
+longtimetext_p 				= ""
+last_split_data 			= ""
+split_source   				= ""
+active_source  				= ""
+next_scene					= ""
+stop_text					= ""
+toggle_mili_trigger			= ""
+output_file_name 			= "-backup($date_stamp).json";
+font_normal					= "#ffffff"
+font_dimmed					= "#bfbbbf"
+font_highlight				= "#fffdcf"
 current_seconds   			= 0
 cycle_direction				= 1
 --[[
@@ -168,14 +168,14 @@ show_mili   				= true
 timer_expired  				= true
 mili_toggle_triggered		= false
 media = {
-text_marker_b				= '',
-text_marker_a				= '',
-source_name_audio_marker_b	= '',
-source_name_audio_marker_a	= '', 
-note_source_marker_a 		= '',
-note_source_marker_b 		= '',
-note_marker_a 				= '',
-note_marker_b 				= '',
+text_marker_b				= "",
+text_marker_a				= "",
+source_name_audio_marker_b	= "",
+source_name_audio_marker_a	= "", 
+note_source_marker_a 		= "",
+note_source_marker_b 		= "",
+note_marker_a 				= "",
+note_marker_b 				= "",
 activated_marker_b			= false,
 activated_marker_a			= false, 
 current_seconds_marker_a		= 0,
@@ -229,13 +229,13 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function pre_dump( input )
-  if type( input ) == 'table' then
-    local str = '{ '
+  if type( input ) == "table" then
+    local str = "{ "
     for key, value in pairs( input ) do
-      if type( key ) ~= 'number' then key = '"' .. key .. '"' end
-      str = str .. '[' .. key .. '] = ' .. pre_dump( value ) .. ','
+      if type( key ) ~= "number" then key = "'" .. key .. "'" end
+      str = str .. "[" .. key .. "] = " .. pre_dump( value ) .. ","
     end
-    return str .. '} '
+    return str .. "} "
   else
     return tostring( input )
   end
@@ -256,9 +256,9 @@ end
 ]]
 local function log( name, msg )
   if msg ~= nil then
-    msg = ' > ' .. tostring( msg )
+    msg = " > " .. tostring( msg )
   else
-    msg = ''
+    msg = ""
   end
   obs.script_log( obs.LOG_DEBUG, tostring( name ) .. msg )
 end
@@ -284,7 +284,7 @@ local function explode( str, delim )
    if( #str == 1 ) then return {str} end -- returns a table with the input string as the only value
    while true do
       local trace_index = string.find( str, delim, index, true ) -- find the next d in the string
-      if trace_index ~= nil then -- if 'not not' found then..
+      if trace_index ~= nil then -- if "not not" found then..
          table.insert( tbl, string.sub( str, index, trace_index - 1 ) ) -- Save it in our array.
          index = trace_index + 1 -- save just after where we found it for searching next time.
       else
@@ -324,7 +324,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function pairsByKeys( tbl, input_function )
-	if type( tbl ) ~= 'table' then return tbl end -- if the input table is not of type table return input
+	if type( tbl ) ~= "table" then return tbl end -- if the input table is not of type table return input
 	local temp_tbl = {} -- build temporary table of the keys
 	for items in pairs( tbl ) do table.insert( temp_tbl, items ) end
 	table.sort( temp_tbl, input_function ) -- sort using supplied function, if any
@@ -354,7 +354,7 @@ end
 ]]
 local function tablelength( tbl )
 	local count = 0
-	if type( tbl ) == 'table' then -- if the input table is not of type table return 0
+	if type( tbl ) == "table" then -- if the input table is not of type table return 0
 		for _ in pairs( tbl ) do count = count + 1 end
 	end 
 	return count
@@ -375,7 +375,7 @@ end
 
 ]]
 local function tableHasKey( tbl, key )
-	if type( tbl ) ~= 'table' then return false end -- if the input table is not of type table return bool(false)
+	if type( tbl ) ~= "table" then return false end -- if the input table is not of type table return bool(false)
     return tbl[key] ~= nil
 end
 --[[
@@ -393,7 +393,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function in_table( tbl, input_value )
-	if type( tbl ) ~= 'table' then return false end -- if the input table is not of type table return bool(false)
+	if type( tbl ) ~= "table" then return false end -- if the input table is not of type table return bool(false)
 	local found = false -- set result default bool (not found)
 	for key, value in pairs( tbl ) do
 		if value == input_value then -- compare search value against table value
@@ -418,7 +418,7 @@ end
 ----------------------------------------------------------
 ]]
 local function remove_duplicates( tbl )
-	if type( tbl ) ~= 'table' then return table end -- if the input table is not of type table return input
+	if type( tbl ) ~= "table" then return table end -- if the input table is not of type table return input
 	local hash = {}
 	local clean_tbl = {}
 	for _, value in pairsByKeys( tbl ) do
@@ -432,7 +432,7 @@ end
 --[[
 ----------------------------------------------------------
 	Description:	This is basically obs.obs_enum_sources()
-					but 'Nested Scenes' are not listed in 'obs.obs_enum_sources()'
+					but "Nested Scenes" are not listed in "obs.obs_enum_sources()"
 	
 	Credit:			midnight-studios, et al	
 
@@ -440,8 +440,8 @@ end
 
 	function:		Used to build a list from OBS source names into a table
 	type:			Support			
-	input type: 	'id', 'unversioned_id', 'display_name', 'source_name'
-	returns:		table default with 'source_name' or define return_ref: 'id' or 'unversioned_id' or 'display_name' or 'source_name'
+	input type: 	"id", "unversioned_id", "display_name", "source_name"
+	returns:		table default with "source_name" or define return_ref: "id" or "unversioned_id" or "display_name" or "source_name"
 ----------------------------------------------------------
 ]]
 function get_source_list( return_ref )
@@ -478,10 +478,10 @@ function get_source_list( return_ref )
 				local id_parent = obs.obs_source_get_id( source )
 				local unversioned_id_parent = obs.obs_source_get_unversioned_id( source )
 				local display_name_parent = obs.obs_source_get_display_name( id_parent )
-				sub['id'] = id_parent
-				sub['unversioned_id'] = unversioned_id_parent
-				sub['display_name'] = display_name_parent
-				sub['source_name'] = source_name_parent
+				sub["id"] = id_parent
+				sub["unversioned_id"] = unversioned_id_parent
+				sub["display_name"] = display_name_parent
+				sub["source_name"] = source_name_parent
 				list[index] = sub
 				source_list[source_name_parent] = source_name_parent -- will return this by default if return_ref not defined as the name is a unique id					
 				if group ~= nil then
@@ -495,10 +495,10 @@ function get_source_list( return_ref )
 							local id_group = obs.obs_source_get_id( groupitemsource )
 							local unversioned_id_group = obs.obs_source_get_unversioned_id( groupitemsource )
 							local display_name_group = obs.obs_source_get_display_name( id_group )
-							sub['id'] = id_group
-							sub['unversioned_id'] = unversioned_id_group
-							sub['display_name'] = display_name_group
-							sub['source_name'] = source_name_group
+							sub["id"] = id_group
+							sub["unversioned_id"] = unversioned_id_group
+							sub["display_name"] = display_name_group
+							sub["source_name"] = source_name_group
 							list[index] = sub
 							source_list[source_name_group] = source_name_group -- will return this by default if return_ref not defined as the name is a unique id
 						end -- end for
@@ -516,16 +516,16 @@ function get_source_list( return_ref )
     end -- scenes ~= nil
 	
 	--[[
-			is 'return_ref' defined and a valid (existing) reference?
+			is "return_ref" defined and a valid (existing) reference?
 	]]
 	local tmp_list = {}
 	local found = false
 	if return_ref ~= nil then
 		for key, value in pairs( list ) do
-			if type( list[key] ) == 'table' then
+			if type( list[key] ) == "table" then
 				if tableHasKey( list[key], return_ref ) then
 					found = true
-					tmp_list[list[key]['source_name']] = list[key][return_ref]
+					tmp_list[list[key]["source_name"]] = list[key][return_ref]
 				end 
 			end
 		end
@@ -537,7 +537,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Function to conver OBS data array to table
 
-	obs_data_array_to_table( settings, 'reference' )
+	obs_data_array_to_table( settings, "reference" )
 
 	Description:	Grab OBS data array and return in a table
 	
@@ -563,7 +563,7 @@ local function obs_data_array_to_table( set, item )
 		
 		local array_item = obs.obs_data_array_item( array, i );
 		
-		local value = obs.obs_data_get_string( array_item, 'value' );
+		local value = obs.obs_data_get_string( array_item, "value" );
 		
 		list[i] = value
 	end	
@@ -589,7 +589,7 @@ end
 ]]
 local function filename() 
 	local str = debug.getinfo(2).source:sub(2) 
-	return str:match('^.*/(.*).lua$') or str 
+	return str:match("^.*/(.*).lua$") or str 
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
@@ -614,7 +614,7 @@ local function get_filenames( path, file_extension )
 	  if entry then
 		local ext = obs.os_get_path_extension( entry.d_name )
 		if ext == file_extension then
-			local  filename = string.gsub( entry.d_name, ext, '' )
+			local  filename = string.gsub( entry.d_name, ext, "" )
 			table.insert( filenames, filename )
 	  	end
 	  end
@@ -639,19 +639,19 @@ end
 local function write_to_json( data )
 	output_folder = backup_folder
 	-- convert Windows path to UNIX path
-	local file_name = filename() .. output_file_name:gsub('$date_stamp', os.date('%Y-%m-%d-%H%M'))
+	local file_name = filename() .. output_file_name:gsub("$date_stamp", os.date("%Y-%m-%d-%H%M"))
 	-- set output path as the script path by default
 	local script_path = script_path();
 	local output_path = script_path .. file_name;
 	-- if specified output path exists, then set this as the new output path
-	if (output_folder ~= '') then
-		output_path = output_folder .. '/' .. file_name
+	if (output_folder ~= "") then
+		output_path = output_folder .. "/" .. file_name
 	else
 		output_path = script_path .. file_name;
 	end
-	output_path = output_path:gsub([[\]], '/');
-	obs.obs_data_erase( data, 'backup_folder' )
-	obs.obs_data_erase( data, 'backup_mode' )
+	output_path = output_path:gsub([[\]], "/");
+	obs.obs_data_erase( data, "backup_folder" )
+	obs.obs_data_erase( data, "backup_mode" )
 	return obs.obs_data_save_json( data, output_path )
 end
 --[[
@@ -764,11 +764,11 @@ local function wait( ms )
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	'Timer Expires' 	= 1 
-					'Marker A Time' 		= 2 
-					'Marker B Time' 		= 3 
-					'Timer Visible' 	= 4 
-					'Timer Start' 		= 5
+	Description:	"Timer Expires" 	= 1 
+					"Marker A Time" 		= 2 
+					"Marker B Time" 		= 3 
+					"Timer Visible" 	= 4 
+					"Timer Start" 		= 5
 	
 	
 	Credit:			midnight-studios
@@ -794,7 +794,7 @@ end
 	
 					When the user defines the Hours, Minutes & Seconds
 					we need to convert it to seconds as the timer works
-					on the value 'seconds'
+					on the value "seconds"
 
 					$function status: in service
 		
@@ -812,13 +812,13 @@ end
 local function delta_time( year, month, day, hour, minute, second )
 	local now = os.time()
 	if ( year == -1 ) then
-		year = os.date( '%Y', now )
+		year = os.date( "%Y", now )
 	end
 	if ( month == -1 ) then
-		month = os.date( '%m', now )
+		month = os.date( "%m", now )
 	end
 	if ( day == -1 ) then
-		day = os.date( '%d', now )
+		day = os.date( "%d", now )
 	end
 	local future = os.time{year=year, month=month, day=day, hour=hour, min=minute, sec=second}
 	local seconds = os.difftime( future, now )
@@ -845,7 +845,7 @@ end
 
 	function:		Dependency / Support 
 	type:			
-	input type: 	4 variables - 'HH' 'MM' 'SS' 'FF'
+	input type: 	4 variables - "HH" "MM" "SS" "FF"
 	returns:		time stamp 00:00:00,00 (HH:MM:SS,FF)
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
@@ -854,10 +854,10 @@ local function config_time( hour, minutes, seconds, mili )
 	format_minutes, 
 	format_seconds, 
 	format_mili = 
-	( hour and '%02d' or '' ),
-	( minutes and ':%02d' or '' ),
-	( seconds and ':%02d' or '' ),
-	( mili and ',%02d' or '' ) 
+	( hour and "%02d" or "" ),
+	( minutes and ":%02d" or "" ),
+	( seconds and ":%02d" or "" ),
+	( mili and ",%02d" or "" ) 
 	local time = string.format( format_hour..format_minutes..format_seconds..format_mili, hour, minutes, seconds, mili )
 	--[[
 		
@@ -899,19 +899,19 @@ local function raw_time( time, simplify )
 	end
 	hour = math.floor( time/3600 )
 	if hour < 10 and trim then
-		hour = '0'..hour
+		hour = "0"..hour
 	end
 	minutes = math.floor( ( time - math.floor( time/3600 )*3600 )/60 )
 	if minutes < 10 and trim then
-		minutes = '0'..minutes
+		minutes = "0"..minutes
 	end
 	seconds =  math.floor( time - math.floor( time/3600 )*3600 - math.floor( ( time - math.floor( time/3600 )*3600 )/60 )*60 )
 	if seconds < 10 and trim then
-		seconds = '0'..seconds
+		seconds = "0"..seconds
 	end
 	mili = math.floor( ( time - math.floor( time/3600 )*3600 - math.floor( ( time - math.floor( time/3600 )*3600 )/60 )*60 - math.floor( time - math.floor( time/3600 )*3600 - math.floor( ( time - math.floor( time/3600 )*3600 )/60 )*60 ) )*100 )
 	if mili < 10 and trim then
-		mili = '0'..mili
+		mili = "0"..mili
 	end
 	--[[
 		
@@ -928,7 +928,7 @@ end
 
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Take the raw time format 'HH:MM:SS:FF' and allow the user to
+	Description:	Take the raw time format "HH:MM:SS:FF" and allow the user to
 					define a custom format.
 
 					$function status: in service	
@@ -945,12 +945,12 @@ end
 ]]
 local function format_time( timestamp, format )
 	--[[
-			table 1, break time stamp in pieces by character reference ':' 
+			table 1, break time stamp in pieces by character reference ":" 
 			input: DD:HH:MM:SS,FF
 			result: [DD], [HH], [MM], [SS,FF]
 	
 	]]
-	local table1 = explode( timestamp, ':' ) -- reference ':' 4 parts
+	local table1 = explode( timestamp, ":" ) -- reference ":" 4 parts
 	
 	if table1 == nil then return timestamp end -- have result or return input
 	
@@ -958,8 +958,8 @@ local function format_time( timestamp, format )
 	--[[
 		This does something fancy that is needed
 	]]
-	local _, d = timestamp:gsub(':','')
-	local _, t = format:gsub('$T','')
+	local _, d = timestamp:gsub(":","")
+	local _, t = format:gsub("$T","")
 	
 	local day, hour, minute, seconds, mili = 0, 0, 0, 0, 0 -- start some blank variables that we will need
 	
@@ -976,7 +976,7 @@ local function format_time( timestamp, format )
 		end
 		if tableHasKey( table1, 4 ) then -- seconds
 			seconds = table1[4]
-			local table2 = explode( table1[4], ',' )
+			local table2 = explode( table1[4], "," )
 			if tableHasKey( table2, 1 ) and tableHasKey( table2, 2 ) then -- milliseconds
 				seconds = table2[1]
 				mili = table2[2]
@@ -992,7 +992,7 @@ local function format_time( timestamp, format )
 		end
 		if tableHasKey( table1, 3 ) then -- seconds
 			seconds = table1[3]
-			local table2 = explode( table1[3], ',' )
+			local table2 = explode( table1[3], "," )
 			if tableHasKey( table2, 1 ) and tableHasKey( table2, 2 ) then -- milliseconds
 				seconds = table2[1]
 				mili = table2[2]
@@ -1005,7 +1005,7 @@ local function format_time( timestamp, format )
 		end
 		if tableHasKey( table1, 2 ) then -- seconds
 			seconds = table1[2]
-			local table2 = explode( table1[2], ',' )
+			local table2 = explode( table1[2], "," )
 			if tableHasKey( table2, 1 ) and tableHasKey( table2, 2 ) then -- milliseconds
 				seconds = table2[1]
 				mili = table2[2]
@@ -1013,7 +1013,7 @@ local function format_time( timestamp, format )
 		end
 	end
 	if tonumber(day) < 10 then 
-		day = '0'..day
+		day = "0"..day
 	end
 	--[[
 		Athis stage we have some groups to work with:
@@ -1025,18 +1025,18 @@ local function format_time( timestamp, format )
 		SS: identified by (will replace) $S
 		FF: identified by (will replace) $F
 	]]	
-	timestamp = format:gsub('$T', ''):gsub('$D', day):gsub( '$H', hour):gsub('$M', minute):gsub('$S', seconds):gsub('$F', mili)
+	timestamp = format:gsub("$T", ""):gsub("$D", day):gsub( "$H", hour):gsub("$M", minute):gsub("$S", seconds):gsub("$F", mili)
 	
 	if t ~= 0 and current_seconds > 0.01 then
-		--local reg = '^[0]+[:]?[0]+[:]?[0]+[:]?[0]?'
-		local reg = '^[0:,]*' -- close, but misses 1 instance
-		timestamp = timestamp:gsub(reg,'')
+		--local reg = "^[0]+[:]?[0]+[:]?[0]+[:]?[0]?"
+		local reg = "^[0:,]*" -- close, but misses 1 instance
+		timestamp = timestamp:gsub(reg,"")
 	end	
 	if current_seconds < 0.01 and timer_display == 1 then
-		if timer_format ~= 1 then timestamp = '0' end -- the user wants the timer to end with a reminder that it is Game Over
+		if timer_format ~= 1 then timestamp = "0" end -- the user wants the timer to end with a reminder that it is Game Over
 	end	
 	if current_seconds < 0.01 and timer_display == 2 then -- else it will show 00:00:00
-		timestamp = '' -- the user wants the timer to disapear
+		timestamp = "" -- the user wants the timer to disapear
 	end	
 	return timestamp
 end
@@ -1073,7 +1073,7 @@ end
 	
 					Show/Hide a field in the properties based on a 
 					some criteria. In this case, show or hide the field 
-					'Toggle Milliseconds' only when required.	
+					"Toggle Milliseconds" only when required.	
 	
 	Credit:			
 
@@ -1086,12 +1086,12 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function show_split( props, settings )
-	local config_value = obs.obs_data_get_int( settings, 'config' )
-	local mode = obs.obs_data_get_int( settings, 'timer_mode' )
+	local config_value = obs.obs_data_get_int( settings, "config" )
+	local mode = obs.obs_data_get_int( settings, "timer_mode" )
 	local shw = false
 	shw = ( config_value == 2 and mode == 2 and in_table( {1, 2}, timer_format ) )
 	if ( timer_format == 5 and config_value == 2 and mode == 2 ) then
-		if ( string.find( custom_time_format, '$F' ) ~= nil ) then
+		if ( string.find( custom_time_format, "$F" ) ~= nil ) then
 			shw = true
 		else
 			shw = false
@@ -1114,7 +1114,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function set_text( source_name, text )
-	if source_name == 'Select' or  source_name == 'select'then
+	if source_name == "Select" or  source_name == "select"then
 		return
 	end	
 	--[[
@@ -1124,7 +1124,7 @@ local function set_text( source_name, text )
 	local source = obs.obs_get_source_by_name( source_name )
 	if source ~= nil then
 		local settings = obs.obs_source_get_settings( source )
-		obs.obs_data_set_string( settings, 'text', text )	
+		obs.obs_data_set_string( settings, "text", text )	
 	end
 		obs.obs_source_update( source, settings )
 		obs.obs_data_release( settings )
@@ -1148,7 +1148,7 @@ local function set_visible( source_name, visible )
 	
 	if visible == nil then visible = true end
 	local action_completed = false
-	if in_table( {'','None', 'Select','none', 'select'}, source_name ) then return action_completed; end
+	if in_table( {"","None", "Select","none", "select"}, source_name ) then return action_completed; end
 	local scenes = obs.obs_frontend_get_scenes()
 	if scenes ~= nil then
 		for i, scn in ipairs( scenes ) do	
@@ -1217,7 +1217,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]	
 local function marker_a_media_end_callback( )
-	set_visible( media['source_name_audio_marker_a'], false )
+	set_visible( media["source_name_audio_marker_a"], false )
 	obs.remove_current_callback()
 end		
 --[[
@@ -1235,7 +1235,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]	
 local function marker_b_media_end_callback( )
-	set_visible( media['source_name_audio_marker_b'], false )	
+	set_visible( media["source_name_audio_marker_b"], false )	
 	obs.remove_current_callback()
 end	
 --[[
@@ -1258,7 +1258,7 @@ local function signal_media_ended( cd )
 		Get source from CallData
 	
 	]]
-	local source = obs.calldata_source( cd, 'source' )
+	local source = obs.calldata_source( cd, "source" )
 	--[[
 	
 		Found Source?
@@ -1291,7 +1291,7 @@ end
 ]]	
 local function disconnect_after_media_end( ref )
 
-	local source_name = media['source_name_audio_'.. ref] 
+	local source_name = media["source_name_audio_".. ref] 
 	local source = obs.obs_get_source_by_name( source_name ) -- Increments the source reference counter, use obs_source_release() to release it when complete.  	--[[
 	--[[
 	
@@ -1307,7 +1307,7 @@ local function disconnect_after_media_end( ref )
 			https://obsproject.com/docs/reference-sources.html?highlight=media_started
 			attach event listener callback [source_signal]: Called when media has ended.
 		]]	
-		obs.signal_handler_connect( sh, 'media_ended', signal_media_ended )		
+		obs.signal_handler_connect( sh, "media_ended", signal_media_ended )		
 
 	end
 	obs.obs_source_release( source )
@@ -1329,10 +1329,10 @@ end
 local function start_media_action( source_name, ref )
 	
 	
-	if in_table( {'','None', 'Select','none', 'select'}, source_name ) then return end
+	if in_table( {"","None", "Select","none", "select"}, source_name ) then return end
 	
-	if not media['activated_'.. ref] then 
-		media['current_seconds_'.. ref] = math.ceil(current_seconds)
+	if not media["activated_".. ref] then 
+		media["current_seconds_".. ref] = math.ceil(current_seconds)
 		set_visible( source_name, true );
 		
 		--[[
@@ -1341,7 +1341,7 @@ local function start_media_action( source_name, ref )
 		
 		]]
 		disconnect_after_media_end( ref )
-		media['activated_'.. ref] = true 	
+		media["activated_".. ref] = true 	
 	end
 end
 --[[
@@ -1376,11 +1376,11 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function set_text_timer_color( int )
-	if in_table( {'Select', 'select'}, timer_source ) then return end -- if timer_source not defined, then return
+	if in_table( {"Select", "select"}, timer_source ) then return end -- if timer_source not defined, then return
 	local source = obs.obs_get_source_by_name( timer_source ) -- get source by name
 	if source ~= nil then -- continue if we have a source
 		local settings = obs.obs_source_get_settings( source ) -- get source settings
-		obs.obs_data_set_int( settings, 'color', int ) -- update source settings
+		obs.obs_data_set_int( settings, "color", int ) -- update source settings
 	end
 	obs.obs_source_update( source, settings ) -- save source new settings
 	obs.obs_data_release( settings ) -- release settings
@@ -1401,12 +1401,12 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function set_text_note_color( ref )
-	if media['note_source_' .. ref] == 'Select' then return end -- if source not defined, then return
-	local source = obs.obs_get_source_by_name( media['note_source_' .. ref] ) -- get source by name
+	if media["note_source_" .. ref] == "Select" then return end -- if source not defined, then return
+	local source = obs.obs_get_source_by_name( media["note_source_" .. ref] ) -- get source by name
 	if source ~= nil then -- continue if we have a source
 		local settings = obs.obs_source_get_settings( source ) -- get source settings
-			obs.obs_data_set_string( settings, 'text', media['note_'.. ref] ) -- update source settings
-			obs.obs_data_set_int( settings, 'color', media['color_'.. ref] ) -- update source settings
+			obs.obs_data_set_string( settings, "text", media["note_".. ref] ) -- update source settings
+			obs.obs_data_set_int( settings, "color", media["color_".. ref] ) -- update source settings
 	end
 	obs.obs_source_update( source, settings ) -- save source new settings
 	obs.obs_data_release( settings ) -- release settings
@@ -1448,49 +1448,49 @@ local function time_mark_check( ref )
 		round_seconds = math.floor( current_seconds ) -- round to nearset lower value
 	end	
 	
-	if raw_time( round_seconds, true ) == media['text_'.. ref] then -- compare current time with marker
+	if raw_time( round_seconds, true ) == media["text_".. ref] then -- compare current time with marker
 		--[[
 			If Marker notes is enabled and the reference provided
 			match to Marker A, complete some tasks
 		]]
-		if enable_marker_notes ~= 1 and ref == 'marker_a' then -- marker notes is enabled and the input reference matches
-			set_visible( media['note_source_' .. ref], true )  -- Set visble the source for the note for marker a
-			set_visible( media['note_source_marker_b'], false )  -- Set hiden the source for the note for marker b (only show one note at a time)
+		if enable_marker_notes ~= 1 and ref == "marker_a" then -- marker notes is enabled and the input reference matches
+			set_visible( media["note_source_" .. ref], true )  -- Set visble the source for the note for marker a
+			set_visible( media["note_source_marker_b"], false )  -- Set hiden the source for the note for marker b (only show one note at a time)
 			set_text_note_color( ref ) -- Update the note text font to match the font colour defined for marker a
 		end		
 		--[[
 			If Marker notes is enabled and the reference provided
 			match to Marker B, complete some tasks
 		]]		
-		if enable_marker_notes ~= 1 and ref == 'marker_b' then -- marker notes is enabled and the input reference matches
-			set_visible( media['note_source_' .. ref], true ) -- Set visble the source for the note for marker b
-			set_visible( media['note_source_marker_a'], false ) -- Set hiden the source for the note for marker a (only show one note at a time)
+		if enable_marker_notes ~= 1 and ref == "marker_b" then -- marker notes is enabled and the input reference matches
+			set_visible( media["note_source_" .. ref], true ) -- Set visble the source for the note for marker b
+			set_visible( media["note_source_marker_a"], false ) -- Set hiden the source for the note for marker a (only show one note at a time)
 			set_text_note_color( ref )  -- Update the note text font to match the font colour defined for marker b
 		end	
 		--[[
 			Update the timer text source font colour to match the defined font colour for the referenced marker
 			This will ensure that the timer text font matches the font colour of the currently displayed note.
 		]]
-		set_text_timer_color( media['color_'.. ref] )
+		set_text_timer_color( media["color_".. ref] )
 		--[[
 		
 		]]
-		start_media( media['source_name_audio_'.. ref], ref )
+		start_media( media["source_name_audio_".. ref], ref )
 		--[[
 			if the user wants OBS to start recording when the marker activates
 			check the reference and activate the timer to initiate recording 
 			
 			recording_type:
 			
-			1 = 'Timer Expires', 
-			2 = 'Marker A Time', 
-			3 = 'Marker B Time', 
-			4 = 'Timer Visible', 
-			5 = 'Timer Start'
+			1 = "Timer Expires", 
+			2 = "Marker A Time", 
+			3 = "Marker B Time", 
+			4 = "Timer Visible", 
+			5 = "Timer Start"
 			
 		]]	
-		if ref == 'marker_a' then record( 2 ) end -- an integer reference used to compare with recording_type
-		if ref == 'marker_b' then record( 3 ) end -- an integer reference used to compare with recording_type
+		if ref == "marker_a" then record( 2 ) end -- an integer reference used to compare with recording_type
+		if ref == "marker_b" then record( 3 ) end -- an integer reference used to compare with recording_type
 	end		
 end
 --[[
@@ -1508,7 +1508,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function get_source_looping( source_name )
-	local property = 'looping' -- we want to check this property setting
+	local property = "looping" -- we want to check this property setting
 	--[[
 		Increments the source reference counter, 
 		use obs_source_release() to release it when complete.
@@ -1519,7 +1519,7 @@ local function get_source_looping( source_name )
 	local enabled = false 
     if source ~= nil then -- continue if we have a source
 		local source_id = obs.obs_source_get_unversioned_id( source ) -- get source id
-			if source_id == 'ffmpeg_source' then -- check if source id match that of type we need to focus on
+			if source_id == "ffmpeg_source" then -- check if source id match that of type we need to focus on
 				local settings = obs.obs_source_get_settings( source ) -- get source settings
 				enabled = obs.obs_data_get_bool( settings, property ) -- check if media source has playback looping enabled
 			end
@@ -1546,9 +1546,9 @@ end
 ]]
 local function stop_media_action( ref )
 	
-	local source_name = media['source_name_audio_'.. ref] -- assign local variable 
+	local source_name = media["source_name_audio_".. ref] -- assign local variable 
 	
-	if in_table( {nil, '','None', 'Select','none', 'select'}, source_name ) and not media['media_ended_'.. ref]	then return end -- if source not defined, then return
+	if in_table( {nil, "","None", "Select","none", "select"}, source_name ) and not media["media_ended_".. ref]	then return end -- if source not defined, then return
 	--[[
 	
 		ref is either Mark A or B
@@ -1556,7 +1556,7 @@ local function stop_media_action( ref )
 		Check if ref has duration set and check if media_playback_limit is enabled
 	
 	]]
-	if media['duration_'.. ref] ~= 0 and media_playback_limit ~= 1 then
+	if media["duration_".. ref] ~= 0 and media_playback_limit ~= 1 then
 		--[[
 			Increments the source reference counter, 
 			use obs_source_release() to release it when complete.
@@ -1569,14 +1569,14 @@ local function stop_media_action( ref )
 
 			local state = obs.obs_source_media_get_state( source ) -- get the current state for the source
 			
-			if media['last_state_'.. ref] ~= state then -- The state has changed
+			if media["last_state_".. ref] ~= state then -- The state has changed
 			
 				if state == obs.OBS_MEDIA_STATE_PLAYING then
 						--[[
 								time remaining is calculated differently depending on the timer_mode (count is up or down)
 						]]
-						local media_time_started = math.ceil( media['current_seconds_'.. ref] )  -- round to nearset upper value
-						local media_time_limit = math.floor( media['duration_'.. ref] ) -- round to nearset lower value
+						local media_time_started = math.ceil( media["current_seconds_".. ref] )  -- round to nearset upper value
+						local media_time_limit = math.floor( media["duration_".. ref] ) -- round to nearset lower value
 						
 						local time_currently = math.ceil( current_seconds )  -- round to nearset upper value
 						local media_time_remaining = 0 -- set integer variable with default value
@@ -1592,13 +1592,13 @@ local function stop_media_action( ref )
 						end
 					
 						if time_end then -- bool, has the time limit been reached?
-							media['last_state_'.. ref] = state -- update the ref state global variable because we need to track it 
-							media['media_ended_'.. ref] = true -- update the ref media end global variable because we need to track it 
+							media["last_state_".. ref] = state -- update the ref state global variable because we need to track it 
+							media["media_ended_".. ref] = true -- update the ref media end global variable because we need to track it 
 							set_visible( source_name, false ) -- The source visibility must now be changed to hidden
 						end
 				end	
 			else -- The state has not changed
-				media['last_state_'.. ref] = state -- update the ref state global variable because we need to track it 
+				media["last_state_".. ref] = state -- update the ref state global variable because we need to track it 
 				-- the state is currently either stopped or completed, then reset source visibility to hidden
 				if state == obs.OBS_MEDIA_STATE_STOPPED or state == obs.OBS_MEDIA_STATE_ENDED then -- state match?
 					set_visible( source_name, false ) -- The source visibility must now be changed to hidden
@@ -1630,7 +1630,7 @@ end
 local function stop_media( ref, bypass )
 	if bypass == nil then bypass = false end
 	if bypass then -- No checks, just stop it
-		set_visible( media['source_name_audio_'.. ref], false )  -- Set the media source state to hidden
+		set_visible( media["source_name_audio_".. ref], false )  -- Set the media source state to hidden
 	else -- do some checks
 		stop_media_action( ref ) -- handle this request elsewhere
 	end	
@@ -1659,12 +1659,12 @@ local function cycle_list_activate( source_type )
 	local i = 0				-- create interger variable 
 	local list = {} 		-- create temporary table variable 
 	local item_list =  {} 	-- create temporary table variable 
-	local data_list = obs_data_array_to_table( script_settings, 'cycle_list' ) -- fetch obs userdata from property settings and return in table
+	local data_list = obs_data_array_to_table( script_settings, "cycle_list" ) -- fetch obs userdata from property settings and return in table
 	local direction = 1		-- create interger variable 
 	--[[
 		handle scenes
 	]]	
-	if source_type ~= 'source' then -- string is not equal to 'source' as it should be 'scene'
+	if source_type ~= "source" then -- string is not equal to "source" as it should be "scene"
 		direction = 1 -- Descend Ascend change direction to 1 or 2
 		local scenes = obs.obs_frontend_get_scene_names() -- List Scenes names
 		if scenes ~= nil then
@@ -1675,7 +1675,7 @@ local function cycle_list_activate( source_type )
 		end
 	else -- List Source names
 		direction = 1 -- Descend Ascend change direction to 1 or 2
-		local sources = get_source_list() -- 'id' or 'unversioned_id' or 'display_name' or 'source_name'
+		local sources = get_source_list() -- "id" or "unversioned_id" or "display_name" or "source_name"
 		--sources = remove_duplicates( sources )
 		for key, value in pairsByKeys( sources ) do
 			item_list[value] = value
@@ -1718,10 +1718,10 @@ local function cycle_list_activate( source_type )
 		if list[i] ~= nil then
 			--[[
 				
-				Type is 'Scene'
+				Type is "Scene"
 					
 			]]
-			if source_type ~= 'source' then --
+			if source_type ~= "source" then --
 				if index_match then
 					local scene_source = obs.obs_frontend_get_current_scene()
 					local name = obs.obs_source_get_name( scene_source )
@@ -1734,7 +1734,7 @@ local function cycle_list_activate( source_type )
 				end
 			--[[
 				
-				Type is 'Source'
+				Type is "Source"
 					
 			]]	
 			else
@@ -1761,7 +1761,7 @@ end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	This is basically obs.obs_enum_sources()
-					but 'Nested Scenes' are not listed in 'obs.obs_enum_sources()'
+					but "Nested Scenes" are not listed in "obs.obs_enum_sources()"
 	
 	
 	Credit:			
@@ -1832,7 +1832,7 @@ local function activate_timer_on_scene( source, activating )
 			local current_scene_source = obs.obs_frontend_get_current_scene()
 			local current_scene_name = obs.obs_source_get_name( current_scene_source )
 			obs.obs_source_release( current_scene_source )	
-			if source_id == 'scene' then
+			if source_id == "scene" then
 				if scene_name_has_source_name( current_scene_name, timer_source ) then			
 					if not is_visible( timer_source ) then 
 						set_visible( timer_source, true )
@@ -1859,16 +1859,16 @@ end
 local function update_prop_settings_current_seconds( value )
 	--[[
 		When this is updated it will trigger a 
-		callback 'property_onchange', let's 
+		callback "property_onchange", let's 
 		disable that for a moment.
 	]]
 	prevent_callback = true
-	obs.obs_data_set_double( script_settings, 'sw_current_seconds', value )
+	obs.obs_data_set_double( script_settings, "sw_current_seconds", value )
 	sw_current_seconds = value
 	obs.obs_properties_apply_settings( props, script_settings )
 	--[[
 		When this is updated it will trigger a 
-		callback 'property_onchange', let's 
+		callback "property_onchange", let's 
 		enable it again
 	]]
 	prevent_callback = false
@@ -1947,13 +1947,13 @@ function update_timer_display( source_name, text )
 	if source ~= nil then
 	
 		local settings = obs.obs_source_get_settings( source )
-		if not media['activated_marker_a'] and not media['activated_marker_b'] then ---<BUG
-			obs.obs_data_set_int( settings, 'color', media['color_normal'] )
+		if not media["activated_marker_a"] and not media["activated_marker_b"] then ---<BUG
+			obs.obs_data_set_int( settings, "color", media["color_normal"] )
 		end	
 		
-		time_mark_check( 'marker_a' )
-		time_mark_check( 'marker_b' )
-		obs.obs_data_set_string( settings, 'text', text )	
+		time_mark_check( "marker_a" )
+		time_mark_check( "marker_b" )
+		obs.obs_data_set_string( settings, "text", text )	
 	end
 	obs.obs_source_update( source, settings )
 	obs.obs_data_release( settings )
@@ -1976,19 +1976,19 @@ end
 local function toggle_mili()
 	--[[
 		
-		This feature will only activate if 'Trigger Value' is defined
-		and if 'Trigger Value' matches 'Current Time' and if
-		'Timer Type' is 'Countdown'
+		This feature will only activate if "Trigger Value" is defined
+		and if "Trigger Value" matches "Current Time" and if
+		"Timer Type" is "Countdown"
 	
 	]]
-	if toggle_mili_trigger ~= '' and timer_mode == 2 and not mili_toggle_triggered then
+	if toggle_mili_trigger ~= "" and timer_mode == 2 and not mili_toggle_triggered then
 		local time_offset = 1 -- offset by 1 second to allow user to achieve accurate setting
 		if raw_time( ( current_seconds + time_offset ), true ) == toggle_mili_trigger then
 			--[[
 
 				The action trigger a toggle, so if the
 				active state at the time of the trigger
-				is 'Show' the toggle will 'Hide' and
+				is "Show" the toggle will "Hide" and
 				Vicas Versa. 
 
 				Should we force a state? 
@@ -2039,27 +2039,27 @@ local function set_time_text( source_name )
 		Timer Format Type: Remove Leading Zeros
 	]]
 	if timer_format == 2 then
-		local system_time_format = '$T$H:$M:$S,$F'
-		text = format_time( ( l_time ~= 0 ) and string.format( '%s:%s', l_time, t_time ) or string.format( '%s', t_time ), system_time_format )
+		local system_time_format = "$T$H:$M:$S,$F"
+		text = format_time( ( l_time ~= 0 ) and string.format( "%s:%s", l_time, t_time ) or string.format( "%s", t_time ), system_time_format )
 	end	
 	--[[
 		Timer Format Type: No Leading Zeros, No Split Seconds
 	]]
 	if timer_format == 3 then
-		local system_time_format = '$T$H:$M:$S'
-		text = format_time( ( l_time ~= 0 ) and string.format( '%s:%s', l_time, t_time ) or string.format( '%s', t_time ), system_time_format )
+		local system_time_format = "$T$H:$M:$S"
+		text = format_time( ( l_time ~= 0 ) and string.format( "%s:%s", l_time, t_time ) or string.format( "%s", t_time ), system_time_format )
 	end
 	--[[
 		Timer Format Type: No Leading Zeros, No Split Seconds
 	]]
 	if timer_format == 4 then
-		local system_time_format = '$H:$M:$S'
-		text = format_time( ( l_time ~= 0 ) and string.format( '%s:%s', l_time, t_time ) or string.format( '%s', t_time ), system_time_format )
+		local system_time_format = "$H:$M:$S"
+		text = format_time( ( l_time ~= 0 ) and string.format( "%s:%s", l_time, t_time ) or string.format( "%s", t_time ), system_time_format )
 	end
 	
 	if timer_format ~= 5 then
 		--[[
-			Format the Text 'Day/Days'
+			Format the Text "Day/Days"
 		]]
 		if timer_mode == 2 and countdown_type == 1 and current_seconds ~= 0 then
 			local longtimetext = longtimetext_p
@@ -2069,19 +2069,19 @@ local function set_time_text( source_name )
 			if math.floor( current_seconds / 86400 ) <= 0 then
 				longtimetext = longtimetext_p
 			end		
-			text = string.gsub(longtimetext .. text, '[#]', long_time( current_seconds ))
+			text = string.gsub(longtimetext .. text, "[#]", long_time( current_seconds ))
 		end		
 	end
 	--[[
 		Timer Format Type: Custom Time Format
 	]]
 	if timer_format == 5 then
-		text = format_time( ( l_time ~= 0 ) and string.format( '%s:%s', l_time, t_time ) or string.format( '%s', t_time ), custom_time_format )
+		text = format_time( ( l_time ~= 0 ) and string.format( "%s:%s", l_time, t_time ) or string.format( "%s", t_time ), custom_time_format )
 	end	
 
 	if timer_mode ~= 2 then
-		--text_prefix = ''
-		--   text_suffix = ''
+		--text_prefix = ""
+		--   text_suffix = ""
 	end
 	text = text_prefix .. text .. text_suffix	
 	if text ~= last_text then 
@@ -2093,8 +2093,8 @@ local function set_time_text( source_name )
 		Check is media is playing and stop if required
 	
 	]]
-	stop_media( 'marker_a' )
-	stop_media( 'marker_b' )
+	stop_media( "marker_a" )
+	stop_media( "marker_b" )
 	last_text = text
 	--[[
 		Timer Ended
@@ -2107,8 +2107,8 @@ local function set_time_text( source_name )
 		
 		]]--
 		if enable_marker_notes ~= 1 then 
-			set_visible( media['note_source_marker_a'], false )
-			set_visible( media['note_source_marker_b'], false )  
+			set_visible( media["note_source_marker_a"], false )
+			set_visible( media["note_source_marker_b"], false )  
 		end		
 		
 		--[[
@@ -2123,9 +2123,9 @@ local function set_time_text( source_name )
 		
 			Now remove the timer callback
 		
-			'timer_ended()' offer options to
+			"timer_ended()" offer options to
 			restart the timer and may define
-			a value to 'current_seconds'. 
+			a value to "current_seconds". 
 		
 			Final check, if current_seconds == 0 then
 			deactivate (end/remove) the timer callback
@@ -2143,7 +2143,7 @@ end
 	Description:	This captures the split times and unpack it in the
 					correct format.
 
-					The text source only permits linebreaks ( '\n' ) this 
+					The text source only permits linebreaks ( "\n" ) this 
 					limitation affects how the data can be formated  ):
 	
 	Credit:			
@@ -2159,10 +2159,10 @@ end
 local function split_unpack()
 	local data = nil
 	local c = table.getn( split_itm )
-	local text = ''
-	local title = ''
-	local subtitle = ''
-	local line = '______________________________'
+	local text = ""
+	local title = ""
+	local subtitle = ""
+	local line = "______________________________"
     for i = 1,c do 
 		local mark = split_itm[i]
 		local interval = mark
@@ -2171,36 +2171,36 @@ local function split_unpack()
 			interval = split_itm[i] - split_itm[j]
 		end
 		--[[
-			'Interval'			= 1
-			'Mark'				= 2
-			'Mark Interval'		= 3
-			'Interval Mark'		= 4
+			"Interval"			= 1
+			"Mark"				= 2
+			"Mark Interval"		= 3
+			"Interval Mark"		= 4
 		
 		]]
 		if split_type == 1 then
-			title = 'Interval'
-			--subtitle = ''
+			title = "Interval"
+			--subtitle = ""
 			text = tostring( raw_time( interval ) )
 		elseif split_type == 2 then
-			title = 'Mark'
-			--subtitle = ''
+			title = "Mark"
+			--subtitle = ""
 			text = tostring( raw_time( mark ) )
 		elseif split_type == 3 then
-			title = 'Mark                     '
-			subtitle = 'Interval'
-			text = tostring( raw_time( mark )..'          '..raw_time( interval ) )
-		else	--	'Interval Mark'
-			title = 'Interval                  '
-			subtitle = 'Mark'
-		text = tostring( raw_time( interval )..'          '..raw_time( mark ) )
+			title = "Mark                     "
+			subtitle = "Interval"
+			text = tostring( raw_time( mark ).."          "..raw_time( interval ) )
+		else	--	"Interval Mark"
+			title = "Interval                  "
+			subtitle = "Mark"
+		text = tostring( raw_time( interval ).."          "..raw_time( mark ) )
 		end	
 		-- data collection here
 		local n = i --formatting the index number
-		if i < 10 then n = '0'..tostring( i ) end
+		if i < 10 then n = "0"..tostring( i ) end
 		if data ~= nil then 	
-			data = data .. '\n' .. n..' )    '..text
+			data = data .. "\n" .. n.." )    "..text
 		else
-			data = '#       '..title..subtitle..'\n'..line..'\n\n'..n..' )    '..text
+			data = "#       "..title..subtitle.."\n"..line.."\n\n"..n.." )    "..text
 		end
 	end	-- end for
 	split_data = data
@@ -2221,7 +2221,7 @@ end
 ]]
 local function update_default_time()
 	
-	if next_scene == 'Source List' or next_scene == 'Scene List' then
+	if next_scene == "Source List" or next_scene == "Scene List" then
 		return true
 	end	
 	
@@ -2242,7 +2242,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function set_split_text( source_name )
-	if in_table( {'','None', 'Select','none', 'select'}, source_name ) then return end
+	if in_table( {"","None", "Select","none", "select"}, source_name ) then return end
 	local text = split_data
 	if text ~= last_split_data then
 		set_text( source_name, text )
@@ -2294,7 +2294,7 @@ local function default_timer_globals( set_to_default )
 		--end	
 		--[[
 		
-			If timer is Stopwatch type and user pressed 'reset' the timer must always be reset to zero
+			If timer is Stopwatch type and user pressed "reset" the timer must always be reset to zero
 
 		]]
 		if timer_mode == 1 and reset_activated then
@@ -2303,8 +2303,8 @@ local function default_timer_globals( set_to_default )
 			sw_current_seconds = 0
 		end	
 		
-		media['activated_marker_a'] 		= false
-		media['activated_marker_b'] 		= false
+		media["activated_marker_a"] 		= false
+		media["activated_marker_b"] 		= false
 	end
 	timer_expired = true
 	completed_cycles = 0
@@ -2314,11 +2314,11 @@ local function default_timer_globals( set_to_default )
 	
 	set_split_text( split_source )
 	orig_time = obs.os_gettime_ns()
-	set_visible( media['note_source_marker_a'], false )
-	set_visible( media['note_source_marker_b'], false ) 
+	set_visible( media["note_source_marker_a"], false )
+	set_visible( media["note_source_marker_b"], false ) 
 	mili_toggle_triggered = false
-	media['last_state_marker_a']		= obs.OBS_MEDIA_STATE_NONE
-	media['last_state_marker_b']		= obs.OBS_MEDIA_STATE_NONE
+	media["last_state_marker_a"]		= obs.OBS_MEDIA_STATE_NONE
+	media["last_state_marker_b"]		= obs.OBS_MEDIA_STATE_NONE
 end
 
 --[[
@@ -2341,11 +2341,11 @@ local function reset_mili( )
 	end	
 	--[[
 		
-		Is the 'Trigger Value' defined
-		and is 'Timer Type' set to 'Countdown'
+		Is the "Trigger Value" defined
+		and is "Timer Type" set to "Countdown"
 	
 	]]
-	if toggle_mili_trigger ~= '' then
+	if toggle_mili_trigger ~= "" then
 		show_mili = false
 	else
 		show_mili = true
@@ -2457,9 +2457,9 @@ local function update_timer_settings( set_to_default, new_settings ) -- optional
 			timer_value( calculated_time, false )
 		else
 			calculated_time = (  
-			( obs.obs_data_get_int( new_settings, 'hours' )*60*60 ) + 
-			( obs.obs_data_get_int( new_settings, 'minutes' )*60 ) + 
-			obs.obs_data_get_int( new_settings, 'seconds' )
+			( obs.obs_data_get_int( new_settings, "hours" )*60*60 ) + 
+			( obs.obs_data_get_int( new_settings, "minutes" )*60 ) + 
+			obs.obs_data_get_int( new_settings, "seconds" )
 				)	
 		end
 		--[[
@@ -2468,7 +2468,7 @@ local function update_timer_settings( set_to_default, new_settings ) -- optional
 			1)	 When the timer is resting and the user is setting a new time.
 		
 			2)	The timer completed a cycle and needs to be rest to start the next cycle.
-				This will only be required if the 'next scene' is set to "source list" or "scene list"
+				This will only be required if the "next scene" is set to 'source list' or 'scene list'
 			
 		]]		
 		local do_update = 
@@ -2481,7 +2481,7 @@ local function update_timer_settings( set_to_default, new_settings ) -- optional
 			and 
 			not set_to_default 
 			or 
-			in_table( {'Source List', 'Scene List'}, next_scene )
+			in_table( {"Source List", "Scene List"}, next_scene )
 			or
 			timer_mode_changed
 		)
@@ -2703,8 +2703,8 @@ local function activate( activating )
 		]]	
 		if timer_expired and timer_active then
 			end_timer() -- Removing the callback stops the timer
-			set_visible( media['source_name_audio_marker_a'], false ) -- The timer expired, reset media.
-			set_visible( media['source_name_audio_marker_b'], false ) -- The timer expired, reset media.
+			set_visible( media["source_name_audio_marker_a"], false ) -- The timer expired, reset media.
+			set_visible( media["source_name_audio_marker_b"], false ) -- The timer expired, reset media.
 		else
 			end_timer() -- Removing the callback stops the timer	
 		end
@@ -2837,19 +2837,19 @@ function on_mili( pressed )
 		we will action it on the button Callback directly.
 		
 	]]
-	local mode = obs.obs_data_get_int( script_settings, 'timer_mode' )
-	local mili_button_prop = obs.obs_properties_get( props, 'mili_button' )
+	local mode = obs.obs_data_get_int( script_settings, "timer_mode" )
+	local mili_button_prop = obs.obs_properties_get( props, "mili_button" )
 
 	--[[
 		
-		We are only setting the button label depending if the timer's milliseconds
+		We are only setting the button label depending if the timer"s milliseconds
 		value visibility state.
 		
 	]]
 	if show_mili then
-		obs.obs_property_set_description( mili_button_prop, 'Hide Milliseconds' )
+		obs.obs_property_set_description( mili_button_prop, "Hide Milliseconds" )
 	else
-		obs.obs_property_set_description( mili_button_prop, 'Show Milliseconds' )
+		obs.obs_property_set_description( mili_button_prop, "Show Milliseconds" )
 	end
 	return true
 end
@@ -2904,7 +2904,7 @@ end
 ]]
 local function pause_play_media( source_name, play )
 	
-	if in_table( {'','None', 'Select','none', 'select'}, source_name ) or not is_visible( source_name )then return end
+	if in_table( {"","None", "Select","none", "select"}, source_name ) or not is_visible( source_name )then return end
 			
 		local source = obs.obs_get_source_by_name( source_name )
 	
@@ -2941,7 +2941,7 @@ local function activate_signal( cd, activating )
 		Capture / Retrieve Callback Data
 	
 	]]
-	local source = obs.calldata_source( cd, 'source' )
+	local source = obs.calldata_source( cd, "source" )
 	
 	--[[
 	
@@ -3032,12 +3032,12 @@ local function on_reset( pressed )
 	set_split_text( split_source )
 	--[[
 	
-		Reset 'Active Source' text (if defined)
+		Reset "Active Source" text (if defined)
 	
 	]]
-	if active_source ~= 'Select' then 
+	if active_source ~= "Select" then 
 		
-		set_text( active_source, '' ) 
+		set_text( active_source, "" ) 
 		--[[
 			force the visibility 
 			state of this source. 
@@ -3047,13 +3047,13 @@ local function on_reset( pressed )
 	--[[
 		Set visibility to first position
 	]]	
-	set_visible( media['source_name_audio_marker_a'], false )
-	set_visible( media['source_name_audio_marker_b'], false )
+	set_visible( media["source_name_audio_marker_a"], false )
+	set_visible( media["source_name_audio_marker_b"], false )
 	--[[
 		Set bool to first position
 	]]	
-	media['media_ended_marker_a'] = false
-	media['media_ended_marker_b'] = false
+	media["media_ended_marker_a"] = false
+	media["media_ended_marker_b"] = false
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
@@ -3077,8 +3077,8 @@ local function property_button_update_start()
 		we will action it on the button Callback directly.
 		
 	]]
-	local mode = obs.obs_data_get_int( script_settings, 'timer_mode' )
-	local pause_button_prop = obs.obs_properties_get( props, 'pause_button' )
+	local mode = obs.obs_data_get_int( script_settings, "timer_mode" )
+	local pause_button_prop = obs.obs_properties_get( props, "pause_button" )
 	--[[
 		
 		We are only setting the button label depending if the timer is active
@@ -3087,15 +3087,15 @@ local function property_button_update_start()
 	]]
 	if mode == 2 then
 		if timer_active then
-			obs.obs_property_set_description( pause_button_prop, 'Start/Pause Countdown' )
+			obs.obs_property_set_description( pause_button_prop, "Start/Pause Countdown" )
 		else
-			obs.obs_property_set_description( pause_button_prop, 'Start Countdown' )
+			obs.obs_property_set_description( pause_button_prop, "Start Countdown" )
 		end
 	else
 		if timer_active then
-			obs.obs_property_set_description( pause_button_prop, 'Start/Pause Stopwatch' )
+			obs.obs_property_set_description( pause_button_prop, "Start/Pause Stopwatch" )
 		else
-			obs.obs_property_set_description( pause_button_prop, 'Start Stopwatch' )
+			obs.obs_property_set_description( pause_button_prop, "Start Stopwatch" )
 		end
 	end	
 	return props
@@ -3134,8 +3134,8 @@ local function on_pause( pressed )
 			activate( true )
 		end	
 	end
-		pause_play_media( media['source_name_audio_marker_a'], not timer_active )
-		pause_play_media( media['source_name_audio_marker_b'], not timer_active )
+		pause_play_media( media["source_name_audio_marker_a"], not timer_active )
+		pause_play_media( media["source_name_audio_marker_b"], not timer_active )
 	return true
 end
 --[[
@@ -3346,13 +3346,13 @@ local function loaded( cd )
 	--[[
 		Get source from CallData
 	]]
-	local source = obs.calldata_source( cd, 'source' )
+	local source = obs.calldata_source( cd, "source" )
 
 	--[[
 		Found Source:
 	]]
 	if source ~= nil then 
-		if obs.obs_source_get_id( source ) ~= 'scene' then
+		if obs.obs_source_get_id( source ) ~= "scene" then
 			sources_loaded = sources_loaded + 1 -- add this to the loaded sopurce tally
 		end	
 	end
@@ -3436,33 +3436,33 @@ end
 local function load_settings_globals( settings )
 	
 	last_timer_mode = timer_mode
-	timer_day = obs.obs_data_get_int( settings, 'day' )
-	timer_year = obs.obs_data_get_int( settings, 'year' )
-	timer_hours = obs.obs_data_get_int( settings, 'hours' )
-	timer_month = obs.obs_data_get_int( settings, 'month' ) - 1
-	timer_mode = obs.obs_data_get_int( settings, 'timer_mode' )
-	timer_minutes = obs.obs_data_get_int( settings, 'minutes' )
-	timer_seconds = obs.obs_data_get_int( settings, 'seconds' )
-	enable_marker_notes = obs.obs_data_get_int( settings, 'enable_marker_notes' )
-	timer_format = obs.obs_data_get_int( settings, 'timer_format' )
-	timer_source = obs.obs_data_get_string( settings, 'timer_source' )
-	timer_display = obs.obs_data_get_int( settings, 'timer_display' )
-	countdown_type = obs.obs_data_get_int( settings, 'countdown_type' )
-	sw_hours_saved = obs.obs_data_get_int( settings, 'sw_hours_saved' )
-	cycle_direction = obs.obs_data_get_int( settings, 'cycle_direction' )
-	sw_current_seconds = obs.obs_data_get_double( settings, 'sw_current_seconds' )
-	load_saved_time = obs.obs_data_get_bool( settings, 'load_saved_time' )
-	sw_minutes_saved = obs.obs_data_get_int( settings, 'sw_minutes_saved' )
-	sw_seconds_saved = obs.obs_data_get_int( settings, 'sw_seconds_saved' )	
-	custom_time_format = obs.obs_data_get_string( settings, 'custom_time_format' )
-	toggle_mili_trigger = obs.obs_data_get_string( settings, 'toggle_mili_trigger' )
-	sw_milliseconds_saved = obs.obs_data_get_int( settings, 'sw_milliseconds_saved' ) 
-	media['note_source_marker_a'] = obs.obs_data_get_string( settings, 'note_source_marker_a' )
-	media['note_source_marker_b'] = obs.obs_data_get_string( settings, 'note_source_marker_b' )
-	longtimetext_s = string.gsub(obs.obs_data_get_string( settings, 'day_text' ), '\\([n])', {n='\n'})
-	longtimetext_p = string.gsub(obs.obs_data_get_string( settings, 'days_text' ), '\\([n])', {n='\n'})
-	media['note_marker_a'] = string.gsub(obs.obs_data_get_string( settings, 'note_marker_a' ), '\\([n])', {n='\n'})
-	media['note_marker_b'] = string.gsub(obs.obs_data_get_string( settings, 'note_marker_b' ), '\\([n])', {n='\n'})
+	timer_day = obs.obs_data_get_int( settings, "day" )
+	timer_year = obs.obs_data_get_int( settings, "year" )
+	timer_hours = obs.obs_data_get_int( settings, "hours" )
+	timer_month = obs.obs_data_get_int( settings, "month" ) - 1
+	timer_mode = obs.obs_data_get_int( settings, "timer_mode" )
+	timer_minutes = obs.obs_data_get_int( settings, "minutes" )
+	timer_seconds = obs.obs_data_get_int( settings, "seconds" )
+	enable_marker_notes = obs.obs_data_get_int( settings, "enable_marker_notes" )
+	timer_format = obs.obs_data_get_int( settings, "timer_format" )
+	timer_source = obs.obs_data_get_string( settings, "timer_source" )
+	timer_display = obs.obs_data_get_int( settings, "timer_display" )
+	countdown_type = obs.obs_data_get_int( settings, "countdown_type" )
+	sw_hours_saved = obs.obs_data_get_int( settings, "sw_hours_saved" )
+	cycle_direction = obs.obs_data_get_int( settings, "cycle_direction" )
+	sw_current_seconds = obs.obs_data_get_double( settings, "sw_current_seconds" )
+	load_saved_time = obs.obs_data_get_bool( settings, "load_saved_time" )
+	sw_minutes_saved = obs.obs_data_get_int( settings, "sw_minutes_saved" )
+	sw_seconds_saved = obs.obs_data_get_int( settings, "sw_seconds_saved" )	
+	custom_time_format = obs.obs_data_get_string( settings, "custom_time_format" )
+	toggle_mili_trigger = obs.obs_data_get_string( settings, "toggle_mili_trigger" )
+	sw_milliseconds_saved = obs.obs_data_get_int( settings, "sw_milliseconds_saved" ) 
+	media["note_source_marker_a"] = obs.obs_data_get_string( settings, "note_source_marker_a" )
+	media["note_source_marker_b"] = obs.obs_data_get_string( settings, "note_source_marker_b" )
+	longtimetext_s = string.gsub(obs.obs_data_get_string( settings, "day_text" ), "\\([n])", {n="\n"})
+	longtimetext_p = string.gsub(obs.obs_data_get_string( settings, "days_text" ), "\\([n])", {n="\n"})
+	media["note_marker_a"] = string.gsub(obs.obs_data_get_string( settings, "note_marker_a" ), "\\([n])", {n="\n"})
+	media["note_marker_b"] = string.gsub(obs.obs_data_get_string( settings, "note_marker_b" ), "\\([n])", {n="\n"})
 	--[[
 				Used for source cycling
 		
@@ -3480,36 +3480,36 @@ local function load_settings_globals( settings )
 				Every instance that a timer time is defined, we must record it to default_seconds
 	]]
 	default_seconds = current_seconds 
-	split_type = obs.obs_data_get_int( settings, 'split_type' )
-	stop_text = obs.obs_data_get_string( settings, 'stop_text' )
-	next_scene = obs.obs_data_get_string( settings, 'next_scene' )
-	import_list = obs.obs_data_get_string( settings, 'import_list' )
-	split_source = obs.obs_data_get_string( settings, 'split_source' )
-    disable_script = obs.obs_data_get_bool( settings,'disable_script' )
-	recording_type = obs.obs_data_get_int( settings, 'recording_type' )
-	backup_folder = obs.obs_data_get_string( settings, 'backup_folder' )
-	active_source = obs.obs_data_get_string( settings, 'active_source' )	
-	start_recording = obs.obs_data_get_int( settings, 'start_recording' )
-	load_saved_time = obs.obs_data_get_bool( settings, 'load_saved_time' )
-    start_on_visible = obs.obs_data_get_bool( settings,'start_on_visible' )														
-	media['color_normal'] = obs.obs_data_get_int( settings, 'color_normal' )
-	media['color_marker_b'] = obs.obs_data_get_int( settings, 'color_marker_b' )
-	media['color_marker_a'] = obs.obs_data_get_int( settings, 'color_marker_a' )
-	media['text_marker_a'] = obs.obs_data_get_string( settings, 'text_marker_a' )							
-	media['text_marker_b'] = obs.obs_data_get_string( settings, 'text_marker_b' )
-	media_playback_limit = obs.obs_data_get_int( settings, 'media_playback_limit' )
-    start_on_scene_active = obs.obs_data_get_bool( settings,'start_on_scene_active' )
-	media['source_name_audio_marker_a'] = obs.obs_data_get_string( settings, 'audio_marker_a' )
-	media['source_name_audio_marker_b'] = obs.obs_data_get_string( settings, 'audio_marker_b' )	
-    active_source_force_visible = obs.obs_data_get_bool( settings,'active_source_force_visible' )
-	text_prefix = string.gsub(obs.obs_data_get_string( settings, 'text_prefix' ), '\\([n])', {n='\n'})
-	text_suffix = string.gsub(obs.obs_data_get_string( settings, 'text_suffix' ), '\\([n])', {n='\n'})
+	split_type = obs.obs_data_get_int( settings, "split_type" )
+	stop_text = obs.obs_data_get_string( settings, "stop_text" )
+	next_scene = obs.obs_data_get_string( settings, "next_scene" )
+	import_list = obs.obs_data_get_string( settings, "import_list" )
+	split_source = obs.obs_data_get_string( settings, "split_source" )
+    disable_script = obs.obs_data_get_bool( settings,"disable_script" )
+	recording_type = obs.obs_data_get_int( settings, "recording_type" )
+	backup_folder = obs.obs_data_get_string( settings, "backup_folder" )
+	active_source = obs.obs_data_get_string( settings, "active_source" )	
+	start_recording = obs.obs_data_get_int( settings, "start_recording" )
+	load_saved_time = obs.obs_data_get_bool( settings, "load_saved_time" )
+    start_on_visible = obs.obs_data_get_bool( settings,"start_on_visible" )														
+	media["color_normal"] = obs.obs_data_get_int( settings, "color_normal" )
+	media["color_marker_b"] = obs.obs_data_get_int( settings, "color_marker_b" )
+	media["color_marker_a"] = obs.obs_data_get_int( settings, "color_marker_a" )
+	media["text_marker_a"] = obs.obs_data_get_string( settings, "text_marker_a" )							
+	media["text_marker_b"] = obs.obs_data_get_string( settings, "text_marker_b" )
+	media_playback_limit = obs.obs_data_get_int( settings, "media_playback_limit" )
+    start_on_scene_active = obs.obs_data_get_bool( settings,"start_on_scene_active" )
+	media["source_name_audio_marker_a"] = obs.obs_data_get_string( settings, "audio_marker_a" )
+	media["source_name_audio_marker_b"] = obs.obs_data_get_string( settings, "audio_marker_b" )	
+    active_source_force_visible = obs.obs_data_get_bool( settings,"active_source_force_visible" )
+	text_prefix = string.gsub(obs.obs_data_get_string( settings, "text_prefix" ), "\\([n])", {n="\n"})
+	text_suffix = string.gsub(obs.obs_data_get_string( settings, "text_suffix" ), "\\([n])", {n="\n"})
 	if media_playback_limit ~= 1 then
-		media['duration_marker_a'] = obs.obs_data_get_int( settings, 'duration_marker_a' )
-		media['duration_marker_b'] = obs.obs_data_get_int( settings, 'duration_marker_b' )
+		media["duration_marker_a"] = obs.obs_data_get_int( settings, "duration_marker_a" )
+		media["duration_marker_b"] = obs.obs_data_get_int( settings, "duration_marker_b" )
 	else
-		media['duration_marker_a'] = 0
-		media['duration_marker_b'] = 0
+		media["duration_marker_a"] = 0
+		media["duration_marker_b"] = 0
 	end
 	
 	timer_mode_changed = ( last_timer_mode ~= timer_mode )
@@ -3531,13 +3531,13 @@ end
 local function import_properties( props, property, settings )
 	local import_folder = backup_folder
 	-- convert Windows path to UNIX path
-	import_folder = import_folder .. '/' .. import_list .. '.json'
-	import_folder = import_folder:gsub([[\]], '/');
+	import_folder = import_folder .. "/" .. import_list .. ".json"
+	import_folder = import_folder:gsub([[\]], "/");
 	if obs.os_file_exists( import_folder ) then
 		data = obs.obs_data_create_from_json_file( import_folder )
 		if data ~= nil then
 			obs.obs_data_apply( settings, data )
-			obs.obs_data_set_string( settings, 'import_list', 'select')
+			obs.obs_data_set_string( settings, "import_list", "select")
 			script_settings = settings
 		end	
 	end
@@ -3571,118 +3571,118 @@ local function property_onchange( props, property, settings )
 			 PROPERTY VALUE
 	
 	]]
-	local day_value = obs.obs_data_get_int( settings, 'day' )-- -- Retrieves property value from reference
-	local year_value = obs.obs_data_get_int( settings, 'year' )-- -- Retrieves property value from reference
-	local month_value = obs.obs_data_get_int( settings, 'month' )-- -- Retrieves property value from reference
-	local config_value = obs.obs_data_get_int( settings, 'config' )-- -- Retrieves property value from reference
-	local timer_mode_value = obs.obs_data_get_int( settings, 'timer_mode' )-- -- Retrieves property value from reference
-	local backup_mode_value = obs.obs_data_get_bool( settings, 'backup_mode' )-- -- Retrieves property value from reference
-	local enable_marker_notes_value = obs.obs_data_get_int( settings, 'enable_marker_notes' )-- -- Retrieves property value from reference
-	local import_list_value = obs.obs_data_get_string( settings, 'import_list' )-- -- Retrieves property value from reference
-	local next_scene_value = obs.obs_data_get_string( settings, 'next_scene' )	-- -- Retrieves property value from reference
-	local timer_options_value = obs.obs_data_get_int( settings, 'timer_options' )-- -- Retrieves property value from reference
-	local timer_source_value = obs.obs_data_get_string( settings, 'timer_source' )-- -- Retrieves property value from reference
-	local split_source_value = obs.obs_data_get_string( settings, 'split_source' )-- -- Retrieves property value from reference
-	local set_stopwatch_value = obs.obs_data_get_bool( settings, 'set_stopwatch' )-- -- Retrieves property value from reference
-	local countdown_type_value = obs.obs_data_get_int( settings, 'countdown_type' )-- -- Retrieves property value from reference
-	local active_source_value = obs.obs_data_get_string( settings, 'active_source' )-- -- Retrieves property value from reference
-	local start_recording_value = obs.obs_data_get_int( settings, 'start_recording' )-- -- Retrieves property value from reference
-	local trigger_options_value = obs.obs_data_get_int( settings, 'trigger_options' )-- -- Retrieves property value from reference
-	local note_source_marker_a_value = obs.obs_data_get_string( settings, 'note_source_marker_a' )-- -- Retrieves property value from reference
-	local note_source_marker_b_value = obs.obs_data_get_string( settings, 'note_source_marker_b' )-- -- Retrieves property value from reference
-	local media_playback_limit_value = obs.obs_data_get_int( settings, 'media_playback_limit' )-- -- Retrieves property value from reference
+	local day_value = obs.obs_data_get_int( settings, "day" )-- -- Retrieves property value from reference
+	local year_value = obs.obs_data_get_int( settings, "year" )-- -- Retrieves property value from reference
+	local month_value = obs.obs_data_get_int( settings, "month" )-- -- Retrieves property value from reference
+	local config_value = obs.obs_data_get_int( settings, "config" )-- -- Retrieves property value from reference
+	local timer_mode_value = obs.obs_data_get_int( settings, "timer_mode" )-- -- Retrieves property value from reference
+	local backup_mode_value = obs.obs_data_get_bool( settings, "backup_mode" )-- -- Retrieves property value from reference
+	local enable_marker_notes_value = obs.obs_data_get_int( settings, "enable_marker_notes" )-- -- Retrieves property value from reference
+	local import_list_value = obs.obs_data_get_string( settings, "import_list" )-- -- Retrieves property value from reference
+	local next_scene_value = obs.obs_data_get_string( settings, "next_scene" )	-- -- Retrieves property value from reference
+	local timer_options_value = obs.obs_data_get_int( settings, "timer_options" )-- -- Retrieves property value from reference
+	local timer_source_value = obs.obs_data_get_string( settings, "timer_source" )-- -- Retrieves property value from reference
+	local split_source_value = obs.obs_data_get_string( settings, "split_source" )-- -- Retrieves property value from reference
+	local set_stopwatch_value = obs.obs_data_get_bool( settings, "set_stopwatch" )-- -- Retrieves property value from reference
+	local countdown_type_value = obs.obs_data_get_int( settings, "countdown_type" )-- -- Retrieves property value from reference
+	local active_source_value = obs.obs_data_get_string( settings, "active_source" )-- -- Retrieves property value from reference
+	local start_recording_value = obs.obs_data_get_int( settings, "start_recording" )-- -- Retrieves property value from reference
+	local trigger_options_value = obs.obs_data_get_int( settings, "trigger_options" )-- -- Retrieves property value from reference
+	local note_source_marker_a_value = obs.obs_data_get_string( settings, "note_source_marker_a" )-- -- Retrieves property value from reference
+	local note_source_marker_b_value = obs.obs_data_get_string( settings, "note_source_marker_b" )-- -- Retrieves property value from reference
+	local media_playback_limit_value = obs.obs_data_get_int( settings, "media_playback_limit" )-- -- Retrieves property value from reference
 	--[[
 	
 			 BACKUP PROPERTIES
 	
 	]]	
-	local backup_mode_prop = obs.obs_properties_get( props, 'backup_mode' )
-	local import_list_prop = obs.obs_properties_get( props, 'import_list' )
+	local backup_mode_prop = obs.obs_properties_get( props, "backup_mode" )
+	local import_list_prop = obs.obs_properties_get( props, "import_list" )
 	--[[
 	
 			 TIMER PROPERTIES
 	
 	]]
-	local mili_button_prop = obs.obs_properties_get( props, 'mili_button' )
-	local timer_source_prop = obs.obs_properties_get( props, 'timer_source' )
-	local pause_button_prop = obs.obs_properties_get( props, 'pause_button' )
-	local timer_options_prop = obs.obs_properties_get( props, 'timer_options' )
-	local custom_time_format_prop = obs.obs_properties_get( props, 'custom_time_format' )
-	local toggle_mili_trigger_prop = obs.obs_properties_get( props, 'toggle_mili_trigger' )
+	local mili_button_prop = obs.obs_properties_get( props, "mili_button" )
+	local timer_source_prop = obs.obs_properties_get( props, "timer_source" )
+	local pause_button_prop = obs.obs_properties_get( props, "pause_button" )
+	local timer_options_prop = obs.obs_properties_get( props, "timer_options" )
+	local custom_time_format_prop = obs.obs_properties_get( props, "custom_time_format" )
+	local toggle_mili_trigger_prop = obs.obs_properties_get( props, "toggle_mili_trigger" )
 	--[[
 	
 			 STOPWATCH PROPERTIES
 	
 	]]
-	local _group_1_prop = obs.obs_properties_get( props, '_group_1' )
-	local set_stopwatch_prop = obs.obs_properties_get( props, 'set_stopwatch' )
-	local timer_display_prop = obs.obs_properties_get( props, 'timer_display' )
+	local _group_1_prop = obs.obs_properties_get( props, "_group_1" )
+	local set_stopwatch_prop = obs.obs_properties_get( props, "set_stopwatch" )
+	local timer_display_prop = obs.obs_properties_get( props, "timer_display" )
 	--[[
 	
 			 COUNTDOWN PROPERTIES
 	
 	]]	
-	local day_prop = obs.obs_properties_get( props, 'day' )
-	local year_prop = obs.obs_properties_get( props, 'year' )
-	local month_prop = obs.obs_properties_get( props, 'month' )
-	local day_text_prop = obs.obs_properties_get( props, 'day_text' )
-	local days_text_prop = obs.obs_properties_get( props, 'days_text' )
-	local stop_text_prop = obs.obs_properties_get( props, 'stop_text' )
-	local cycle_list_prop = obs.obs_properties_get( props, 'cycle_list' )
-	local text_prefix_prop = obs.obs_properties_get( props, 'text_prefix' )
-	local text_suffix_prop = obs.obs_properties_get( props, 'text_suffix' )
-	local active_source_prop = obs.obs_properties_get( props, 'active_source' )
-	local recording_type_prop = obs.obs_properties_get( props, 'recording_type' )
-	local cycle_direction_prop = obs.obs_properties_get( props, 'cycle_direction' )
-	local as_visible_prop = obs.obs_properties_get( props, 'active_source_force_visible' )
+	local day_prop = obs.obs_properties_get( props, "day" )
+	local year_prop = obs.obs_properties_get( props, "year" )
+	local month_prop = obs.obs_properties_get( props, "month" )
+	local day_text_prop = obs.obs_properties_get( props, "day_text" )
+	local days_text_prop = obs.obs_properties_get( props, "days_text" )
+	local stop_text_prop = obs.obs_properties_get( props, "stop_text" )
+	local cycle_list_prop = obs.obs_properties_get( props, "cycle_list" )
+	local text_prefix_prop = obs.obs_properties_get( props, "text_prefix" )
+	local text_suffix_prop = obs.obs_properties_get( props, "text_suffix" )
+	local active_source_prop = obs.obs_properties_get( props, "active_source" )
+	local recording_type_prop = obs.obs_properties_get( props, "recording_type" )
+	local cycle_direction_prop = obs.obs_properties_get( props, "cycle_direction" )
+	local as_visible_prop = obs.obs_properties_get( props, "active_source_force_visible" )
 	--[[
 	
 			 PROPERTIES
 	
 	]]	
-	local hours_prop = obs.obs_properties_get( props, 'hours' )
-	local minutes_prop = obs.obs_properties_get( props, 'minutes' )
-	local seconds_prop = obs.obs_properties_get( props, 'seconds' )
-	local split_type_prop = obs.obs_properties_get( props, 'split_type' )
-	local next_scene_prop = obs.obs_properties_get( props, 'next_scene' )
-	local split_button_prop = obs.obs_properties_get( props, 'split_button' )
-	local split_source_prop = obs.obs_properties_get( props, 'split_source' )
-	local timer_format_prop = obs.obs_properties_get( props, 'timer_format' )
-	local color_normal_prop = obs.obs_properties_get( props, 'color_normal' )
-	local reset_button_prop = obs.obs_properties_get( props, 'reset_button' )
-	local countdown_type_prop = obs.obs_properties_get( props, 'countdown_type' )
-	local start_recording_prop = obs.obs_properties_get( props, 'start_recording' )
+	local hours_prop = obs.obs_properties_get( props, "hours" )
+	local minutes_prop = obs.obs_properties_get( props, "minutes" )
+	local seconds_prop = obs.obs_properties_get( props, "seconds" )
+	local split_type_prop = obs.obs_properties_get( props, "split_type" )
+	local next_scene_prop = obs.obs_properties_get( props, "next_scene" )
+	local split_button_prop = obs.obs_properties_get( props, "split_button" )
+	local split_source_prop = obs.obs_properties_get( props, "split_source" )
+	local timer_format_prop = obs.obs_properties_get( props, "timer_format" )
+	local color_normal_prop = obs.obs_properties_get( props, "color_normal" )
+	local reset_button_prop = obs.obs_properties_get( props, "reset_button" )
+	local countdown_type_prop = obs.obs_properties_get( props, "countdown_type" )
+	local start_recording_prop = obs.obs_properties_get( props, "start_recording" )
 	--[[
 	
 			 PROPERTIES
 	
 	]]
-	local export_button_prop = obs.obs_properties_get( props, 'export_button' )
-	local import_button_prop = obs.obs_properties_get( props, 'import_button' )
-	local export_folder_prop = obs.obs_properties_get( props, 'backup_folder' )
-	local disable_script_prop = obs.obs_properties_get( props, 'disable_script' )
-	local start_on_visible_prop = obs.obs_properties_get( props, 'start_on_visible' )
-	local start_on_scene_active_prop = obs.obs_properties_get( props, 'start_on_scene_active' )
+	local export_button_prop = obs.obs_properties_get( props, "export_button" )
+	local import_button_prop = obs.obs_properties_get( props, "import_button" )
+	local export_folder_prop = obs.obs_properties_get( props, "backup_folder" )
+	local disable_script_prop = obs.obs_properties_get( props, "disable_script" )
+	local start_on_visible_prop = obs.obs_properties_get( props, "start_on_visible" )
+	local start_on_scene_active_prop = obs.obs_properties_get( props, "start_on_scene_active" )
 	--[[
 	
 			WARNING & CAUTION PROPERTIES
 	
 	]]
-	local to_prop = obs.obs_properties_get( props, 'trigger_options' )
-	local c_note_prop = obs.obs_properties_get( props, 'note_marker_a' )
-	local w_note_prop = obs.obs_properties_get( props, 'note_marker_b' )
-	local enable_marker_notes_prop = obs.obs_properties_get( props, 'enable_marker_notes' )
-	local text_marker_a_prop = obs.obs_properties_get( props, 'text_marker_a' )
-	local text_marker_b_prop = obs.obs_properties_get( props, 'text_marker_b' )
-	local color_marker_a_prop = obs.obs_properties_get( props, 'color_marker_a' )
-	local color_marker_b_prop = obs.obs_properties_get( props, 'color_marker_b' )
-	local audio_marker_a_prop = obs.obs_properties_get( props, 'audio_marker_a' )
-	local audio_marker_b_prop = obs.obs_properties_get( props, 'audio_marker_b' )
-	local cn_source_prop = obs.obs_properties_get( props, 'note_source_marker_a' )
-	local wn_source_prop = obs.obs_properties_get( props, 'note_source_marker_b' )
-	local duration_marker_a_prop = obs.obs_properties_get( props, 'duration_marker_a' )
-	local duration_marker_b_prop = obs.obs_properties_get( props, 'duration_marker_b' )
-	local media_playback_limit_prop = obs.obs_properties_get( props, 'media_playback_limit' )
+	local to_prop = obs.obs_properties_get( props, "trigger_options" )
+	local c_note_prop = obs.obs_properties_get( props, "note_marker_a" )
+	local w_note_prop = obs.obs_properties_get( props, "note_marker_b" )
+	local enable_marker_notes_prop = obs.obs_properties_get( props, "enable_marker_notes" )
+	local text_marker_a_prop = obs.obs_properties_get( props, "text_marker_a" )
+	local text_marker_b_prop = obs.obs_properties_get( props, "text_marker_b" )
+	local color_marker_a_prop = obs.obs_properties_get( props, "color_marker_a" )
+	local color_marker_b_prop = obs.obs_properties_get( props, "color_marker_b" )
+	local audio_marker_a_prop = obs.obs_properties_get( props, "audio_marker_a" )
+	local audio_marker_b_prop = obs.obs_properties_get( props, "audio_marker_b" )
+	local cn_source_prop = obs.obs_properties_get( props, "note_source_marker_a" )
+	local wn_source_prop = obs.obs_properties_get( props, "note_source_marker_b" )
+	local duration_marker_a_prop = obs.obs_properties_get( props, "duration_marker_a" )
+	local duration_marker_b_prop = obs.obs_properties_get( props, "duration_marker_b" )
+	local media_playback_limit_prop = obs.obs_properties_get( props, "media_playback_limit" )
 	--[[
 			TIMER INPUTS
 	]]	
@@ -3717,7 +3717,7 @@ local function property_onchange( props, property, settings )
 	obs.obs_property_set_visible( recording_type_prop, false )
 	obs.obs_property_set_enabled( day_prop, month_value ~= 1 )
 	obs.obs_property_set_enabled( year_prop, month_value ~= 1 )
-	obs.obs_property_set_visible( mili_button_prop, toggle_mili_trigger == '' and timer_mode_value == 2  )
+	obs.obs_property_set_visible( mili_button_prop, toggle_mili_trigger == "" and timer_mode_value == 2  )
 	obs.obs_property_set_visible( toggle_mili_trigger_prop, show_split( props, settings ) and timer_options_value == 2 )
 	obs.obs_property_set_visible( hours_prop, config_value == 2 and timer_mode_value == 2 and timer_options_value == 2  )
 	obs.obs_property_set_visible( minutes_prop, config_value == 2 and timer_mode_value == 2 and timer_options_value == 2  ) 
@@ -3726,16 +3726,16 @@ local function property_onchange( props, property, settings )
 	obs.obs_property_set_visible( countdown_type_prop, config_value == 2 and timer_mode_value == 2 and timer_options_value == 2 )
 	obs.obs_property_set_visible( start_recording_prop, config_value == 2 and timer_mode_value == 2 and timer_options_value == 2 )
 	obs.obs_property_set_visible( recording_type_prop, config_value == 2 and start_recording_value == 1 and timer_mode_value == 2 )	
-	obs.obs_property_set_visible( stop_text_prop, next_scene_value == 'TIMER END TEXT' and  timer_mode_value == 2 and timer_options_value == 2 )	
+	obs.obs_property_set_visible( stop_text_prop, next_scene_value == "TIMER END TEXT" and  timer_mode_value == 2 and timer_options_value == 2 )	
 	obs.obs_property_set_visible( day_prop, countdown_type_value == 1 and config_value == 2 and timer_mode_value == 2 and timer_options_value == 2 )
 	obs.obs_property_set_visible( year_prop, countdown_type_value == 1 and config_value == 2 and timer_mode_value == 2 and timer_options_value == 2 )
 	obs.obs_property_set_visible( month_prop, countdown_type_value == 1 and config_value == 2 and timer_mode_value == 2 and timer_options_value == 2 )
 	obs.obs_property_set_visible( day_text_prop, countdown_type_value == 1 and config_value == 2 and timer_mode_value == 2 and timer_format ~= 5 and timer_options_value == 2 )
 	obs.obs_property_set_visible( days_text_prop, countdown_type_value == 1 and config_value == 2 and timer_mode_value == 2 and timer_format ~= 5 and timer_options_value == 2 )
-	obs.obs_property_set_visible( cycle_list_prop, ( (next_scene_value == 'Source List' or next_scene_value == 'Scene List') and timer_mode_value == 2 and config_value == 2 and timer_options_value == 2 ) )
-	obs.obs_property_set_visible( active_source_prop, ( (next_scene_value == 'Source List' or next_scene_value == 'Scene List') and timer_mode_value == 2 and config_value == 2 and timer_options_value == 2 ) )
-	obs.obs_property_set_visible( as_visible_prop, ( (next_scene_value == 'Source List' or next_scene_value == 'Scene List') and timer_mode_value == 2 and config_value == 2 and timer_options_value == 2 ) )
-	obs.obs_property_set_visible( cycle_direction_prop, ( (next_scene_value == 'Source List' or next_scene_value == 'Scene List') and timer_mode_value == 2 and config_value == 2 and timer_options_value == 2 ) )
+	obs.obs_property_set_visible( cycle_list_prop, ( (next_scene_value == "Source List" or next_scene_value == "Scene List") and timer_mode_value == 2 and config_value == 2 and timer_options_value == 2 ) )
+	obs.obs_property_set_visible( active_source_prop, ( (next_scene_value == "Source List" or next_scene_value == "Scene List") and timer_mode_value == 2 and config_value == 2 and timer_options_value == 2 ) )
+	obs.obs_property_set_visible( as_visible_prop, ( (next_scene_value == "Source List" or next_scene_value == "Scene List") and timer_mode_value == 2 and config_value == 2 and timer_options_value == 2 ) )
+	obs.obs_property_set_visible( cycle_direction_prop, ( (next_scene_value == "Source List" or next_scene_value == "Scene List") and timer_mode_value == 2 and config_value == 2 and timer_options_value == 2 ) )
 	--[[
 	
 			WARNING & CAUTION INPUTS
@@ -3768,7 +3768,7 @@ local function property_onchange( props, property, settings )
 	obs.obs_property_set_visible( export_button_prop, backup_mode_value and config_value == 2 )
 	obs.obs_property_set_visible( import_button_prop, backup_mode_value and config_value == 2 )
 	obs.obs_property_set_visible( export_folder_prop, backup_mode_value and config_value == 2 )
-	obs.obs_property_set_visible( import_button_prop, import_list_value ~= 'select' and  import_list_value ~= '' and config_value == 2 )
+	obs.obs_property_set_visible( import_button_prop, import_list_value ~= "select" and  import_list_value ~= "" and config_value == 2 )
 	--[[
 	
 			OTHER INPUTS
@@ -3783,16 +3783,16 @@ local function property_onchange( props, property, settings )
 	
 	]]	
 	if ( in_table( {timer_source_value, split_source_value, active_source_value, note_source_marker_b_value}, note_source_marker_a_value ) ) then
-		obs.obs_data_set_string( settings, 'note_source_marker_a', 'select' ) -- Don't allow timer and marker_a note text source to be the same
+		obs.obs_data_set_string( settings, "note_source_marker_a", "select" ) -- Don"t allow timer and marker_a note text source to be the same
 	end 
 	if ( in_table( {timer_source_value, split_source_value, active_source_value, note_source_marker_a_value}, note_source_marker_b_value ) ) then
-		obs.obs_data_set_string( settings, 'note_source_marker_b', 'select' ) -- Don't allow timer and marker_b note text source to be the same
+		obs.obs_data_set_string( settings, "note_source_marker_b", "select" ) -- Don"t allow timer and marker_b note text source to be the same
 	end 	
 	if ( in_table( {timer_source_value, split_source_value, note_source_marker_a_value, note_source_marker_b_value}, active_source_value ) ) then
-		obs.obs_data_set_string( settings, 'active_source', 'select' ) -- Don't allow timer and active text source to be the same
+		obs.obs_data_set_string( settings, "active_source", "select" ) -- Don"t allow timer and active text source to be the same
 	end
 	if countdown_type_value == 1 and month_value ~= 1 and day_value == 0 then
-		obs.obs_data_set_int( settings, 'day', 1 ) -- set to at least 1, else the timer won't know it is at zero
+		obs.obs_data_set_int( settings, "day", 1 ) -- set to at least 1, else the timer won"t know it is at zero
 	end	
 	--[[
 		
@@ -3817,9 +3817,9 @@ local function property_onchange( props, property, settings )
 	
 	]]	
 	if show_mili then
-		obs.obs_property_set_description( mili_button_prop, 'Hide Milliseconds' )
+		obs.obs_property_set_description( mili_button_prop, "Hide Milliseconds" )
 	else
-		obs.obs_property_set_description( mili_button_prop, 'Show Milliseconds' )
+		obs.obs_property_set_description( mili_button_prop, "Show Milliseconds" )
 	end
 	--[[
 		
@@ -3835,7 +3835,7 @@ local function property_onchange( props, property, settings )
 	
 	]]
 	if timer_mode_value == 2 then
-		obs.obs_property_set_description( reset_button_prop, 'Reset Countdown' )
+		obs.obs_property_set_description( reset_button_prop, "Reset Countdown" )
 	else
 		--[[
 
@@ -3843,7 +3843,7 @@ local function property_onchange( props, property, settings )
 			Set button labels
 
 		]]
-		obs.obs_property_set_description( reset_button_prop, 'Reset Stopwatch' )	
+		obs.obs_property_set_description( reset_button_prop, "Reset Stopwatch" )	
 	end	
 	--[[
 
@@ -3852,15 +3852,15 @@ local function property_onchange( props, property, settings )
 	]]
 	if timer_mode_value == 2 then
 		if timer_active then
-			obs.obs_property_set_description( pause_button_prop, 'Start/Pause Countdown' )
+			obs.obs_property_set_description( pause_button_prop, "Start/Pause Countdown" )
 		else
-			obs.obs_property_set_description( pause_button_prop, 'Start Countdown' )
+			obs.obs_property_set_description( pause_button_prop, "Start Countdown" )
 		end
 	else
 		if timer_active then
-			obs.obs_property_set_description( pause_button_prop, 'Start/Pause Stopwatch' )
+			obs.obs_property_set_description( pause_button_prop, "Start/Pause Stopwatch" )
 		else
-			obs.obs_property_set_description( pause_button_prop, 'Start Stopwatch' )
+			obs.obs_property_set_description( pause_button_prop, "Start Stopwatch" )
 		end
 	end	
 	--[[
@@ -3868,11 +3868,11 @@ local function property_onchange( props, property, settings )
 		Rebuild backup file list
 
 	]]	
-	local filenames = get_filenames( backup_folder, '.json' )
+	local filenames = get_filenames( backup_folder, ".json" )
 	local has_file_list = ( table.getn( filenames ) > 0 )
 	if obs.os_file_exists( backup_folder ) then	
 		obs.obs_property_list_clear( import_list_prop )
-		obs.obs_property_list_add_string( import_list_prop, 'Select', 'select' )
+		obs.obs_property_list_add_string( import_list_prop, "Select", "select" )
 		if has_file_list then
 			for i,v in pairs( filenames ) do 
 				obs.obs_property_list_add_string( import_list_prop, v, v ) 
@@ -3904,7 +3904,7 @@ function timer_ended( source_name )
 	--[[
 		Timer expired and a scene change is requested.
 	]]	
-	if not in_table( {'TIMER END TEXT', 'Source List', 'Scene List', 'Select'}, next_scene ) then
+	if not in_table( {"TIMER END TEXT", "Source List", "Scene List", "Select"}, next_scene ) then
 		
 		
 		--[[
@@ -3958,9 +3958,9 @@ function timer_ended( source_name )
 		
 	end
 
-	if next_scene == 'Source List' then
+	if next_scene == "Source List" then
 		on_reset( true ) -- Reset the timer
-		cycle_list_activate( 'source' )
+		cycle_list_activate( "source" )
 		--[[
 			Set timer_active for it to self-start
 		]]		
@@ -3968,9 +3968,9 @@ function timer_ended( source_name )
 		on_pause( true ) -- Restart the timer
 	end	
 
-	if next_scene == 'Scene List' then
+	if next_scene == "Scene List" then
 		on_reset( true ) -- Reset the timer
-		cycle_list_activate( 'scene' )
+		cycle_list_activate( "scene" )
 		--[[
 			Set timer_active for it to self-start
 		]]		
@@ -3978,7 +3978,7 @@ function timer_ended( source_name )
 		on_pause( true ) -- Reset the timer
 	end	
 
-	if next_scene == 'TIMER END TEXT' then
+	if next_scene == "TIMER END TEXT" then
 		local text = stop_text
 		set_text( source_name, text )
 	end
@@ -4012,8 +4012,8 @@ function script_properties()
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]	 	
-	local p_1 = obs.obs_properties_add_list( props, 'timer_mode', '<b>Timer Type</b>', obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
-  	t_type = {'Stopwatch', 'Countdown'} -- Add options to the list
+	local p_1 = obs.obs_properties_add_list( props, "timer_mode", "<b>Timer Type</b>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
+  	t_type = {"Stopwatch", "Countdown"} -- Add options to the list
   	for i,v in ipairs( t_type ) do obs.obs_property_list_add_int( p_1, v, i ) end -- This list is auto indexed thus have an interger reference containing a string value
  	--[[
 		Option list: User select to access Basic or Advanced Features.
@@ -4022,8 +4022,8 @@ function script_properties()
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]
-	local p_2 = obs.obs_properties_add_list( props, 'config', '<font color='.. font_dimmed ..'>Configuration</font>', obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
-  	t_type = {'Basic', 'Advanced'} -- Adds options to the list
+	local p_2 = obs.obs_properties_add_list( props, "config", "<font color=".. font_dimmed ..">Configuration</font>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
+  	t_type = {"Basic", "Advanced"} -- Adds options to the list
   	for i,v in ipairs( t_type ) do obs.obs_property_list_add_int( p_2, v, i ) end -- This list is auto indexed thus have an interger reference containing a string value
  	--[[
 		Option list: User select to access show or hide available features.
@@ -4032,10 +4032,10 @@ function script_properties()
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]	
-	local p_3 = obs.obs_properties_add_list( props, 'timer_options', '<font color='.. font_dimmed ..'><b>Timer Settings</b></font>', obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
-	 t_type = {'Hidden', 'Expanded'} -- Add options to the list
+	local p_3 = obs.obs_properties_add_list( props, "timer_options", "<font color=".. font_dimmed .."><b>Timer Settings</b></font>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
+	 t_type = {"Hidden", "Expanded"} -- Add options to the list
   	for i,v in ipairs( t_type ) do obs.obs_property_list_add_int( p_3, v, i ) end -- This list is auto indexed thus have an interger reference containing a string value
-	obs.obs_property_set_long_description( p_3, '\nExpand or hide additional timer options.\n' ) -- User Tip
+	obs.obs_property_set_long_description( p_3, "\nExpand or hide additional timer options.\n" ) -- User Tip
 	--[[
 		Returns an array of reference-incremented sources. 
 		Release with source_list_release().
@@ -4046,19 +4046,19 @@ function script_properties()
 		This provides function options that will impact on visual feedback to the user.
 		Changing this setting will impact on the function or end result. 
 	]]		
-	local p_4 = obs.obs_properties_add_list( props, 'timer_source', '<i>Timer Source</i>', obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
-	obs.obs_property_list_add_string( p_4, 'Select', 'select' ) -- Adds a default option to the list. First (top-most) list item. If selected the option is ignored. 
+	local p_4 = obs.obs_properties_add_list( props, "timer_source", "<i>Timer Source</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
+	obs.obs_property_list_add_string( p_4, "Select", "select" ) -- Adds a default option to the list. First (top-most) list item. If selected the option is ignored. 
 	local list = {} -- Define a table variable to be used to build lists that will be passed to the property list
 	if sources ~= nil then
 		for _, source in ipairs( sources ) do -- ipairs cycles auto incrimented items
 			source_id = obs.obs_source_get_unversioned_id( source ) -- unversioned_id will not be affected by language settings
-			if source_id == 'text_gdiplus' or source_id == 'text_ft2_source' then -- identify text type sources only
+			if source_id == "text_gdiplus" or source_id == "text_ft2_source" then -- identify text type sources only
 				local name = obs.obs_source_get_name( source ) -- Get the source name, this will be a unique identifier 
 				--[[
 					boolean check, is the source (name) already selected for another item? 
 					This will help to limit conflicts to prevent using a single source for two sperate functions
 				]]
-				if not in_table( {split_source, active_source, media['note_source_marker_a'], media['note_source_marker_b']}, name ) then -- boolean check
+				if not in_table( {split_source, active_source, media["note_source_marker_a"], media["note_source_marker_b"]}, name ) then -- boolean check
 					--[[
 						add it to the (temp) table (list)
 					]]		
@@ -4091,19 +4091,19 @@ function script_properties()
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]	
-	local p_5 = obs.obs_properties_add_list( props, 'countdown_type', '<font color='.. font_dimmed ..'>Countdown Type</font>', obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
-  	t_type = {'Specific Date & Time', 'Hours, Minutes, Seconds'} -- Add options to the list
+	local p_5 = obs.obs_properties_add_list( props, "countdown_type", "<font color=".. font_dimmed ..">Countdown Type</font>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
+  	t_type = {"Specific Date & Time", "Hours, Minutes, Seconds"} -- Add options to the list
   	for i,v in ipairs( t_type ) do obs.obs_property_list_add_int( p_5, v, i ) end -- This list is auto indexed thus have an interger reference containing a string value
 	--[[
 		 Text Field
 	]]	
-	local p_6 = obs.obs_properties_add_text( props, 'day_text', '<font color='.. font_dimmed ..'>Day Text Format</font>', obs.OBS_TEXT_DEFAULT )
-	obs.obs_property_set_long_description( p_6, '\nUsed to distinguish between singular and plural days format. Use this for singular.\n' ) -- User Tip
+	local p_6 = obs.obs_properties_add_text( props, "day_text", "<font color=".. font_dimmed ..">Day Text Format</font>", obs.OBS_TEXT_DEFAULT )
+	obs.obs_property_set_long_description( p_6, "\nUsed to distinguish between singular and plural days format. Use this for singular.\n" ) -- User Tip
 	--[[
 		 Text Field
 	]]	
-	local p_7 = obs.obs_properties_add_text( props, 'days_text', '<font color='.. font_dimmed ..'>Days Text Format</font>', obs.OBS_TEXT_DEFAULT )
-	obs.obs_property_set_long_description( p_7, '\nUsed to distinguish between singular and plural days format. Use this for plural.\n' ) -- User Tip
+	local p_7 = obs.obs_properties_add_text( props, "days_text", "<font color=".. font_dimmed ..">Days Text Format</font>", obs.OBS_TEXT_DEFAULT )
+	obs.obs_property_set_long_description( p_7, "\nUsed to distinguish between singular and plural days format. Use this for plural.\n" ) -- User Tip
   	 	--[[
 		Option list: User select month reference to be used as control to set a timer for a future date.
 		This provides function options that will impact on function and operation of the timer.
@@ -4111,34 +4111,34 @@ function script_properties()
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]	
-	local p_8 = obs.obs_properties_add_list( props, 'month', '<font color='.. font_dimmed ..'>Month</font>', obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
-  	t_type = {'Select', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'} -- Add options to the list
+	local p_8 = obs.obs_properties_add_list( props, "month", "<font color=".. font_dimmed ..">Month</font>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
+  	t_type = {"Select", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"} -- Add options to the list
   	for i,v in ipairs( t_type ) do obs.obs_property_list_add_int( p_8, v, i ) end -- This list is auto indexed thus have an interger reference containing a string value
 	--[[
 		 Inerger Field
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]	
-	local p_9 = obs.obs_properties_add_int( props, 'year', '<font color='.. font_dimmed ..'>Year</font>', 2022, 212021221, 1 )
+	local p_9 = obs.obs_properties_add_int( props, "year", "<font color=".. font_dimmed ..">Year</font>", 2022, 212021221, 1 )
  	--[[
 		 Inerger Field
 	]]	 	
-	local p_10 = obs.obs_properties_add_int( props, 'day', '<font color='.. font_dimmed ..'>Day</font>', 1, 31, 1 )
+	local p_10 = obs.obs_properties_add_int( props, "day", "<font color=".. font_dimmed ..">Day</font>", 1, 31, 1 )
 	--[[
 		 Inerger Field
 	]]		
-	local p_11 = obs.obs_properties_add_int( props, 'hours', '<font color='.. font_dimmed ..'>Hours</font>', 0, 23, 1 )
-	obs.obs_property_int_set_suffix( p_11, ' Hours' )
+	local p_11 = obs.obs_properties_add_int( props, "hours", "<font color=".. font_dimmed ..">Hours</font>", 0, 23, 1 )
+	obs.obs_property_int_set_suffix( p_11, " Hours" )
 	--[[
 		 Inerger Field
 	]]		
-	local p_12 = obs.obs_properties_add_int( props, 'minutes', '<font color='.. font_dimmed ..'>Minutes</font>', 0, 59, 1 )
-	obs.obs_property_int_set_suffix( p_12, ' Minutes' );
+	local p_12 = obs.obs_properties_add_int( props, "minutes", "<font color=".. font_dimmed ..">Minutes</font>", 0, 59, 1 )
+	obs.obs_property_int_set_suffix( p_12, " Minutes" );
 	--[[
 		 Inerger Field
 	]]		
-	local p_13 = obs.obs_properties_add_int( props, 'seconds', '<font color='.. font_dimmed ..'>Seconds</font>', 0, 59, 1 )
-	obs.obs_property_int_set_suffix( p_13, ' Seconds' );
+	local p_13 = obs.obs_properties_add_int( props, "seconds", "<font color=".. font_dimmed ..">Seconds</font>", 0, 59, 1 )
+	obs.obs_property_int_set_suffix( p_13, " Seconds" );
   	 	--[[
 		Option list: User select a reference to be used as control format the timer timestamp.
 		This provides function options that will impact on visual feedback and does not impact any function and operation of the timer.
@@ -4146,23 +4146,23 @@ function script_properties()
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]		
-	local p_14 = obs.obs_properties_add_list( props, 'timer_format', 'Timer Format', obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
-	t_type = {'Display full format', 'No leading zeros', 'No leading zeros, no split seconds', 'No split seconds', 'Custom Time Format'} -- Add options to the list
+	local p_14 = obs.obs_properties_add_list( props, "timer_format", "Timer Format", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
+	t_type = {"Display full format", "No leading zeros", "No leading zeros, no split seconds", "No split seconds", "Custom Time Format"} -- Add options to the list
 	for i,v in ipairs( t_type ) do obs.obs_property_list_add_int( p_14, v, i ) end -- This list is auto indexed thus have an interger reference containing a string value
 	--[[
 		 Text Field
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]	
-	local p_15 = obs.obs_properties_add_text( props, 'custom_time_format', '<font color='.. font_dimmed ..'>Time Format</font>', obs.OBS_TEXT_DEFAULT )
-	obs.obs_property_set_long_description( p_15, '\n Timestamp is represented by $D = day, $H = hour, $M = minute, $S = second, $F = split second.\n\n To trim leading zeros, include $T = truncate leading zeros. This will ONLY affect a format matching "$D:$H:$M:$S,$F" (00:00:00:00,00)\n' ) -- User Tip
+	local p_15 = obs.obs_properties_add_text( props, "custom_time_format", "<font color=".. font_dimmed ..">Time Format</font>", obs.OBS_TEXT_DEFAULT )
+	obs.obs_property_set_long_description( p_15, "\n Timestamp is represented by $D = day, $H = hour, $M = minute, $S = second, $F = split second.\n\n To trim leading zeros, include $T = truncate leading zeros. This will ONLY affect a format matching '$D:$H:$M:$S,$F' (00:00:00:00,00)\n" ) -- User Tip
 	--[[
 		 Text Field
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]	
-	local p_16 = obs.obs_properties_add_text( props, 'toggle_mili_trigger', '<font color='.. font_dimmed ..'>Toggle Milliseconds</font>', obs.OBS_TEXT_DEFAULT )
-	obs.obs_property_set_long_description( p_16, '\nUse format 00:00:00 ( hoursa:minutes:seconds )\n' ) -- User Tip
+	local p_16 = obs.obs_properties_add_text( props, "toggle_mili_trigger", "<font color=".. font_dimmed ..">Toggle Milliseconds</font>", obs.OBS_TEXT_DEFAULT )
+	obs.obs_property_set_long_description( p_16, "\nUse format 00:00:00 ( hoursa:minutes:seconds )\n" ) -- User Tip
  	--[[
 		Option list: User select a reference to be used as control to show or hide the time stamp when the timer expire.
 		This provides function options that will impact visual feedback but will not impact operation and behaviour.
@@ -4170,24 +4170,24 @@ function script_properties()
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]		
-	local p_17 = obs.obs_properties_add_list( props, 'timer_display', 'Display', obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
-  	t_type = {'Show expired time stamp', 'Remove expired time stamp'} -- Add options to the list
+	local p_17 = obs.obs_properties_add_list( props, "timer_display", "Display", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
+  	t_type = {"Show expired time stamp", "Remove expired time stamp"} -- Add options to the list
   	for i,v in ipairs( t_type ) do obs.obs_property_list_add_int( p_17, v, i ) end -- This list is auto indexed thus have an interger reference containing a string value
  	--[[
 		Option list: User select <text-source> to be used as visual feedback indicating a snip of the time stamp.
 		This provides function options that will impact on visual feedback to the user.
 		Changing this setting will not impact on the function or end result. 
 	]]
-	local p_18 = obs.obs_properties_add_list( props, 'split_source', '<i>Split Source</i>', obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
-	obs.obs_property_list_add_string( p_18, 'Select', 'select' )  -- Adds a default option to the list. First (top-most) list item. If selected the option is ignored. 
+	local p_18 = obs.obs_properties_add_list( props, "split_source", "<i>Split Source</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
+	obs.obs_property_list_add_string( p_18, "Select", "select" )  -- Adds a default option to the list. First (top-most) list item. If selected the option is ignored. 
 	list = {} -- Reset / clear a defined table variable to be used to build lists that will be passed to the property list
 	if sources ~= nil then
 		for _, source in ipairs( sources ) do
 			source_id = obs.obs_source_get_unversioned_id( source ) -- unversioned_id will not be affected by language settings
-			if source_id == 'text_gdiplus' or source_id == 'text_ft2_source' then -- identify text type sources only
+			if source_id == "text_gdiplus" or source_id == "text_ft2_source" then -- identify text type sources only
 				local name = obs.obs_source_get_name( source )
 			
-				if not in_table( {timer_source, active_source, media['note_source_marker_a'], media['note_source_marker_b']}, name ) then
+				if not in_table( {timer_source, active_source, media["note_source_marker_a"], media["note_source_marker_b"]}, name ) then
 					--[[
 						add it to list so that it can be reordered
 					]]		
@@ -4214,10 +4214,10 @@ function script_properties()
 		end
 	end	
   	
-	local p_19 = obs.obs_properties_add_list( props, 'split_type', 'Split Type', obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
-  	t_type = {'Interval', 'Mark', 'Mark Interval', 'Interval Mark'} -- Add options to the list
+	local p_19 = obs.obs_properties_add_list( props, "split_type", "Split Type", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
+  	t_type = {"Interval", "Mark", "Mark Interval", "Interval Mark"} -- Add options to the list
   	for i,v in ipairs( t_type ) do obs.obs_property_list_add_int( p_19, v, i ) end -- This list is auto indexed thus have an interger reference containing a string value
-	obs.obs_property_set_long_description( p_19, '\nInterval = Time between current and previous split.\n\nMark = Time of split\n' ) -- User Tip
+	obs.obs_property_set_long_description( p_19, "\nInterval = Time between current and previous split.\n\nMark = Time of split\n" ) -- User Tip
 	--[[
 		Option list: User select to show or hide available features.
 		This provides UI layout options to enhance the user experience.
@@ -4225,32 +4225,32 @@ function script_properties()
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]	
-	local p_20 = obs.obs_properties_add_list( props, 'trigger_options', '<font color='.. font_dimmed ..'><b>Marker Settings</b></font>', obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
-	 t_type = {'Hidden', 'Expanded'} -- Add options to the list
+	local p_20 = obs.obs_properties_add_list( props, "trigger_options", "<font color=".. font_dimmed .."><b>Marker Settings</b></font>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
+	 t_type = {"Hidden", "Expanded"} -- Add options to the list
   	for i,v in ipairs( t_type ) do obs.obs_property_list_add_int( p_20, v, i ) end -- This list is auto indexed thus have an interger reference containing a string value
-	obs.obs_property_set_long_description( p_20, '\nExpand or hide additional options triggered by time stamps.\n' ) -- User Tip
+	obs.obs_property_set_long_description( p_20, "\nExpand or hide additional options triggered by time stamps.\n" ) -- User Tip
 	--[[
 		 Text Field
 	]]	
-	local p_21 = obs.obs_properties_add_text( props, 'text_marker_a', '<font color='.. font_dimmed ..'>Marker A Time</font>', obs.OBS_TEXT_DEFAULT )
-	obs.obs_property_set_long_description( p_21, '\nUse format 00:00:00 ( hoursa:minutes:seconds )\n' ) -- User Tip
+	local p_21 = obs.obs_properties_add_text( props, "text_marker_a", "<font color=".. font_dimmed ..">Marker A Time</font>", obs.OBS_TEXT_DEFAULT )
+	obs.obs_property_set_long_description( p_21, "\nUse format 00:00:00 ( hoursa:minutes:seconds )\n" ) -- User Tip
 	--[[
 		 Text Field
 	]]	
-	local p_22 = obs.obs_properties_add_text( props, 'text_marker_b', '<font color='.. font_dimmed ..'>Marker B Time</font>', obs.OBS_TEXT_DEFAULT )
-	obs.obs_property_set_long_description( p_22, '\nUse format 00:00:00 ( hoursa:minutes:seconds )\n' ) -- User Tip
+	local p_22 = obs.obs_properties_add_text( props, "text_marker_b", "<font color=".. font_dimmed ..">Marker B Time</font>", obs.OBS_TEXT_DEFAULT )
+	obs.obs_property_set_long_description( p_22, "\nUse format 00:00:00 ( hoursa:minutes:seconds )\n" ) -- User Tip
   	 --[[
 		Option list: User select <media-source> to be used as audio visual at a defined time.
 		This provides function options that will impact on audio visual feedback to the user.
 		Changing this setting will impact on a function or end result. 
 	]]	
-	local p_23 = obs.obs_properties_add_list( props, 'audio_marker_a', '<font color='.. font_dimmed ..'>Marker A Audio</font>', obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
-	obs.obs_property_set_long_description( p_23, '\nSelect available media source to activate on defined time stamp.\n' ) -- User Tip
-	obs.obs_property_list_add_string( p_23, 'None', 'none' ) -- Add options to the list
+	local p_23 = obs.obs_properties_add_list( props, "audio_marker_a", "<font color=".. font_dimmed ..">Marker A Audio</font>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
+	obs.obs_property_set_long_description( p_23, "\nSelect available media source to activate on defined time stamp.\n" ) -- User Tip
+	obs.obs_property_list_add_string( p_23, "None", "none" ) -- Add options to the list
 	if sources ~= nil then
 		for _, source in ipairs( sources ) do
 			source_id = obs.obs_source_get_unversioned_id( source ) -- unversioned_id will not be affected by language settings
-			if source_id == 'ffmpeg_source' then -- identify media type sources only
+			if source_id == "ffmpeg_source" then -- identify media type sources only
 				local name = obs.obs_source_get_name( source )
 				obs.obs_property_list_add_string( p_23, name, name )
 			end
@@ -4262,13 +4262,13 @@ function script_properties()
 		This provides function options that will impact on audio visual feedback to the user.
 		Changing this setting will impact on a function or end result. 
 	]]	
-	local p_24 = obs.obs_properties_add_list( props, 'audio_marker_b', '<font color='.. font_dimmed ..'>Marker B Audio</font>', obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
-	obs.obs_property_set_long_description( p_24, '\nSelect available media source to activate on defined time stamp.\n' ) -- User Tip
-	obs.obs_property_list_add_string( p_24, 'None', 'none' ) -- Add options to the list
+	local p_24 = obs.obs_properties_add_list( props, "audio_marker_b", "<font color=".. font_dimmed ..">Marker B Audio</font>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
+	obs.obs_property_set_long_description( p_24, "\nSelect available media source to activate on defined time stamp.\n" ) -- User Tip
+	obs.obs_property_list_add_string( p_24, "None", "none" ) -- Add options to the list
 	if sources ~= nil then
 		for _, source in ipairs( sources ) do
 			source_id = obs.obs_source_get_unversioned_id( source ) -- unversioned_id will not be affected by language settings
-			if source_id == 'ffmpeg_source' then -- identify media type sources only
+			if source_id == "ffmpeg_source" then -- identify media type sources only
 				local name = obs.obs_source_get_name( source )
 				obs.obs_property_list_add_string( p_24, name, name )
 			end
@@ -4282,17 +4282,17 @@ function script_properties()
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]		
-	local p_25 = obs.obs_properties_add_list( props, 'media_playback_limit', '<i>Media Playback Limit</i>', obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
-	 t_type = {'Disabled', 'Enabled'} -- Add options to the list
+	local p_25 = obs.obs_properties_add_list( props, "media_playback_limit", "<i>Media Playback Limit</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
+	 t_type = {"Disabled", "Enabled"} -- Add options to the list
   	for i,v in ipairs( t_type ) do obs.obs_property_list_add_int( p_25, v, i ) end -- This list is auto indexed thus have an interger reference containing a string value
-	obs.obs_property_set_long_description( p_25, '\nSet a maximum time limit for media playback.\n' ) -- User Tip
+	obs.obs_property_set_long_description( p_25, "\nSet a maximum time limit for media playback.\n" ) -- User Tip
 	
 	--*props, *name, *description, min, max, step
-	obs.obs_properties_add_int_slider( props, 'duration_marker_a', 'Marker A Duration', 1, 10800, 1 )
-	obs.obs_properties_add_int_slider( props, 'duration_marker_b', 'Marker B Duration', 1, 10800, 1 )
-	obs.obs_properties_add_color( props, 'color_normal', 'Normal Color' )
-	obs.obs_properties_add_color( props, 'color_marker_a', 'Marker A Color' )
-	obs.obs_properties_add_color( props, 'color_marker_b', 'Marker B Color' )
+	obs.obs_properties_add_int_slider( props, "duration_marker_a", "Marker A Duration", 1, 10800, 1 )
+	obs.obs_properties_add_int_slider( props, "duration_marker_b", "Marker B Duration", 1, 10800, 1 )
+	obs.obs_properties_add_color( props, "color_normal", "Normal Color" )
+	obs.obs_properties_add_color( props, "color_marker_a", "Marker A Color" )
+	obs.obs_properties_add_color( props, "color_marker_b", "Marker B Color" )
   	 --[[
 		Option list: User select a reference to be used as control to enable text notice for the two time triggers.
 		This provides UI layout options to expand feature options.
@@ -4300,24 +4300,24 @@ function script_properties()
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]	
-	local p_26 = obs.obs_properties_add_list( props, 'enable_marker_notes', '<i>Trigger Text</i>', obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
-	 t_type = {'Disabled', 'Enabled'} -- Add options to the list
+	local p_26 = obs.obs_properties_add_list( props, "enable_marker_notes", "<i>Trigger Text</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
+	 t_type = {"Disabled", "Enabled"} -- Add options to the list
   	for i,v in ipairs( t_type ) do obs.obs_property_list_add_int( p_26, v, i ) end -- This list is auto indexed thus have an interger reference containing a string value
-	obs.obs_property_set_long_description( p_26, '\nAllows a note to be displayed when the timer match Marker A and Marker B timestamps.\n' ) -- User Tip
+	obs.obs_property_set_long_description( p_26, "\nAllows a note to be displayed when the timer match Marker A and Marker B timestamps.\n" ) -- User Tip
 	 --[[
 		Option list: User select <text-source> to be used as visual feedback indicating a message at a determined time of the timer.
 		This provides function options that will impact on visual feedback to the user.
 		Changing this setting will not impact on the function or end result. 
 	]]
-	local p_27 = obs.obs_properties_add_list( props, 'note_source_marker_a', '<i>Marker A Note Source</i>', obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
-	obs.obs_property_list_add_string( p_27, 'Select', 'select' )  -- Adds a default option to the list. First (top-most) list item. If selected the option is ignored. 
+	local p_27 = obs.obs_properties_add_list( props, "note_source_marker_a", "<i>Marker A Note Source</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
+	obs.obs_property_list_add_string( p_27, "Select", "select" )  -- Adds a default option to the list. First (top-most) list item. If selected the option is ignored. 
 	list = {} -- Reset / clear a defined table variable to be used to build lists that will be passed to the property list
 	if sources ~= nil then
 		for _, source in ipairs( sources ) do
 			source_id = obs.obs_source_get_unversioned_id( source ) -- unversioned_id will not be affected by language settings
-			if source_id == 'text_gdiplus' or source_id == 'text_ft2_source' then -- identify text type sources only
+			if source_id == "text_gdiplus" or source_id == "text_ft2_source" then -- identify text type sources only
 				local name = obs.obs_source_get_name( source )
-				if not in_table( {timer_source, split_source, active_source, media['note_source_marker_b']}, name ) then
+				if not in_table( {timer_source, split_source, active_source, media["note_source_marker_b"]}, name ) then
 					--[[
 						add it to list so that it can be reordered
 					]]		
@@ -4348,15 +4348,15 @@ function script_properties()
 		This provides function options that will impact on visual feedback to the user.
 		Changing this setting will not impact on the function or end result. 
 	]]	
-	local p_28 = obs.obs_properties_add_list( props, 'note_source_marker_b', '<i>Marker B Note Source</i>', obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
-	obs.obs_property_list_add_string( p_28, 'Select', 'select' )  -- Adds a default option to the list. First (top-most) list item. If selected the option is ignored. 
+	local p_28 = obs.obs_properties_add_list( props, "note_source_marker_b", "<i>Marker B Note Source</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
+	obs.obs_property_list_add_string( p_28, "Select", "select" )  -- Adds a default option to the list. First (top-most) list item. If selected the option is ignored. 
 	list = {} -- Reset / clear a defined table variable to be used to build lists that will be passed to the property list
 	if sources ~= nil then
 		for _, source in ipairs( sources ) do
 			source_id = obs.obs_source_get_unversioned_id( source ) -- unversioned_id will not be affected by language settings
-			if source_id == 'text_gdiplus' or source_id == 'text_ft2_source' then -- identify text type sources only
+			if source_id == "text_gdiplus" or source_id == "text_ft2_source" then -- identify text type sources only
 				local name = obs.obs_source_get_name( source )
-				if not in_table( {timer_source, split_source, active_source, media['note_source_marker_a']}, name ) then
+				if not in_table( {timer_source, split_source, active_source, media["note_source_marker_a"]}, name ) then
 					--[[
 						add it to list so that it can be reordered
 					]]		
@@ -4385,13 +4385,13 @@ function script_properties()
 	--[[
 		 Text Field
 	]]	
-	local p_29 = obs.obs_properties_add_text( props, 'note_marker_a', '<font color='.. font_dimmed ..'>Marker A Note</font>', obs.OBS_TEXT_DEFAULT )
-	obs.obs_property_set_long_description( p_29, '\nDisplay a note when Marker A is Activated.\n' ) -- User Tip
+	local p_29 = obs.obs_properties_add_text( props, "note_marker_a", "<font color=".. font_dimmed ..">Marker A Note</font>", obs.OBS_TEXT_DEFAULT )
+	obs.obs_property_set_long_description( p_29, "\nDisplay a note when Marker A is Activated.\n" ) -- User Tip
 	--[[
 		 Text Field
 	]]	
-	local p_30 = obs.obs_properties_add_text( props, 'note_marker_b', '<font color='.. font_dimmed ..'>Marker B Note</font>', obs.OBS_TEXT_DEFAULT )
-	obs.obs_property_set_long_description( p_30, '\nDisplay a note when Marker B is Activated.\n' ) -- User Tip
+	local p_30 = obs.obs_properties_add_text( props, "note_marker_b", "<font color=".. font_dimmed ..">Marker B Note</font>", obs.OBS_TEXT_DEFAULT )
+	obs.obs_property_set_long_description( p_30, "\nDisplay a note when Marker B is Activated.\n" ) -- User Tip
 	--[[
 		Option list: User select a reference to be used as control to enable an auto start recording feature.
 		This provides function options to change a function behaviour.
@@ -4399,39 +4399,39 @@ function script_properties()
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]
-	local p_31 = obs.obs_properties_add_list( props, 'start_recording', 'Auto Recording', obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
-	obs.obs_property_set_long_description( p_31, '\nEnable recording options\n' ) -- User Tip
-	t_type = {'Yes', 'No'} -- Add options to the list
+	local p_31 = obs.obs_properties_add_list( props, "start_recording", "Auto Recording", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
+	obs.obs_property_set_long_description( p_31, "\nEnable recording options\n" ) -- User Tip
+	t_type = {"Yes", "No"} -- Add options to the list
 	for i,v in ipairs( t_type ) do obs.obs_property_list_add_int( p_31, v, i ) end -- This list is auto indexed thus have an interger reference containing a string value
 	-- Combo list filled with the options from _type
   	
-	local p_32 = obs.obs_properties_add_list( props, 'recording_type', 'Recording', obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
-	obs.obs_property_set_long_description( p_32, '\nSelect whne to start recording\n' ) -- User Tip
-  	t_type = {'Timer Expires', 'Marker A Time', 'Marker B Time', 'Timer Visible', 'Timer Start'} -- Add options to the list
+	local p_32 = obs.obs_properties_add_list( props, "recording_type", "Recording", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
+	obs.obs_property_set_long_description( p_32, "\nSelect whne to start recording\n" ) -- User Tip
+  	t_type = {"Timer Expires", "Marker A Time", "Marker B Time", "Timer Visible", "Timer Start"} -- Add options to the list
   	for i,v in ipairs( t_type ) do obs.obs_property_list_add_int( p_32, v, i ) end -- This list is auto indexed thus have an interger reference containing a string value	
 	--[[
 		 Text Field
 	]]
-	local p_33 = obs.obs_properties_add_text( props, 'text_prefix', '<font color=#fefceb>Timer Prefix</font>', obs.OBS_TEXT_DEFAULT )
-	obs.obs_property_set_long_description( p_33, '\nDefine text placed before the Timer\n' ) -- User Tip
+	local p_33 = obs.obs_properties_add_text( props, "text_prefix", "<font color=#fefceb>Timer Prefix</font>", obs.OBS_TEXT_DEFAULT )
+	obs.obs_property_set_long_description( p_33, "\nDefine text placed before the Timer\n" ) -- User Tip
 	--[[
 		 Text Field
 	]]
-	local p_34 = obs.obs_properties_add_text( props, 'text_suffix', '<font color=#fefceb>Timer Suffix</font>', obs.OBS_TEXT_DEFAULT )
-	obs.obs_property_set_long_description( p_34, '\nDefine text placed after the Timer\n' ) -- User Tip
+	local p_34 = obs.obs_properties_add_text( props, "text_suffix", "<font color=#fefceb>Timer Suffix</font>", obs.OBS_TEXT_DEFAULT )
+	obs.obs_property_set_long_description( p_34, "\nDefine text placed after the Timer\n" ) -- User Tip
   	--[[
 		Option list: User select <text-source> to be used as visual feedback indicating a source name that is targeted.
 		This provides function options that will impact on visual feedback to the user.
 		Changing this setting will impact on the function or end result. 
 	]]	  	
-	local p_35 = obs.obs_properties_add_list( props, 'active_source', '<i>Active Source</i>', obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
-	obs.obs_property_set_long_description( p_35, '\nSelect a text source, that will be used to show the name for the current active Source or Scene\n' ) -- User Tip
-	obs.obs_property_list_add_string( p_35, 'Select', 'select' )  -- Adds a default option to the list. First (top-most) list item. If selected the option is ignored. 
+	local p_35 = obs.obs_properties_add_list( props, "active_source", "<i>Active Source</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
+	obs.obs_property_set_long_description( p_35, "\nSelect a text source, that will be used to show the name for the current active Source or Scene\n" ) -- User Tip
+	obs.obs_property_list_add_string( p_35, "Select", "select" )  -- Adds a default option to the list. First (top-most) list item. If selected the option is ignored. 
 	list = {} -- Reset / clear a defined table variable to be used to build lists that will be passed to the property list
 	if sources ~= nil then
 		for _, source in ipairs( sources ) do
 			source_id = obs.obs_source_get_unversioned_id( source ) -- unversioned_id will not be affected by language settings
-			if source_id == 'text_gdiplus' or source_id == 'text_ft2_source' then -- identify text type sources only
+			if source_id == "text_gdiplus" or source_id == "text_ft2_source" then -- identify text type sources only
 				local name = obs.obs_source_get_name( source )
 				if name ~= timer_source then
 					--[[
@@ -4467,9 +4467,9 @@ function script_properties()
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]	
-	local p_36 = obs.obs_properties_add_list( props, 'next_scene', '<i>Next Scene</i>', obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
-	obs.obs_property_set_long_description( p_36, '\nDefine what happens afater timer ends\n' ) -- User Tip
-	t_type = {'Select', 'TIMER END TEXT', 'Source List', 'Scene List'} -- Add options to the list
+	local p_36 = obs.obs_properties_add_list( props, "next_scene", "<i>Next Scene</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
+	obs.obs_property_set_long_description( p_36, "\nDefine what happens afater timer ends\n" ) -- User Tip
+	t_type = {"Select", "TIMER END TEXT", "Source List", "Scene List"} -- Add options to the list
 	for i,v in ipairs( t_type ) do 
 	obs.obs_property_list_add_string( p_36, v, v ) -- Add options to the list 
 	end
@@ -4488,54 +4488,54 @@ function script_properties()
 	--[[
 		 Text Field
 	]]
-	local p_37 = obs.obs_properties_add_text( props, 'stop_text', '<font color=#fef1eb>Timer End Text</font>', obs.OBS_TEXT_DEFAULT )
-	obs.obs_property_set_long_description( p_37, '\nDefine text displayed when timer ended\n' ) -- User Tip
+	local p_37 = obs.obs_properties_add_text( props, "stop_text", "<font color=#fef1eb>Timer End Text</font>", obs.OBS_TEXT_DEFAULT )
+	obs.obs_property_set_long_description( p_37, "\nDefine text displayed when timer ended\n" ) -- User Tip
 	 --[[
 		Editable Option list: User adds a text name as an entry used as a reference to be used as inditification of a source.
 		This provides function options to change feature behaviour.
 		Changing this setting will impact on feature options and behaviour. 
 	]]	
-	local p_38 = obs.obs_properties_add_editable_list( props, 'cycle_list', 'Cycle List', obs.OBS_EDITABLE_LIST_TYPE_STRINGS, nil, nil )
+	local p_38 = obs.obs_properties_add_editable_list( props, "cycle_list", "Cycle List", obs.OBS_EDITABLE_LIST_TYPE_STRINGS, nil, nil )
 	
 	 --[[
 		Option list: User select a reference to be used as control to determine a cycling direction.
 		This provides function options to change feature behaviour.
 		Changing this setting will impact on feature options. 
 	]]
-	local p_39 = obs.obs_properties_add_list( props, 'cycle_direction', '<i>Cycle Direction</i>', obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
-	 t_type = {'Ascending', 'Descending'} -- Add options to the list
+	local p_39 = obs.obs_properties_add_list( props, "cycle_direction", "<i>Cycle Direction</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
+	 t_type = {"Ascending", "Descending"} -- Add options to the list
   	for i,v in ipairs( t_type ) do obs.obs_property_list_add_int( p_39, v, i ) end -- This list is auto indexed thus have an interger reference containing a string value
-	obs.obs_property_set_long_description( p_39, '\nSelect the rotation direction of lists.\n' ) -- User Tip
+	obs.obs_property_set_long_description( p_39, "\nSelect the rotation direction of lists.\n" ) -- User Tip
 	 --[[
 		Wrap and group properties together.
 		Thise group provides options to the user to define a custom time value used as a start point for a stopwatch to continue from
 	]]		
 	local group_props_1 = obs.obs_properties_create()
-	obs.obs_properties_add_group( props, '_group_1', 'Stopwatch Start Point', obs.OBS_GROUP_NORMAL, group_props_1 )
-	local p_40 = obs.obs_properties_add_int( group_props_1, 'sw_hours_saved', 'HH', 0, 23, 1)
-	local p_41 = obs.obs_properties_add_int( group_props_1, 'sw_minutes_saved', 'MM', 0, 59, 1)
-	local p_42 = obs.obs_properties_add_int( group_props_1, 'sw_seconds_saved', 'SS', 0, 59, 1)
-	local p_43 = obs.obs_properties_add_int( group_props_1, 'sw_milliseconds_saved', 'FF', 0, 99, 1)
-	local p_44 = obs.obs_properties_add_bool( group_props_1, 'load_saved_time', 'Load last saved time on startup' )
-	local p_45 = obs.obs_properties_add_button( group_props_1, 'sw_button', 'Set', sw_saved_button_clicked )
+	obs.obs_properties_add_group( props, "_group_1", "Stopwatch Start Point", obs.OBS_GROUP_NORMAL, group_props_1 )
+	local p_40 = obs.obs_properties_add_int( group_props_1, "sw_hours_saved", "HH", 0, 23, 1)
+	local p_41 = obs.obs_properties_add_int( group_props_1, "sw_minutes_saved", "MM", 0, 59, 1)
+	local p_42 = obs.obs_properties_add_int( group_props_1, "sw_seconds_saved", "SS", 0, 59, 1)
+	local p_43 = obs.obs_properties_add_int( group_props_1, "sw_milliseconds_saved", "FF", 0, 99, 1)
+	local p_44 = obs.obs_properties_add_bool( group_props_1, "load_saved_time", "Load last saved time on startup" )
+	local p_45 = obs.obs_properties_add_button( group_props_1, "sw_button", "Set", sw_saved_button_clicked )
 	--[[
 		Hidden Value
 		We save last count in the properties for when OBS shuts down and starts again
 	]]
-	local p_46 = obs.obs_properties_add_float( group_props_1, 'sw_current_seconds', 'Saved Seconds', 0, 3600000000, 0.1)
+	local p_46 = obs.obs_properties_add_float( group_props_1, "sw_current_seconds", "Saved Seconds", 0, 3600000000, 0.1)
 	obs.obs_property_set_visible( p_46 , false )
 	 --[[
 		Property Button: User interaction that will start, pause or stop a timer.
 		This provides function interaction to change feature behaviour.
 		Interacting with this property will impact on feature options and behaviour.
 	]]	
-	local p_47 = obs.obs_properties_add_button( props, 'pause_button', 'Start', pause_button_clicked )
+	local p_47 = obs.obs_properties_add_button( props, "pause_button", "Start", pause_button_clicked )
 	 --[[
 		Property Button: User interaction that will mark a timer timestamp.
 		This provides function interaction to change feature behaviour.
 		Interacting with this property will impact on feature options and behaviour. 
 	]]		
-	obs.obs_properties_add_button( props, 'split_button', 'Split Time', split_button_clicked )
+	obs.obs_properties_add_button( props, "split_button", "Split Time", split_button_clicked )
 	 --[[
 		Property Button: User interaction that will start, pause or stop a timer.
 		This provides function interaction to change feature behaviour.
@@ -4543,13 +4543,13 @@ function script_properties()
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]
-	local p_48 = obs.obs_properties_add_button( props, 'mili_button', 'Show Milliseconds', mili_button_clicked )
+	local p_48 = obs.obs_properties_add_button( props, "mili_button", "Show Milliseconds", mili_button_clicked )
 	 --[[
 		Property Button: User interaction that will reset a timer.
 		This provides function interaction to change feature behaviour.
 		Interacting with this property will impact on feature options and behaviour.
 	]]
-	local p_49 = obs.obs_properties_add_button( props, 'reset_button', 'Reset Stopwatch', reset_button_clicked )	
+	local p_49 = obs.obs_properties_add_button( props, "reset_button", "Reset Stopwatch", reset_button_clicked )	
 	 --[[
 		Property Checkbox: User interaction that enable setting a custom stopwatch start timestamp.
 		This provides function interaction to change feature behaviour.
@@ -4557,31 +4557,31 @@ function script_properties()
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]
-	local p_50 = obs.obs_properties_add_bool( props, 'set_stopwatch', 'Set Stopwatch' )	
+	local p_50 = obs.obs_properties_add_bool( props, "set_stopwatch", "Set Stopwatch" )	
 	 --[[
 		Property Checkbox: User interaction that will start timer if timer source becomes visible.
 		This provides function interaction to change feature behaviour.
 		Interacting with this property will impact on feature options and behaviour.
 	]]
-    obs.obs_properties_add_bool( props, 'start_on_visible', 'Start Timer on Source Visible' )
+    obs.obs_properties_add_bool( props, "start_on_visible", "Start Timer on Source Visible" )
 	 --[[
 		Property Checkbox: User interaction that will start timer if scene with timer source becomes active.
 		This provides function interaction to change feature behaviour.
 		Interacting with this property will impact on feature options and behaviour.
 	]]
-    obs.obs_properties_add_bool( props, 'start_on_scene_active', 'Start Timer on Scene Active' )
+    obs.obs_properties_add_bool( props, "start_on_scene_active", "Start Timer on Scene Active" )
 	 --[[
 		Property Checkbox: User interaction that toggle active source visibility.
 		This provides function interaction to change feature behaviour.
 		Interacting with this property will impact on feature options and behaviour.
 	]]
-    obs.obs_properties_add_bool( props, 'active_source_force_visible', 'Toggle Active Source Visibility' )
+    obs.obs_properties_add_bool( props, "active_source_force_visible", "Toggle Active Source Visibility" )
 	 --[[
 		Property Checkbox: User interaction that will disable the plugin.
 		This provides function interaction to change feature behaviour.
 		Interacting with this property will impact on feature options and behaviour.
 	]]
-    obs.obs_properties_add_bool( props, 'disable_script', 'Disable Script' )
+    obs.obs_properties_add_bool( props, "disable_script", "Disable Script" )
 	 --[[
 		Property Checkbox: User interaction that will enable backup options.
 		This provides function interaction to change feature behaviour.
@@ -4589,7 +4589,7 @@ function script_properties()
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]
-	local p_51 = obs.obs_properties_add_bool( props, 'backup_mode', 'Backup Mode' )
+	local p_51 = obs.obs_properties_add_bool( props, "backup_mode", "Backup Mode" )
 	 --[[
 		Property Directory Path: User interaction that select a directory path.
 		This provides function interaction to change feature behaviour.
@@ -4597,7 +4597,7 @@ function script_properties()
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]
-	local p_52 = obs.obs_properties_add_path( props, 'backup_folder', 'Backup Folder', obs.OBS_PATH_DIRECTORY, nil, nil)
+	local p_52 = obs.obs_properties_add_path( props, "backup_folder", "Backup Folder", obs.OBS_PATH_DIRECTORY, nil, nil)
 	--[[
 		Property list: User interaction that will execute an import feature.
 		This provides function interaction to change feature behaviour.
@@ -4605,10 +4605,10 @@ function script_properties()
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]
-	local p_53 = obs.obs_properties_add_list( props, 'import_list', '<i>Load Settings</i>', obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
-	obs.obs_property_list_add_string( p_53, 'Select ', 'select' ) -- Adds a default option to the list. First (top-most) list item. If selected the option is ignored. 
-	obs.obs_property_set_long_description( p_53, '\nSelect the Settings file to import.\n' ) -- User Tip
-	local filenames = get_filenames( path, '.json' ) -- list all files of type
+	local p_53 = obs.obs_properties_add_list( props, "import_list", "<i>Load Settings</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
+	obs.obs_property_list_add_string( p_53, "Select ", "select" ) -- Adds a default option to the list. First (top-most) list item. If selected the option is ignored. 
+	obs.obs_property_set_long_description( p_53, "\nSelect the Settings file to import.\n" ) -- User Tip
+	local filenames = get_filenames( path, ".json" ) -- list all files of type
 	if table.getn( filenames ) > 0 then
   		for i,v in pairs( filenames ) do 
 			obs.obs_property_list_add_string( p_53, v, v ) -- Add options to the list
@@ -4619,7 +4619,7 @@ function script_properties()
 		This provides function interaction to change feature behaviour.
 		Interacting with this property will complete a feature task. 
 	]]
-	local p_54 = obs.obs_properties_add_button( props, 'export_button', 'Export Settings', export_button_clicked )
+	local p_54 = obs.obs_properties_add_button( props, "export_button", "Export Settings", export_button_clicked )
 	 --[[
 		Property Button: User interaction that will import available property settings from a json file
 		and apply them to the properties.
@@ -4628,7 +4628,7 @@ function script_properties()
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]
-	local p_55 = obs.obs_properties_add_button( props, 'import_button', 'Import Settings', import_button_clicked )
+	local p_55 = obs.obs_properties_add_button( props, "import_button", "Import Settings", import_button_clicked )
 	
 	obs.source_list_release( sources ) -- free memory, release sources as it is no longer needed
 	--[[ 
@@ -4730,62 +4730,62 @@ function script_defaults( settings )
 	
 		Set property INTEGER TYPES.  
 	]]
-	obs.obs_data_set_default_int( settings, 'hours', 0 )
-	obs.obs_data_set_default_int( settings, 'config', 1 )
-	obs.obs_data_set_default_int( settings, 'minutes', 0 )
-	obs.obs_data_set_default_int( settings, 'seconds', 0 )
-	obs.obs_data_set_default_int( settings, 'split_type', 2 )
-	obs.obs_data_set_default_int( settings, 'timer_mode', 1 )
-	obs.obs_data_set_default_int( settings, 'enable_marker_notes', 1 )
-	obs.obs_data_set_default_int( settings, 'timer_format', 1 )
-	obs.obs_data_set_default_int( settings, 'timer_display', 1 )
-	obs.obs_data_set_default_int( settings, 'timer_options', 1 )
-	obs.obs_data_set_default_int( settings, 'countdown_type', 2 )
-	obs.obs_data_set_default_int( settings, 'recording_type', 5 )
-	obs.obs_data_set_default_int( settings, 'cycle_direction', 1 )
-	obs.obs_data_set_default_int( settings, 'start_recording', 2 )
-	obs.obs_data_set_default_int( settings, 'duration_marker_a', 5 )
-	obs.obs_data_set_default_int( settings, 'duration_marker_b', 5 )
-	obs.obs_data_set_default_int( settings, 'media_playback_limit', 1 )
-	obs.obs_data_set_default_int( group_props_1, 'sw_hours_saved', 0 )
-	obs.obs_data_set_default_int( group_props_1, 'sw_minutes_saved', 0 )
-	obs.obs_data_set_default_int( group_props_1, 'sw_seconds_saved', 0 )
-	obs.obs_data_set_default_int( group_props_1, 'sw_milliseconds_saved', 0 )
-	obs.obs_data_set_default_int( settings, 'year', os.date('%Y', os.time()) )
-	obs.obs_data_set_default_int( settings, 'color_normal', media['color_normal'] )
-	obs.obs_data_set_default_int( settings, 'color_marker_a', media['color_marker_a'] )
-	obs.obs_data_set_default_int( settings, 'color_marker_b', media['color_marker_b'] )
+	obs.obs_data_set_default_int( settings, "hours", 0 )
+	obs.obs_data_set_default_int( settings, "config", 1 )
+	obs.obs_data_set_default_int( settings, "minutes", 0 )
+	obs.obs_data_set_default_int( settings, "seconds", 0 )
+	obs.obs_data_set_default_int( settings, "split_type", 2 )
+	obs.obs_data_set_default_int( settings, "timer_mode", 1 )
+	obs.obs_data_set_default_int( settings, "enable_marker_notes", 1 )
+	obs.obs_data_set_default_int( settings, "timer_format", 1 )
+	obs.obs_data_set_default_int( settings, "timer_display", 1 )
+	obs.obs_data_set_default_int( settings, "timer_options", 1 )
+	obs.obs_data_set_default_int( settings, "countdown_type", 2 )
+	obs.obs_data_set_default_int( settings, "recording_type", 5 )
+	obs.obs_data_set_default_int( settings, "cycle_direction", 1 )
+	obs.obs_data_set_default_int( settings, "start_recording", 2 )
+	obs.obs_data_set_default_int( settings, "duration_marker_a", 5 )
+	obs.obs_data_set_default_int( settings, "duration_marker_b", 5 )
+	obs.obs_data_set_default_int( settings, "media_playback_limit", 1 )
+	obs.obs_data_set_default_int( group_props_1, "sw_hours_saved", 0 )
+	obs.obs_data_set_default_int( group_props_1, "sw_minutes_saved", 0 )
+	obs.obs_data_set_default_int( group_props_1, "sw_seconds_saved", 0 )
+	obs.obs_data_set_default_int( group_props_1, "sw_milliseconds_saved", 0 )
+	obs.obs_data_set_default_int( settings, "year", os.date("%Y", os.time()) )
+	obs.obs_data_set_default_int( settings, "color_normal", media["color_normal"] )
+	obs.obs_data_set_default_int( settings, "color_marker_a", media["color_marker_a"] )
+	obs.obs_data_set_default_int( settings, "color_marker_b", media["color_marker_b"] )
 	--[[
 		Set property STRING TYPES. 
 	]]
-	obs.obs_data_set_default_string( settings, 'stop_text', '' )
-	obs.obs_data_set_default_string( settings, 'text_prefix', '' )
-	obs.obs_data_set_default_string( settings, 'text_suffix', '' )
-	obs.obs_data_set_default_string( settings, 'note_marker_a', '' )
-	obs.obs_data_set_default_string( settings, 'note_marker_b', '' )
-	obs.obs_data_set_default_string( settings, 'text_marker_b', '' )
-	obs.obs_data_set_default_string( settings, 'text_marker_a', '' )
-	obs.obs_data_set_default_string( settings, 'next_scene', 'Select' )
-	obs.obs_data_set_default_string( settings, 'day_text', '# Day \n' )
-	obs.obs_data_set_default_string( settings, 'audio_marker_b', 'None' )
-	obs.obs_data_set_default_string( settings, 'audio_marker_a', 'None' )
-	obs.obs_data_set_default_string( settings, 'days_text', '# Days \n' )
-	obs.obs_data_set_default_string( settings, 'split_source', 'Select' )
-	obs.obs_data_set_default_string( settings, 'timer_source', 'Select' )
-	obs.obs_data_set_default_string( settings, 'toggle_mili_trigger', '' )
-	obs.obs_data_set_default_string( settings, 'note_source_marker_a', 'Select' )
-	obs.obs_data_set_default_string( settings, 'note_source_marker_b', 'Select' )
-	obs.obs_data_set_default_string( settings, 'custom_time_format', '$T$D:$H:$M:$S,$F' )
+	obs.obs_data_set_default_string( settings, "stop_text", "" )
+	obs.obs_data_set_default_string( settings, "text_prefix", "" )
+	obs.obs_data_set_default_string( settings, "text_suffix", "" )
+	obs.obs_data_set_default_string( settings, "note_marker_a", "" )
+	obs.obs_data_set_default_string( settings, "note_marker_b", "" )
+	obs.obs_data_set_default_string( settings, "text_marker_b", "" )
+	obs.obs_data_set_default_string( settings, "text_marker_a", "" )
+	obs.obs_data_set_default_string( settings, "next_scene", "Select" )
+	obs.obs_data_set_default_string( settings, "day_text", "# Day \n" )
+	obs.obs_data_set_default_string( settings, "audio_marker_b", "None" )
+	obs.obs_data_set_default_string( settings, "audio_marker_a", "None" )
+	obs.obs_data_set_default_string( settings, "days_text", "# Days \n" )
+	obs.obs_data_set_default_string( settings, "split_source", "Select" )
+	obs.obs_data_set_default_string( settings, "timer_source", "Select" )
+	obs.obs_data_set_default_string( settings, "toggle_mili_trigger", "" )
+	obs.obs_data_set_default_string( settings, "note_source_marker_a", "Select" )
+	obs.obs_data_set_default_string( settings, "note_source_marker_b", "Select" )
+	obs.obs_data_set_default_string( settings, "custom_time_format", "$T$D:$H:$M:$S,$F" )
 	--[[
 		Set property BOOL TYPES. 
 	]]
-	obs.obs_data_set_default_bool( settings, 'backup_mode', false )
-	obs.obs_data_set_default_bool( settings, 'set_stopwatch', false )
-	obs.obs_data_set_default_bool( settings, 'disable_script', false )
-	obs.obs_data_set_default_bool( settings, 'load_saved_time', false )
-	obs.obs_data_set_default_bool( settings, 'start_on_visible', false )
-	obs.obs_data_set_default_bool( settings, 'start_on_scene_active', false )
-	obs.obs_data_set_default_bool( settings, 'active_source_force_visible', false )
+	obs.obs_data_set_default_bool( settings, "backup_mode", false )
+	obs.obs_data_set_default_bool( settings, "set_stopwatch", false )
+	obs.obs_data_set_default_bool( settings, "disable_script", false )
+	obs.obs_data_set_default_bool( settings, "load_saved_time", false )
+	obs.obs_data_set_default_bool( settings, "start_on_visible", false )
+	obs.obs_data_set_default_bool( settings, "start_on_scene_active", false )
+	obs.obs_data_set_default_bool( settings, "active_source_force_visible", false )
 	-- Keep track of current settings
   	script_settings = settings 
 end
@@ -4793,7 +4793,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:		A function named script_save will be called when the script is saved
 						NOTE: This function is usually used for saving extra data ( such as in this
-						case, a hotkey's save data ).  Settings set via the properties are saved
+						case, a hotkey"s save data ).  Settings set via the properties are saved
 						automatically.
 	
 	Credit:			
@@ -4813,7 +4813,7 @@ function script_save( settings )
 		Reset (Timer)
 	]]	
 	local hotkey_save_array_reset = obs.obs_hotkey_save( hotkey_id_reset )
-	obs.obs_data_set_array( settings, 'reset_hotkey', hotkey_save_array_reset )
+	obs.obs_data_set_array( settings, "reset_hotkey", hotkey_save_array_reset )
 	obs.obs_data_array_release( hotkey_save_array_reset )
 	
 	--[[
@@ -4822,7 +4822,7 @@ function script_save( settings )
 		Pause (Start/Pause Timer)
 	]]	
 	local hotkey_save_array_pause = obs.obs_hotkey_save( hotkey_id_pause )
-	obs.obs_data_set_array( settings, 'pause_hotkey', hotkey_save_array_pause )
+	obs.obs_data_set_array( settings, "pause_hotkey", hotkey_save_array_pause )
 	obs.obs_data_array_release( hotkey_save_array_pause )
 	--[[
 		script save
@@ -4830,7 +4830,7 @@ function script_save( settings )
 		Split (available for stopwatch only)
 	]]	
 	local hotkey_save_array_split = obs.obs_hotkey_save( hotkey_id_split )
-	obs.obs_data_set_array( settings, 'split_hotkey', hotkey_save_array_split )
+	obs.obs_data_set_array( settings, "split_hotkey", hotkey_save_array_split )
 	obs.obs_data_array_release( hotkey_save_array_split )
 	--[[
 		script is loading. register and assign hotkeys 
@@ -4838,7 +4838,7 @@ function script_save( settings )
 		script save
 	]]
 	local hotkey_save_array_mili = obs.obs_hotkey_save( hotkey_id_mili )
-	obs.obs_data_set_array( settings, 'mili_hotkey', hotkey_save_array_mili )
+	obs.obs_data_set_array( settings, "mili_hotkey", hotkey_save_array_mili )
 	obs.obs_data_array_release( hotkey_save_array_mili )
 end	
 --[[
@@ -4849,7 +4849,7 @@ end
 					--
 					NOTE: These particular script callbacks do not necessarily have to
 					be disconnected, as callbacks will automatically destroy themselves
-					if the script is unloaded.  So there's no real need to manually
+					if the script is unloaded.  So there"s no real need to manually
 					disconnect callbacks that are intended to last until the script is
 					unloaded.
 	Credit:			
@@ -4877,20 +4877,20 @@ function script_load( settings )
 		attach event listener callback [loaded]
 		for when a source is done loading.
 	]]	
-	obs.signal_handler_connect( sh, 'source_load', loaded ) -- monitor for source load completed
-	obs.signal_handler_connect( sh, 'source_deactivate', source_deactivated ) -- monitor source deactivates signal_handler_disconnect
-	obs.signal_handler_connect( sh, 'source_activate', source_activated ) -- monitor source activates
+	obs.signal_handler_connect( sh, "source_load", loaded ) -- monitor for source load completed
+	obs.signal_handler_connect( sh, "source_deactivate", source_deactivated ) -- monitor source deactivates signal_handler_disconnect
+	obs.signal_handler_connect( sh, "source_activate", source_activated ) -- monitor source activates
 	
-	local hotkey_name = ''
+	local hotkey_name = ""
 	
 	--[[
 		script is loading. register and assign hotkeys 
 		
 		Reset (Timer)
 	]]	
-	hotkey_name = 'timer_reset_' .. filename():lower():gsub('[%W%p%c%s]', '')
-	hotkey_id_reset = obs.obs_hotkey_register_frontend( hotkey_name, 'Reset ' .. filename(), on_reset )
-	local hotkey_save_array_reset = obs.obs_data_get_array( settings, 'reset_hotkey' )
+	hotkey_name = "timer_reset_" .. filename():lower():gsub("[%W%p%c%s]", "")
+	hotkey_id_reset = obs.obs_hotkey_register_frontend( hotkey_name, "Reset " .. filename(), on_reset )
+	local hotkey_save_array_reset = obs.obs_data_get_array( settings, "reset_hotkey" )
 	obs.obs_hotkey_load( hotkey_id_reset, hotkey_save_array_reset )
 	obs.obs_data_array_release( hotkey_save_array_reset )
 	--[[
@@ -4898,9 +4898,9 @@ function script_load( settings )
 		
 		Pause (Start/Pause Timer)
 	]]	
-	hotkey_name = 'timer_pause_' .. filename():lower():gsub('[%W%p%c%s]', '')
-	hotkey_id_pause = obs.obs_hotkey_register_frontend( hotkey_name, 'Start/Pause ' .. filename(), on_pause )
-	local hotkey_save_array_pause = obs.obs_data_get_array( settings, 'pause_hotkey' )
+	hotkey_name = "timer_pause_" .. filename():lower():gsub("[%W%p%c%s]", "")
+	hotkey_id_pause = obs.obs_hotkey_register_frontend( hotkey_name, "Start/Pause " .. filename(), on_pause )
+	local hotkey_save_array_pause = obs.obs_data_get_array( settings, "pause_hotkey" )
 	obs.obs_hotkey_load( hotkey_id_pause, hotkey_save_array_pause )
 	obs.obs_data_array_release( hotkey_save_array_pause )
 	--[[
@@ -4908,9 +4908,9 @@ function script_load( settings )
 		
 		Split (available for stopwatch only)
 	]]	
-	hotkey_name = 'timer_split_' .. filename():lower():gsub('[%W%p%c%s]', '')
-	hotkey_id_split = obs.obs_hotkey_register_frontend( hotkey_name, 'Split Time ' .. filename(), on_split )
-	local hotkey_save_array_split = obs.obs_data_get_array( settings, 'split_hotkey' )
+	hotkey_name = "timer_split_" .. filename():lower():gsub("[%W%p%c%s]", "")
+	hotkey_id_split = obs.obs_hotkey_register_frontend( hotkey_name, "Split Time " .. filename(), on_split )
+	local hotkey_save_array_split = obs.obs_data_get_array( settings, "split_hotkey" )
 	obs.obs_hotkey_load( hotkey_id_split, hotkey_save_array_split )
 	obs.obs_data_array_release( hotkey_save_array_split )
 	--[[
@@ -4918,9 +4918,9 @@ function script_load( settings )
 		
 		Milliseconds (Show/Hide Timer Milliseconds if in Timer format)
 	]]
-	hotkey_name = 'timer_mili_' .. filename():lower():gsub('[%W%p%c%s]', '')
-	hotkey_id_mili = obs.obs_hotkey_register_frontend( hotkey_name, 'Milliseconds Toggle ' .. filename(), on_mili )	
-	local hotkey_save_array_mili = obs.obs_data_get_array( settings, 'mili_hotkey' )
+	hotkey_name = "timer_mili_" .. filename():lower():gsub("[%W%p%c%s]", "")
+	hotkey_id_mili = obs.obs_hotkey_register_frontend( hotkey_name, "Milliseconds Toggle " .. filename(), on_mili )	
+	local hotkey_save_array_mili = obs.obs_data_get_array( settings, "mili_hotkey" )
 	obs.obs_hotkey_load( hotkey_id_mili, hotkey_save_array_mili )
 	obs.obs_data_array_release( hotkey_save_array_mili )
 end
