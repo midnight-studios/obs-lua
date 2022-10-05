@@ -2,9 +2,27 @@
 ----------------------------------------------------------------------------------------------------------------------------------------
 Open Broadcaster Software®️
 OBS > Tools > Scripts
-@midnight-studios
+"midnight-studios
 Stopwatch
 
+Version 4.0
+
+Published / Released: 2022-10.10 22:38
+
+NEW FEATURES
+
+- 
+OPTIMIZATION
+
+- 
+
+USER EXPERIENCE & FEATURE ENHANCEMENTS
+- 
+
+BUGS
+
+- Fixed a signal handler crash due to an unloaded source
+- Fixed a bug that triggered the Media when the timer was not active
 
 Version 3.9
 
@@ -47,6 +65,7 @@ BUGS
 - Fixed Media Playback time limit
 - Fixed Split time outputs for Stopwatch
 
+***************************************************************************************************************************************
 TODO> 
 
 - Switching 'split type' does not reset the timer display
@@ -58,7 +77,7 @@ TODO>
 ]]
 --Globals
 obs           				= obslua
-gversion 					= '3.9'
+gversion 					= '4.0'
 luafile						= 'StopWatch.lua'
 obsurl						= 'comprehensive-stopwatch-countdown-timer.1364/'
 patch_notes					= 'Patch Notes'
@@ -71,6 +90,8 @@ desc	    				=
 <center><a href='https://obsproject.com/forum/resources/]] .. obsurl ..[[updates]] .. patch_notes ..[['>Patch Notes</a></center>
 <br><p>The Properties for this script will adjust visibility as needed. Some advanced properties will only be visible if the Configuration is set to 'Advanced'. If the Configuration is set to 'Basic' the defined values will still be used, so ensure you define those correctly.</p><p>Find help on the <a href='https://obsproject.com/forum/resources/]] .. obsurl ..[['>OBS Forum Thread</a>.</p><hr/>
 ]]
+sources_loaded 				= 0
+total_sources 				= 0
 sw_hours_saved 				= 0
 sw_minutes_saved 			= 0
 sw_seconds_saved 			= 0
@@ -1416,6 +1437,8 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function time_mark_check( ref )
+	
+	if not timer_active then return end -- only allow mark checks if the timer is active
 	--[[
 	 		Make sure the trigger is as accurate as possible depending
 			if the timer is counting up or down.
@@ -1972,7 +1995,7 @@ local function toggle_mili()
 				To force define: show_mili = false
 
 			]]
-			mili_toggle( true )
+			on_mili( true )
 			mili_toggle_triggered = true
 		end
 	end	
@@ -2769,7 +2792,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function mili_button_clicked( props, p, settings )
-	mili_toggle( true )
+	on_mili( true )
 	return true
 end	
 --[[
@@ -2786,7 +2809,7 @@ end
 	returns:
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
-function mili_toggle( pressed )	
+function on_mili( pressed )	
 	if not pressed then
 		return
 	end
@@ -2971,9 +2994,9 @@ end
 	returns:		none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
-local function reset( pressed )
+local function on_reset( pressed )
 	if not pressed then
-		return
+		--return
 	end
 	
 	--[[
@@ -3092,7 +3115,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function on_pause( pressed )
-	if not pressed then
+	if not pressed then 
 		return true
 	end
 	
@@ -3225,7 +3248,7 @@ end
 ]]
 local function reset_button_clicked( props, p, settings )
 	reset_activated = true
-	reset( true )
+	on_reset( true )
 	reset_activated = false
 	return true
 end
@@ -3274,6 +3297,35 @@ local function split_button_clicked( props, p )
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	custom function
+
+					we use this to get a count of all sources
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:	interger
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function count_sources()
+	local sources = obs.obs_enum_sources()
+	local i = 0
+	if sources ~= nil then
+		for _, source in ipairs( sources ) do -- ipairs cycles auto incrimented items
+			i = i + 1 
+		end
+		obs.bfree(source) -- free memory, release source as it is no longer needed
+	end
+	obs.source_list_release( sources ) -- free memory, release 
+	total_sources = i
+	return i
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	 custom function
 
 					we use this to get a signal handler for a specific source once
@@ -3289,8 +3341,8 @@ end
 	returns:
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
-local function connect_source_signal( cd )
-	
+local function loaded( cd )
+	local all_sources_loaded = false
 	--[[
 		Get source from CallData
 	]]
@@ -3299,11 +3351,20 @@ local function connect_source_signal( cd )
 	--[[
 		Found Source:
 	]]
-	if source ~= nil then
-		--[[
-			Get the Source Name
-		]]
-		local name = obs.obs_source_get_name( source )
+	if source ~= nil then 
+		if obs.obs_source_get_id( source ) ~= 'scene' then
+			sources_loaded = sources_loaded + 1 -- add this to the loaded sopurce tally
+		end	
+	end
+	--[[
+		Check if all sources are loaded
+	]]	
+	all_sources_loaded = ( sources_loaded == count_sources() )
+	--[[
+		Some of the functions included requires the source to be loaded, 
+		so check that all sources are loaded before continuing
+	]]
+	if all_sources_loaded then
 		--[[
 			Does the name match the defined Script Settings name?
 		]] 
@@ -3313,14 +3374,13 @@ local function connect_source_signal( cd )
 					timer_value( sw_current_seconds, false ) -- value, update_settings 
 				else
 					timer_value( 0, false )
-					reset( true )	
+					on_reset( true )	
 				end	
 			else
-				reset( true )	
+				on_reset( true )	
 			end	
-		end	
-	end
-
+		end		
+	end	
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
@@ -3899,7 +3959,7 @@ function timer_ended( source_name )
 	end
 
 	if next_scene == 'Source List' then
-		reset( true ) -- Reset the timer
+		on_reset( true ) -- Reset the timer
 		cycle_list_activate( 'source' )
 		--[[
 			Set timer_active for it to self-start
@@ -3909,7 +3969,7 @@ function timer_ended( source_name )
 	end	
 
 	if next_scene == 'Scene List' then
-		reset( true ) -- Reset the timer
+		on_reset( true ) -- Reset the timer
 		cycle_list_activate( 'scene' )
 		--[[
 			Set timer_active for it to self-start
@@ -4620,6 +4680,10 @@ end
 ]]
 function script_update( settings )
 	--[[
+		Update a gloabl in case something changed. 
+	]]
+	count_sources()
+	--[[
 		Get the correct frequency for splitseconds when the script loads. 
 	]]
 	assign_default_frequency()
@@ -4638,7 +4702,6 @@ function script_update( settings )
 
 	]]
 	update_timer_settings( false ) -- optional inputs: set_to_default(bool), new_settings(obs_property_data/obs_userdata)	
-
 	-- Keep track of current settings
   	script_settings = settings 	
 end
@@ -4800,24 +4863,33 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function script_load( settings )
+	
 	--[[
 		Get the correct frequency for splitseconds when the script loads. 
 	]]
 	assign_default_frequency()
+		--[[
+		load any property values available to globals
+	]]
+	load_settings_globals( settings )
 	local sh = obs.obs_get_signal_handler()
 	--[[
-		attach event listener callback [connect_source_signal]
+		attach event listener callback [loaded]
 		for when a source is done loading.
 	]]	
-	obs.signal_handler_connect( sh, 'source_load', connect_source_signal ) -- monitor for source load completed
+	obs.signal_handler_connect( sh, 'source_load', loaded ) -- monitor for source load completed
+	obs.signal_handler_connect( sh, 'source_deactivate', source_deactivated ) -- monitor source deactivates signal_handler_disconnect
 	obs.signal_handler_connect( sh, 'source_activate', source_activated ) -- monitor source activates
-	obs.signal_handler_connect( sh, 'source_deactivate', source_deactivated ) -- monitor source deactivates
+	
+	local hotkey_name = ''
+	
 	--[[
 		script is loading. register and assign hotkeys 
 		
 		Reset (Timer)
-	]]		
-	hotkey_id_reset = obs.obs_hotkey_register_frontend( 'timer_reset_' .. filename():lower():gsub('[%W%p%c%s]', ''), 'Reset ' .. filename(), reset )
+	]]	
+	hotkey_name = 'timer_reset_' .. filename():lower():gsub('[%W%p%c%s]', '')
+	hotkey_id_reset = obs.obs_hotkey_register_frontend( hotkey_name, 'Reset ' .. filename(), on_reset )
 	local hotkey_save_array_reset = obs.obs_data_get_array( settings, 'reset_hotkey' )
 	obs.obs_hotkey_load( hotkey_id_reset, hotkey_save_array_reset )
 	obs.obs_data_array_release( hotkey_save_array_reset )
@@ -4826,7 +4898,8 @@ function script_load( settings )
 		
 		Pause (Start/Pause Timer)
 	]]	
-	hotkey_id_pause = obs.obs_hotkey_register_frontend( 'timer_pause_' .. filename():lower():gsub('[%W%p%c%s]', ''), 'Start/Pause ' .. filename(), on_pause )
+	hotkey_name = 'timer_pause_' .. filename():lower():gsub('[%W%p%c%s]', '')
+	hotkey_id_pause = obs.obs_hotkey_register_frontend( hotkey_name, 'Start/Pause ' .. filename(), on_pause )
 	local hotkey_save_array_pause = obs.obs_data_get_array( settings, 'pause_hotkey' )
 	obs.obs_hotkey_load( hotkey_id_pause, hotkey_save_array_pause )
 	obs.obs_data_array_release( hotkey_save_array_pause )
@@ -4835,7 +4908,8 @@ function script_load( settings )
 		
 		Split (available for stopwatch only)
 	]]	
-	hotkey_id_split = obs.obs_hotkey_register_frontend( 'timer_split_' .. filename():lower():gsub('[%W%p%c%s]', ''), 'Split Time ' .. filename(), on_split )
+	hotkey_name = 'timer_split_' .. filename():lower():gsub('[%W%p%c%s]', '')
+	hotkey_id_split = obs.obs_hotkey_register_frontend( hotkey_name, 'Split Time ' .. filename(), on_split )
 	local hotkey_save_array_split = obs.obs_data_get_array( settings, 'split_hotkey' )
 	obs.obs_hotkey_load( hotkey_id_split, hotkey_save_array_split )
 	obs.obs_data_array_release( hotkey_save_array_split )
@@ -4843,27 +4917,10 @@ function script_load( settings )
 		script is loading. register and assign hotkeys 
 		
 		Milliseconds (Show/Hide Timer Milliseconds if in Timer format)
-	]]	
-	hotkey_id_mili = obs.obs_hotkey_register_frontend( 'timer_mili_' .. filename():lower():gsub('[%W%p%c%s]', ''), 'Milliseconds Toggle ' .. filename(), mili_toggle )	
+	]]
+	hotkey_name = 'timer_mili_' .. filename():lower():gsub('[%W%p%c%s]', '')
+	hotkey_id_mili = obs.obs_hotkey_register_frontend( hotkey_name, 'Milliseconds Toggle ' .. filename(), on_mili )	
 	local hotkey_save_array_mili = obs.obs_data_get_array( settings, 'mili_hotkey' )
 	obs.obs_hotkey_load( hotkey_id_mili, hotkey_save_array_mili )
 	obs.obs_data_array_release( hotkey_save_array_mili )
-	--[[
-		load any property values available to globals
-	]]
-	load_settings_globals( settings )
-	--[[
-		if timer is stopwatch and if user has not enabled save of last time
-		we will reset the timer to default state (zero)
-	]]
-	if timer_mode == 1 then
-		if load_saved_time then
-			timer_value( sw_current_seconds, false ) -- value, update_settings 
-		else
-			timer_value( 0, false ) -- value, update_settings 
-			reset( true )	
-		end	
-	else
-		reset( true )	
-	end	
 end
