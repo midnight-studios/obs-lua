@@ -1,6 +1,6 @@
 obs           				= obslua
 luafileTitle				= "Comment Removal"
-gversion 					= 0.1
+gversion 					= 0.2
 luafile						= ""
 obsurl						= ""
 p_settings 					= nil
@@ -22,8 +22,8 @@ script_props = nil
 formats={
 	["lua"]={
 		name="Lua",
-		single="%-%-+[^%[%[\n%-%]%]]+",
-		multi="%-%-%[%[.-\n%]%]" 
+		single="%-%-[^%[%[\n\r%]%]]+",
+		multi="%-%-%[%[.-%]%]" 
 	},
 }
 
@@ -31,19 +31,20 @@ function script_description()
 	return string.format( desc, tostring( gversion ) )
 end
 
-function removeComments( txt,patt )
-	if patt.multi then
-		txt=txt:gsub( patt.multi,"" )
-	end
+function clean_content( txt, patt )
 	if patt.single then
-		txt=txt:gsub( patt.single,"" )
+		txt=txt:gsub( patt.single, "" ) 
 	end
+	if patt.multi then
+		txt=txt:gsub( patt.multi, "" )
+	end
+	txt=txt:gsub( "(\r?\n)%s*\r?\n","\n" )
 	txt=txt:gsub( "^\n","" )
-	txt=txt:gsub( "\n$","" ) 
+	txt=txt:gsub( "\n$","" )
 	return txt
 end
 
-function removeCommentsFile( fileName )
+function file_to_clean( fileName )
 	if fileName ~= nil then
 		local f = io.open( fileName, "r" )
 		local txt = f:read( "*a" )
@@ -55,14 +56,14 @@ function removeCommentsFile( fileName )
 		end
 		extension=extension:lower()
 		if formats[extension] then
-			return removeComments( txt,formats[extension] )
+			return clean_content( txt, formats[extension] )
 		else
 			return nil
 		end
-			else
-				return nil
-			end
+	else
+		return nil
 	end
+end
 
 function get_filenames( path )
 	local filenames = {}
@@ -89,7 +90,7 @@ function clean_file( )
 	local inputfile = path .. "/" .. file .. ".lua"
 	local outputfile = path .. "/" .. file .. unique_stamp .. ".lua"
 	if obs.os_file_exists(inputfile) then
-		f = removeCommentsFile(inputfile)
+		f = file_to_clean(inputfile)
 	else
 		print('File does not exist! (' .. inputfile .. ')')
 	end
