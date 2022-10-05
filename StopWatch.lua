@@ -71,7 +71,6 @@ desc	    				=
 <center><a href='https://obsproject.com/forum/resources/]] .. obsurl ..[[updates]] .. patch_notes ..[['>Patch Notes</a></center>
 <br><p>The Properties for this script will adjust visibility as needed. Some advanced properties will only be visible if the Configuration is set to 'Advanced'. If the Configuration is set to 'Basic' the defined values will still be used, so ensure you define those correctly.</p><p>Find help on the <a href='https://obsproject.com/forum/resources/]] .. obsurl ..[['>OBS Forum Thread</a>.</p><hr/>
 ]]
-desc	    				= ""
 sw_hours_saved 				= 0
 sw_minutes_saved 			= 0
 sw_seconds_saved 			= 0
