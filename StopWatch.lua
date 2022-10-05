@@ -12,9 +12,10 @@ Published / Released: 2022-10.06 12:26
 NEW FEATURES
 
 - 
+
 OPTIMIZATION
 
-- 
+- Backend updates
 
 USER EXPERIENCE & FEATURE ENHANCEMENTS
 - 
@@ -23,6 +24,8 @@ BUGS
 
 - Fixed a signal handler crash due to an unloaded source
 - Fixed a bug that triggered the Media when the timer was not active
+
+***************************************************************************************************************************************
 
 Version 3.9
 
