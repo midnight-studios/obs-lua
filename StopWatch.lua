@@ -143,16 +143,6 @@ font_dimmed					= "#bfbbbf"
 font_highlight				= "#fffdcf"
 current_seconds   			= 0
 cycle_direction				= 1
---[[
-	** Commment marked for removal ** 
-	TODO> please identify which function need this
-	OUTCOME> Now I am not sure what issue this caused
-	or it has been resolved by another bug patch. Let's
-	see if an issue related to this surfaces again and
-	please remember to describe with comprehensive details
-	of the problem (bug)
-	** Commment marked for removal ** 
-]]
 default_seconds   			= 0
 split	     				= 0
 timer_year	     			= 0
@@ -202,12 +192,12 @@ note_marker_a 				= "",
 note_marker_b 				= "",
 activated_marker_b			= false,
 activated_marker_a			= false, 
-current_seconds_marker_a		= 0,
-current_seconds_marker_b		= 0, 
+current_seconds_marker_a	= 0,
+current_seconds_marker_b	= 0, 
 duration_marker_a			= 0, 
 duration_marker_b			= 0, 
-media_ended_marker_a			= false, 
-media_ended_marker_b			= false,
+media_ended_marker_a		= false, 
+media_ended_marker_b		= false,
 color_normal				= 4294967295, -- 4294967295 0xFFFFFFFF
 color_marker_a				= 4256749, -- 4256749 0x40f3ed
 color_marker_b				= 329050, -- 329050 0x05055a
@@ -218,7 +208,6 @@ hotkey_id_reset			= obs.OBS_INVALID_HOTKEY_ID
 hotkey_id_pause			= obs.OBS_INVALID_HOTKEY_ID
 hotkey_id_split			= obs.OBS_INVALID_HOTKEY_ID
 hotkey_id_mili			= obs.OBS_INVALID_HOTKEY_ID
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	
@@ -559,7 +548,7 @@ function get_source_list( return_ref )
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Function to conver OBS data array to table
+	Function to convert OBS data array to table
 
 	obs_data_array_to_table( settings, "reference" )
 
@@ -598,7 +587,6 @@ local function obs_data_array_to_table( set, item )
 end	
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	
 	Description: Get the name of this script	
 	
 	Credit:			midnight-studios, et al	
@@ -789,8 +777,8 @@ end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	"Timer Expires" 	= 1 
-					"Marker A Time" 		= 2 
-					"Marker B Time" 		= 3 
+					"Marker A Time" 	= 2 
+					"Marker B Time" 	= 3 
 					"Timer Visible" 	= 4 
 					"Timer Start" 		= 5
 	
@@ -939,8 +927,10 @@ local function raw_time( time, simplify )
 	end
 	--[[
 		
-		Use this to see if time stamp matches certain criteria
-		This looks at HH:MM:SS only and is used to trigger stuff
+		Use this to see if the time stamp matches certain criteria
+		This looks at HH:MM:SS only and is used to match the 
+		timer's current time stamp against a user defined time mark that
+		will for example activate Mark A or Mark B
 		
 	]]	
 	if simplify then
@@ -1223,7 +1213,7 @@ local function is_visible( source_name )
 		end --end for
 		obs.bfree( scn )
 		obs.source_list_release( scenes )		
-	end
+	end --end scenes ~= nil
 	return isvisible
 end	
 --[[
@@ -1352,11 +1342,10 @@ end
 ]]
 local function start_media_action( source_name, ref )
 	
-	
 	if in_table( {"","None", "Select","none", "select"}, source_name ) then return end
 	
 	if not media["activated_".. ref] then 
-		media["current_seconds_".. ref] = math.ceil(current_seconds)
+		media["current_seconds_".. ref] = math.ceil( current_seconds )
 		set_visible( source_name, true );
 		
 		--[[
@@ -1771,7 +1760,6 @@ local function cycle_list_activate( source_type )
 				]]			
 				if active_source_force_visible then set_visible( active_source, true ) end
 				set_text( active_source, list[i] ) 
-			
 			end
 		end	
 		if cycle_direction ~= direction then
@@ -1784,18 +1772,17 @@ local function cycle_list_activate( source_type )
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	This is basically obs.obs_enum_sources()
-					but "Nested Scenes" are not listed in "obs.obs_enum_sources()"
+	Description:	Check if a scene with a specific name has a source with a specific name 
 	
 	
-	Credit:			
+	Credit:			midnight-studios, et al
 
 	Modified:		
 
-	function:		
-	type:			
-	input type: 	
-	returns:
+	function:		check true or false
+	type:			Dependency / Support
+	input type: 	string, string
+	returns:		bool
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function scene_name_has_source_name( scene_name, source_name )
@@ -1836,7 +1823,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	Called when a scene is activated/deactivated	
 	
-	Credit:			
+	Credit:			midnight-studios, et al
 
 	Modified:		
 
@@ -1847,7 +1834,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function activate_timer_on_scene( source, activating )
-			--[[ 
+		--[[ 
 				Reset to starting point
 				if, start_on_scene_active then set to visible
 		]] 
@@ -1864,7 +1851,6 @@ local function activate_timer_on_scene( source, activating )
 				end	
 			end
 		end
-	
 end	
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
@@ -1929,15 +1915,16 @@ end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	Assign the correct frequency value to the timer incriment 
+					depending on if timer is counting up or down
 	
 	Credit:			
 
 	Modified:		
 
-	function:	update the timer value
+	function:		update the timer value
 	type:			Dependency / Support			
 	input type: 	
-	returns:	calls timer_value()
+	returns:		calls timer_value()
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function set_time_direction( update_settings )
@@ -1993,7 +1980,7 @@ end
 
 	function:		mili_toggle
 	type:			
-	input type: 	globals toggle_mili_trigger, timer_mode, mili_toggle_triggered, raw_time()
+	input type: 	globals: toggle_mili_trigger, timer_mode, mili_toggle_triggered, raw_time()
 	returns:		none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
@@ -2156,7 +2143,7 @@ local function set_time_text( source_name )
 		
 			This is a fallback but should not be needed
 			as the timer callback may be removed by 
-			timer_ended() if neded
+			timer_ended() if needed
 		]]--
 		if current_seconds == 0 then timer_expired = true; end
 	end	
@@ -3018,11 +3005,24 @@ end
 	returns:		none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
-local function on_reset( pressed )
-	if not pressed then
-		--return
+local function reset( pressed )
+	--[[
+		For hotkeys: This is called on key down & key up. A bool check: 
+		
+		pressed = true (key down)
+		pressed = false (key up)
+	
+		When a hotkeys is pressed the callback checks if the key state 
+		is currently pressed 'true' or 'false' (released)
+		so a hotkey key press has a dual function: key down, key up
+
+	]]
+	if pressed then -- key is currently down
+		--return -- uncomment 'return' to ignore the call while key is down
+	else -- key was released 
+		--return -- uncomment 'return' to ignore the call when key is released
 	end
-	reset_activated = true -- notify timer settings a reset call is in process
+	
 	--[[
 	
 		force text update by changing last_text
@@ -3078,8 +3078,42 @@ local function on_reset( pressed )
 	]]	
 	media["media_ended_marker_a"] = false
 	media["media_ended_marker_b"] = false
-	reset_activated = false -- notify timer settings a reset call ended
 end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		reset timer	
+	type:			
+	input type: 	
+	returns:		none
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function on_reset( pressed )
+	--[[
+		For hotkeys: This is called on key down & key up. A bool check: 
+		
+		pressed = true (key down)
+		pressed = false (key up)
+	
+		When a hotkeys is pressed the callback checks if the key state 
+		is currently pressed 'true' or 'false' (released)
+		so a hotkey key press has a dual function: key down, key up
+
+	]]
+	if pressed then -- key is currently down
+		--return -- uncomment 'return' to ignore the call while key is down
+	else -- key was released 
+		--return -- uncomment 'return' to ignore the call when key is released
+	end
+	reset_activated = true -- notify timer settings a reset call is in process
+	reset( pressed )
+	reset_activated = false -- notify timer settings a reset call ended
+end	
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	Set the titles / labels of the Start / Pause Button
@@ -3397,10 +3431,10 @@ local function loaded( cd )
 					timer_value( sw_current_seconds, false ) -- value, update_settings 
 				else
 					timer_value( 0, false )
-					on_reset( true )	
+					reset( true )	
 				end	
 			else
-				on_reset( true )	
+				reset( true )	
 			end	
 		end		
 	end	
@@ -3982,7 +4016,7 @@ function timer_ended( source_name )
 	end
 
 	if next_scene == "Source List" then
-		on_reset( true ) -- Reset the timer
+		reset( true ) -- Reset the timer
 		cycle_list_activate( "source" )
 		--[[
 			Set timer_active for it to self-start
@@ -3992,7 +4026,7 @@ function timer_ended( source_name )
 	end	
 
 	if next_scene == "Scene List" then
-		on_reset( true ) -- Reset the timer
+		reset( true ) -- Reset the timer
 		cycle_list_activate( "scene" )
 		--[[
 			Set timer_active for it to self-start
