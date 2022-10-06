@@ -5,6 +5,27 @@ OBS > Tools > Scripts
 @midnight-studios
 Stopwatch
 
+Version 4.1
+
+Published / Released: 2022-10.06 15:23
+
+NEW FEATURES
+
+- 
+
+OPTIMIZATION
+
+- 
+
+USER EXPERIENCE & FEATURE ENHANCEMENTS
+- 
+
+BUGS
+
+- Fixed timer Reset issue
+
+***************************************************************************************************************************************
+
 Version 4.0
 
 Published / Released: 2022-10.06 12:26
