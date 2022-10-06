@@ -80,7 +80,7 @@ TODO>
 ]]
 --Globals
 obs           				= obslua
-gversion 					= "3.9"
+gversion 					= "4.1"
 luafile						= "StopWatch.lua"
 obsurl						= "comprehensive-stopwatch-countdown-timer.1364/"
 patch_notes					= "Patch Notes"
@@ -3001,7 +3001,7 @@ local function on_reset( pressed )
 	if not pressed then
 		--return
 	end
-	
+	reset_activated = true -- notify timer settings a reset call is in process
 	--[[
 	
 		force text update by changing last_text
@@ -3057,6 +3057,7 @@ local function on_reset( pressed )
 	]]	
 	media["media_ended_marker_a"] = false
 	media["media_ended_marker_b"] = false
+	reset_activated = false -- notify timer settings a reset call ended
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
@@ -3250,9 +3251,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function reset_button_clicked( props, p, settings )
-	reset_activated = true
 	on_reset( true )
-	reset_activated = false
 	return true
 end
 --[[
