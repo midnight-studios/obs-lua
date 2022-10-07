@@ -5,6 +5,40 @@ OBS > Tools > Scripts
 @midnight-studios
 Stopwatch
 
+***************************************************************************************************************************************
+
+Version 4.2
+
+Published / Released: 2022-10.07 18:34
+
+NEW FEATURES
+
+- 
+
+OPTIMIZATION
+
+- 
+
+USER EXPERIENCE & FEATURE ENHANCEMENTS
+
+- Changed Property Setting label 'Trigger Text' to 'Marker Notes'
+
+
+BUGS
+
+- Reverted and applied new Fix for timer Reset issue
+- Fixed an issue for recording call when recording is already active
+- Fixed switching "split type" does not reset the timer display
+- Fixed changing "Mark Time" does not reset the timer display
+- Fixed timer display color reset after Mark A & B conditions were met
+- Fixed stopping Media playback if media is set to loop when the timer expires
+- Fixed a routine issue on sources loaded
+- Fixed a timer reset issue (for activate timer on visible)
+- Fixed a load 'last saved time' issue (for activate timer on visible)
+- Fixed a 'set stopwatch' issue (for activate timer on visible)
+
+***************************************************************************************************************************************
+
 Version 4.1
 
 Published / Released: 2022-10.06 15:23
@@ -92,16 +126,130 @@ BUGS
 ***************************************************************************************************************************************
 TODO> 
 
-- Switching "split type" does not reset the timer display
-- Changing "Mark Time" does not reset the timer display
-- Add new function: timer reset delay. Used to delay between timer cycles
 - Testing
 - No tasks outstanding 
+
+TESTING REPORT:
+
+PROPERTIES UI TEST:
+
+- Advanced Basic swicth hides and shows features																				not tested
+- Timer Settings visible in advanced mode																						not tested
+- Marker Settings visible in advanced mode																						not tested
+
+
+HOTKEY
+	
+- Hotkeys work on duplicated script:																							not tested
+- Hotkeys work for Start / Pause Timer:																							not tested
+- Hotkeys work for Reset Timer:																									not tested
+- Hotkeys work for Split Time:																									not tested
+- Hotkeys work for Show / Hide Miliseconds:																						not tested
+
+
+PROPERTIES BACKUP TEST:
+
+- Backup options visible if enabled: 																							not tested
+- Backup options hidden if disabled: 																							not tested
+- if 'export settings' button activated the property settings are exported to json file:										not tested
+- 'load setting' list auto update if settings refreshed																			not tested
+- 'load setting' list auto update if folder is selected containing valid settings files:										not tested
+- 'Import Button' becomes visible if a valid settings file is selected from the list:											not tested
+- 'Import Button' becomes hidden if a valid settings file is not selected from the list:										not tested
+
+TIMER TEST:
+
+- 'Start Timer on Source Visible' checkbox hidden visible by config:															not tested
+- 'Start Timer on Scene Active' checkbox hidden visible by config:																not tested
+- 'Disable Script' checkbox by hidden visible config:																			not tested
+- 'Backup Mode' checkbox by hidden visible config:																				not tested
+- Timestamp prefix operational:																									not tested
+- Timestamp suffix operational:																									not tested
+- Timestamp Marker A text font colour operational:																				not tested
+- Timestamp Marker B text font colour operational:																				not tested
+- Timestamp Marker A note source select operational:																			not tested
+- Timestamp Marker B note source select operational:																			not tested
+- Timestamp Marker A note source text contents operational:																		not tested
+- Timestamp Marker B note source text contents operational:																		not tested
+- Timestamp Marker A note hides on reset:																						not tested
+- Timestamp Marker B note hides on reset:																						not tested
+- Timestamp Marker A media source select operational:																			not tested
+- Timestamp Marker B media source select operational:																			not tested
+- Marker A media pause on timer pause:																							not tested
+- Marker B media pause on timer pause:																							not tested
+- Marker A media unpause on timer pause:																						not tested
+- Marker B media unpause on timer pause:																						not tested
+- Marker A media source visibilty hidden when timer ends:																		not tested
+- Marker B media source visibilty hidden when timer ends:																		not tested
+- Marker A media source visibilty hidden when media ends:																		not tested
+- Marker B media source visibilty hidden when media ends:																		not tested
+- Media Playback limit enable / disable show hides limit sliders:																not tested
+- Auto Recording expands options if enabled:																					not tested
+- Auto Recording available in Countdown Mode only:																				not tested
+
+
+STOPWATCH TEST:
+
+- Stopwatch Marker A media ends if media playback limit enabled and time limit is met:											not tested
+- Stopwatch Marker B media ends if media playback limit enabled and time limit is met:											not tested
+- Save last timestamp: Auto loads last saved timestamp, if enabled: 															not tested
+- Save last timestamp: Continue from last saved timestamp, if enabled:															not tested
+- Save last timestamp: timestamp set to zero, if reset activated, if enabled:													not tested
+- Save last timestamp: Cleared if feature not enabled:																			not tested 
+- Save last timestamp: 'last saved' timestamp property field hidden:															not tested
+- Set Stopwatch: timestamp is adjusted to defined time if set button is clicked:												not tested 	
+- Set Stopwatch: Continue from set a timestamp, if enabled:																		not tested	
+- Set Stopwatch: set timestamp options hidden if not enabled:																	not tested
+- Set Stopwatch: set timestamp checkbox hidden if timer not stopwatch or timer settings hidden or not in advanced mode:			not tested
+- 'Start Timer on Source Visible' Timer starts if text source visibility is set to visible:										not tested
+- 'Start Timer on Source Visible' Timer starts if text source visibility is set to visible, from a Set time:					not tested
+- Stopwatch: Timer does not auto start if text source visibility is set to visible, if disabled:								not tested
+- Stopwatch: auto start if enabled for scene with timer text source is active:													not tested
+- Stopwatch: start timer on scene active when enabled auto starts the timer when scene becomes active:							not tested
+- Stopwatch: start timer on scene active when not enabled won't start the timer when scene becomes active:						not tested
+- Stopwatch: if script is disabled the timer wont initiate:																		not tested	
+- Stopwatch: timer continue on start / stop:																					not tested
+- Stopwatch: on reset the timer resets:																							not tested
+- Stopwatch: Marker A timestamp activation is accurate:																			not tested
+- Stopwatch: Marker B timestamp activation is accurate:																			not tested
+- Stopwatch: Marker A media play on timestamp:																					not tested
+- Stopwatch: Marker B media play on timestamp:																					not tested
+- Stopwatch: Marker A media play reset on reset:																				not tested
+- Stopwatch: Marker B media play reset on reset:																				not tested
+- Stopwatch: Marker A media play stops when playback limit is enabled and time limit expires:									not tested
+- Stopwatch: Marker B media play stops when playback limit is enabled and time limit expires:									not tested
+- Split: Selects the correct source:																							not tested
+- Split: Adds new entry on button interaction:																					not tested
+- Split: Inteval Setting Adds new Interval entry on button interaction:															not tested
+- Split: Mark Setting Adds new Mark entry on button interaction:																not tested
+- Split: Mark Inteval Setting Adds new Mark Interval entry on button interaction:												not tested
+- Split: Inteval Mark Setting Adds new Inteval Mark entry on button interaction:												not tested
+- Timestamp: 'Custom Format' displays correctly:																				not tested
+- Timestamp: 'Display Full Format' displays correctly:																			not tested
+- Timestamp: 'No leading Zeros' Format displays correctly:																		not tested
+- Timestamp: 'No leading Zeros, No split seconds' Format displays correctly:													not tested
+- Timestamp: 'No split seconds' Format displays correctly:																		not tested
+																				
+
+COUNTDOWN
+	
+- Auto Recording activates if enabled for 'Timer Starts':																		not tested
+- Auto Recording activates if enabled for 'Timer Visible':																		not tested
+- Auto Recording activates if enabled for 'Marker A Time':																		not tested
+- Auto Recording activates if enabled for 'Marker B Time':																		not tested
+- Auto Recording activates if enabled for 'Timer Expires':																		not tested
+- Countdown mode Marker A media ends if media playback limit enabled and time limit is met:										not tested
+- Countdown mode Marker B media ends if media playback limit enabled and time limit is met:										not tested
+- Countdown timer continue on start / stop:																						not tested
+- Countdown timer time updates instantly in the timer display when modified:													not tested
+- Timestamp Marker A media play on timestamp:																					not tested
+- Timestamp Marker B media play on timestamp:																					not tested
+- 
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 --Globals
 obs           				= obslua
-gversion 					= "4.1"
+gversion 					= "4.2"
 luafile						= "StopWatch.lua"
 obsurl						= "comprehensive-stopwatch-countdown-timer.1364/"
 patch_notes					= "Patch Notes"
@@ -170,11 +318,14 @@ split_data					= nil
 script_settings 			= nil
 props 						= nil
 timer_mode_changed 			= false
+set_timer_activated			= false
+color_normal_updated 		= false
 activated     				= false
 prevent_callback  			= false
 timer_active  				= false
 reset_activated				= false
 start_on_visible  			= false
+force_reset_on_visible		= false
 active_source_force_visible	= false
 start_on_scene_active		= false
 disable_script   			= false
@@ -767,7 +918,7 @@ end
 	input type: 	
 	returns:		hold and release
 ----------------------------------------------------------------------------------------------------------------------------------------
-]]
+]]	
 local function wait( ms )
 	if ms ~= nil then
 		local start = math.floor( ( obs.os_gettime_ns()/1000000 ) )
@@ -796,7 +947,15 @@ end
 local function record( mark, ms )
 	if timer_mode ~= 2 then return end
 	if start_recording == 1 and mark == recording_type then
-		obs.obs_frontend_recording_start()
+		
+		--[[
+				recording should only be started if it is not already recording
+		
+		]]
+		
+		if not obs.obs_frontend_recording_active() then
+			obs.obs_frontend_recording_start()
+		end
 	end
 	if ms ~= nil then wait( ms ) end 
 end
@@ -1138,7 +1297,7 @@ local function set_text( source_name, text )
 	local source = obs.obs_get_source_by_name( source_name )
 	if source ~= nil then
 		local settings = obs.obs_source_get_settings( source )
-		obs.obs_data_set_string( settings, "text", text )	
+		obs.obs_data_set_string( settings, "text", text )
 	end
 		obs.obs_source_update( source, settings )
 		obs.obs_data_release( settings )
@@ -1620,6 +1779,105 @@ local function stop_media_action( ref )
 		end -- 	source ~= nil
 	end
     obs.obs_source_release( source ) -- release source from the reference counter	
+end	
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Stop Media Playback
+	
+	Credit:			OBS, midnight-studios
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:	none
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function stop_media_playback( source_name )
+	
+	if in_table( {"","None", "Select","none", "select"}, source_name ) or not is_visible( source_name ) then return end
+			
+		local source = obs.obs_get_source_by_name( source_name )
+	
+		if source ~= nil then
+			local source_id = obs.obs_source_get_unversioned_id( source ) -- unversioned_id will not be affected by language settings
+			if source_id ~= "ffmpeg_source" then return end -- apply this to media type sources only
+			local state = obs.obs_source_media_get_state( source ) -- get the current state for the source
+			if state == obs.OBS_MEDIA_STATE_PLAYING or obs.OBS_MEDIA_STATE_PAUSED then
+				obs.obs_source_media_stop( source )
+			end
+			--obs.obs_source_media_get_duration( source )
+			--obs.obs_source_media_get_time( source )
+			--obs.obs_source_media_restart( source )
+		end
+		obs.obs_source_release( source )
+end	
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Play / Pause Media
+	
+	Credit:			OBS, midnight-studios
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:	none, play /pause media source
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function pause_play_media( source_name, play )
+	
+	if in_table( {"","None", "Select","none", "select"}, source_name ) or not is_visible( source_name ) then return end
+			
+		local source = obs.obs_get_source_by_name( source_name )
+	
+		if source ~= nil then
+			local source_id = obs.obs_source_get_unversioned_id( source ) -- unversioned_id will not be affected by language settings
+			if source_id ~= "ffmpeg_source" then return end -- apply this to media type sources only
+			obs.obs_source_media_play_pause( source, play )
+			--obs.obs_source_media_get_duration( source )
+			--obs.obs_source_media_get_time( source )
+			--obs.obs_source_media_restart( source )
+        	--local state = obs.obs_source_media_get_state( source ) -- get the current state for the source	
+			--if state == obs.OBS_MEDIA_STATE_PLAYING  then
+			--end
+			--if state == obs.OBS_MEDIA_STATE_PAUSED  then
+			--end
+		end
+		obs.obs_source_release( source )
+end	
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	
+	Description:	Stop Media is designed to reset the source to its
+					starting state. In other words, make the source
+					invisible again. This sould only happen if the media
+					ended, or if it is looped, then end the media after a
+					defined time.
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function stop_looping_media( ref )
+	local source_name = media["source_name_audio_".. ref]
+	if get_source_looping( source_name ) then 
+		stop_media_playback( source_name )
+		--[[
+			We don't need this because we have already
+			attached a source signal hanlder for 'media_ended'
+			that will hide the source if it is ended
+		]]
+		--set_visible( source_name, false ) -- Set the media source state to hidden.  
+	end 
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
@@ -1663,7 +1921,7 @@ end
 	returns:		nothing
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
-local function cycle_list_activate( source_type )
+local function cycle_source_list_by_source_type( source_type )
 	--[[
 	
 		Create a table for a list
@@ -1958,8 +2216,9 @@ function update_timer_display( source_name, text )
 	if source ~= nil then
 	
 		local settings = obs.obs_source_get_settings( source )
-		if not media["activated_marker_a"] and not media["activated_marker_b"] then ---<BUG
+		if not media["activated_marker_a"] and not media["activated_marker_b"] and not color_normal_updated then
 			obs.obs_data_set_int( settings, "color", media["color_normal"] )
+			color_normal_updated = true
 		end	
 		
 		time_mark_check( "marker_a" )
@@ -2313,7 +2572,7 @@ local function default_timer_globals( set_to_default )
 			current_seconds = 0 
 			sw_current_seconds = 0
 		end	
-		
+		color_normal_updated = false
 		media["activated_marker_a"] 		= false
 		media["activated_marker_b"] 		= false
 	end
@@ -2698,7 +2957,12 @@ local function activate( activating )
 			if timer is activating, it has not expired
 		]]
 		timer_expired = false
-
+		
+		--[[
+			Once the timer started, this setting will default
+		]]
+		set_timer_activated = false
+		
 		start_timer() -- Timer now initiated
 		--[[
 			
@@ -2738,6 +3002,44 @@ local function activate( activating )
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Usually called by a button or hotkey press
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function on_pause( pressed )
+	if not pressed then 
+		return true
+	end
+	
+	update_prop_settings_current_seconds( current_seconds ) -- update current time to last time in properties
+	--[[
+		
+		Set timer source  visibility to visible
+		
+	]]	
+	set_visible( timer_source, true )
+	
+	if timer_active then
+		activate( false )
+	else
+		if activated == false then	
+			activate( true )
+		end	
+	end
+		pause_play_media( media["source_name_audio_marker_a"], not timer_active )
+		pause_play_media( media["source_name_audio_marker_b"], not timer_active )
+	return true
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	Take the values from the properties and assign it to the timer
 	
 	Credit:			
@@ -2757,8 +3059,9 @@ local function set_stopwatch()
 	local ss = ( sw_seconds_saved )
 	local ff = ( sw_milliseconds_saved / ( 99 + time_frequency ) )
 	local time = ( hh + mm + ss + ff ) 
-	timer_value( time, false )
+	timer_value( time, true ) -- Update the last saved time here
 	set_time_text( timer_source )
+	
 end	
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
@@ -2898,40 +3201,7 @@ end
 ]]
 local function delayed_recording()
 	obs.timer_add( recording_callback, 100 ) --<- milliseconds 
-end	
---[[
-----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Play / Pause Media
-	
-	Credit:			OBS, midnight-studios
-
-	Modified:		
-
-	function:		
-	type:			
-	input type: 	
-	returns:	none, play /pause media source
-----------------------------------------------------------------------------------------------------------------------------------------
-]]
-local function pause_play_media( source_name, play )
-	
-	if in_table( {"","None", "Select","none", "select"}, source_name ) or not is_visible( source_name )then return end
-			
-		local source = obs.obs_get_source_by_name( source_name )
-	
-		if source ~= nil then
-			obs.obs_source_media_play_pause( source, play )
-			--obs.obs_source_media_get_duration( source )
-			--obs.obs_source_media_get_time( source )
-			--obs.obs_source_media_restart( source )
-        	--local state = obs.obs_source_media_get_state( source ) -- get the current state for the source	
-			--if state == obs.OBS_MEDIA_STATE_PLAYING  then
-			--end
-			--if state == obs.OBS_MEDIA_STATE_PAUSED  then
-			--end
-		end
-		obs.obs_source_release( source )
-end	
+end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	Called when a source is activated/deactivated
@@ -2946,7 +3216,7 @@ end
 	returns:
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
-local function activate_signal( cd, activating )
+local function activate_signal( cd, connected )
 	--[[
 	
 		Capture / Retrieve Callback Data
@@ -2965,15 +3235,40 @@ local function activate_signal( cd, activating )
 		--[[
 		
 		]]		
-		activate_timer_on_scene( source, activating )
+		activate_timer_on_scene( source, connected )
 		--[[
 		
 			Check if scene has source
 		
 		]]
 		if ( name == timer_source ) then
-			if activating then record( 4, 300 ) end
+			if connected then record( 4, 300 ) end
+			
 			if start_on_visible or start_on_scene_active then
+				--[[
+					Source visibility was set to hidden
+				]]
+				if not connected then
+
+					update_prop_settings_current_seconds( current_seconds ) -- update current time to last time in properties
+					
+				--if timer_mode == 1 and reset_activated then
+				--	update_prop_settings_current_seconds( 0 ) 
+				--	current_seconds = 0 
+				--	sw_current_seconds = 0
+				--end	
+					
+					
+					
+					
+					
+					
+					
+					
+					pause_play_media( media["source_name_audio_marker_a"], true )
+					pause_play_media( media["source_name_audio_marker_b"], true )
+				end
+
 				--[[
 
 					timer_mode: either
@@ -2985,8 +3280,15 @@ local function activate_signal( cd, activating )
 
 					purpose: User requires the timer to intiate.
 				]]
-				update_timer_settings( true ) -- optional inputs: set_to_default(bool), new_settings(obs_property_data/obs_userdata)
-				activate( activating )
+				if not set_timer_activated and force_reset_on_visible then
+					update_timer_settings( true ) -- optional inputs: set_to_default(bool), new_settings(obs_property_data/obs_userdata)
+				end
+				
+				if connected then	
+					activate( true )
+				else
+					activate( false )
+				end		
 			end
 		end
 	end
@@ -3022,7 +3324,19 @@ local function reset( pressed )
 	else -- key was released 
 		--return -- uncomment 'return' to ignore the call when key is released
 	end
-	
+
+	--[[
+		Set visibility to first position
+	]]	
+	set_visible( media["source_name_audio_marker_a"], false )
+	set_visible( media["source_name_audio_marker_b"], false )
+	--[[
+		Set bool to first position
+	]]	
+	media["media_ended_marker_a"] = false
+	media["media_ended_marker_b"] = false
+	color_normal_updated 		  = false 
+	set_timer_activated 		  = false 	
 	--[[
 	
 		force text update by changing last_text
@@ -3047,7 +3361,7 @@ local function reset( pressed )
 		Handle Timer Callback
 	
 	]]
-	activate( false )
+	activate( false ) -- start or stop the timer, in this case, stop the timer and get it ready start again
 	--[[
 	
 		Reset timer split seconds text
@@ -3068,16 +3382,6 @@ local function reset( pressed )
 		]]	
 		if active_source_force_visible then set_visible( active_source, false ) end
 	end
-	--[[
-		Set visibility to first position
-	]]	
-	set_visible( media["source_name_audio_marker_a"], false )
-	set_visible( media["source_name_audio_marker_b"], false )
-	--[[
-		Set bool to first position
-	]]	
-	media["media_ended_marker_a"] = false
-	media["media_ended_marker_b"] = false
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
@@ -3159,44 +3463,6 @@ local function property_button_update_start()
 	end	
 	return props
 end	
---[[
-----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Usually called by a button or hotkey press
-	
-	Credit:			
-
-	Modified:		
-
-	function:		
-	type:			
-	input type: 	
-	returns:
-----------------------------------------------------------------------------------------------------------------------------------------
-]]
-local function on_pause( pressed )
-	if not pressed then 
-		return true
-	end
-	
-	update_prop_settings_current_seconds( current_seconds ) -- update current time to last time in properties
-	--[[
-		
-		Set timer source  visibility to visible
-		
-	]]	
-	set_visible( timer_source, true )
-	
-	if timer_active then
-		activate( false )
-	else
-		if activated == false then	
-			activate( true )
-		end	
-	end
-		pause_play_media( media["source_name_audio_marker_a"], not timer_active )
-		pause_play_media( media["source_name_audio_marker_b"], not timer_active )
-	return true
-end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	Callback for button press
@@ -3288,6 +3554,7 @@ end
 local function sw_saved_button_clicked( props, p, settings )
 	if timer_mode == 1 then
 		set_stopwatch()
+		set_timer_activated = true
 	end
 	return false
 end
@@ -3409,6 +3676,17 @@ local function loaded( cd )
 		Found Source:
 	]]
 	if source ~= nil then 
+		
+		local name = obs.obs_source_get_name( source ) -- Get the source name, this will be a unique identifier 
+		--[[
+			Does the name match the property value?
+		]] 
+		if ( name == timer_source ) then
+			if start_on_visible and not start_on_scene_active then
+				set_visible( timer_source, false ) -- set hidden as a starting point, the user can start the timer by setting it to visible
+			end	
+		end	
+		
 		if obs.obs_source_get_id( source ) ~= "scene" then
 			sources_loaded = sources_loaded + 1 -- add this to the loaded sopurce tally
 		end	
@@ -3422,21 +3700,22 @@ local function loaded( cd )
 		so check that all sources are loaded before continuing
 	]]
 	if all_sources_loaded then
-		--[[
-			Does the name match the defined Script Settings name?
-		]] 
-		if ( name == timer_source ) then
-			if timer_mode == 1 then
-				if load_saved_time then
-					timer_value( sw_current_seconds, false ) -- value, update_settings 
-				else
-					timer_value( 0, false )
-					reset( true )	
-				end	
+		
+		set_visible( media["source_name_audio_marker_a"], false ) -- set hidden just in case
+		set_visible( media["source_name_audio_marker_b"], false ) -- set hidden just in case
+		if start_on_visible and not start_on_scene_active then
+			set_visible( timer_source, false ) -- set hidden as a starting point, the user can start the timer by setting it to visible
+		end	
+		if timer_mode == 1 then
+			if load_saved_time then
+				timer_value( sw_current_seconds, false ) -- value, update_settings 
 			else
+				timer_value( 0, false )
 				reset( true )	
 			end	
-		end		
+		else
+			reset( true )	
+		end	
 	end	
 end
 --[[
@@ -3556,6 +3835,7 @@ local function load_settings_globals( settings )
 	media["text_marker_b"] = obs.obs_data_get_string( settings, "text_marker_b" )
 	media_playback_limit = obs.obs_data_get_int( settings, "media_playback_limit" )
     start_on_scene_active = obs.obs_data_get_bool( settings,"start_on_scene_active" )
+    force_reset_on_visible = obs.obs_data_get_bool( settings,"force_reset_on_visible" )	
 	media["source_name_audio_marker_a"] = obs.obs_data_get_string( settings, "audio_marker_a" )
 	media["source_name_audio_marker_b"] = obs.obs_data_get_string( settings, "audio_marker_b" )	
     active_source_force_visible = obs.obs_data_get_bool( settings,"active_source_force_visible" )
@@ -3719,6 +3999,7 @@ local function property_onchange( props, property, settings )
 	local export_folder_prop = obs.obs_properties_get( props, "backup_folder" )
 	local disable_script_prop = obs.obs_properties_get( props, "disable_script" )
 	local start_on_visible_prop = obs.obs_properties_get( props, "start_on_visible" )
+	local force_reset_on_visible_prop = obs.obs_properties_get( props, "force_reset_on_visible" )
 	local start_on_scene_active_prop = obs.obs_properties_get( props, "start_on_scene_active" )
 	--[[
 	
@@ -3758,7 +4039,7 @@ local function property_onchange( props, property, settings )
 	obs.obs_property_set_visible( text_suffix_prop, config_value == 2 and timer_options_value == 2 )
 	obs.obs_property_set_visible( timer_format_prop, config_value == 2 and timer_options_value == 2 )	
 	obs.obs_property_set_visible( color_normal_prop, config_value == 2 and timer_options_value == 2  )
-	obs.obs_property_set_visible( set_stopwatch_prop, ( config_value == 2 and timer_mode_value == 1 ) )
+	obs.obs_property_set_visible( set_stopwatch_prop, ( config_value == 2 and timer_mode_value == 1 and timer_options_value == 2 ) )
 	obs.obs_property_set_visible( timer_source_prop, ( config_value == 2 and timer_options_value == 2 ) )
 	obs.obs_property_set_visible( split_type_prop, timer_mode_value == 1 and config_value == 2 and timer_options_value == 2 )
 	obs.obs_property_set_visible( split_source_prop, timer_mode_value == 1 and config_value == 2 and timer_options_value == 2 )
@@ -3833,6 +4114,7 @@ local function property_onchange( props, property, settings )
 	]]		
 	obs.obs_property_set_visible( disable_script_prop, config_value == 2 )
 	obs.obs_property_set_visible( start_on_visible_prop, config_value == 2 )
+	obs.obs_property_set_visible( force_reset_on_visible_prop, config_value == 2 and start_on_visible )
 	obs.obs_property_set_visible( start_on_scene_active_prop, config_value == 2 )
 	--[[
 		
@@ -3942,6 +4224,29 @@ local function property_onchange( props, property, settings )
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:		
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function cycle_source_list( source_type )
+		reset( true ) -- Reset the timer
+		cycle_source_list_by_source_type( source_type )
+		--[[
+			Set timer_active for it to self-start
+		]]	
+		--timer_active = false
+		on_pause( true ) -- Restart the timer
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	Only used in Countdown mode
 	
 	Credit:			
@@ -3955,9 +4260,16 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]] 
 function timer_ended( source_name )
-
+	--[[
+		If user wants recording to start when timer ended, now is a good timer to initiate recording
+		NOTE: Recording will only be started, if it is not already recording
+	]]	
 	delayed_recording()
-	
+	--[[
+		Force media playback to end, if the media is looping
+	]]		
+	stop_looping_media( "marker_a" )
+	stop_looping_media( "marker_b" )
 	--[[
 		Timer expired and a scene change is requested.
 	]]	
@@ -3999,7 +4311,7 @@ function timer_ended( source_name )
 				timer_expired:		false		true
 				update_timer_settings ---> set_time_text ---> timer_ended ---> update_timer_settings -- death loop
 			]]
-			update_timer_settings( true ) -- optional inputs: set_to_default(bool), new_settings(obs_property_data/obs_userdata) 	<BUG, set text colour
+			update_timer_settings( true ) -- optional inputs: set_to_default(bool), new_settings(obs_property_data/obs_userdata) 
 		end
 		
 		--[[
@@ -4016,23 +4328,11 @@ function timer_ended( source_name )
 	end
 
 	if next_scene == "Source List" then
-		reset( true ) -- Reset the timer
-		cycle_list_activate( "source" )
-		--[[
-			Set timer_active for it to self-start
-		]]		
-		--timer_active = false
-		on_pause( true ) -- Restart the timer
+		cycle_source_list( "source" )
 	end	
 
 	if next_scene == "Scene List" then
-		reset( true ) -- Reset the timer
-		cycle_list_activate( "scene" )
-		--[[
-			Set timer_active for it to self-start
-		]]		
-		--timer_active = false
-		on_pause( true ) -- Reset the timer
+		cycle_source_list( "scene" )
 	end	
 
 	if next_scene == "TIMER END TEXT" then
@@ -4044,7 +4344,7 @@ function timer_ended( source_name )
 		TODO> We want to update the timer start button description at this point.
 		
 	]]
-end
+end	
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	A function named script_properties defines the properties that the user
@@ -4357,7 +4657,7 @@ function script_properties()
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]	
-	local p_26 = obs.obs_properties_add_list( props, "enable_marker_notes", "<i>Trigger Text</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
+	local p_26 = obs.obs_properties_add_list( props, "enable_marker_notes", "<i>Marker Notes</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT )
 	 t_type = {"Disabled", "Enabled"} -- Add options to the list
   	for i,v in ipairs( t_type ) do obs.obs_property_list_add_int( p_26, v, i ) end -- This list is auto indexed thus have an interger reference containing a string value
 	obs.obs_property_set_long_description( p_26, "\nAllows a note to be displayed when the timer match Marker A and Marker B timestamps.\n" ) -- User Tip
@@ -4620,7 +4920,13 @@ function script_properties()
 		This provides function interaction to change feature behaviour.
 		Interacting with this property will impact on feature options and behaviour.
 	]]
-    obs.obs_properties_add_bool( props, "start_on_visible", "Start Timer on Source Visible" )
+    local p_51 = obs.obs_properties_add_bool( props, "start_on_visible", "Start Timer on Source Visible" )
+	 --[[
+		Property Checkbox: User interaction that will disable the plugin.
+		This provides function interaction to change feature behaviour.
+		Interacting with this property will impact on feature options and behaviour.
+	]]
+    obs.obs_properties_add_bool( props, "force_reset_on_visible", "Reset timer on Source Visible" )
 	 --[[
 		Property Checkbox: User interaction that will start timer if scene with timer source becomes active.
 		This provides function interaction to change feature behaviour.
@@ -4646,7 +4952,7 @@ function script_properties()
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]
-	local p_51 = obs.obs_properties_add_bool( props, "backup_mode", "Backup Mode" )
+	local p_52 = obs.obs_properties_add_bool( props, "backup_mode", "Backup Mode" )
 	 --[[
 		Property Directory Path: User interaction that select a directory path.
 		This provides function interaction to change feature behaviour.
@@ -4654,7 +4960,7 @@ function script_properties()
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]
-	local p_52 = obs.obs_properties_add_path( props, "backup_folder", "Backup Folder", obs.OBS_PATH_DIRECTORY, nil, nil)
+	local p_53 = obs.obs_properties_add_path( props, "backup_folder", "Backup Folder", obs.OBS_PATH_DIRECTORY, nil, nil)
 	--[[
 		Property list: User interaction that will execute an import feature.
 		This provides function interaction to change feature behaviour.
@@ -4662,13 +4968,13 @@ function script_properties()
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]
-	local p_53 = obs.obs_properties_add_list( props, "import_list", "<i>Load Settings</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
-	obs.obs_property_list_add_string( p_53, "Select ", "select" ) -- Adds a default option to the list. First (top-most) list item. If selected the option is ignored. 
-	obs.obs_property_set_long_description( p_53, "\nSelect the Settings file to import.\n" ) -- User Tip
+	local p_54 = obs.obs_properties_add_list( props, "import_list", "<i>Load Settings</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
+	obs.obs_property_list_add_string( p_54, "Select ", "select" ) -- Adds a default option to the list. First (top-most) list item. If selected the option is ignored. 
+	obs.obs_property_set_long_description( p_54, "\nSelect the Settings file to import.\n" ) -- User Tip
 	local filenames = get_filenames( path, ".json" ) -- list all files of type
 	if table.getn( filenames ) > 0 then
   		for i,v in pairs( filenames ) do 
-			obs.obs_property_list_add_string( p_53, v, v ) -- Add options to the list
+			obs.obs_property_list_add_string( p_54, v, v ) -- Add options to the list
 		end
 	end
 	--[[
@@ -4676,7 +4982,7 @@ function script_properties()
 		This provides function interaction to change feature behaviour.
 		Interacting with this property will complete a feature task. 
 	]]
-	local p_54 = obs.obs_properties_add_button( props, "export_button", "Export Settings", export_button_clicked )
+	local p_55 = obs.obs_properties_add_button( props, "export_button", "Export Settings", export_button_clicked )
 	 --[[
 		Property Button: User interaction that will import available property settings from a json file
 		and apply them to the properties.
@@ -4685,7 +4991,7 @@ function script_properties()
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]
-	local p_55 = obs.obs_properties_add_button( props, "import_button", "Import Settings", import_button_clicked )
+	local p_56 = obs.obs_properties_add_button( props, "import_button", "Import Settings", import_button_clicked )
 	
 	obs.source_list_release( sources ) -- free memory, release sources as it is no longer needed
 	--[[ 
@@ -4713,10 +5019,11 @@ function script_properties()
   	obs.obs_property_set_modified_callback( p_35, property_onchange )		-- active_source
   	obs.obs_property_set_modified_callback( p_36, property_onchange )		-- next_scene
 	obs.obs_property_set_modified_callback( p_50, property_onchange )		-- set_stopwatch
-	obs.obs_property_set_modified_callback( p_51, property_onchange )		-- backup_mode
-	obs.obs_property_set_modified_callback( p_52, property_onchange )		-- backup_folder
-	obs.obs_property_set_modified_callback( p_53, property_onchange )		-- import_list
-	obs.obs_property_set_modified_callback( p_55, import_properties )		-- import_button
+	obs.obs_property_set_modified_callback( p_51, property_onchange )		-- force_reset_on_visible
+	obs.obs_property_set_modified_callback( p_52, property_onchange )		-- backup_mode
+	obs.obs_property_set_modified_callback( p_53, property_onchange )		-- backup_folder
+	obs.obs_property_set_modified_callback( p_54, property_onchange )		-- import_list
+	obs.obs_property_set_modified_callback( p_56, import_properties )		-- import_button
 	-- Calls the callback once to set-up current visibility
   	obs.obs_properties_apply_settings( props, script_settings )
 	return props
@@ -4752,7 +5059,7 @@ function script_update( settings )
 	
 	reset_mili( )
 	
-	activate( false )
+	reset( true ) -- anything could have changed so reset everything
 	--[[
 
 		If setting changed, update timer
@@ -4842,6 +5149,7 @@ function script_defaults( settings )
 	obs.obs_data_set_default_bool( settings, "load_saved_time", false )
 	obs.obs_data_set_default_bool( settings, "start_on_visible", false )
 	obs.obs_data_set_default_bool( settings, "start_on_scene_active", false )
+	obs.obs_data_set_default_bool( settings, "force_reset_on_visible", false )
 	obs.obs_data_set_default_bool( settings, "active_source_force_visible", false )
 	-- Keep track of current settings
   	script_settings = settings 
