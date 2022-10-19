@@ -159,7 +159,7 @@ desc	    				=
 <hr/><center><h2>Advanced Stopwatch</h2>( Version: %s )</center>
 <br><center><img width=38 height=42 src="]] .. icon .. [["/></center>
 <br><center><a href="https://github.com/midnight-studios/obs-lua/blob/main/]] .. luafile ..[[">Find it on GitHub</a></center>
-<center><a href="https://obsproject.com/forum/resources/]] .. obsurl ..[[updates]] .. patch_notes ..[[">Patch Notes</a></center>
+<center><a href="https://obsproject.com/forum/resources/]] .. obsurl ..[[updates">]] .. patch_notes ..[[</a></center>
 <br><p>The Properties for this script will adjust visibility as needed. Some advanced properties will only be visible if the Configuration is set to "Advanced". If the Configuration is set to "Basic" the defined values will still be used, so ensure you define those correctly.</p><p>Find help on the <a href="https://obsproject.com/forum/resources/]] .. obsurl ..[[">OBS Forum Thread</a>.</p><hr/>
 ]]
 text_prefix 						= ""
