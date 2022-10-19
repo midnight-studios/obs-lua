@@ -4,12 +4,33 @@ Open Broadcaster Software®️
 OBS > Tools > Scripts
 @midnight-studios
 Stopwatch
+***************************************************************************************************************************************
+
+Version 4.3
+
+Published / Released: 2022-10.20 11:51
+
+NEW FEATURES
+
+- 
+
+OPTIMIZATION
+
+- 
+
+USER EXPERIENCE & FEATURE ENHANCEMENTS
+
+- 
+
+BUGS
+
+- Fixed the expired timestamp for 'custom time format'
 
 ***************************************************************************************************************************************
 
 Version 4.2
 
-Published / Released: 2022-10.19 21:23
+Published / Released: 2022-10.20 21:23
 
 NEW FEATURES
 
@@ -128,7 +149,7 @@ BUGS
 ]]
 --Globals
 obs           				= obslua
-gversion 					= "4.2"
+gversion 					= "4.3"
 luafile						= "StopWatch.lua"
 obsurl						= "comprehensive-stopwatch-countdown-timer.1364/"
 patch_notes					= "Patch Notes"
@@ -1085,13 +1106,19 @@ local function format_time( timestamp, format )
 		format = format:gsub(",$F", ""):gsub("$F", "") -- remove these if by default
 		timestamp = format:gsub("$T", ""):gsub("$D", day):gsub( "$H", hour):gsub("$M", minute):gsub("$S", seconds)
 	end 
+	--[[
+		If the user wants leading zeros trimmed
+	]]
 	if t ~= 0 and current_seconds > 0.01 then
 		--local reg = "^[0]+[:]?[0]+[:]?[0]+[:]?[0]?"
 		local reg = "^[0:,]*" -- close, but misses 1 instance
 		timestamp = timestamp:gsub(reg, "")
 	end	
+	--[[
+		If the user wants end time stamp displayed
+	]]	
 	if current_seconds < 0.01 and ( timer_display == 1 and timer_mode ~= 1 ) then
-		if timer_format ~= 1 then timestamp = "0" end -- the user wants the timer to end with a reminder that it is Game Over
+		if not in_table({1,5}, timer_format ) then timestamp = "0" end -- the user wants the timer to end with a reminder that it is Game Over
 	end	
 	if current_seconds < 0.01 and timer_display == 2 then -- else it will show 00:00:00
 		timestamp = "" -- the user wants the timer to disapear
