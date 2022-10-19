@@ -9,7 +9,7 @@ Stopwatch
 
 Version 4.2
 
-Published / Released: 2022-10.07 18:34
+Published / Released: 2022-10.18 03:26
 
 NEW FEATURES
 
@@ -124,131 +124,6 @@ BUGS
 - Fixed Media Playback time limit
 - Fixed Split time outputs for Stopwatch
 
-***************************************************************************************************************************************
-TODO> 
-
-- Crtical Crash from hoykey due to 
-- Testing
-- No tasks outstanding 
-
-TESTING REPORT:
-
-PROPERTIES UI TEST:
-
-- Advanced Basic swicth hides and shows features																				ok
-- Timer Settings visible in advanced mode																						ok
-- Marker Settings visible in advanced mode																						ok
-
-
-HOTKEY
-	
-- Hotkeys work on duplicated script:																							ok
-- Hotkeys work for Start / Pause Timer:																							ok
-- Hotkeys work for Reset Timer:																									ok
-- Hotkeys work for Split Time:																									ok
-- Hotkeys work for Show / Hide Miliseconds:																						ok
-
-
-PROPERTIES BACKUP TEST:
-
-- Backup options visible if enabled: 																							ok
-- Backup options hidden if disabled: 																							ok
-- if 'export settings' button activated the property settings are exported to json file:										ok
-- 'Load Setting' list auto update if the Script is refreshed:																	ok
-- 'Load Setting' list auto update if folder is selected containing valid settings files:										ok
-- 'Import Button' becomes visible if a valid settings file is selected from the list:											ok
-- 'Import Button' becomes hidden if a valid settings file is not selected from the list:										ok
-
-TIMER TEST:
-
-- 'Start Timer on Source Visible' checkbox hidden/visible by config:															ok
-- 'Start Timer on Scene Active' checkbox hidden/visible by config:																ok
-- 'Disable Script' checkbox by hidden visible config:																			ok
-- 'Backup Mode' checkbox by hidden visible config:																				ok
-- Timestamp prefix operational:																									ok
-- Timestamp suffix operational:																									ok
-- Timestamp Marker A text font colour operational:																				not tested
-- Timestamp Marker B text font colour operational:																				not tested
-- Timestamp Marker A note source select operational:																			not tested
-- Timestamp Marker B note source select operational:																			not tested
-- Timestamp Marker A note source text contents operational:																		not tested
-- Timestamp Marker B note source text contents operational:																		not tested
-- Timestamp Marker A note hides on reset:																						not tested
-- Timestamp Marker B note hides on reset:																						not tested
-- Timestamp Marker A media source select operational:																			not tested
-- Timestamp Marker B media source select operational:																			not tested
-- Timer End media source select operational:																					not tested
-- Marker A media pause on timer pause:																							not tested
-- Marker B media pause on timer pause:																							not tested
-- Marker A media unpause on timer pause:																						not tested
-- Marker B media unpause on timer pause:																						not tested
-- Marker A media source visibilty hidden when timer ends:																		not tested
-- Marker B media source visibilty hidden when timer ends:																		not tested
-- Marker A media source visibilty hidden when media ends:																		not tested
-- Marker B media source visibilty hidden when media ends:																		not tested
-- Timer End media source visibilty hidden when media ends:																		not tested
-- Media Playback limit enable / disable show hides limit sliders:																not tested
-- Auto Recording expands options if enabled:																					not tested
-- Auto Recording available in Countdown Mode only:																				not tested
-
-
-STOPWATCH TEST:
-
-- Stopwatch Marker A media ends if media playback limit enabled and time limit is met:											ok
-- Stopwatch Marker B media ends if media playback limit enabled and time limit is met:											ok
-- Save last timestamp: Auto loads last saved timestamp, if enabled: 															not tested
-- Save last timestamp: Continue from last saved timestamp, if enabled:															not tested
-- Save last timestamp: timestamp set to zero, if reset activated, if enabled:													not tested
-- Save last timestamp: Cleared if feature not enabled:																			not tested 
-- Save last timestamp: 'last saved' timestamp property field hidden:															not tested
-- Set Stopwatch: timestamp is adjusted to defined time if set button is clicked:												not tested 	
-- Set Stopwatch: Continue from set a timestamp, if enabled:																		not tested	
-- Set Stopwatch: set timestamp options hidden if not enabled:																	not tested
-- Set Stopwatch: set timestamp checkbox hidden if timer not stopwatch or timer settings hidden or not in advanced mode:			not tested
-- 'Start Timer on Source Visible' Timer starts if text source visibility is set to visible:										not tested
-- 'Start Timer on Source Visible' Timer starts if text source visibility is set to visible, from a Set time:					not tested
-- Stopwatch: Timer does not auto start if text source visibility is set to visible, if disabled:								not tested
-- Stopwatch: auto start if enabled for scene with timer text source is active:													not tested
-- Stopwatch: start timer on scene active when enabled auto starts the timer when scene becomes active:							not tested
-- Stopwatch: start timer on scene active when not enabled won't start the timer when scene becomes active:						not tested
-- Stopwatch: if script is disabled the timer wont initiate:																		not tested	
-- Stopwatch: timer continue on start / stop:																					not tested
-- Stopwatch: on reset the timer resets:																							not tested
-- Stopwatch: Marker A timestamp activation is accurate:																			not tested
-- Stopwatch: Marker B timestamp activation is accurate:																			not tested
-- Stopwatch: Marker A media play on timestamp:																					not tested
-- Stopwatch: Marker B media play on timestamp:																					not tested
-- Stopwatch: Marker A media play reset on reset:																				not tested
-- Stopwatch: Marker B media play reset on reset:																				not tested
-- Stopwatch: Marker A media play stops when playback limit is enabled and time limit expires:									not tested
-- Stopwatch: Marker B media play stops when playback limit is enabled and time limit expires:									not tested
-- Split: Selects the correct source:																							not tested
-- Split: Adds new entry on button interaction:																					not tested
-- Split: Inteval Setting Adds new Interval entry on button interaction:															not tested
-- Split: Mark Setting Adds new Mark entry on button interaction:																not tested
-- Split: Mark Inteval Setting Adds new Mark Interval entry on button interaction:												not tested
-- Split: Inteval Mark Setting Adds new Inteval Mark entry on button interaction:												not tested
-- Timestamp: 'Custom Format' displays correctly:																				not tested
-- Timestamp: 'Display Full Format' displays correctly:																			not tested
-- Timestamp: 'No leading Zeros' Format displays correctly:																		not tested
-- Timestamp: 'No leading Zeros, No split seconds' Format displays correctly:													not tested
-- Timestamp: 'No split seconds' Format displays correctly:																		not tested
-																				
-
-COUNTDOWN
-	
-- Auto Recording activates if enabled for 'Timer Starts':																		not tested
-- Auto Recording activates if enabled for 'Timer Visible':																		not tested
-- Auto Recording activates if enabled for 'Marker A Time':																		not tested
-- Auto Recording activates if enabled for 'Marker B Time':																		not tested
-- Auto Recording activates if enabled for 'Timer Expires':																		not tested
-- Countdown mode Marker A media ends if media playback limit enabled and time limit is met:										not tested
-- Countdown mode Marker B media ends if media playback limit enabled and time limit is met:										not tested
-- Countdown timer continue on start / stop:																						not tested
-- Countdown timer time updates instantly in the timer display when modified:													not tested
-- Timestamp Marker A media play on timestamp:																					not tested
-- Timestamp Marker B media play on timestamp:																					not tested
-- 
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 --Globals
@@ -266,13 +141,6 @@ desc	    				=
 <center><a href="https://obsproject.com/forum/resources/]] .. obsurl ..[[updates]] .. patch_notes ..[[">Patch Notes</a></center>
 <br><p>The Properties for this script will adjust visibility as needed. Some advanced properties will only be visible if the Configuration is set to "Advanced". If the Configuration is set to "Basic" the defined values will still be used, so ensure you define those correctly.</p><p>Find help on the <a href="https://obsproject.com/forum/resources/]] .. obsurl ..[[">OBS Forum Thread</a>.</p><hr/>
 ]]
-sources_loaded 						= 0
-total_sources 						= 0
-sw_hours_saved 						= 0
-sw_minutes_saved 					= 0
-sw_seconds_saved 					= 0
-sw_milliseconds_saved 				= 0
-split_type   						= 2
 text_prefix 						= ""
 text_suffix 						= ""
 last_text    						= ""
@@ -293,6 +161,13 @@ output_file_name 					= "-backup($date_stamp).json";
 font_normal							= "#ffffff"
 font_dimmed							= "#bfbbbf"
 font_highlight						= "#fffdcf"
+sources_loaded 						= 0
+total_sources 						= 0
+sw_hours_saved 						= 0
+sw_minutes_saved 					= 0
+sw_seconds_saved 					= 0
+sw_milliseconds_saved 				= 0
+split_type   						= 2
 current_seconds   					= 0
 cycle_direction						= 1
 default_seconds   					= 0
@@ -336,7 +211,7 @@ disable_script   					= false
 show_mili   						= true
 timer_expired  						= true
 mili_toggle_triggered				= false 
-media = {
+media = {							-- table start
 text_marker_b						= "",
 text_marker_a						= "",
 source_name_audio_marker_b			= "",
@@ -360,7 +235,7 @@ color_marker_a						= 4256749, -- 4256749 0x40f3ed
 color_marker_b						= 329050, -- 329050 0x05055a
 last_state_marker_a					= obs.OBS_MEDIA_STATE_NONE,
 last_state_marker_b					= obs.OBS_MEDIA_STATE_NONE
-}
+}									-- table end
 hotkey_id_reset			= obs.OBS_INVALID_HOTKEY_ID
 hotkey_id_pause			= obs.OBS_INVALID_HOTKEY_ID
 hotkey_id_split			= obs.OBS_INVALID_HOTKEY_ID
@@ -1206,13 +1081,16 @@ local function format_time( timestamp, format )
 		FF: identified by (will replace) $F
 	]]	
 	timestamp = format:gsub("$T", ""):gsub("$D", day):gsub( "$H", hour):gsub("$M", minute):gsub("$S", seconds):gsub("$F", mili)
-	
+	if not show_mili then 
+		format = format:gsub(",$F", ""):gsub("$F", "") -- remove these if by default
+		timestamp = format:gsub("$T", ""):gsub("$D", day):gsub( "$H", hour):gsub("$M", minute):gsub("$S", seconds)
+	end 
 	if t ~= 0 and current_seconds > 0.01 then
 		--local reg = "^[0]+[:]?[0]+[:]?[0]+[:]?[0]?"
 		local reg = "^[0:,]*" -- close, but misses 1 instance
-		timestamp = timestamp:gsub(reg,"")
+		timestamp = timestamp:gsub(reg, "")
 	end	
-	if current_seconds < 0.01 and timer_display == 1 then
+	if current_seconds < 0.01 and ( timer_display == 1 and timer_mode ~= 1 ) then
 		if timer_format ~= 1 then timestamp = "0" end -- the user wants the timer to end with a reminder that it is Game Over
 	end	
 	if current_seconds < 0.01 and timer_display == 2 then -- else it will show 00:00:00
@@ -1624,7 +1502,7 @@ local function time_mark_check( ref )
 			if the timer is counting up or down.
 	]]
 	local round_seconds = math.ceil( current_seconds ) -- round to nearset upper value
-	if timer_type ~= 1 then -- if not Stopwatch so target Countdown
+	if timer_mode ~= 2 then -- if not Countdown so target Stopwatch
 		round_seconds = math.floor( current_seconds ) -- round to nearset lower value
 	end	
 	
@@ -1859,7 +1737,6 @@ local function pause_play_media( source_name, play )
 end	
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	
 	Description:	Stop Media is designed to reset the source to its
 					starting state. In other words, make the source
 					invisible again. This sould only happen if the media
@@ -2349,10 +2226,11 @@ local function set_time_text( source_name )
 	--[[
 		Timer Format Type: Custom Time Format
 	]]
+	
 	if timer_format == 5 then
 		text = format_time( ( l_time ~= 0 ) and string.format( "%s:%s", l_time, t_time ) or string.format( "%s", t_time ), custom_time_format )
 	end	
-
+	
 	if timer_mode ~= 2 then
 		--text_prefix = ""
 		--   text_suffix = ""
@@ -2573,7 +2451,7 @@ local function default_timer_globals( set_to_default )
 		]]
 		if timer_mode == 1 and reset_activated then
 			timer_value( 0 ) 
-			update_prop_settings_current_seconds( 0 ) -- <BUG BEFORE FIX (Please Monitor) cuased critical crash on hotkey press if script settings are refreshed on script duplication
+			update_prop_settings_current_seconds( 0 )
 		end	
 		color_normal_updated = false
 		media["activated_marker_a"] 		= false
@@ -2695,7 +2573,7 @@ local function update_timer_settings( set_to_default, new_settings ) -- optional
 					Feature not enabled, set zero
 					Load saved time not enabled so we want to ensure it is set to zero				
 				]]
-				timer_value( 0 )  -- <BUG BEFORE FIX (Please Monitor) cuased critical crash on hotkey press if script settings are refreshed on script duplication
+				timer_value( 0 )
 			end	
 		end	
 		--[[
@@ -2811,7 +2689,7 @@ local function update_timer_settings( set_to_default, new_settings ) -- optional
 			
 				THIS WILL UPDATE current_seconds to the value current_seconds
 			]]
-		if set_to_default and update_default_time() or reset_activated then	
+		if set_to_default and update_default_time() or reset_activated or ( force_reset_on_visible and set_to_default ) then	
 			--[[
 				update timer time
 			]]
@@ -3291,7 +3169,6 @@ local function activate_signal( cd, connected )
 	
 	]]
 	local source = obs.calldata_source( cd, "source" )
-	
 	--[[
 	
 		Do we have a Source?
@@ -3795,7 +3672,7 @@ local function loaded( cd )
 		Found Source:
 	]]
 	if source ~= nil then 
-		
+				
 		local name = obs.obs_source_get_name( source ) -- Get the source name, this will be a unique identifier 
 		--[[
 			Does the name match the property value?
@@ -3831,10 +3708,10 @@ local function loaded( cd )
 				timer_value( sw_current_seconds ) -- value
 			else
 				timer_value( 0 )
-				reset( true )	
+				reset( true )	-- <BUG signal handler crash on startup?	
 			end	
 		else
-			reset( true )	
+			reset( true )	-- <BUG signal handler crash on startup?	
 		end	
 	end	
 end
@@ -4150,9 +4027,9 @@ local function property_onchange( props, property, settings )
 	--[[
 			TIMER INPUTS
 	]]	
-	obs.obs_property_set_visible( custom_time_format_prop, timer_format == 5 )
 	obs.obs_property_set_visible( timer_options_prop, config_value == 2 )
 	obs.obs_property_set_visible( timer_display_prop, config_value == 2 and timer_mode_value == 2 and timer_options_value == 2  )
+	obs.obs_property_set_visible( custom_time_format_prop, timer_format == 5 and config_value == 2 and timer_options_value == 2 )
 	--[[
 	
 			TIMER STOPWATCH INPUTS
@@ -4826,9 +4703,9 @@ function script_properties()
 	obs.obs_property_set_long_description( p_26, "\nSet a maximum time limit for media playback.\n" ) -- User Tip
 	
 	--*props, *name, *description, min, max, step
-	obs.obs_properties_add_int_slider( props, "duration_marker_a", "Marker A Duration", 1, 10800, 1 )
-	obs.obs_properties_add_int_slider( props, "duration_marker_b", "Marker B Duration", 1, 10800, 1 )
-	obs.obs_properties_add_int_slider( props, "duration_marker_end", "End Audio Duration", 1, 10800, 1 )
+	obs.obs_properties_add_int_slider( props, "duration_marker_a", "Marker A Duration", 0, 10800, 1 )
+	obs.obs_properties_add_int_slider( props, "duration_marker_b", "Marker B Duration", 0, 10800, 1 )
+	obs.obs_properties_add_int_slider( props, "duration_marker_end", "End Audio Duration", 0, 10800, 1 )
 	obs.obs_properties_add_color( props, "color_normal", "Normal Color" )
 	obs.obs_properties_add_color( props, "color_marker_a", "Marker A Color" )
 	obs.obs_properties_add_color( props, "color_marker_b", "Marker B Color" )
@@ -5063,7 +4940,7 @@ function script_properties()
 		We save last count in the properties for when OBS shuts down and starts again
 	]]
 	local p_47 = obs.obs_properties_add_float( group_props_1, "sw_current_seconds", "Saved Seconds", 0, 3600000000, 0.1)
-	obs.obs_property_set_visible( p_47 , true )
+	obs.obs_property_set_visible( p_47 , false )
 	 --[[
 		Property Button: User interaction that will start, pause or stop a timer.
 		This provides function interaction to change feature behaviour.
@@ -5152,7 +5029,7 @@ function script_properties()
 		This property is referenced to trigger an onchange event listener.
 	]]
 	local p_55 = obs.obs_properties_add_list( props, "import_list", "<i>Load Settings</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
-	obs.obs_property_list_add_string( p_54, "Select ", "select" ) -- Adds a default option to the list. First (top-most) list item. If selected the option is ignored. 
+	obs.obs_property_list_add_string( p_55, "Select ", "select" ) -- Adds a default option to the list. First (top-most) list item. If selected the option is ignored. 
 	obs.obs_property_set_long_description( p_55, "\nSelect the Settings file to import.\n" ) -- User Tip
 	local filenames = get_filenames( path, ".json" ) -- list all files of type
 	if table.getn( filenames ) > 0 then
@@ -5436,7 +5313,7 @@ function script_load( settings )
 		attach event listener callback [loaded]
 		for when a source is done loading.
 	]]	
-	obs.signal_handler_connect( sh, "source_load", loaded ); -- monitor for source load completed
+	obs.signal_handler_connect( sh, "source_load", loaded ); -- monitor for source load completed	
 	obs.signal_handler_connect( sh, "source_deactivate", source_deactivated ); -- monitor source deactivates signal_handler_disconnect
 	obs.signal_handler_connect( sh, "source_activate", source_activated ); -- monitor source activates
 	
