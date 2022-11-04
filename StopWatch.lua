@@ -6,6 +6,28 @@ OBS > Tools > Scripts
 Stopwatch
 ***************************************************************************************************************************************
 
+Version 4.4
+
+Published / Released: 2022-11.04 19:25
+
+NEW FEATURES
+
+- Hotkey to change counter direction (Supported in Stopwatch and Countdown mode)
+
+
+OPTIMIZATION
+
+- 
+
+USER EXPERIENCE & FEATURE ENHANCEMENTS
+
+- 
+
+BUGS
+
+-
+
+***************************************************************************************************************************************
 Version 4.3
 
 Published / Released: 2022-10.20 11:51
@@ -149,7 +171,7 @@ BUGS
 ]]
 --Globals
 obs           				= obslua
-gversion 					= "4.3"
+gversion 					= "4.4"
 luafile						= "StopWatch.lua"
 obsurl						= "comprehensive-stopwatch-countdown-timer.1364/"
 patch_notes					= "Patch Notes"
@@ -212,6 +234,7 @@ time_frequency						= 0
 completed_cycles					= 0
 ns_last								= 0
 cycle_index 						= 1
+current_count_direction				= 1
 timer_cycle 						= 10 --milliseconds
 split_itm							= {}
 split_data							= nil
@@ -229,9 +252,12 @@ force_reset_on_visible				= false
 active_source_force_visible			= false
 start_on_scene_active				= false
 disable_script   					= false
+enable_direction_toggle  			= false
 show_mili   						= true
 timer_expired  						= true
 mili_toggle_triggered				= false 
+direction_changed					= false 
+prevent_negative_time  				= false
 media = {							-- table start
 text_marker_b						= "",
 text_marker_a						= "",
@@ -261,6 +287,8 @@ hotkey_id_reset			= obs.OBS_INVALID_HOTKEY_ID
 hotkey_id_pause			= obs.OBS_INVALID_HOTKEY_ID
 hotkey_id_split			= obs.OBS_INVALID_HOTKEY_ID
 hotkey_id_mili			= obs.OBS_INVALID_HOTKEY_ID
+hotkey_id_direction		= obs.OBS_INVALID_HOTKEY_ID
+
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	
@@ -1529,7 +1557,11 @@ local function time_mark_check( ref )
 			if the timer is counting up or down.
 	]]
 	local round_seconds = math.ceil( current_seconds ) -- round to nearset upper value
-	if timer_mode ~= 2 then -- if not Countdown so target Stopwatch
+	--[[
+	 	if not Countdown so target Stopwatch, or
+		if the count direction changed and the count direction is positive
+	]]
+	if timer_mode ~= 2 and not direction_changed or ( direction_changed and current_count_direction == 2 ) then
 		round_seconds = math.floor( current_seconds ) -- round to nearset lower value
 	end	
 	
@@ -2094,11 +2126,33 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function set_time_direction( )
-	if timer_mode ~= 2 then
-		timer_value( current_seconds + time_frequency ) -- value
-	else
-		timer_value( current_seconds - time_frequency ) -- value
+	--[[
+	
+	]]
+	local t = 0
+	--[[
+	
+	]]	
+	if direction_changed then -- normal function suspended
+		if current_count_direction == 1 then
+			t = ( current_seconds - time_frequency ) -- value
+		else	
+			t = ( current_seconds + time_frequency ) -- value
+		end
+	else -- normal function active	
+		--[[
+
+		]]	
+		if timer_mode ~= 2 then
+			t = ( current_seconds + time_frequency ) -- value
+		else
+			t = ( current_seconds - time_frequency ) -- value
+		end
 	end
+	--[[
+		update the timer value
+	]]
+	timer_value( t ) -- value
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
@@ -2201,7 +2255,7 @@ local function set_time_text( source_name )
 	--[[
 		Force absolute zero at this point
 	]]
-	if current_seconds <= 0.01 and timer_mode ~= 1 then 
+	if current_seconds <= 0.01 and ( timer_mode ~= 1 or ( direction_changed and current_count_direction == 1 and prevent_negative_time ) ) then 
 		timer_value( 0 )   -- value, update_settings 
 	end
 	
@@ -2277,8 +2331,9 @@ local function set_time_text( source_name )
 	last_text = text
 	--[[
 		Timer Ended
-	]]--
-	if current_seconds <= 0.01 and timer_mode ~= 1 then
+	]]
+	if current_seconds <= 0.01 and ( timer_mode ~= 1 or ( direction_changed and current_count_direction == 1 and prevent_negative_time ) ) then
+
 		--[[
 		
 			Timer is shutting down, this would be a 
@@ -2314,7 +2369,10 @@ local function set_time_text( source_name )
 			timer_ended() if needed
 		]]--
 		if current_seconds == 0 then timer_expired = true; end
-	end	
+
+	end
+	
+
 	--return true
 end
 --[[
@@ -3050,6 +3108,93 @@ local function mili_button_clicked( props, p, settings )
 end	
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Callback for button press
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function update_button_label()
+	--[[
+		
+		A button has it's own callback so we can not action anything
+		on the button press through the Properties Callback, instead
+		we will action it on the button Callback directly.
+		
+	]]
+	local mode = obs.obs_data_get_int( script_settings, "timer_mode" )
+	local direction_button_prop = obs.obs_properties_get( props, "direction_button" )
+	--[[
+		
+		We are only setting the button label depending if the timer is active
+		and on the timer type.
+		
+	]]
+	if current_count_direction == 1 then
+		obs.obs_property_set_description( direction_button_prop, "Count Up" )
+	else
+		obs.obs_property_set_description( direction_button_prop, "Count Down" )
+	end	
+	return props
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Callback for button press
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function direction_button_clicked( props, p, settings )
+	--[[
+		Only allow if enable 
+	]]
+	if not enable_direction_toggle then
+		return		
+	end	
+	update_timer_direction( true )
+	update_button_label()	
+	return true
+end	
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+function update_timer_direction( pressed )	
+	if not pressed and not enable_direction_toggle then
+		return
+	end
+	--[[
+		Signal that the feature is in use, this will indicate that 'normal operation'
+		is suspended. It will be reset if 'Reset' is called.
+	]] 
+	direction_changed = true
+	--[[
+		Change direction each time the feature is activated
+	]]
+	if current_count_direction == 1 then
+		current_count_direction = 2
+	else
+		current_count_direction = 1
+	end	
+	
+	return true
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	
 	
 	Credit:			
@@ -3139,6 +3284,39 @@ local function hotkey_send_mili( pressed )
 		return -- uncomment 'return' to ignore the call when key is released
 	end
 	mili( pressed )
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:		none
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function hotkey_send_direction( pressed )
+	--[[
+		For hotkeys: This is called on key down & key up. A bool check: 
+		
+		pressed = true (key down)
+		pressed = false (key up)
+	
+		When a hotkeys is pressed the callback checks if the key state 
+		is currently pressed 'true' or 'false' (released)
+		so a hotkey key press has a dual function: key down, key up
+
+	]]
+	if pressed then -- key is currently down
+		--return -- uncomment 'return' to ignore the call while key is down
+	else -- key was released 
+		return -- uncomment 'return' to ignore the call when key is released
+	end
+	update_timer_direction( true )
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
@@ -3280,7 +3458,6 @@ local function reset( pressed )
 	else -- key was released 
 		--return -- uncomment 'return' to ignore the call when key is released
 	end
-
 	--[[
 		Set visibility to first position
 	]]	
@@ -3290,10 +3467,23 @@ local function reset( pressed )
 	--[[
 		Set bool to first position
 	]]	
-	media["media_ended_marker_a"] = false
-	media["media_ended_marker_b"] = false
-	color_normal_updated 		  = false 
-	set_timer_activated 		  = false 	
+	media["media_ended_marker_a"] 	= false
+	media["media_ended_marker_b"] 	= false
+	color_normal_updated 		  	= false 
+	set_timer_activated 		  	= false
+	direction_changed				= false 
+	--[[
+		Determine the current_count_direction
+		If the timer is in Stopwatch mode the
+		timer is counting up thus the default
+		current_count_direction must then be 
+		down, and vica-versa
+	]]
+	if timer_mode == 1 then
+		current_count_direction = 2
+	else
+		current_count_direction = 1
+	end		
 	--[[
 	
 		force text update by changing last_text
@@ -3432,6 +3622,7 @@ local function property_button_update_start()
 	]]
 	local mode = obs.obs_data_get_int( script_settings, "timer_mode" )
 	local pause_button_prop = obs.obs_properties_get( props, "pause_button" )
+	local direction_button_prop = obs.obs_properties_get( props, "direction_button" )
 	--[[
 		
 		We are only setting the button label depending if the timer is active
@@ -3439,12 +3630,14 @@ local function property_button_update_start()
 		
 	]]
 	if mode == 2 then
+			obs.obs_property_set_description( direction_button_prop, "Count Up" )
 		if timer_active then
 			obs.obs_property_set_description( pause_button_prop, "Start/Pause Countdown" )
 		else
 			obs.obs_property_set_description( pause_button_prop, "Start Countdown" )
 		end
 	else
+			obs.obs_property_set_description( direction_button_prop, "Count Down" )
 		if timer_active then
 			obs.obs_property_set_description( pause_button_prop, "Start/Pause Stopwatch" )
 		else
@@ -3452,7 +3645,7 @@ local function property_button_update_start()
 		end
 	end	
 	return props
-end	
+end		
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	Callback for button press
@@ -3817,6 +4010,7 @@ local function load_settings_globals( settings )
 	custom_time_format = obs.obs_data_get_string( settings, "custom_time_format" )
 	toggle_mili_trigger = obs.obs_data_get_string( settings, "toggle_mili_trigger" )
 	sw_milliseconds_saved = obs.obs_data_get_int( settings, "sw_milliseconds_saved" ) 
+	prevent_negative_time = obs.obs_data_get_bool( settings, "prevent_negative_time" )
 	media["note_source_marker_a"] = obs.obs_data_get_string( settings, "note_source_marker_a" )
 	media["note_source_marker_b"] = obs.obs_data_get_string( settings, "note_source_marker_b" )
 	longtimetext_s = string.gsub(obs.obs_data_get_string( settings, "day_text" ), "\\([n])", {n="\n"})
@@ -3845,24 +4039,25 @@ local function load_settings_globals( settings )
 	next_scene = obs.obs_data_get_string( settings, "next_scene" )
 	import_list = obs.obs_data_get_string( settings, "import_list" )
 	split_source = obs.obs_data_get_string( settings, "split_source" )
-    disable_script = obs.obs_data_get_bool( settings,"disable_script" )
+    disable_script = obs.obs_data_get_bool( settings, "disable_script" )
+    enable_direction_toggle = obs.obs_data_get_bool( settings, "enable_direction_toggle" )
 	recording_type = obs.obs_data_get_int( settings, "recording_type" )
 	backup_folder = obs.obs_data_get_string( settings, "backup_folder" )
 	active_source = obs.obs_data_get_string( settings, "active_source" )	
 	start_recording = obs.obs_data_get_int( settings, "start_recording" )
 	load_saved_time = obs.obs_data_get_bool( settings, "load_saved_time" )
-    start_on_visible = obs.obs_data_get_bool( settings,"start_on_visible" )														
+    start_on_visible = obs.obs_data_get_bool( settings, "start_on_visible" )														
 	media["color_normal"] = obs.obs_data_get_int( settings, "color_normal" )
 	media["color_marker_b"] = obs.obs_data_get_int( settings, "color_marker_b" )
 	media["color_marker_a"] = obs.obs_data_get_int( settings, "color_marker_a" )
 	media["text_marker_a"] = obs.obs_data_get_string( settings, "text_marker_a" )							
 	media["text_marker_b"] = obs.obs_data_get_string( settings, "text_marker_b" )
 	media_playback_limit = obs.obs_data_get_int( settings, "media_playback_limit" )
-    start_on_scene_active = obs.obs_data_get_bool( settings,"start_on_scene_active" )
-    force_reset_on_visible = obs.obs_data_get_bool( settings,"force_reset_on_visible" )	
+    start_on_scene_active = obs.obs_data_get_bool( settings, "start_on_scene_active" )
+    force_reset_on_visible = obs.obs_data_get_bool( settings, "force_reset_on_visible" )	
 	media["source_name_audio_marker_a"] = obs.obs_data_get_string( settings, "audio_marker_a" )
 	media["source_name_audio_marker_b"] = obs.obs_data_get_string( settings, "audio_marker_b" )
-    active_source_force_visible = obs.obs_data_get_bool( settings,"active_source_force_visible" )
+    active_source_force_visible = obs.obs_data_get_bool( settings, "active_source_force_visible" )
 	media["source_name_audio_marker_end"] = obs.obs_data_get_string( settings, "audio_marker_end" )	
 	text_prefix = string.gsub(obs.obs_data_get_string( settings, "text_prefix" ), "\\([n])", {n="\n"})
 	text_suffix = string.gsub(obs.obs_data_get_string( settings, "text_suffix" ), "\\([n])", {n="\n"})
@@ -3971,6 +4166,7 @@ local function property_onchange( props, property, settings )
 	local mili_button_prop = obs.obs_properties_get( props, "mili_button" )
 	local timer_source_prop = obs.obs_properties_get( props, "timer_source" )
 	local pause_button_prop = obs.obs_properties_get( props, "pause_button" )
+	local direction_button_prop = obs.obs_properties_get( props, "direction_button" )
 	local timer_options_prop = obs.obs_properties_get( props, "timer_options" )
 	local custom_time_format_prop = obs.obs_properties_get( props, "custom_time_format" )
 	local toggle_mili_trigger_prop = obs.obs_properties_get( props, "toggle_mili_trigger" )
@@ -4026,6 +4222,8 @@ local function property_onchange( props, property, settings )
 	local import_button_prop = obs.obs_properties_get( props, "import_button" )
 	local export_folder_prop = obs.obs_properties_get( props, "backup_folder" )
 	local disable_script_prop = obs.obs_properties_get( props, "disable_script" )
+	local enable_direction_toggle_prop = obs.obs_properties_get( props, "enable_direction_toggle" )
+	local prevent_negative_time_prop = obs.obs_properties_get( props, "prevent_negative_time" )
 	local start_on_visible_prop = obs.obs_properties_get( props, "start_on_visible" )
 	local force_reset_on_visible_prop = obs.obs_properties_get( props, "force_reset_on_visible" )
 	local start_on_scene_active_prop = obs.obs_properties_get( props, "start_on_scene_active" )
@@ -4055,6 +4253,7 @@ local function property_onchange( props, property, settings )
 			TIMER INPUTS
 	]]	
 	obs.obs_property_set_visible( timer_options_prop, config_value == 2 )
+	obs.obs_property_set_visible( direction_button_prop, config_value == 2 and enable_direction_toggle and ( timer_mode_value == 2 and countdown_type_value == 2 or timer_mode_value == 1 ) ) --  
 	obs.obs_property_set_visible( timer_display_prop, config_value == 2 and timer_mode_value == 2 and timer_options_value == 2  )
 	obs.obs_property_set_visible( custom_time_format_prop, timer_format == 5 and config_value == 2 and timer_options_value == 2 )
 	--[[
@@ -4145,6 +4344,8 @@ local function property_onchange( props, property, settings )
 	
 	]]		
 	obs.obs_property_set_visible( disable_script_prop, config_value == 2 )
+	obs.obs_property_set_visible( enable_direction_toggle_prop, config_value == 2 and ( timer_mode_value == 2 and countdown_type_value == 2 or timer_mode_value == 1 ) )
+	obs.obs_property_set_visible( prevent_negative_time_prop, enable_direction_toggle and config_value == 2 and ( timer_mode_value == 2 and countdown_type_value == 2 or timer_mode_value == 1 ) )
 	obs.obs_property_set_visible( start_on_visible_prop, config_value == 2 )
 	obs.obs_property_set_visible( force_reset_on_visible_prop, config_value == 2 and start_on_visible )
 	obs.obs_property_set_visible( start_on_scene_active_prop, config_value == 2 )
@@ -4222,12 +4423,14 @@ local function property_onchange( props, property, settings )
 
 	]]
 	if timer_mode_value == 2 then
+			obs.obs_property_set_description( direction_button_prop, "Count Up" )
 		if timer_active then
 			obs.obs_property_set_description( pause_button_prop, "Start/Pause Countdown" )
 		else
 			obs.obs_property_set_description( pause_button_prop, "Start Countdown" )
 		end
 	else
+			obs.obs_property_set_description( direction_button_prop, "Count Down" )
 		if timer_active then
 			obs.obs_property_set_description( pause_button_prop, "Start/Pause Stopwatch" )
 		else
@@ -4993,7 +5196,13 @@ function script_properties()
 		This provides function interaction to change feature behaviour.
 		Interacting with this property will impact on feature options and behaviour.
 	]]
-	local p_50 = obs.obs_properties_add_button( props, "reset_button", "Reset Stopwatch", reset_button_clicked )	
+	local p_50 = obs.obs_properties_add_button( props, "direction_button", "Count Up/Down", direction_button_clicked )
+	 --[[
+		Property Button: User interaction that will reset a timer.
+		This provides function interaction to change feature behaviour.
+		Interacting with this property will impact on feature options and behaviour.
+	]]
+	local p_51 = obs.obs_properties_add_button( props, "reset_button", "Reset Stopwatch", reset_button_clicked )	
 	 --[[
 		Property Checkbox: User interaction that enable setting a custom stopwatch start timestamp.
 		This provides function interaction to change feature behaviour.
@@ -5001,13 +5210,13 @@ function script_properties()
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]
-	local p_51 = obs.obs_properties_add_bool( props, "set_stopwatch", "Set Stopwatch" )	
+	local p_52 = obs.obs_properties_add_bool( props, "set_stopwatch", "Set Stopwatch" )	
 	 --[[
 		Property Checkbox: User interaction that will start timer if timer source becomes visible.
 		This provides function interaction to change feature behaviour.
 		Interacting with this property will impact on feature options and behaviour.
 	]]
-    local p_52 = obs.obs_properties_add_bool( props, "start_on_visible", "Start Timer on Source Visible" )
+    local p_53 = obs.obs_properties_add_bool( props, "start_on_visible", "Start Timer on Source Visible" )
 	 --[[
 		Property Checkbox: User interaction that will disable the plugin.
 		This provides function interaction to change feature behaviour.
@@ -5033,13 +5242,25 @@ function script_properties()
 	]]
     obs.obs_properties_add_bool( props, "disable_script", "Disable Script" )
 	 --[[
+		Property Checkbox: User interaction that will disable the plugin.
+		This provides function interaction to change feature behaviour.
+		Interacting with this property will impact on feature options and behaviour.
+	]]
+    local p_54 = obs.obs_properties_add_bool( props, "enable_direction_toggle", "Enable Timer Direction Toggle" )
+	 --[[
+		Property Checkbox: User interaction that will disable the plugin.
+		This provides function interaction to change feature behaviour.
+		Interacting with this property will impact on feature options and behaviour.
+	]]
+    obs.obs_properties_add_bool( props, "prevent_negative_time", "Prevent Negative Time Value" )
+	 --[[
 		Property Checkbox: User interaction that will enable backup options.
 		This provides function interaction to change feature behaviour.
 		Interacting with this property will impact on feature options and behaviour.
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]
-	local p_53 = obs.obs_properties_add_bool( props, "backup_mode", "Backup Mode" )
+	local p_55 = obs.obs_properties_add_bool( props, "backup_mode", "Backup Mode" )
 	 --[[
 		Property Directory Path: User interaction that select a directory path.
 		This provides function interaction to change feature behaviour.
@@ -5047,7 +5268,7 @@ function script_properties()
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]
-	local p_54 = obs.obs_properties_add_path( props, "backup_folder", "Backup Folder", obs.OBS_PATH_DIRECTORY, nil, nil)
+	local p_56 = obs.obs_properties_add_path( props, "backup_folder", "Backup Folder", obs.OBS_PATH_DIRECTORY, nil, nil)
 	--[[
 		Property list: User interaction that will execute an import feature.
 		This provides function interaction to change feature behaviour.
@@ -5055,13 +5276,13 @@ function script_properties()
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]
-	local p_55 = obs.obs_properties_add_list( props, "import_list", "<i>Load Settings</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
-	obs.obs_property_list_add_string( p_55, "Select ", "select" ) -- Adds a default option to the list. First (top-most) list item. If selected the option is ignored. 
-	obs.obs_property_set_long_description( p_55, "\nSelect the Settings file to import.\n" ) -- User Tip
+	local p_57 = obs.obs_properties_add_list( props, "import_list", "<i>Load Settings</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
+	obs.obs_property_list_add_string( p_57, "Select ", "select" ) -- Adds a default option to the list. First (top-most) list item. If selected the option is ignored. 
+	obs.obs_property_set_long_description( p_57, "\nSelect the Settings file to import.\n" ) -- User Tip
 	local filenames = get_filenames( path, ".json" ) -- list all files of type
 	if table.getn( filenames ) > 0 then
   		for i,v in pairs( filenames ) do 
-			obs.obs_property_list_add_string( p_55, v, v ) -- Add options to the list
+			obs.obs_property_list_add_string( p_57, v, v ) -- Add options to the list
 		end
 	end
 	--[[
@@ -5069,7 +5290,7 @@ function script_properties()
 		This provides function interaction to change feature behaviour.
 		Interacting with this property will complete a feature task. 
 	]]
-	local p_56 = obs.obs_properties_add_button( props, "export_button", "Export Settings", export_button_clicked )
+	local p_58 = obs.obs_properties_add_button( props, "export_button", "Export Settings", export_button_clicked )
 	 --[[
 		Property Button: User interaction that will import available property settings from a json file
 		and apply them to the properties.
@@ -5078,7 +5299,7 @@ function script_properties()
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]
-	local p_57 = obs.obs_properties_add_button( props, "import_button", "Import Settings", import_button_clicked )
+	local p_59 = obs.obs_properties_add_button( props, "import_button", "Import Settings", import_button_clicked )
 	
 	obs.source_list_release( sources ) -- free memory, release sources as it is no longer needed
 	--[[ 
@@ -5105,12 +5326,13 @@ function script_properties()
   	obs.obs_property_set_modified_callback( p_32, property_onchange )		-- start_recording
   	obs.obs_property_set_modified_callback( p_36, property_onchange )		-- active_source
   	obs.obs_property_set_modified_callback( p_37, property_onchange )		-- next_scene
-	obs.obs_property_set_modified_callback( p_51, property_onchange )		-- set_stopwatch
-	obs.obs_property_set_modified_callback( p_52, property_onchange )		-- force_reset_on_visible
-	obs.obs_property_set_modified_callback( p_53, property_onchange )		-- backup_mode
-	obs.obs_property_set_modified_callback( p_54, property_onchange )		-- backup_folder
-	obs.obs_property_set_modified_callback( p_55, property_onchange )		-- import_list
-	obs.obs_property_set_modified_callback( p_57, import_properties )		-- import_button
+	obs.obs_property_set_modified_callback( p_52, property_onchange )		-- set_stopwatch
+	obs.obs_property_set_modified_callback( p_53, property_onchange )		-- force_reset_on_visible
+	obs.obs_property_set_modified_callback( p_54, property_onchange )		-- enable_direction_toggle
+	obs.obs_property_set_modified_callback( p_55, property_onchange )		-- backup_mode
+	obs.obs_property_set_modified_callback( p_56, property_onchange )		-- backup_folder
+	obs.obs_property_set_modified_callback( p_57, property_onchange )		-- import_list
+	obs.obs_property_set_modified_callback( p_59, import_properties )		-- import_button
 	-- Calls the callback once to set-up current visibility
   	obs.obs_properties_apply_settings( props, script_settings )
 	return props
@@ -5239,6 +5461,8 @@ function script_defaults( settings )
 	obs.obs_data_set_default_bool( settings, "start_on_visible", false );
 	obs.obs_data_set_default_bool( settings, "start_on_scene_active", false );
 	obs.obs_data_set_default_bool( settings, "force_reset_on_visible", false );
+	obs.obs_data_set_default_bool( settings, "enable_direction_toggle", false );
+	obs.obs_data_set_default_bool( settings, "prevent_negative_time", false );
 	obs.obs_data_set_default_bool( settings, "active_source_force_visible", false );
 	-- Keep track of current settings
   	script_settings = settings; 
@@ -5295,6 +5519,12 @@ function script_save( settings )
 	local hotkey_save_array_mili = obs.obs_hotkey_save( hotkey_id_mili );
 	obs.obs_data_set_array( settings, "mili_hotkey", hotkey_save_array_mili );
 	obs.obs_data_array_release( hotkey_save_array_mili );
+	--[[
+
+	]]
+	local hotkey_save_array_direction = obs.obs_hotkey_save( hotkey_id_direction );
+	obs.obs_data_set_array( settings, "direction_hotkey", hotkey_save_array_direction );
+	obs.obs_data_array_release( hotkey_save_array_direction );
 	--[[
 		It is really important that this the last item in this routine
 	]]
@@ -5395,4 +5625,14 @@ function script_load( settings )
 	local hotkey_save_array_mili = obs.obs_data_get_array( settings, "mili_hotkey" );
 	obs.obs_hotkey_load( hotkey_id_mili, hotkey_save_array_mili );
 	obs.obs_data_array_release( hotkey_save_array_mili );
+	--[[
+		script is loading. register and assign hotkeys 
+		
+		Change Timer Count Direction (Show/Hide Timer Milliseconds if in Timer format)
+	]]
+	hotkey_name = "direction_change_" .. filename():lower():gsub("[%W%p%c%s]", "");
+	hotkey_id_direction = obs.obs_hotkey_register_frontend( hotkey_name, "Change Timer Direction " .. filename(), hotkey_send_direction );
+	local hotkey_save_array_direction = obs.obs_data_get_array( settings, "direction_hotkey" );
+	obs.obs_hotkey_load( hotkey_id_direction, hotkey_save_array_direction );
+	obs.obs_data_array_release( hotkey_save_array_direction );
 end
