@@ -12,7 +12,10 @@ Published / Released: 2022-11.04 19:25
 
 NEW FEATURES
 
-- Hotkey to change counter direction (Supported in Stopwatch and Countdown mode)
+- Change counter direction
+- Hotkey adn Button to change counter direction (Supported in Stopwatch and Countdown mode)
+- Prevent Negative Time Value
+- Enable / Disable new feature: Change counter directio
 
 
 OPTIMIZATION
