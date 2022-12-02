@@ -6,6 +6,28 @@ OBS > Tools > Scripts
 Stopwatch
 ***************************************************************************************************************************************
 
+Version 4.5
+
+Published / Released: 2022-12.03 01:56
+
+NEW FEATURES
+
+- Add / Subtract seconds to time (3 sets available, configurable up to 72 hours or 259200 seconds)
+
+
+OPTIMIZATION
+
+- 
+
+USER EXPERIENCE & FEATURE ENHANCEMENTS
+
+- 
+
+BUGS
+
+-
+***************************************************************************************************************************************
+
 Version 4.4
 
 Published / Released: 2022-11.04 19:25
@@ -174,7 +196,7 @@ BUGS
 ]]
 --Globals
 obs           				= obslua
-gversion 					= "4.4"
+gversion 					= "4.5"
 luafile						= "StopWatch.lua"
 obsurl						= "comprehensive-stopwatch-countdown-timer.1364/"
 patch_notes					= "Patch Notes"
@@ -203,6 +225,12 @@ active_source  						= ""
 next_scene							= ""
 stop_text							= ""
 toggle_mili_trigger					= ""
+sec_add_1							= ""
+sec_add_2							= ""
+sec_add_3							= ""
+sec_sub_1							= ""
+sec_sub_2							= ""
+sec_sub_3							= ""
 output_file_name 					= "-backup($date_stamp).json";
 font_normal							= "#ffffff"
 font_dimmed							= "#bfbbbf"
@@ -286,11 +314,17 @@ color_marker_b						= 329050, -- 329050 0x05055a
 last_state_marker_a					= obs.OBS_MEDIA_STATE_NONE,
 last_state_marker_b					= obs.OBS_MEDIA_STATE_NONE
 }									-- table end
-hotkey_id_reset			= obs.OBS_INVALID_HOTKEY_ID
-hotkey_id_pause			= obs.OBS_INVALID_HOTKEY_ID
-hotkey_id_split			= obs.OBS_INVALID_HOTKEY_ID
-hotkey_id_mili			= obs.OBS_INVALID_HOTKEY_ID
-hotkey_id_direction		= obs.OBS_INVALID_HOTKEY_ID
+hotkey_id_reset						= obs.OBS_INVALID_HOTKEY_ID
+hotkey_id_pause						= obs.OBS_INVALID_HOTKEY_ID
+hotkey_id_split						= obs.OBS_INVALID_HOTKEY_ID
+hotkey_id_mili						= obs.OBS_INVALID_HOTKEY_ID
+hotkey_id_direction					= obs.OBS_INVALID_HOTKEY_ID
+hotkey_id_sec_add_1					= obs.OBS_INVALID_HOTKEY_ID
+hotkey_id_sec_add_2					= obs.OBS_INVALID_HOTKEY_ID
+hotkey_id_sec_add_3					= obs.OBS_INVALID_HOTKEY_ID
+hotkey_id_sec_sub_1					= obs.OBS_INVALID_HOTKEY_ID
+hotkey_id_sec_sub_2					= obs.OBS_INVALID_HOTKEY_ID
+hotkey_id_sec_sub_3					= obs.OBS_INVALID_HOTKEY_ID
 
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
@@ -3332,6 +3366,308 @@ end
 	function:		
 	type:			
 	input type: 	
+	returns:		none
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function sec_add_1_update( )
+	log('Update Sec 1')
+	timer_value( current_seconds + sec_add_1  )
+	log('Update Sec 1', sec_add_1.. " " .. current_seconds)
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:		none
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function sec_add_2_update( )
+	timer_value( current_seconds + sec_add_2  )
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:		none
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function sec_add_3_update( )
+	timer_value( current_seconds + sec_add_3  )
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:		none
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function sec_sub_1_update( )
+	timer_value( current_seconds - sec_sub_1  )
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:		none
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function sec_sub_2_update( )
+	timer_value( current_seconds - sec_sub_2  )
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:		none
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function sec_sub_3_update( )
+	timer_value( current_seconds - sec_sub_3  )
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:		none
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function hotkey_send_sec_add_1( pressed )
+	--[[
+		For hotkeys: This is called on key down & key up. A bool check: 
+		
+		pressed = true (key down)
+		pressed = false (key up)
+	
+		When a hotkeys is pressed the callback checks if the key state 
+		is currently pressed 'true' or 'false' (released)
+		so a hotkey key press has a dual function: key down, key up
+
+	]]
+	if pressed then -- key is currently down
+		--return -- uncomment 'return' to ignore the call while key is down
+	else -- key was released 
+		return -- uncomment 'return' to ignore the call when key is released
+	end
+	sec_add_1_update( )
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:		none
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function hotkey_send_sec_add_2( pressed )
+	--[[
+		For hotkeys: This is called on key down & key up. A bool check: 
+		
+		pressed = true (key down)
+		pressed = false (key up)
+	
+		When a hotkeys is pressed the callback checks if the key state 
+		is currently pressed 'true' or 'false' (released)
+		so a hotkey key press has a dual function: key down, key up
+
+	]]
+	if pressed then -- key is currently down
+		--return -- uncomment 'return' to ignore the call while key is down
+	else -- key was released 
+		return -- uncomment 'return' to ignore the call when key is released
+	end
+	sec_add_2_update( )
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:		none
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function hotkey_send_sec_add_3( pressed )
+	--[[
+		For hotkeys: This is called on key down & key up. A bool check: 
+		
+		pressed = true (key down)
+		pressed = false (key up)
+	
+		When a hotkeys is pressed the callback checks if the key state 
+		is currently pressed 'true' or 'false' (released)
+		so a hotkey key press has a dual function: key down, key up
+
+	]]
+	if pressed then -- key is currently down
+		--return -- uncomment 'return' to ignore the call while key is down
+	else -- key was released 
+		return -- uncomment 'return' to ignore the call when key is released
+	end
+	sec_add_3_update( )
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:		none
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function hotkey_send_sec_sub_1( pressed )
+	--[[
+		For hotkeys: This is called on key down & key up. A bool check: 
+		
+		pressed = true (key down)
+		pressed = false (key up)
+	
+		When a hotkeys is pressed the callback checks if the key state 
+		is currently pressed 'true' or 'false' (released)
+		so a hotkey key press has a dual function: key down, key up
+
+	]]
+	if pressed then -- key is currently down
+		--return -- uncomment 'return' to ignore the call while key is down
+	else -- key was released 
+		return -- uncomment 'return' to ignore the call when key is released
+	end
+	sec_sub_1_update( )
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:		none
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function hotkey_send_sec_sub_2( pressed )
+	--[[
+		For hotkeys: This is called on key down & key up. A bool check: 
+		
+		pressed = true (key down)
+		pressed = false (key up)
+	
+		When a hotkeys is pressed the callback checks if the key state 
+		is currently pressed 'true' or 'false' (released)
+		so a hotkey key press has a dual function: key down, key up
+
+	]]
+	if pressed then -- key is currently down
+		--return -- uncomment 'return' to ignore the call while key is down
+	else -- key was released 
+		return -- uncomment 'return' to ignore the call when key is released
+	end
+	sec_sub_2_update( )
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:		none
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function hotkey_send_sec_sub_3( pressed )
+	--[[
+		For hotkeys: This is called on key down & key up. A bool check: 
+		
+		pressed = true (key down)
+		pressed = false (key up)
+	
+		When a hotkeys is pressed the callback checks if the key state 
+		is currently pressed 'true' or 'false' (released)
+		so a hotkey key press has a dual function: key down, key up
+
+	]]
+	if pressed then -- key is currently down
+		--return -- uncomment 'return' to ignore the call while key is down
+	else -- key was released 
+		return -- uncomment 'return' to ignore the call when key is released
+	end
+	sec_sub_3_update( )
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
 	returns:
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
@@ -3667,6 +4003,114 @@ local function pause_button_clicked( props, p )
 	pause( true )
 	property_button_update_start()
 	return true
+end	
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Callback for button press
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function sec_add_1_button_clicked( props, p )
+	sec_add_1_update( )
+	return true
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Callback for button press
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function sec_add_2_button_clicked( props, p )
+	sec_add_2_update( )
+	return true
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Callback for button press
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function sec_add_3_button_clicked( props, p )
+	sec_add_3_update( )
+	return true
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Callback for button press
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function sec_sub_1_button_clicked( props, p )
+	sec_sub_1_update( )
+	return true
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Callback for button press
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function sec_sub_2_button_clicked( props, p )
+	sec_sub_2_update( )
+	return true
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Callback for button press
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function sec_sub_3_button_clicked( props, p )
+	sec_sub_3_update( )
+	return true
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
@@ -3996,6 +4440,12 @@ local function load_settings_globals( settings )
 	timer_year = obs.obs_data_get_int( settings, "year" )
 	timer_hours = obs.obs_data_get_int( settings, "hours" )
 	timer_month = obs.obs_data_get_int( settings, "month" ) - 1
+	sec_add_1 = obs.obs_data_get_int( settings, "sec_add_1" )
+	sec_add_2 = obs.obs_data_get_int( settings, "sec_add_2" )
+	sec_add_3 = obs.obs_data_get_int( settings, "sec_add_3" )
+	sec_sub_1 = obs.obs_data_get_int( settings, "sec_sub_1" )
+	sec_sub_2 = obs.obs_data_get_int( settings, "sec_sub_2" )
+	sec_sub_3 = obs.obs_data_get_int( settings, "sec_sub_3" )
 	timer_mode = obs.obs_data_get_int( settings, "timer_mode" )
 	timer_minutes = obs.obs_data_get_int( settings, "minutes" )
 	timer_seconds = obs.obs_data_get_int( settings, "seconds" )
@@ -4179,6 +4629,8 @@ local function property_onchange( props, property, settings )
 	
 	]]
 	local _group_1_prop = obs.obs_properties_get( props, "_group_1" )
+	local _group_2_prop = obs.obs_properties_get( props, "_group_2" )
+	local _group_3_prop = obs.obs_properties_get( props, "_group_3" )
 	local set_stopwatch_prop = obs.obs_properties_get( props, "set_stopwatch" )
 	local timer_display_prop = obs.obs_properties_get( props, "timer_display" )
 	--[[
@@ -4276,6 +4728,8 @@ local function property_onchange( props, property, settings )
 	obs.obs_property_set_visible( split_type_prop, timer_mode_value == 1 and config_value == 2 and timer_options_value == 2 )
 	obs.obs_property_set_visible( split_source_prop, timer_mode_value == 1 and config_value == 2 and timer_options_value == 2 )
 	obs.obs_property_set_visible( _group_1_prop, ( config_value == 2 and set_stopwatch_value and timer_mode_value == 1 and timer_options_value == 2 ) )
+	obs.obs_property_set_visible( _group_2_prop, ( config_value == 2 and timer_options_value == 2 ) )
+	obs.obs_property_set_visible( _group_3_prop, ( config_value == 2 and timer_options_value == 2 ) )
 	--[[
 	
 			TIMER COUNTDOWN INPUTS
@@ -5159,6 +5613,27 @@ function script_properties()
 		Wrap and group properties together.
 		Thise group provides options to the user to define a custom time value used as a start point for a stopwatch to continue from
 	]]		
+	local group_props_2 = obs.obs_properties_create()
+	obs.obs_properties_add_group( props, "_group_2", "Add Seconds to time (Initiate with Hotkey)", obs.OBS_GROUP_NORMAL, group_props_2 )
+	-- obs_properties_t *props, const char *name, const char *description, int min, int max, int step
+	local p_a1 = obs.obs_properties_add_int( group_props_2, "sec_add_1", "Set 1", 5, 259200, 15 )
+	local p_a2 = obs.obs_properties_add_int( group_props_2, "sec_add_2", "Set 2", 15, 259200, 15 )
+	local p_a3 = obs.obs_properties_add_int( group_props_2, "sec_add_3", "Set 3", 30, 259200, 15 )
+	
+	 --[[
+		Wrap and group properties together.
+		Thise group provides options to the user to define a custom time value used as a start point for a stopwatch to continue from
+	]]		
+	local group_props_3 = obs.obs_properties_create()
+	obs.obs_properties_add_group( props, "_group_3", "Subtract Seconds from time (Initiate with Hotkey)", obs.OBS_GROUP_NORMAL, group_props_3 )
+	-- obs_properties_t *props, const char *name, const char *description, int min, int max, int step
+	local p_b1 = obs.obs_properties_add_int( group_props_3, "sec_sub_1", "Set 1", 5, 259200, 15 )
+	local p_b2 = obs.obs_properties_add_int( group_props_3, "sec_sub_2", "Set 2", 15, 259200, 15 )
+	local p_b3 = obs.obs_properties_add_int( group_props_3, "sec_sub_3", "Set 3", 30, 259200, 15 )
+	 --[[
+		Wrap and group properties together.
+		Thise group provides options to the user to define a custom time value used as a start point for a stopwatch to continue from
+	]]		
 	local group_props_1 = obs.obs_properties_create()
 	obs.obs_properties_add_group( props, "_group_1", "Stopwatch Start Point", obs.OBS_GROUP_NORMAL, group_props_1 )
 
@@ -5304,6 +5779,46 @@ function script_properties()
 	]]
 	local p_59 = obs.obs_properties_add_button( props, "import_button", "Import Settings", import_button_clicked )
 	
+	
+	 --[[
+		Property Button: User interaction that will add defined time to the timer's current time.
+		This provides function interaction to change feature behaviour.
+		Interacting with this property will impact on feature options and behaviour.
+	]]
+	--local p_60 = obs.obs_properties_add_button( props, "sec_add_1_button", "Add Set 1", sec_add_1_button_clicked )
+	 --[[
+		Property Button: User interaction that will add defined time to the timer's current time.
+		This provides function interaction to change feature behaviour.
+		Interacting with this property will impact on feature options and behaviour.
+	]]
+	--local p_61 = obs.obs_properties_add_button( props, "sec_add_2_button", "Add Set 2", sec_add_2_button_clicked )
+	 --[[
+		Property Button: User interaction that will add defined time to the timer's current time.
+		This provides function interaction to change feature behaviour.
+		Interacting with this property will impact on feature options and behaviour.
+	]]
+	--local p_62 = obs.obs_properties_add_button( props, "sec_add_3_button", "Add Set 3", sec_add_3_button_clicked )
+	 --[[
+		Property Button: User interaction that will add defined time to the timer's current time.
+		This provides function interaction to change feature behaviour.
+		Interacting with this property will impact on feature options and behaviour.
+	]]
+	--local p_63 = obs.obs_properties_add_button( props, "sec_sub_1_button", "Add Set 1", sec_sub_1_button_clicked )
+	 --[[
+		Property Button: User interaction that will add defined time to the timer's current time.
+		This provides function interaction to change feature behaviour.
+		Interacting with this property will impact on feature options and behaviour.
+	]]
+	--local p_64 = obs.obs_properties_add_button( props, "sec_sub_2_button", "Add Set 2", sec_sub_2_button_clicked )
+	 --[[
+		Property Button: User interaction that will add defined time to the timer's current time.
+		This provides function interaction to change feature behaviour.
+		Interacting with this property will impact on feature options and behaviour.
+	]]
+	--local p_65 = obs.obs_properties_add_button( props, "sec_sub_3_button", "Add Set 3", sec_sub_3_button_clicked )
+	
+	
+	
 	obs.source_list_release( sources ) -- free memory, release sources as it is no longer needed
 	--[[ 
 		Callback definitions used to check for user interaction or property changes.
@@ -5410,13 +5925,22 @@ function script_defaults( settings )
 	obs.obs_data_set_default_int( settings, "config", 1 );
 	obs.obs_data_set_default_int( settings, "minutes", 0 );
 	obs.obs_data_set_default_int( settings, "seconds", 0 );
+	obs.obs_data_set_default_int( settings, "sec_add_1", 5 );
+	obs.obs_data_set_default_int( settings, "sec_add_2", 15 );
+	obs.obs_data_set_default_int( settings, "sec_add_3", 30 );
+	obs.obs_data_set_default_int( settings, "sec_sub_1", 5 );
+	obs.obs_data_set_default_int( settings, "sec_sub_2", 15 );
+	obs.obs_data_set_default_int( settings, "sec_sub_3", 30 );
 	obs.obs_data_set_default_int( settings, "split_type", 2 );
 	obs.obs_data_set_default_int( settings, "timer_mode", 1 );
 	obs.obs_data_set_default_int( settings, "timer_format", 1 );
 	obs.obs_data_set_default_int( settings, "timer_display", 1 );
 	obs.obs_data_set_default_int( settings, "timer_options", 1 );
+	obs.obs_data_set_default_int( settings, "sw_hours_saved", 0 );
 	obs.obs_data_set_default_int( settings, "countdown_type", 2 );
 	obs.obs_data_set_default_int( settings, "recording_type", 5 );
+	obs.obs_data_set_default_int( settings, "sw_minutes_saved", 0 );
+	obs.obs_data_set_default_int( settings, "sw_seconds_saved", 0 );
 	obs.obs_data_set_default_int( settings, "cycle_direction", 1 );
 	obs.obs_data_set_default_int( settings, "start_recording", 2 );
 	obs.obs_data_set_default_int( settings, "duration_marker_a", 5 );
@@ -5424,10 +5948,7 @@ function script_defaults( settings )
 	obs.obs_data_set_default_int( settings, "duration_marker_end", 5 );
 	obs.obs_data_set_default_int( settings, "enable_marker_notes", 1 );
 	obs.obs_data_set_default_int( settings, "media_playback_limit", 1 );
-	obs.obs_data_set_default_int( group_props_1, "sw_hours_saved", 0 );
-	obs.obs_data_set_default_int( group_props_1, "sw_minutes_saved", 0 );
-	obs.obs_data_set_default_int( group_props_1, "sw_seconds_saved", 0 );
-	obs.obs_data_set_default_int( group_props_1, "sw_milliseconds_saved", 0 );
+	obs.obs_data_set_default_int( settings, "sw_milliseconds_saved", 0 );
 	obs.obs_data_set_default_int( settings, "year", os.date("%Y", os.time()) );
 	obs.obs_data_set_default_int( settings, "color_normal", media["color_normal"] );
 	obs.obs_data_set_default_int( settings, "color_marker_a", media["color_marker_a"] );
@@ -5528,6 +6049,42 @@ function script_save( settings )
 	local hotkey_save_array_direction = obs.obs_hotkey_save( hotkey_id_direction );
 	obs.obs_data_set_array( settings, "direction_hotkey", hotkey_save_array_direction );
 	obs.obs_data_array_release( hotkey_save_array_direction );
+	--[[
+	
+	]]
+	local hotkey_save_array_sec_add_1 = obs.obs_hotkey_save( hotkey_id_sec_add_1 );
+	obs.obs_data_set_array( settings, "sec_add_1_hotkey", hotkey_save_array_sec_add_1 );
+	obs.obs_data_array_release( hotkey_save_array_sec_add_1 );
+	--[[
+	
+	]]
+	local hotkey_save_array_sec_add_2 = obs.obs_hotkey_save( hotkey_id_sec_add_2 );
+	obs.obs_data_set_array( settings, "sec_add_2_hotkey", hotkey_save_array_sec_add_2 );
+	obs.obs_data_array_release( hotkey_save_array_sec_add_2 );
+	--[[
+	
+	]]
+	local hotkey_save_array_sec_add_3 = obs.obs_hotkey_save( hotkey_id_sec_add_3 );
+	obs.obs_data_set_array( settings, "sec_add_3_hotkey", hotkey_save_array_sec_add_3 );
+	obs.obs_data_array_release( hotkey_save_array_sec_add_3 );
+	--[[
+	
+	]]
+	local hotkey_save_array_sec_sub_1 = obs.obs_hotkey_save( hotkey_id_sec_sub_1 );
+	obs.obs_data_set_array( settings, "sec_sub_1_hotkey", hotkey_save_array_sec_sub_1 );
+	obs.obs_data_array_release( hotkey_save_array_sec_sub_1 );
+	--[[
+	
+	]]
+	local hotkey_save_array_sec_sub_2 = obs.obs_hotkey_save( hotkey_id_sec_sub_2 );
+	obs.obs_data_set_array( settings, "sec_sub_2_hotkey", hotkey_save_array_sec_sub_2 );
+	obs.obs_data_array_release( hotkey_save_array_sec_sub_2 );
+	--[[
+	
+	]]
+	local hotkey_save_array_sec_sub_3 = obs.obs_hotkey_save( hotkey_id_sec_sub_3 );
+	obs.obs_data_set_array( settings, "sec_sub_3_hotkey", hotkey_save_array_sec_sub_3 );
+	obs.obs_data_array_release( hotkey_save_array_sec_sub_3 );
 	--[[
 		It is really important that this the last item in this routine
 	]]
@@ -5638,4 +6195,64 @@ function script_load( settings )
 	local hotkey_save_array_direction = obs.obs_data_get_array( settings, "direction_hotkey" );
 	obs.obs_hotkey_load( hotkey_id_direction, hotkey_save_array_direction );
 	obs.obs_data_array_release( hotkey_save_array_direction );
+	--[[
+		script is loading. register and assign hotkeys 
+		
+		Add Seconds to Timer
+	]]
+	hotkey_name = "sec_add_1_" .. filename():lower():gsub("[%W%p%c%s]", "");
+	hotkey_id_sec_add_1 = obs.obs_hotkey_register_frontend( hotkey_name, "Add Seconds Set 1 " .. filename(), hotkey_send_sec_add_1 );
+	local hotkey_save_array_sec_add_1 = obs.obs_data_get_array( settings, "sec_add_1_hotkey" );
+	obs.obs_hotkey_load( hotkey_id_sec_add_1, hotkey_save_array_sec_add_1 );
+	obs.obs_data_array_release( hotkey_save_array_sec_add_1 );
+	--[[
+		script is loading. register and assign hotkeys 
+		
+		Add Seconds to Timer
+	]]
+	hotkey_name = "sec_add_2_" .. filename():lower():gsub("[%W%p%c%s]", "");
+	hotkey_id_sec_add_2 = obs.obs_hotkey_register_frontend( hotkey_name, "Add Seconds Set 2 " .. filename(), hotkey_send_sec_add_2 );
+	local hotkey_save_array_sec_add_2 = obs.obs_data_get_array( settings, "sec_add_2_hotkey" );
+	obs.obs_hotkey_load( hotkey_id_sec_add_2, hotkey_save_array_sec_add_2 );
+	obs.obs_data_array_release( hotkey_save_array_sec_add_2 );
+	--[[
+		script is loading. register and assign hotkeys 
+		
+		Add Seconds to Timer
+	]]
+	hotkey_name = "sec_add_3_" .. filename():lower():gsub("[%W%p%c%s]", "");
+	hotkey_id_sec_add_3 = obs.obs_hotkey_register_frontend( hotkey_name, "Add Seconds Set 3 " .. filename(), hotkey_send_sec_add_3 );
+	local hotkey_save_array_sec_add_3 = obs.obs_data_get_array( settings, "sec_add_3_hotkey" );
+	obs.obs_hotkey_load( hotkey_id_sec_add_3, hotkey_save_array_sec_add_3 );
+	obs.obs_data_array_release( hotkey_save_array_sec_add_3 );
+	--[[
+		script is loading. register and assign hotkeys 
+		
+		Add Seconds to Timer
+	]]
+	hotkey_name = "sec_sub_1_" .. filename():lower():gsub("[%W%p%c%s]", "");
+	hotkey_id_sec_sub_1 = obs.obs_hotkey_register_frontend( hotkey_name, "Add Seconds Set 1 " .. filename(), hotkey_send_sec_sub_1 );
+	local hotkey_save_array_sec_sub_1 = obs.obs_data_get_array( settings, "sec_sub_1_hotkey" );
+	obs.obs_hotkey_load( hotkey_id_sec_sub_1, hotkey_save_array_sec_sub_1 );
+	obs.obs_data_array_release( hotkey_save_array_sec_sub_1 );
+	--[[
+		script is loading. register and assign hotkeys 
+		
+		Add Seconds to Timer
+	]]
+	hotkey_name = "sec_sub_2_" .. filename():lower():gsub("[%W%p%c%s]", "");
+	hotkey_id_sec_sub_2 = obs.obs_hotkey_register_frontend( hotkey_name, "Add Seconds Set 2 " .. filename(), hotkey_send_sec_sub_2 );
+	local hotkey_save_array_sec_sub_2 = obs.obs_data_get_array( settings, "sec_sub_2_hotkey" );
+	obs.obs_hotkey_load( hotkey_id_sec_sub_2, hotkey_save_array_sec_sub_2 );
+	obs.obs_data_array_release( hotkey_save_array_sec_sub_2 );
+	--[[
+		script is loading. register and assign hotkeys 
+		
+		Add Seconds to Timer
+	]]
+	hotkey_name = "sec_sub_3_" .. filename():lower():gsub("[%W%p%c%s]", "");
+	hotkey_id_sec_sub_3 = obs.obs_hotkey_register_frontend( hotkey_name, "Add Seconds Set 3 " .. filename(), hotkey_send_sec_sub_3 );
+	local hotkey_save_array_sec_sub_3 = obs.obs_data_get_array( settings, "sec_sub_3_hotkey" );
+	obs.obs_hotkey_load( hotkey_id_sec_sub_3, hotkey_save_array_sec_sub_3 );
+	obs.obs_data_array_release( hotkey_save_array_sec_sub_3 );
 end
