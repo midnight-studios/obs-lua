@@ -6,6 +6,29 @@ OBS > Tools > Scripts
 Stopwatch
 ***************************************************************************************************************************************
 
+Version 4.6
+
+Published / Released: 2022-12.20 12:48
+
+NEW FEATURES
+
+- Allow Timer rest if scene becomes activated
+
+
+OPTIMIZATION
+
+- 
+
+USER EXPERIENCE & FEATURE ENHANCEMENTS
+
+- Start on Scene active improvements
+
+BUGS
+
+- Fixed an issue that caused the stinger transition to break when the timer is in countdown mode.
+
+***************************************************************************************************************************************
+
 Version 4.5
 
 Published / Released: 2022-12.03 01:56
@@ -196,7 +219,7 @@ BUGS
 ]]
 --Globals
 obs           				= obslua
-gversion 					= "4.5"
+gversion 					= "4.6"
 luafile						= "StopWatch.lua"
 obsurl						= "comprehensive-stopwatch-countdown-timer.1364/"
 patch_notes					= "Patch Notes"
@@ -280,6 +303,7 @@ timer_active  						= false
 reset_activated						= false
 start_on_visible  					= false
 force_reset_on_visible				= false
+force_reset_on_scene_active			= false
 active_source_force_visible			= false
 start_on_scene_active				= false
 disable_script   					= false
@@ -289,6 +313,7 @@ timer_expired  						= true
 mili_toggle_triggered				= false 
 direction_changed					= false 
 prevent_negative_time  				= false
+record_timer_set  					= false
 media = {							-- table start
 text_marker_b						= "",
 text_marker_a						= "",
@@ -881,17 +906,19 @@ end
 
 	Modified:		
 
-	function:		wait function used to allow other tasks to complete
+	function:		delayed recording task to allow other tasks to complete
 	type:			
 	input type: 	
-	returns:		hold and release
+	returns:		
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]	
-local function wait( ms )
-	if ms ~= nil then
-		local start = math.floor( ( obs.os_gettime_ns()/1000000 ) )
-		repeat until ( math.floor( ( obs.os_gettime_ns()/1000000 ) )-start ) >= ms 
-	end 
+local function frontend_recording_start_callback( )
+	if not record_timer_set then return end
+	if not obs.obs_frontend_recording_active() then
+		obs.obs_frontend_recording_start()
+	end
+	obs.timer_remove( frontend_recording_start_callback )
+	record_timer_set = false
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
@@ -913,19 +940,17 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function record( mark, ms )
-	if timer_mode ~= 2 then return end
-	if start_recording == 1 and mark == recording_type then
-		
-		--[[
-				recording should only be started if it is not already recording
-		
-		]]
-		
-		if not obs.obs_frontend_recording_active() then
-			obs.obs_frontend_recording_start()
-		end
+	if obs.obs_frontend_recording_active() then -- if already recording, remove and reset timer
+		frontend_recording_start_callback( )
+		return
 	end
-	if ms ~= nil then wait( ms ) end 
+	if timer_mode ~= 2 or obs.obs_frontend_recording_active() then return end -- if not countdown or timer active, then exit
+	if start_recording == 1 and mark == recording_type then	
+		if not record_timer_set then
+			obs.timer_add( frontend_recording_start_callback, ms ) --< milliseconds
+			record_timer_set = true 	
+		end	
+	end 
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
@@ -1643,8 +1668,8 @@ local function time_mark_check( ref )
 			5 = "Timer Start"
 			
 		]]	
-		if ref == "marker_a" then record( 2 ) end -- an integer reference used to compare with recording_type
-		if ref == "marker_b" then record( 3 ) end -- an integer reference used to compare with recording_type
+		if ref == "marker_a" then record( 2, 100 ) end -- an integer reference used to compare with recording_type
+		if ref == "marker_b" then record( 3, 100 ) end -- an integer reference used to compare with recording_type
 	end		
 end
 --[[
@@ -2811,7 +2836,7 @@ local function update_timer_settings( set_to_default, new_settings ) -- optional
 			
 				THIS WILL UPDATE current_seconds to the value current_seconds
 			]]
-		if set_to_default and update_default_time() or reset_activated or ( force_reset_on_visible and set_to_default ) then	
+		if set_to_default and update_default_time() or reset_activated or ( force_reset_on_visible or force_reset_on_scene_active and set_to_default ) then	
 			--[[
 				update timer time
 			]]
@@ -3659,41 +3684,6 @@ local function hotkey_send_sec_sub_3( pressed )
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	
-	
-	Credit:			
-
-	Modified:		
-
-	function:		
-	type:			
-	input type: 	
-	returns:
-----------------------------------------------------------------------------------------------------------------------------------------
-]]
-local function recording_callback()
-	obs.timer_remove( recording_callback )
-	record( 1 )
-end
---[[
-----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	
-	
-	Credit:			
-
-	Modified:		
-
-	function:		
-	type:			
-	input type: 	
-	returns:
-----------------------------------------------------------------------------------------------------------------------------------------
-]]
-local function delayed_recording()
-	obs.timer_add( recording_callback, 100 ) --<- milliseconds 
-end
---[[
-----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	Called when a source is activated/deactivated
 	
 	Credit:			
@@ -3753,7 +3743,7 @@ local function activate_signal( cd, connected )
 
 					purpose: User requires the timer to intiate.
 				]]
-				if not set_timer_activated and force_reset_on_visible then
+				if not set_timer_activated and ( force_reset_on_visible or force_reset_on_scene_active ) then
 					update_timer_settings( true ) -- optional inputs: set_to_default(bool), new_settings(obs_property_data/obs_userdata)
 				end
 				
@@ -4507,7 +4497,8 @@ local function load_settings_globals( settings )
 	media["text_marker_b"] = obs.obs_data_get_string( settings, "text_marker_b" )
 	media_playback_limit = obs.obs_data_get_int( settings, "media_playback_limit" )
     start_on_scene_active = obs.obs_data_get_bool( settings, "start_on_scene_active" )
-    force_reset_on_visible = obs.obs_data_get_bool( settings, "force_reset_on_visible" )	
+    force_reset_on_visible = obs.obs_data_get_bool( settings, "force_reset_on_visible" )
+    force_reset_on_scene_active = obs.obs_data_get_bool( settings, "force_reset_on_scene_active" )	
 	media["source_name_audio_marker_a"] = obs.obs_data_get_string( settings, "audio_marker_a" )
 	media["source_name_audio_marker_b"] = obs.obs_data_get_string( settings, "audio_marker_b" )
     active_source_force_visible = obs.obs_data_get_bool( settings, "active_source_force_visible" )
@@ -4681,6 +4672,7 @@ local function property_onchange( props, property, settings )
 	local prevent_negative_time_prop = obs.obs_properties_get( props, "prevent_negative_time" )
 	local start_on_visible_prop = obs.obs_properties_get( props, "start_on_visible" )
 	local force_reset_on_visible_prop = obs.obs_properties_get( props, "force_reset_on_visible" )
+	local force_reset_on_scene_active_prop = obs.obs_properties_get( props, "force_reset_on_scene_active" )
 	local start_on_scene_active_prop = obs.obs_properties_get( props, "start_on_scene_active" )
 	--[[
 	
@@ -4803,9 +4795,10 @@ local function property_onchange( props, property, settings )
 	obs.obs_property_set_visible( disable_script_prop, config_value == 2 )
 	obs.obs_property_set_visible( enable_direction_toggle_prop, config_value == 2 and ( timer_mode_value == 2 and countdown_type_value == 2 or timer_mode_value == 1 ) )
 	obs.obs_property_set_visible( prevent_negative_time_prop, enable_direction_toggle and config_value == 2 and ( timer_mode_value == 2 and countdown_type_value == 2 or timer_mode_value == 1 ) )
-	obs.obs_property_set_visible( start_on_visible_prop, config_value == 2 )
+	obs.obs_property_set_visible( start_on_visible_prop, config_value == 2 and not start_on_scene_active )
 	obs.obs_property_set_visible( force_reset_on_visible_prop, config_value == 2 and start_on_visible )
-	obs.obs_property_set_visible( start_on_scene_active_prop, config_value == 2 )
+	obs.obs_property_set_visible( force_reset_on_scene_active_prop, config_value == 2 and start_on_scene_active )
+	obs.obs_property_set_visible( start_on_scene_active_prop, config_value == 2 and not start_on_visible )
 	--[[
 		
 		Try to prevent reference conflicts
@@ -4822,6 +4815,13 @@ local function property_onchange( props, property, settings )
 	end
 	if countdown_type_value == 1 and month_value ~= 1 and day_value == 0 then
 		obs.obs_data_set_int( settings, "day", 1 ) -- set to at least 1, else the timer won"t know it is at zero
+	end	
+	
+	if start_on_scene_active then
+		obs.obs_data_set_bool( settings, "force_reset_on_visible", false ) -- set false else we will get onflicts
+	end
+	if start_on_visible then
+		obs.obs_data_set_bool( settings, "force_reset_on_scene_active", false ) -- set false else we will get onflicts
 	end	
 	--[[
 		
@@ -4978,7 +4978,7 @@ function timer_ended( source_name )
 		If user wants recording to start when timer ended, now is a good timer to initiate recording
 		NOTE: Recording will only be started, if it is not already recording
 	]]	
-	delayed_recording()
+	record( 1, 100 )
 	--[[
 		Force media playback to end, if the media is looping
 	]]		
@@ -5702,17 +5702,23 @@ function script_properties()
 	]]
     obs.obs_properties_add_bool( props, "force_reset_on_visible", "Reset timer on Source Visible" )
 	 --[[
-		Property Checkbox: User interaction that will start timer if scene with timer source becomes active.
-		This provides function interaction to change feature behaviour.
-		Interacting with this property will impact on feature options and behaviour.
-	]]
-    obs.obs_properties_add_bool( props, "start_on_scene_active", "Start Timer on Scene Active" )
-	 --[[
 		Property Checkbox: User interaction that toggle active source visibility.
 		This provides function interaction to change feature behaviour.
 		Interacting with this property will impact on feature options and behaviour.
 	]]
     obs.obs_properties_add_bool( props, "active_source_force_visible", "Toggle Active Source Visibility" )
+	 --[[
+		Property Checkbox: User interaction that will start timer if scene with timer source becomes active.
+		This provides function interaction to change feature behaviour.
+		Interacting with this property will impact on feature options and behaviour.
+	]]
+    local p_54 = obs.obs_properties_add_bool( props, "start_on_scene_active", "Start Timer on Scene Active" )
+	 --[[
+		Property Checkbox: User interaction that will disable the plugin.
+		This provides function interaction to change feature behaviour.
+		Interacting with this property will impact on feature options and behaviour.
+	]]
+    obs.obs_properties_add_bool( props, "force_reset_on_scene_active", "Reset timer on Scene Active" )
 	 --[[
 		Property Checkbox: User interaction that will disable the plugin.
 		This provides function interaction to change feature behaviour.
@@ -5724,7 +5730,7 @@ function script_properties()
 		This provides function interaction to change feature behaviour.
 		Interacting with this property will impact on feature options and behaviour.
 	]]
-    local p_54 = obs.obs_properties_add_bool( props, "enable_direction_toggle", "Enable Timer Direction Toggle" )
+    local p_55 = obs.obs_properties_add_bool( props, "enable_direction_toggle", "Enable Timer Direction Toggle" )
 	 --[[
 		Property Checkbox: User interaction that will disable the plugin.
 		This provides function interaction to change feature behaviour.
@@ -5738,7 +5744,7 @@ function script_properties()
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]
-	local p_55 = obs.obs_properties_add_bool( props, "backup_mode", "Backup Mode" )
+	local p_56 = obs.obs_properties_add_bool( props, "backup_mode", "Backup Mode" )
 	 --[[
 		Property Directory Path: User interaction that select a directory path.
 		This provides function interaction to change feature behaviour.
@@ -5746,7 +5752,7 @@ function script_properties()
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]
-	local p_56 = obs.obs_properties_add_path( props, "backup_folder", "Backup Folder", obs.OBS_PATH_DIRECTORY, nil, nil)
+	local p_57 = obs.obs_properties_add_path( props, "backup_folder", "Backup Folder", obs.OBS_PATH_DIRECTORY, nil, nil)
 	--[[
 		Property list: User interaction that will execute an import feature.
 		This provides function interaction to change feature behaviour.
@@ -5754,13 +5760,13 @@ function script_properties()
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]
-	local p_57 = obs.obs_properties_add_list( props, "import_list", "<i>Load Settings</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
-	obs.obs_property_list_add_string( p_57, "Select ", "select" ) -- Adds a default option to the list. First (top-most) list item. If selected the option is ignored. 
-	obs.obs_property_set_long_description( p_57, "\nSelect the Settings file to import.\n" ) -- User Tip
+	local p_58 = obs.obs_properties_add_list( props, "import_list", "<i>Load Settings</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING )
+	obs.obs_property_list_add_string( p_58, "Select ", "select" ) -- Adds a default option to the list. First (top-most) list item. If selected the option is ignored. 
+	obs.obs_property_set_long_description( p_58, "\nSelect the Settings file to import.\n" ) -- User Tip
 	local filenames = get_filenames( path, ".json" ) -- list all files of type
 	if table.getn( filenames ) > 0 then
   		for i,v in pairs( filenames ) do 
-			obs.obs_property_list_add_string( p_57, v, v ) -- Add options to the list
+			obs.obs_property_list_add_string( p_58, v, v ) -- Add options to the list
 		end
 	end
 	--[[
@@ -5768,7 +5774,7 @@ function script_properties()
 		This provides function interaction to change feature behaviour.
 		Interacting with this property will complete a feature task. 
 	]]
-	local p_58 = obs.obs_properties_add_button( props, "export_button", "Export Settings", export_button_clicked )
+	local p_59 = obs.obs_properties_add_button( props, "export_button", "Export Settings", export_button_clicked )
 	 --[[
 		Property Button: User interaction that will import available property settings from a json file
 		and apply them to the properties.
@@ -5777,7 +5783,7 @@ function script_properties()
 		 
 		This property is referenced to trigger an onchange event listener.
 	]]
-	local p_59 = obs.obs_properties_add_button( props, "import_button", "Import Settings", import_button_clicked )
+	local p_60 = obs.obs_properties_add_button( props, "import_button", "Import Settings", import_button_clicked )
 	
 	
 	 --[[
@@ -5846,11 +5852,12 @@ function script_properties()
   	obs.obs_property_set_modified_callback( p_37, property_onchange )		-- next_scene
 	obs.obs_property_set_modified_callback( p_52, property_onchange )		-- set_stopwatch
 	obs.obs_property_set_modified_callback( p_53, property_onchange )		-- force_reset_on_visible
-	obs.obs_property_set_modified_callback( p_54, property_onchange )		-- enable_direction_toggle
-	obs.obs_property_set_modified_callback( p_55, property_onchange )		-- backup_mode
-	obs.obs_property_set_modified_callback( p_56, property_onchange )		-- backup_folder
-	obs.obs_property_set_modified_callback( p_57, property_onchange )		-- import_list
-	obs.obs_property_set_modified_callback( p_59, import_properties )		-- import_button
+	obs.obs_property_set_modified_callback( p_54, property_onchange )		-- start_on_scene_active
+	obs.obs_property_set_modified_callback( p_55, property_onchange )		-- enable_direction_toggle
+	obs.obs_property_set_modified_callback( p_56, property_onchange )		-- backup_mode
+	obs.obs_property_set_modified_callback( p_57, property_onchange )		-- backup_folder
+	obs.obs_property_set_modified_callback( p_58, property_onchange )		-- import_list
+	obs.obs_property_set_modified_callback( p_60, import_properties )		-- import_button
 	-- Calls the callback once to set-up current visibility
   	obs.obs_properties_apply_settings( props, script_settings )
 	return props
@@ -5986,6 +5993,7 @@ function script_defaults( settings )
 	obs.obs_data_set_default_bool( settings, "start_on_scene_active", false );
 	obs.obs_data_set_default_bool( settings, "force_reset_on_visible", false );
 	obs.obs_data_set_default_bool( settings, "enable_direction_toggle", false );
+	obs.obs_data_set_default_bool( settings, "force_reset_on_scene_active", false );
 	obs.obs_data_set_default_bool( settings, "prevent_negative_time", false );
 	obs.obs_data_set_default_bool( settings, "active_source_force_visible", false );
 	-- Keep track of current settings
