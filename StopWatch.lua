@@ -12,7 +12,7 @@ Published / Released: 2022-12.20 12:48
 
 NEW FEATURES
 
-- Allow Timer rest if scene becomes activated
+- Allow Timer reset if scene becomes activated
 
 
 OPTIMIZATION
