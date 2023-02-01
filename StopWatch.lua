@@ -6,6 +6,29 @@ OBS > Tools > Scripts
 Stopwatch
 ***************************************************************************************************************************************
 
+Version 4.8
+
+Published / Released: 2023-02-02 10:45
+
+NEW FEATURES
+
+- Custom Minute Format that supports minute formats of any length. To use open Scipt settings go to 'Time Format' and set to 'Custom Time Format' and define the time stamp you require. To adjust the minute format you need to add the following syntax: '{M90}' Add 'M' and number enclosed in '{}' to adjust minute format: {M90} will display 90 minutes units. The number value following the 'M' will be assigned to the Minute Format
+
+OPTIMIZATION
+
+- 
+
+USER EXPERIENCE & FEATURE ENHANCEMENTS
+
+- 
+
+BUGS
+
+- 
+
+***************************************************************************************************************************************
+***************************************************************************************************************************************
+
 Version 4.7
 
 Published / Released: 2022-12.29 18:56
@@ -248,7 +271,7 @@ BUGS
 ]]
 --Globals
 obs           				= obslua;
-gversion 					= "4.7";
+gversion 					= "4.8";
 luafile						= "StopWatch.lua";
 obsurl						= "comprehensive-stopwatch-countdown-timer.1364/";
 patch_notes					= "Patch Notes";
@@ -332,6 +355,7 @@ current_count_direction				= 1;
 timer_cycle 						= 10; --milliseconds
 split_itm							= {};
 split_data							= nil;
+minute_format						= nil;
 local ctx = {
     propsDef    = nil,  -- property definition
     propsDefSrc = nil,  -- property definition (source scene)
@@ -1057,7 +1081,17 @@ local function delta_time( year, month, day, hour, minute, second )
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Take the time segments:
+	Description:
+
+					Local variables format_hour, format_minutes, format_seconds, format_mili are initialized to the strings that define the format of hour, minutes, seconds and mili based on whether they are present or not.
+
+					"time" variable is initialized with the formatted string using string.format and the values of format_hour, format_minutes, format_seconds, format_mili and the input arguments hour, minutes, seconds, and mili.
+
+					If show_mili is false, then time is re-initialized with the formatted string using string.format and values of format_hour, format_minutes, format_seconds and input arguments hour, minutes, and seconds.
+
+					Return time.
+
+					Take the time segments:
 
 					Hours, Minutes, Seconds, Millisieconds
 
@@ -1074,7 +1108,7 @@ end
 	function:		Dependency / Support 
 	type:			
 	input type: 	4 variables - "HH" "MM" "SS" "FF"
-	returns:		time stamp 00:00:00,00 (HH:MM:SS,FF)
+	returns:		formatted time string: time stamp 00:00:00,00 (HH:MM:SS,FF)
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function config_time( hour, minutes, seconds, mili )
@@ -1101,7 +1135,39 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	Convert Seconds to hours:minutes:seconds:miliseconds
 	
-					$function status: in service	
+					$function status: in service
+
+					Local variables hour, minutes, seconds, and mili are initialized to 0.
+					
+					If time is greater than 86399 (23:59:59), c_time is calculated as the nearest multiple of 86400 that is less than time and time is updated by subtracting c_time from it.
+
+					Hour is calculated as the floor division of time by 3600.
+
+					If hour is less than 10 and trim is true, hour is updated with a leading zero.
+
+					Minutes are calculated based on whether the custom_time_format has a value of 90.
+
+					If minutes are greater than or equal to 60, minutes are updated as the remainder after dividing by 90.
+
+					If minutes are less than 10 and trim is true, minutes are updated with a leading zero.
+					
+					Seconds are calculated as the floor value of time minus the product of hour and 3600 and the product of minutes and 60.
+
+					If seconds are less than 10 and trim is true, seconds are updated with a leading zero.
+
+					Miliseconds are calculated as the floor value of time minus the product of hour and 3600 and the product of minutes and 60 and the value of seconds.
+
+					If miliseconds are less than 10 and trim is true, miliseconds are updated with a leading zero.
+
+					Local variable "output" is initialized to an empty string.
+
+					If simplify is true, "output" is updated with the result of calling config_time with hour, minutes, seconds and nil.
+
+					"output" is updated with the result of calling config_time with hour, minutes, seconds, and miliseconds.
+
+					Return "output".
+
+
 	
 	Credit:			
 
@@ -1114,6 +1180,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function raw_time( time, simplify )
+	
 	local hour, minutes, seconds, mili = 0, 0, 0, 0;
 	--[[
 		If there is more than 24 hours in the time value
@@ -1125,18 +1192,40 @@ local function raw_time( time, simplify )
 		local c_time = ( math.floor( ( time ) / 86400 ) * 86400 );
 		time = time - c_time;
 	end;
+	--[[
+	
+	]]
 	hour = math.floor( time/3600 );
 	if hour < 10 and trim then
 		hour = "0"..hour;
 	end;
-	minutes = math.floor( ( time - math.floor( time/3600 )*3600 )/60 );
+	--[[
+			check flag: custom_time_format
+			if flag assign a 90 minute unit then apply it, else use default 60 minute unit
+	
+			If there is a use case, this could potentially be expanded here but we will have to make sure the code checks out.
+	
+	
+	]]
+	if minute_format ~= nil then
+		minutes = math.floor( ( ( time/3600 ) * 3600 ) / 60 );
+		minutes = minutes % minute_format;
+	else
+		minutes = math.floor( ( time - math.floor( time/3600 )*3600 )/60 );
+	end	
 	if minutes < 10 and trim then
 		minutes = "0"..minutes;
 	end;
+	--[[
+	
+	]]
 	seconds =  math.floor( time - math.floor( time/3600 )*3600 - math.floor( ( time - math.floor( time/3600 )*3600 )/60 )*60 );
 	if seconds < 10 and trim then
 		seconds = "0"..seconds;
 	end;
+	--[[
+	
+	]]
 	mili = math.floor( ( time - math.floor( time/3600 )*3600 - math.floor( ( time - math.floor( time/3600 )*3600 )/60 )*60 - math.floor( time - math.floor( time/3600 )*3600 - math.floor( ( time - math.floor( time/3600 )*3600 )/60 )*60 ) )*100 );
 	if mili < 10 and trim then
 		mili = "0"..mili;
@@ -1149,10 +1238,13 @@ local function raw_time( time, simplify )
 		will for example activate Mark A or Mark B
 		
 	]]	
+	local output = "";
 	if simplify then
-		return config_time( hour, minutes, seconds,  nil );
+		output = config_time( hour, minutes, seconds,  nil );
 	end;
-	return config_time( hour, minutes, seconds,  mili );
+	output = config_time( hour, minutes, seconds,  mili );
+	
+	return output;
 end	
 
 --[[
@@ -1301,6 +1393,74 @@ local function long_time( time )
 		c_time = 0;
 	end;
 	return c_time;
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	
+
+	Description:	This function checks if a string contains the characters "{" and "}" and the character "M" followed 
+					by a numeric value
+					If the string meets these conditions, the function returns the numeric value
+
+					Check to see if a user defined a custom time format and if the format defined a minute allocation.
+	
+					If the user need the minute clock to be for example 90 minutes instead of 60 then the user could add the expression as followes:
+					
+					{M90} will assign a 90 minute value
+					Note, the M90 must be inside brackets to be considered. 
+	
+	Credit:			
+
+	Modified:		Asking if miliseconds property must be shown or hidden and this is for back end UI
+
+	function:		yer, no
+	type:			Support, UI
+	input type: 	properties, settings
+	returns:		bool
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+function get_minutes_allocation( str )
+    -- Find the first occurrence of a balanced pair of braces in the string
+    local start_index, end_index = string.find(str, "%b{}")
+    -- If no balanced pair of braces is found, return nil
+    if start_index == nil then
+        return nil
+    end
+    -- Extract the substring between the braces
+    local inside = string.sub(str, start_index + 1, end_index - 1)
+    -- Find the first occurrence of the letter "M" followed by one or more digits in the substring
+    local m_index, _ = string.find(inside, "M%d+")
+    -- If the letter "M" and numeric value is not found, return nil
+    if m_index == nil then
+        return nil
+    end
+    -- Convert the numeric value following the letter "M" to a number and return the result
+    return tonumber(string.sub(inside, m_index + 1))
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	
+
+	Description:	This function uses the string.find function to find the first occurrence of a balanced pair of braces 					(%b{}) in the input string str. If no such pair is found, the function returns the input string as is.
+
+					If a pair of braces is found, the function uses string.sub to extract the substrings of str before and after the pair of braces, concatenates them using the .. operator, and returns the result.
+	
+	Credit:			
+
+	Modified:		Asking if miliseconds property must be shown or hidden and this is for back end UI
+
+	function:		yer, no
+	type:			Support, UI
+	input type: 	properties, settings
+	returns:		bool
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+function removeBrackets(str)
+    local start_index, end_index = string.find(str, "%b{}")
+    if start_index == nil then
+        return str
+    end
+    return string.sub(str, 1, start_index - 1) .. string.sub(str, end_index + 1)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
@@ -2457,7 +2617,7 @@ local function set_time_text( source_name )
 	]]
 	
 	if timer_format == 5 then
-		text = format_time( ( l_time ~= 0 ) and string.format( "%s:%s", l_time, t_time ) or string.format( "%s", t_time ), custom_time_format );
+		text = format_time( ( l_time ~= 0 ) and string.format( "%s:%s", l_time, t_time ) or string.format( "%s", t_time ), removeBrackets(custom_time_format) );
 	end	
 	
 	if timer_mode ~= 2 then
@@ -3157,7 +3317,13 @@ end
 local function set_stopwatch()
 	time_frequency = get_frequency( ns_last );
 	local hh = ( sw_hours_saved * 3600 );
-	local mm = ( sw_minutes_saved * 60 );
+	local mm = 0;
+	if minute_format ~= nil then
+		mm = ( sw_minutes_saved * minute_format );
+	else
+		mm = ( sw_minutes_saved * 60 );	
+	end
+	mm = ( sw_minutes_saved * 60 );
 	local ss = ( sw_seconds_saved );
 	local ff = ( sw_milliseconds_saved / ( 99 + time_frequency ) );
 	local time = ( hh + mm + ss + ff ); 
@@ -4860,6 +5026,7 @@ local function property_onchange( props, property, settings )
 	local _group_1_prop = obs.obs_properties_get( props, "_group_1" );
 	local _group_2_prop = obs.obs_properties_get( props, "_group_2" );
 	local _group_3_prop = obs.obs_properties_get( props, "_group_3" );
+	local sw_minutes_saved_prop = obs.obs_properties_get( props, "sw_minutes_saved" );
 	local set_stopwatch_prop = obs.obs_properties_get( props, "set_stopwatch" );
 	local timer_display_prop = obs.obs_properties_get( props, "timer_display" );
 	--[[
@@ -5077,6 +5244,13 @@ local function property_onchange( props, property, settings )
 		Some Calandar Stuff
 	
 	]]	
+
+	if( minute_format ~= nil ) then
+		obs.obs_property_int_set_limits( sw_minutes_saved_prop, 0, ( minute_format - 1 ), 1 );	
+	else
+		obs.obs_property_int_set_limits( sw_minutes_saved_prop, 0, 59, 1 );	
+	end
+		
 	obs.obs_property_int_set_limits( day_prop, 1, 31, 1 );
 	if ( month_value == 5 or month_value == 7 or month_value == 10 or month_value == 12 ) then
 		obs.obs_property_int_set_limits( day_prop, 1, 30, 1 );
@@ -5565,7 +5739,7 @@ function script_properties()
 		This property is referenced to trigger an onchange event listener.
 	]]	
 	local p_15 = obs.obs_properties_add_text( ctx.propsDef, "custom_time_format", "<font color=".. font_dimmed ..">Time Format</font>", obs.OBS_TEXT_DEFAULT );
-	obs.obs_property_set_long_description( p_15, "\n Timestamp is represented by $D = day, $H = hour, $M = minute, $S = second, $F = split second.\n\n To trim leading zeros, include $T = truncate leading zeros. This will ONLY affect a format matching '$D:$H:$M:$S,$F' (00:00:00:00,00)\n" ); -- User Tip
+	obs.obs_property_set_long_description( p_15, "\n Timestamp is represented by $D = day, $H = hour, $M = minute, $S = second, $F = split second. \n\n Add 'M' and number enclosed in '{}' to adjust minute format: {M90} will display 90 minutes units.\n\n To trim leading zeros, include $T = truncate leading zeros. This will ONLY affect a format matching '$D:$H:$M:$S,$F' (00:00:00:00,00)\n" ); -- User Tip
 	--[[
 		 Text Field
 		 
@@ -6393,8 +6567,9 @@ function script_update( settings )
 		If setting changed, update timer
 
 	]]
-	update_timer_settings( false ); -- optional inputs: set_to_default(bool), new_settings(obs_property_data/obs_userdata)	 
+	update_timer_settings( false ); -- optional inputs: set_to_default(bool), new_settings(obs_property_data/obs_userdata)	
 	
+	minute_format = get_minutes_allocation( custom_time_format );
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
