@@ -6,6 +6,28 @@ OBS > Tools > Scripts
 Stopwatch
 ***************************************************************************************************************************************
 
+Version 4.9
+
+Published / Released: 2023-02-09 10:00
+
+NEW FEATURES
+
+- 
+
+OPTIMIZATION
+
+- 
+
+USER EXPERIENCE & FEATURE ENHANCEMENTS
+
+- 
+
+BUGS
+
+- Fixed an issue that caused the time marker function to break.
+
+***************************************************************************************************************************************
+
 Version 4.8
 
 Published / Released: 2023-02-02 10:45
@@ -271,7 +293,7 @@ BUGS
 ]]
 --Globals
 obs           				= obslua;
-gversion 					= "4.8";
+gversion 					= "4.9";
 luafile						= "StopWatch.lua";
 obsurl						= "comprehensive-stopwatch-countdown-timer.1364/";
 patch_notes					= "Patch Notes";
@@ -927,158 +949,8 @@ local function assign_default_frequency()
 		fps = video_info.fps_num;		
 	end;
 	time_frequency = ( 1/fps );
-end	
---[[
-----------------------------------------------------------------------------------------------------------------------------------------
-	
-	Description:	Used this in testing to measure accuracy
-
-					The Text Source and the Log should produce the same value
-					The Text source is updated by the time function while the debug 
-					uses start and end time stamps to get a value	
-	
-	Credit:			midnight-studios
-
-	Modified:		
-
-	function:		calculate time difference between two points in time
-	type:			Support
-	input type: 	none
-	returns:		double
-----------------------------------------------------------------------------------------------------------------------------------------
-]]
-local function get_time_lapsed()
-	local ns = obs.os_gettime_ns();
-	local delta = ( ns/1000000000.0 ) - ( orig_time/1000000000.0 );
-	return raw_time( delta );
-end	
---[[
-----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	The true frequency between cycles varies due to script
-					and system task processing, therefore a static frequency
-					will produce inaccuarte results over time. 
-
-					Start with a default frequency of 1 second devided by
-					the assigned active fps and then update the frequency 
-					calculated from the difference between cycles for the 
-					previous and current cycle using high-precision system 
-					time, in nanoseconds.
-
-					It should be noted, the frequency is based on the
-					script defined cycle time, which in this case is 
-					10 miliseconds. Based on testing 10 Miliseconds is the
-					fastest cycle supported in OBS lua.
-	
-	Credit:			midnight-studios
-
-	Modified:		
-
-	function:		determine the correct fraction of the split second based on frame rate
-	type:			Support
-	input type: 	double
-	returns:		double
-----------------------------------------------------------------------------------------------------------------------------------------
-]]
-local function get_frequency( previous )
-	local ns = obs.os_gettime_ns();
-	ns_last = ns;
-	local f = ( ns/1000000000.0 ) - ( previous/1000000000.0 );
-	if f > 1 then f = time_frequency end;
-	return f;	
 end
---[[
-----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	This was developed because some tasks were not completing
-	
-	Credit:			midnight-studios
 
-	Modified:		
-
-	function:		delayed recording task to allow other tasks to complete
-	type:			
-	input type: 	
-	returns:		
-----------------------------------------------------------------------------------------------------------------------------------------
-]]	
-local function frontend_recording_start_callback( )
-	if not record_timer_set then return end;
-	if not obs.obs_frontend_recording_active() then
-		obs.obs_frontend_recording_start();
-	end;
-	obs.timer_remove( frontend_recording_start_callback );
-	record_timer_set = false;
-end
---[[
-----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	"Timer Expires" 	= 1 
-					"Marker A Time" 	= 2 
-					"Marker B Time" 	= 3 
-					"Timer Visible" 	= 4 
-					"Timer Start" 		= 5
-	
-	
-	Credit:			midnight-studios
-
-	Modified:		
-
-	function:		Start obs call obs_frontend_recording_start()
-	type:			
-	input type: 	reference, milliseconds
-	returns:		none
-----------------------------------------------------------------------------------------------------------------------------------------
-]]
-local function record( mark, ms )
-	if obs.obs_frontend_recording_active() then -- if already recording, remove and reset timer
-		frontend_recording_start_callback( );
-		return;
-	end;
-	if timer_mode ~= 2 or obs.obs_frontend_recording_active() then return end; -- if not countdown or timer active, then exit
-	if start_recording == 1 and mark == recording_type then	
-		if not record_timer_set then
-			obs.timer_add( frontend_recording_start_callback, ms ); --< milliseconds
-			record_timer_set = true; 	
-		end;
-	end;
-end
---[[
-----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Convert hours:minutes:seconds to Seconds 
-	
-					When the user defines the Hours, Minutes & Seconds
-					we need to convert it to seconds as the timer works
-					on the value "seconds"
-
-					$function status: in service
-		
-	
-	Credit:			midnight-studios
-
-	Modified:		
-
-	function:		convert date, hour, minutes and secods to seconds
-	type:			
-	input type: 	interger for date, time
-	returns:		interger (seconds)
-----------------------------------------------------------------------------------------------------------------------------------------
-]]
-local function delta_time( year, month, day, hour, minute, second )
-	local now = os.time();
-	if ( year == -1 ) then
-		year = os.date( "%Y", now );
-	end;
-	if ( month == -1 ) then
-		month = os.date( "%m", now );
-	end;
-	if ( day == -1 ) then
-		day = os.date( "%d", now );
-	end;
-	local future = os.time{year=year, month=month, day=day, hour=hour, min=minute, sec=second};
-	local seconds = os.difftime( future, now );
-	if ( seconds < 0 ) then
-		seconds = 0;
-	end;
-	return seconds; 
-end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:
@@ -1241,11 +1113,163 @@ local function raw_time( time, simplify )
 	local output = "";
 	if simplify then
 		output = config_time( hour, minutes, seconds,  nil );
+	else
+		output = config_time( hour, minutes, seconds,  mili );
 	end;
-	output = config_time( hour, minutes, seconds,  mili );
 	
 	return output;
 end	
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	
+	Description:	Used this in testing to measure accuracy
+
+					The Text Source and the Log should produce the same value
+					The Text source is updated by the time function while the debug 
+					uses start and end time stamps to get a value	
+	
+	Credit:			midnight-studios
+
+	Modified:		
+
+	function:		calculate time difference between two points in time
+	type:			Support
+	input type: 	none
+	returns:		double
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function get_time_lapsed()
+	local ns = obs.os_gettime_ns();
+	local delta = ( ns/1000000000.0 ) - ( orig_time/1000000000.0 );
+	return raw_time( delta );
+end	
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	The true frequency between cycles varies due to script
+					and system task processing, therefore a static frequency
+					will produce inaccuarte results over time. 
+
+					Start with a default frequency of 1 second devided by
+					the assigned active fps and then update the frequency 
+					calculated from the difference between cycles for the 
+					previous and current cycle using high-precision system 
+					time, in nanoseconds.
+
+					It should be noted, the frequency is based on the
+					script defined cycle time, which in this case is 
+					10 miliseconds. Based on testing 10 Miliseconds is the
+					fastest cycle supported in OBS lua.
+	
+	Credit:			midnight-studios
+
+	Modified:		
+
+	function:		determine the correct fraction of the split second based on frame rate
+	type:			Support
+	input type: 	double
+	returns:		double
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function get_frequency( previous )
+	local ns = obs.os_gettime_ns();
+	ns_last = ns;
+	local f = ( ns/1000000000.0 ) - ( previous/1000000000.0 );
+	if f > 1 then f = time_frequency end;
+	return f;	
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	This was developed because some tasks were not completing
+	
+	Credit:			midnight-studios
+
+	Modified:		
+
+	function:		delayed recording task to allow other tasks to complete
+	type:			
+	input type: 	
+	returns:		
+----------------------------------------------------------------------------------------------------------------------------------------
+]]	
+local function frontend_recording_start_callback( )
+	if not record_timer_set then return end;
+	if not obs.obs_frontend_recording_active() then
+		obs.obs_frontend_recording_start();
+	end;
+	obs.timer_remove( frontend_recording_start_callback );
+	record_timer_set = false;
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	"Timer Expires" 	= 1 
+					"Marker A Time" 	= 2 
+					"Marker B Time" 	= 3 
+					"Timer Visible" 	= 4 
+					"Timer Start" 		= 5
+	
+	
+	Credit:			midnight-studios
+
+	Modified:		
+
+	function:		Start obs call obs_frontend_recording_start()
+	type:			
+	input type: 	reference, milliseconds
+	returns:		none
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function record( mark, ms )
+	if obs.obs_frontend_recording_active() then -- if already recording, remove and reset timer
+		frontend_recording_start_callback( );
+		return;
+	end;
+	if timer_mode ~= 2 or obs.obs_frontend_recording_active() then return end; -- if not countdown or timer active, then exit
+	if start_recording == 1 and mark == recording_type then	
+		if not record_timer_set then
+			obs.timer_add( frontend_recording_start_callback, ms ); --< milliseconds
+			record_timer_set = true; 	
+		end;
+	end;
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Convert hours:minutes:seconds to Seconds 
+	
+					When the user defines the Hours, Minutes & Seconds
+					we need to convert it to seconds as the timer works
+					on the value "seconds"
+
+					$function status: in service
+		
+	
+	Credit:			midnight-studios
+
+	Modified:		
+
+	function:		convert date, hour, minutes and secods to seconds
+	type:			
+	input type: 	interger for date, time
+	returns:		interger (seconds)
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function delta_time( year, month, day, hour, minute, second )
+	local now = os.time();
+	if ( year == -1 ) then
+		year = os.date( "%Y", now );
+	end;
+	if ( month == -1 ) then
+		month = os.date( "%m", now );
+	end;
+	if ( day == -1 ) then
+		day = os.date( "%d", now );
+	end;
+	local future = os.time{year=year, month=month, day=day, hour=hour, min=minute, sec=second};
+	local seconds = os.difftime( future, now );
+	if ( seconds < 0 ) then
+		seconds = 0;
+	end;
+	return seconds; 
+end
 
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
@@ -1846,12 +1870,11 @@ local function time_mark_check( ref )
 	if timer_mode ~= 2 and not direction_changed or ( direction_changed and current_count_direction == 2 ) then
 		round_seconds = math.floor( current_seconds ); -- round to nearset lower value
 	end	
-	
 	if raw_time( round_seconds, true ) == media["text_".. ref] then -- compare current time with marker
 		--[[
 			If Marker notes is enabled and the reference provided
 			match to Marker A, complete some tasks
-		]]
+		]]	
 		if enable_marker_notes ~= 1 and ref == "marker_a" then -- marker notes is enabled and the input reference matches
 			set_visible( media["note_source_" .. ref], true );  -- Set visble the source for the note for marker a
 			set_visible( media["note_source_marker_b"], false );  -- Set hiden the source for the note for marker b (only show one note at a time)
@@ -2482,6 +2505,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function update_timer_display( source_name, text )
+	
 	--[[
 		Increments the source reference counter, 
 		use obs_source_release() to release it when complete.
