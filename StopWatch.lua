@@ -6,6 +6,28 @@ OBS > Tools > Scripts
 Stopwatch
 ***************************************************************************************************************************************
 
+Version 4.10
+
+Published / Released: 2023-02-09 10:00
+
+NEW FEATURES
+
+- 
+
+OPTIMIZATION
+
+- 
+
+USER EXPERIENCE & FEATURE ENHANCEMENTS
+
+- 
+
+BUGS
+
+- Fixed an issue 'Reset Timer on Source Visible'.
+- Fixed an issue 'Reset Timer on Scene Active'.
+***************************************************************************************************************************************
+
 Version 4.9
 
 Published / Released: 2023-02-09 10:00
@@ -293,7 +315,7 @@ BUGS
 ]]
 --Globals
 obs           				= obslua;
-gversion 					= "4.9";
+gversion 					= "4.10";
 luafile						= "StopWatch.lua";
 obsurl						= "comprehensive-stopwatch-countdown-timer.1364/";
 patch_notes					= "Patch Notes";
@@ -2967,7 +2989,7 @@ local function update_timer_settings( set_to_default, new_settings ) -- optional
 		--[[
 			In case the mode is switched, alwasy start with a reset of the timer time
 		]]
-		if timer_mode_changed then timer_value( 0 ) end;  -- value, update_settings
+		if timer_mode_changed or force_reset_on_visible or force_reset_on_scene_active then timer_value( 0 ) end;  -- value, update_settings
 		--[[
 			We may require timer globals to be reset to defaults
 		]]
@@ -6332,7 +6354,7 @@ function script_properties()
 		This provides function interaction to change feature behaviour.
 		Interacting with this property will impact on feature options and behaviour.
 	]]
-    obs.obs_properties_add_bool( ctx.propsDef, "force_reset_on_visible", "Reset timer on Source Visible" );
+    obs.obs_properties_add_bool( ctx.propsDef, "force_reset_on_visible", "Reset Timer on Source Visible" );
 	 --[[
 		Property Checkbox: User interaction that toggle active source visibility.
 		This provides function interaction to change feature behaviour.
@@ -6498,7 +6520,8 @@ function script_properties()
   	obs.obs_property_set_modified_callback( p_37, property_onchange );		-- next_scene
 	obs.obs_property_set_modified_callback( p_52, property_onchange );		-- set_stopwatch
 	obs.obs_property_set_modified_callback( p_45, property_onchange );		-- load_saved_time
-	obs.obs_property_set_modified_callback( p_53, property_onchange );		-- force_reset_on_visible
+	obs.obs_property_set_modified_callback( p_53, property_onchange );		-- start_on_visible
+	--obs.obs_property_set_modified_callback( p_, property_onchange );		-- force_reset_on_visible
 	obs.obs_property_set_modified_callback( p_54, property_onchange );		-- start_on_scene_active
 	obs.obs_property_set_modified_callback( p_55, property_onchange );		-- enable_direction_toggle
 	obs.obs_property_set_modified_callback( p_56, property_onchange );		-- backup_mode
