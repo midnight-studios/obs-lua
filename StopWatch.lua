@@ -6,9 +6,32 @@ OBS > Tools > Scripts
 Stopwatch
 ***************************************************************************************************************************************
 
+Version 5 
+
+Published / Released: 2023-05-26 01:07
+
+NEW FEATURES
+
+- Add multiple Time stamps
+- Add multiple media files
+- Reset time stamp after defined time to normal colour
+
+OPTIMIZATION
+
+- 
+
+USER EXPERIENCE & FEATURE ENHANCEMENTS
+
+- 
+
+BUGS
+
+- 
+***************************************************************************************************************************************
+
 Version 4.10
 
-Published / Released: 2023-02-09 10:00
+Published / Released: 2023-05-20 16:45
 
 NEW FEATURES
 
@@ -315,7 +338,7 @@ BUGS
 ]]
 --Globals
 obs           				= obslua;
-gversion 					= "4.10";
+gversion 					= "5";
 luafile						= "StopWatch.lua";
 obsurl						= "comprehensive-stopwatch-countdown-timer.1364/";
 patch_notes					= "Patch Notes";
@@ -440,10 +463,16 @@ note_marker_a 						= "",
 note_marker_b 						= "",
 activated_marker_b					= false,
 activated_marker_a					= false, 
+cycle_direction_marker_a			= 2;
+cycle_direction_marker_b			= 2;
+cycle_index_marker_a				= 1;
+cycle_index_marker_b				= 1;
 current_seconds_marker_a			= 0,
 current_seconds_marker_b			= 0, 
 duration_marker_a					= 0, 
 duration_marker_b					= 0, 
+reset_text_marker_a					= 0, 
+reset_text_marker_b					= 0, 
 duration_marker_end					= 0, 
 media_ended_marker_a				= false, 
 media_ended_marker_b				= false,
@@ -717,6 +746,388 @@ local function remove_duplicates( tbl )
 	   end;
 	end;
 	return clean_tbl; -- return final result
+end
+
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]	
+function checkTimeString(str)
+  -- Pattern to match the format '00:00:00'
+  local pattern = "^%d%d:%d%d:%d%d$"
+  -- Check if the string matches the pattern
+  if string.match(str, pattern) then
+    return true
+  else
+    return false
+  end
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	See remove_duplicates
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+function removeDuplicates(tbl) 
+  local seen = {}
+  local result = {}
+  
+  for _, value in ipairs(tbl) do
+    if not seen[value] then
+      table.insert(result, value)
+      seen[value] = true
+    end
+  end
+  
+  return result
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	A function named script_update will be called when settings are changed
+	
+	Credit:			
+
+	Modified:		
+
+	function:		Called upon settings initialization and modification
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]	
+function convertToSeconds(timeString)
+  local hours, minutes, seconds = string.match(timeString, "(%d%d):(%d%d):(%d%d)")
+  
+  -- Convert hours, minutes, and seconds to integers
+  hours = tonumber(hours)
+  minutes = tonumber(minutes)
+  seconds = tonumber(seconds)
+  
+  -- Calculate the total seconds
+  local totalSeconds = (hours * 3600) + (minutes * 60) + seconds
+  
+  return totalSeconds
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Function to compare two time strings
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function compareTimeStrings(timeString1, timeString2)
+  -- Extract hours, minutes, and seconds from time strings
+  local hours1, minutes1, seconds1 = string.match(timeString1, "(%d%d):(%d%d):(%d%d)")
+  local hours2, minutes2, seconds2 = string.match(timeString2, "(%d%d):(%d%d):(%d%d)")
+  
+  -- Convert hours, minutes, and seconds to integers
+  hours1 = tonumber(hours1)
+  minutes1 = tonumber(minutes1)
+  seconds1 = tonumber(seconds1)
+  hours2 = tonumber(hours2)
+  minutes2 = tonumber(minutes2)
+  seconds2 = tonumber(seconds2)
+  
+  -- Calculate the total seconds for each time string
+  local totalSeconds1 = (hours1 * 3600) + (minutes1 * 60) + seconds1
+  local totalSeconds2 = (hours2 * 3600) + (minutes2 * 60) + seconds2
+  
+  -- Compare the total seconds
+  return totalSeconds1 < totalSeconds2
+end
+
+-- Function to sort the table items
+local function sortTimeTable(timeTable)
+  table.sort(timeTable, compareTimeStrings)
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+function getNextItemMatchingTime( table, currentTime )
+  local nextItem = nil
+  local currentTimeString = string.format("%02d:%02d:%02d", math.floor(current_seconds / 3600), math.floor((current_seconds % 3600) / 60), current_seconds % 60)
+  for _, value in ipairs( table ) do		
+    if value > currentTimeString then
+      nextItem = value
+	  break
+    end	
+  end	
+	if table[1] ~= nil and nextItem == nil then
+		nextItem = table[1]
+	end		
+  return nextItem
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Function to convert OBS data array to table
+
+	obs_data_array_to_table( settings, "reference" )
+
+	Description:	Grab OBS data array and return in a table
+	
+	Credit:			midnight-studios
+
+	Modified:		
+
+	function:		data array to table
+	type:			Support
+	input type: 	Settings, property reference 
+	returns:		table
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function obs_data_array_to_table( set, item )
+	
+	local array = obs.obs_data_get_array( set, item );
+	
+	local count = obs.obs_data_array_count( array );
+	
+	local list = {};
+	
+	for i = 0, count do 
+		
+		local array_item = obs.obs_data_array_item( array, i );
+		
+		local value = obs.obs_data_get_string( array_item, "value" );
+		
+		list[i] = value;
+	end;
+	
+	obs.obs_data_array_release( array );
+	
+	return list;
+end	
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]	
+local function getNextMarkerTime( ref )
+	--[[
+	
+		Create a table for a list
+	
+	]]	
+	local i = 0;		-- create interger variable 
+	local list = {}; 		-- create temporary table variable 
+	local data_list = obs_data_array_to_table( ctx.propsSet, "text_arr_" .. ref ); -- fetch obs userdata from property settings and return in table
+	
+	--[[
+	
+		Build a cycle list
+	
+	]]		
+	for key, value in pairs( data_list ) do
+		if value ~= nil and value ~= "" then
+			if checkTimeString( value ) then
+				i = i + 1;
+				list[i] = value;
+			end			
+		end	
+	end
+	list = removeDuplicates( list );
+	sortTimeTable( list );
+	
+	local count = tablelength( list );
+	
+	if count >= 1 then
+		media["activated_".. ref] = false; 	
+	end
+	
+	local result = getNextItemMatchingTime( list );
+	return result
+end	
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Check source type of media if the media is set to loop
+					The source is referenced by name.
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	reference (string)
+	returns:		bool
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function is_valid_media_source( source_name )
+	--[[
+		Increments the source reference counter, 
+		use obs_source_release() to release it when complete.
+		
+		we got a source name, let's see if it exist...
+	]]	
+	local source = obs.obs_get_source_by_name( source_name ); -- get source by name	
+	local is_valid = false;
+    if source ~= nil then -- continue if we have a source
+		local source_id = obs.obs_source_get_unversioned_id( source ); -- get source id
+			if source_id == "ffmpeg_source" then -- check if source id match that of type we need to focus on
+				is_valid = true
+			end;
+	end;
+	obs.obs_data_release( settings ); -- release settings
+	obs.obs_source_release( source ); -- release source
+	return is_valid; -- bool
+end	
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Function to cycle through a table list containing strings
+	
+	Credit:			
+
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	string
+	returns:		nothing
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function assign_audio_source_name( property_name, ref )
+	
+	if not timer_active then return end; -- only allow mark checks if the timer is active
+	--[[
+	
+		Create a table for a list
+	
+	]]	
+	local i = 0;		-- create interger variable 
+	local list = {}; 		-- create temporary table variable 
+
+	local data_list = obs_data_array_to_table( ctx.propsSet, property_name ); -- fetch obs userdata from property settings and return in table
+	local result = nil
+	local direction = 1;		-- create interger variable 
+	--[[
+	
+		Build a cycle list
+	
+	]]		
+	for key, value in pairs( data_list ) do
+		if is_valid_media_source( value ) then
+			i = i + 1;
+			list[i] = value;
+		end
+	end	
+	
+	local count = tablelength( list );
+	
+	local index = 0;
+
+	if media["cycle_direction_".. ref] ~= direction then
+		index = 1;
+	else
+		index = count;
+	end	
+	
+	for i = 1, count do 
+		local index_match = ( index == media["cycle_index_".. ref] );
+		--[[
+		]]
+		if list[i] ~= nil then
+			if index_match then
+				-- do something
+				media["source_name_audio_".. ref]  = list[i];
+			end
+		end;
+		if media["cycle_direction_".. ref] ~= direction then
+			index = index + 1;
+		else
+			index = index - 1;
+		end;
+	end;
+	media["cycle_index_".. ref] = media["cycle_index_".. ref] + 1;	
+	
+	if media["cycle_index_".. ref] > count then
+		media["cycle_index_".. ref] = 1;
+	end	
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]	
+function update_time_markers()		
+	media["text_marker_a"] = getNextMarkerTime( "marker_a" );			
+	media["text_marker_b"] = getNextMarkerTime( "marker_b" );
+end	
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]	
+function update_media_names()		
+	media["source_name_audio_marker_a"] = obs.obs_data_get_string( ctx.propsSet, "audio_marker_a" );
+	media["source_name_audio_marker_b"] = obs.obs_data_get_string( ctx.propsSet, "audio_marker_b" );	
+	if media["source_name_audio_marker_a"] == "list" then
+		assign_audio_source_name( "audio_marker_a_arr", "marker_a" );
+	end
+	if media["source_name_audio_marker_b"] == "list" then
+		assign_audio_source_name( "audio_marker_b_arr", "marker_b" );
+	end
 end	
 --[[
 ----------------------------------------------------------
@@ -822,45 +1233,6 @@ function get_source_list( return_ref )
 	if found then source_list = tmp_list end;
 	return source_list;
 end
---[[
-----------------------------------------------------------------------------------------------------------------------------------------
-	Function to convert OBS data array to table
-
-	obs_data_array_to_table( settings, "reference" )
-
-	Description:	Grab OBS data array and return in a table
-	
-	Credit:			midnight-studios
-
-	Modified:		
-
-	function:		data array to table
-	type:			Support
-	input type: 	Settings, property reference 
-	returns:		table
-----------------------------------------------------------------------------------------------------------------------------------------
-]]
-local function obs_data_array_to_table( set, item )
-	
-	local array = obs.obs_data_get_array( set, item );
-	
-	local count = obs.obs_data_array_count( array );
-	
-	local list = {};
-	
-	for i = 0, count do 
-		
-		local array_item = obs.obs_data_array_item( array, i );
-		
-		local value = obs.obs_data_get_string( array_item, "value" );
-		
-		list[i] = value;
-	end;
-	
-	obs.obs_data_array_release( array );
-	
-	return list;
-end	
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description: Get the name of this script	
@@ -1510,6 +1882,141 @@ function removeBrackets(str)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Change color of font for text source	
+	
+	Credit:			et al		
+
+	Modified:		
+
+	function:		Update Text Source (timer text source)		
+	type:			Support, Render			
+	input type: 	Integer
+	returns:		none
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function set_timer_text_color( int )
+	if in_table( {"Select", "select"}, timer_source ) then return end; -- if timer_source not defined, then return
+	local source = obs.obs_get_source_by_name( timer_source ); -- get source by name
+	if source ~= nil then -- continue if we have a source
+		local settings = obs.obs_source_get_settings( source ); -- get source settings
+		obs.obs_data_set_int( settings, "color", int ); -- update source settings
+	end
+	obs.obs_source_update( source, settings ); -- save source new settings
+	obs.obs_data_release( settings ); -- release settings
+	obs.obs_source_release( source ); -- release source
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	
+	Description:	Add timer here so we have a global setting
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function reset_text_a_colour_timer_callback()
+	set_timer_text_color( media["color_normal"] );
+	obs.remove_current_callback();
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Remove timer here so we have a global setting
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function reset_text_a_colour_end_timer()
+	obs.timer_remove( reset_text_a_colour_timer_callback ); -- Removing the callback stops the timer	
+end	
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Add timer here so we have a global setting
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function reset_text_a_colour_start_timer( int )
+	if int ~= 0 then
+		obs.timer_add( reset_text_a_colour_timer_callback, int ); --<- milliseconds 
+	end
+end	
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	
+	Description:	Add timer here so we have a global setting
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function reset_text_b_colour_timer_callback()
+	set_timer_text_color( media["color_normal"] );
+	obs.remove_current_callback();
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Remove timer here so we have a global setting
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function reset_text_b_colour_end_timer()
+	obs.timer_remove( reset_text_b_colour_timer_callback ); -- Removing the callback stops the timer	
+end	
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Add timer here so we have a global setting
+	
+	Credit:			
+
+	Modified:		
+
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function reset_text_b_colour_start_timer( int )
+	if int ~= 0 then
+		obs.timer_add( reset_text_b_colour_timer_callback, int ); --<- milliseconds 
+	end
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
 	
 
 	Description:	Callback on properties modification
@@ -1771,7 +2278,7 @@ end
 local function start_media_action( source_name, ref )
 	
 	if in_table( {"","None", "Select","none", "select"}, source_name ) then return end;
-	
+
 	if not media["activated_".. ref] then 
 		media["current_seconds_".. ref] = math.ceil( current_seconds );
 		set_visible( source_name, true );
@@ -1802,31 +2309,7 @@ end
 local function start_media( source_name, ref )
 	start_media_action( source_name, ref );
 end
---[[
-----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Change color of font for text source	
-	
-	Credit:			et al		
 
-	Modified:		
-
-	function:		Update Text Source (timer text source)		
-	type:			Support, Render			
-	input type: 	Integer
-	returns:		none
-----------------------------------------------------------------------------------------------------------------------------------------
-]]
-local function set_text_timer_color( int )
-	if in_table( {"Select", "select"}, timer_source ) then return end; -- if timer_source not defined, then return
-	local source = obs.obs_get_source_by_name( timer_source ); -- get source by name
-	if source ~= nil then -- continue if we have a source
-		local settings = obs.obs_source_get_settings( source ); -- get source settings
-		obs.obs_data_set_int( settings, "color", int ); -- update source settings
-	end
-	obs.obs_source_update( source, settings ); -- save source new settings
-	obs.obs_data_release( settings ); -- release settings
-	obs.obs_source_release( source ); -- release source
-end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	Change color of font for text source	
@@ -1893,6 +2376,16 @@ local function time_mark_check( ref )
 		round_seconds = math.floor( current_seconds ); -- round to nearset lower value
 	end	
 	if raw_time( round_seconds, true ) == media["text_".. ref] then -- compare current time with marker
+		
+		if ref == "marker_a" and media["reset_text_marker_a"] ~= nil and media["reset_text_marker_a"] ~= 0 then -- marker notes is enabled and the input reference matches
+			reset_text_a_colour_start_timer( math.floor( media["reset_text_marker_a"] * 1000 ) );
+		end
+		if ref == "marker_b" and media["reset_text_marker_b"] ~= nil and media["reset_text_marker_b"] ~= 0 then -- marker notes is enabled and the input reference matches
+			reset_text_b_colour_start_timer( math.floor( media["reset_text_marker_b"] * 1000 )  );
+		end		
+		
+		update_time_markers();
+		update_media_names();
 		--[[
 			If Marker notes is enabled and the reference provided
 			match to Marker A, complete some tasks
@@ -1915,7 +2408,7 @@ local function time_mark_check( ref )
 			Update the timer text source font colour to match the defined font colour for the referenced marker
 			This will ensure that the timer text font matches the font colour of the currently displayed note.
 		]]
-		set_text_timer_color( media["color_".. ref] );
+		set_timer_text_color( media["color_".. ref] );
 		--[[
 		
 		]]
@@ -1971,7 +2464,7 @@ local function get_source_looping( source_name )
 	obs.obs_data_release( settings ); -- release settings
 	obs.obs_source_release( source ); -- release source
 	return enabled; -- bool
-end	
+end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	
@@ -3149,7 +3642,7 @@ local function timer_callback()
 			the animation effect. 
 	]]
 	set_time_text( timer_source );
-end
+end	
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	Remove timer here so we have a global setting
@@ -3258,10 +3751,14 @@ local function activate( activating )
 		]]	
 		if timer_expired and timer_active then
 			end_timer() -- Removing the callback stops the timer
+			reset_text_a_colour_end_timer();
+			reset_text_b_colour_end_timer();
 			set_visible( media["source_name_audio_marker_a"], false ); -- The timer expired, reset media.
 			set_visible( media["source_name_audio_marker_b"], false ); -- The timer expired, reset media.
 		else
-			end_timer(); -- Removing the callback stops the timer	
+			end_timer(); -- Removing the callback stops the timer
+			reset_text_a_colour_end_timer();
+			reset_text_b_colour_end_timer();
 		end
 		--[[
 			update_timer_settings:
@@ -4212,7 +4709,11 @@ local function reset( pressed )
 	set_visible( media["source_name_audio_marker_a"], false );
 	set_visible( media["source_name_audio_marker_b"], false );
 	set_visible( media["source_name_audio_marker_end"], false );
-	
+	media["cycle_index_marker_a"] = 1;
+	media["cycle_index_marker_b"] = 1;
+	media["cycle_direction_marker_a"] = 2;
+	media["cycle_direction_marker_b"] = 2;
+	cycle_index = 1;
 	set_visible( add_limit_note_source, false );
 	set_visible( sub_limit_note_source, false );
 	obs.obs_data_set_int( ctx.propsSet, "sec_add_limit_used", 0 );
@@ -4285,6 +4786,9 @@ local function reset( pressed )
 		]]	
 		if active_source_force_visible then set_visible( active_source, false ) end;
 	end
+	
+	update_time_markers();
+	update_media_names();
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
@@ -4929,18 +5433,19 @@ local function load_settings_globals( settings )
 	media["color_normal"] = obs.obs_data_get_int( settings, "color_normal" );
 	media["color_marker_b"] = obs.obs_data_get_int( settings, "color_marker_b" );
 	media["color_marker_a"] = obs.obs_data_get_int( settings, "color_marker_a" );
-	media["text_marker_a"] = obs.obs_data_get_string( settings, "text_marker_a" );							
-	media["text_marker_b"] = obs.obs_data_get_string( settings, "text_marker_b" );
+	update_time_markers();	
+	update_media_names();	
 	media_playback_limit = obs.obs_data_get_int( settings, "media_playback_limit" );
     start_on_scene_active = obs.obs_data_get_bool( settings, "start_on_scene_active" );
     force_reset_on_visible = obs.obs_data_get_bool( settings, "force_reset_on_visible" );
-    force_reset_on_scene_active = obs.obs_data_get_bool( settings, "force_reset_on_scene_active" );	
-	media["source_name_audio_marker_a"] = obs.obs_data_get_string( settings, "audio_marker_a" );
-	media["source_name_audio_marker_b"] = obs.obs_data_get_string( settings, "audio_marker_b" );
+    force_reset_on_scene_active = obs.obs_data_get_bool( settings, "force_reset_on_scene_active" );
+
     active_source_force_visible = obs.obs_data_get_bool( settings, "active_source_force_visible" );
 	media["source_name_audio_marker_end"] = obs.obs_data_get_string( settings, "audio_marker_end" );	
 	text_prefix = string.gsub(obs.obs_data_get_string( settings, "text_prefix" ), "\\([n])", {n="\n"});
 	text_suffix = string.gsub(obs.obs_data_get_string( settings, "text_suffix" ), "\\([n])", {n="\n"});
+	media["reset_text_marker_a"] = obs.obs_data_get_int( settings, "reset_text_marker_a" );
+	media["reset_text_marker_b"] = obs.obs_data_get_int( settings, "reset_text_marker_b" );
 	if media_playback_limit ~= 1 then
 		media["duration_marker_a"] = obs.obs_data_get_int( settings, "duration_marker_a" );
 		media["duration_marker_b"] = obs.obs_data_get_int( settings, "duration_marker_b" );
@@ -5032,6 +5537,8 @@ local function property_onchange( props, property, settings )
 	local trigger_options_value = obs.obs_data_get_int( settings, "trigger_options" );-- -- Retrieves property value from reference
 	local note_source_marker_a_value = obs.obs_data_get_string( settings, "note_source_marker_a" );-- -- Retrieves property value from reference
 	local note_source_marker_b_value = obs.obs_data_get_string( settings, "note_source_marker_b" );-- -- Retrieves property value from reference
+	local audio_marker_a_value = obs.obs_data_get_string( settings, "audio_marker_a" );-- -- Retrieves property value from reference
+	local audio_marker_b_value = obs.obs_data_get_string( settings, "audio_marker_b" );-- -- Retrieves property value from reference
 	local media_playback_limit_value = obs.obs_data_get_int( settings, "media_playback_limit" );-- -- Retrieves property value from reference
 	
 	--[[
@@ -5142,17 +5649,21 @@ local function property_onchange( props, property, settings )
 	local c_note_prop = obs.obs_properties_get( props, "note_marker_a" );
 	local w_note_prop = obs.obs_properties_get( props, "note_marker_b" );
 	local enable_marker_notes_prop = obs.obs_properties_get( props, "enable_marker_notes" );
-	local text_marker_a_prop = obs.obs_properties_get( props, "text_marker_a" );
-	local text_marker_b_prop = obs.obs_properties_get( props, "text_marker_b" );
+	local text_arr_marker_a_prop = obs.obs_properties_get( props, "text_arr_marker_a" );
+	local text_arr_marker_b_prop = obs.obs_properties_get( props, "text_arr_marker_b" );
 	local color_marker_a_prop = obs.obs_properties_get( props, "color_marker_a" );
 	local color_marker_b_prop = obs.obs_properties_get( props, "color_marker_b" );
 	local audio_marker_a_prop = obs.obs_properties_get( props, "audio_marker_a" );
 	local audio_marker_b_prop = obs.obs_properties_get( props, "audio_marker_b" );
+	local audio_marker_a_arr_prop = obs.obs_properties_get( props, "audio_marker_a_arr" );
+	local audio_marker_b_arr_prop = obs.obs_properties_get( props, "audio_marker_b_arr" );
 	local audio_marker_end_prop = obs.obs_properties_get( props, "audio_marker_end" );
 	local cn_source_prop = obs.obs_properties_get( props, "note_source_marker_a" );
 	local wn_source_prop = obs.obs_properties_get( props, "note_source_marker_b" );
 	local duration_marker_a_prop = obs.obs_properties_get( props, "duration_marker_a" );
 	local duration_marker_b_prop = obs.obs_properties_get( props, "duration_marker_b" );
+	local reset_text_marker_a_prop = obs.obs_properties_get( props, "reset_text_marker_a" );
+	local reset_text_marker_b_prop = obs.obs_properties_get( props, "reset_text_marker_b" );
 	local duration_marker_end_prop = obs.obs_properties_get( props, "duration_marker_end" );
 	local media_playback_limit_prop = obs.obs_properties_get( props, "media_playback_limit" );
 	--[[
@@ -5221,12 +5732,15 @@ local function property_onchange( props, property, settings )
 			if config is set to basic then hide
 			if config is set to advanced then check if trigger_options are expanded then show
 	]]
+
 	obs.obs_property_set_visible( to_prop, ( config_value == 2 ) );
 	obs.obs_property_set_visible( enable_marker_notes_prop, ( config_value == 2 and trigger_options_value == 2 ));
-	obs.obs_property_set_visible( text_marker_a_prop, ( config_value == 2 and trigger_options_value == 2 ) );
-	obs.obs_property_set_visible( text_marker_b_prop, ( config_value == 2 and trigger_options_value == 2 ) );
+	obs.obs_property_set_visible( text_arr_marker_a_prop, ( config_value == 2 and trigger_options_value == 2 ) );
+	obs.obs_property_set_visible( text_arr_marker_b_prop, ( config_value == 2 and trigger_options_value == 2 ) );
 	obs.obs_property_set_visible( audio_marker_a_prop, ( config_value == 2 and trigger_options_value == 2 ) );
-	obs.obs_property_set_visible( audio_marker_b_prop, ( config_value == 2 and trigger_options_value == 2) );
+	obs.obs_property_set_visible( audio_marker_a_arr_prop, ( config_value == 2 and trigger_options_value == 2 and audio_marker_a_value == 'list' ) );
+	obs.obs_property_set_visible( audio_marker_b_arr_prop, ( config_value == 2 and trigger_options_value == 2 and audio_marker_b_value == 'list' ) );
+	obs.obs_property_set_visible( audio_marker_b_prop, ( config_value == 2 and trigger_options_value == 2 ) );
 	obs.obs_property_set_visible( audio_marker_end_prop, ( in_table( {"TIMER END TEXT", "Select"}, next_scene_value ) and config_value == 2 and trigger_options_value == 2) );
 	obs.obs_property_set_visible( color_marker_a_prop, ( config_value == 2 and trigger_options_value == 2 ) );
 	obs.obs_property_set_visible( color_marker_b_prop, ( config_value == 2 and trigger_options_value == 2 ) );
@@ -5237,6 +5751,8 @@ local function property_onchange( props, property, settings )
 	obs.obs_property_set_visible( wn_source_prop, ( config_value == 2 and enable_marker_notes_value ~= 1 and trigger_options_value == 2 ) );
 	obs.obs_property_set_visible( duration_marker_a_prop, ( config_value == 2 and trigger_options_value == 2 and media_playback_limit_value == 2 ) );
 	obs.obs_property_set_visible( duration_marker_b_prop, ( config_value == 2 and trigger_options_value == 2 and media_playback_limit_value == 2 ) );
+	obs.obs_property_set_visible( reset_text_marker_a_prop, ( config_value == 2 and trigger_options_value == 2 ) );
+	obs.obs_property_set_visible( reset_text_marker_b_prop, ( config_value == 2 and trigger_options_value == 2 ) );
 	obs.obs_property_set_visible( duration_marker_end_prop, ( in_table( {"TIMER END TEXT", "Select"}, next_scene_value ) and config_value == 2 and trigger_options_value == 2 and media_playback_limit_value == 2 ) );
 	--[[
 	
@@ -5862,13 +6378,55 @@ function script_properties()
 	--[[
 		 Text Field
 	]]	
-	local p_21 = obs.obs_properties_add_text( ctx.propsDef, "text_marker_a", "<font color=".. font_dimmed ..">Marker A Time</font>", obs.OBS_TEXT_DEFAULT );
-	obs.obs_property_set_long_description( p_21, "\nUse format 00:00:00 ( hoursa:minutes:seconds )\n" ); -- User Tip
+	
+	-- upgraded local p_21 = obs.obs_properties_add_text( ctx.propsDef, "text_marker_a", "<font color=".. font_dimmed ..">Marker A Time</font>", obs.OBS_TEXT_DEFAULT );
+	-- upgraded obs.obs_property_set_long_description( p_21, "\nUse format 00:00:00 ( hoursa:minutes:seconds )\n" ); -- User Tip
+	
+	 --[[
+		Editable Option list: User adds a text time stamp that will trigger time Marker functions.
+		This provides function options to change feature behaviour.
+		Changing this setting will impact on feature behaviour. 
+	]]	
+	local p_21 = obs.obs_properties_add_editable_list( ctx.propsDef, "text_arr_marker_a", "Marker A Time", obs.OBS_EDITABLE_LIST_TYPE_STRINGS, nil, nil );
 	--[[
 		 Text Field
 	]]	
-	local p_22 = obs.obs_properties_add_text( ctx.propsDef, "text_marker_b", "<font color=".. font_dimmed ..">Marker B Time</font>", obs.OBS_TEXT_DEFAULT );
-	obs.obs_property_set_long_description( p_22, "\nUse format 00:00:00 ( hoursa:minutes:seconds )\n" ); -- User Tip
+	-- upgraded local p_22 = obs.obs_properties_add_text( ctx.propsDef, "text_marker_b", "<font color=".. font_dimmed ..">Marker B Time</font>", obs.OBS_TEXT_DEFAULT );
+	-- upgraded obs.obs_property_set_long_description( p_22, "\nUse format 00:00:00 ( hoursa:minutes:seconds )\n" ); -- User Tip
+	--[[
+		Editable Option list: User adds a text time stamp that will trigger time Marker functions.
+		This provides function options to change feature behaviour.
+		Changing this setting will impact on feature behaviour. 
+	]]	
+	
+	local p_22 = obs.obs_properties_add_editable_list( ctx.propsDef, "text_arr_marker_b", "Marker B Time", obs.OBS_EDITABLE_LIST_TYPE_STRINGS, nil, nil );
+	
+	
+	
+	
+	
+	
+	--*props, *name, *description, min, max, step
+	obs.obs_properties_add_int_slider( ctx.propsDef, "reset_text_marker_a", "Reset Marker A Text", 0, 10800, 1 );
+	obs.obs_properties_add_int_slider( ctx.propsDef, "reset_text_marker_b", "Reset Marker A Text", 0, 10800, 1 );
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
   	 --[[
 		Option list: User select <media-source> to be used as audio visual at a defined time.
 		This provides function options that will impact on audio visual feedback to the user.
@@ -5877,6 +6435,7 @@ function script_properties()
 	local p_23 = obs.obs_properties_add_list( ctx.propsDef, "audio_marker_a", "<font color=".. font_dimmed ..">Marker A Audio</font>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING );
 	obs.obs_property_set_long_description( p_23, "\nSelect available media source to activate on defined time stamp.\n" ); -- User Tip
 	obs.obs_property_list_add_string( p_23, "None", "none" ); -- Add options to the list
+	obs.obs_property_list_add_string( p_23, "Allow Multiple Selections", "list" ); -- Add options to the list
 	if sources ~= nil then
 		for _, source in ipairs( sources ) do
 			source_id = obs.obs_source_get_unversioned_id( source ); -- unversioned_id will not be affected by language settings
@@ -5887,6 +6446,11 @@ function script_properties()
 		end
 			obs.bfree(source); -- free memory, release source as it is no longer needed
 	end	
+	--[[
+
+	]]	
+	
+	local p_23a = obs.obs_properties_add_editable_list( ctx.propsDef, "audio_marker_a_arr", "Marker A Audio List", obs.OBS_EDITABLE_LIST_TYPE_STRINGS, nil, nil );
   	 --[[
 		Option list: User select <media-source> to be used as audio visual at a defined time.
 		This provides function options that will impact on audio visual feedback to the user.
@@ -5895,6 +6459,7 @@ function script_properties()
 	local p_24 = obs.obs_properties_add_list( ctx.propsDef, "audio_marker_b", "<font color=".. font_dimmed ..">Marker B Audio</font>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING );
 	obs.obs_property_set_long_description( p_24, "\nSelect available media source to activate on defined time stamp.\n" ); -- User Tip
 	obs.obs_property_list_add_string( p_24, "None", "none" ); -- Add options to the list
+	obs.obs_property_list_add_string( p_24, "Allow Multiple Selections", "list" ); -- Add options to the list
 	if sources ~= nil then
 		for _, source in ipairs( sources ) do
 			source_id = obs.obs_source_get_unversioned_id( source ); -- unversioned_id will not be affected by language settings
@@ -5905,6 +6470,11 @@ function script_properties()
 		end
 			obs.bfree(source); -- free memory, release source as it is no longer needed
 	end	
+	--[[
+
+	]]	
+	
+	local p_24a = obs.obs_properties_add_editable_list( ctx.propsDef, "audio_marker_b_arr", "Marker B Audio List", obs.OBS_EDITABLE_LIST_TYPE_STRINGS, nil, nil );
   	 --[[
 		Option list: User select <media-source> to be used as audio visual at a defined time.
 		This provides function options that will impact on audio visual feedback to the user.
@@ -5934,10 +6504,11 @@ function script_properties()
 	 t_type = {"Disabled", "Enabled"}; -- Add options to the list
   	for i,v in ipairs( t_type ) do obs.obs_property_list_add_int( p_26, v, i ) end; -- This list is auto indexed thus have an interger reference containing a string value
 	obs.obs_property_set_long_description( p_26, "\nSet a maximum time limit for media playback.\n" ); -- User Tip
-	
+
 	--*props, *name, *description, min, max, step
 	obs.obs_properties_add_int_slider( ctx.propsDef, "duration_marker_a", "Marker A Duration", 0, 10800, 1 );
 	obs.obs_properties_add_int_slider( ctx.propsDef, "duration_marker_b", "Marker B Duration", 0, 10800, 1 );
+	
 	obs.obs_properties_add_int_slider( ctx.propsDef, "duration_marker_end", "End Audio Duration", 0, 10800, 1 );
 	obs.obs_properties_add_color( ctx.propsDef, "color_normal", "Normal Color" );
 	obs.obs_properties_add_color( ctx.propsDef, "color_marker_a", "Marker A Color" );
@@ -6511,6 +7082,8 @@ function script_properties()
 	obs.obs_property_set_modified_callback( p_17, property_onchange );		-- timer_display
 	obs.obs_property_set_modified_callback( p_18, property_onchange );		-- split_source
 	obs.obs_property_set_modified_callback( p_20, property_onchange );		-- trigger_options
+	obs.obs_property_set_modified_callback( p_23, property_onchange );		-- audio_marker_a
+	obs.obs_property_set_modified_callback( p_24, property_onchange );		-- audio_marker_b
 	obs.obs_property_set_modified_callback( p_26, property_onchange );		-- media_playback_limit
   	obs.obs_property_set_modified_callback( p_27, property_onchange );		-- enable_marker_notes
   	obs.obs_property_set_modified_callback( p_28, property_onchange );		-- note_source_marker_a
@@ -6575,7 +7148,6 @@ function source_selected( input_value, reference )
 	if in_table( {'Select, select'}, input_value ) or selected_source_list[reference] == input_value then return false end;
 	return in_table( selected_source_list, input_value );
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	A function named script_update will be called when settings are changed
@@ -6589,10 +7161,11 @@ end
 	input type: 	
 	returns:
 ----------------------------------------------------------------------------------------------------------------------------------------
-]]
+]]	
 function script_update( settings )
 
   	ctx.propsSet = settings;-- Keep track of current settings
+	
 	--[[
 		Update a gloabl in case something changed. 
 	]]
@@ -6617,6 +7190,9 @@ function script_update( settings )
 	update_timer_settings( false ); -- optional inputs: set_to_default(bool), new_settings(obs_property_data/obs_userdata)	
 	
 	minute_format = get_minutes_allocation( custom_time_format );
+	
+	update_time_markers();
+	update_media_names();
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
@@ -6634,6 +7210,8 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function script_defaults( settings )
+	
+	
 	--[[
 		Get the correct frequency for splitseconds when the script loads. 
 	]]
@@ -6672,6 +7250,8 @@ function script_defaults( settings )
 	obs.obs_data_set_default_int( settings, "sw_seconds_saved", 0 );
 	obs.obs_data_set_default_int( settings, "cycle_direction", 1 );
 	obs.obs_data_set_default_int( settings, "start_recording", 2 );
+	obs.obs_data_set_default_int( settings, "reset_text_marker_a", 3 );
+	obs.obs_data_set_default_int( settings, "reset_text_marker_b", 3 );
 	obs.obs_data_set_default_int( settings, "duration_marker_a", 5 );
 	obs.obs_data_set_default_int( settings, "duration_marker_b", 5 );
 	obs.obs_data_set_default_int( settings, "timer_manipulation", 3 );
@@ -6693,8 +7273,8 @@ function script_defaults( settings )
 	obs.obs_data_set_default_string( settings, "text_suffix", "" );
 	obs.obs_data_set_default_string( settings, "note_marker_a", "" );
 	obs.obs_data_set_default_string( settings, "note_marker_b", "" );
-	obs.obs_data_set_default_string( settings, "text_marker_a", "" );
-	obs.obs_data_set_default_string( settings, "text_marker_b", "" );
+	-- upgraded obs.obs_data_set_default_string( settings, "text_marker_a", "" );
+	-- upgraded obs.obs_data_set_default_string( settings, "text_marker_b", "" );
 	obs.obs_data_set_default_string( settings, "next_scene", "select" );
 	obs.obs_data_set_default_string( settings, "day_text", "# Day \n" );
 	obs.obs_data_set_default_string( settings, "audio_marker_b", "None" );
