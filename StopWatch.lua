@@ -5,317 +5,23 @@ OBS > Tools > Scripts
 @midnight-studios
 Stopwatch
 ***************************************************************************************************************************************
-
-Version 4.10
-
-Published / Released: 2023-02-09 10:00
-
+Version 5 
+Published / Released: 2023-05-26 01:07
 NEW FEATURES
-
-- 
-
+- Add multiple Time stamps
+- Add multiple media files
+- Reset time stamp after defined time to normal colour
 OPTIMIZATION
-
 - 
-
-USER EXPERIENCE & FEATURE ENHANCEMENTS
-
-- 
-
-BUGS
-
-- Fixed an issue 'Reset Timer on Source Visible'.
-- Fixed an issue 'Reset Timer on Scene Active'.
-***************************************************************************************************************************************
-
-Version 4.9
-
-Published / Released: 2023-02-09 10:00
-
-NEW FEATURES
-
-- 
-
-OPTIMIZATION
-
-- 
-
-USER EXPERIENCE & FEATURE ENHANCEMENTS
-
-- 
-
-BUGS
-
-- Fixed an issue that caused the time marker function to break.
-
-***************************************************************************************************************************************
-
-Version 4.8
-
-Published / Released: 2023-02-02 10:45
-
-NEW FEATURES
-
-- Custom Minute Format that supports minute formats of any length. To use open Scipt settings go to 'Time Format' and set to 'Custom Time Format' and define the time stamp you require. To adjust the minute format you need to add the following syntax: '{M90}' Add 'M' and number enclosed in '{}' to adjust minute format: {M90} will display 90 minutes units. The number value following the 'M' will be assigned to the Minute Format
-
-OPTIMIZATION
-
-- 
-
-USER EXPERIENCE & FEATURE ENHANCEMENTS
-
-- 
-
-BUGS
-
-- 
-
-***************************************************************************************************************************************
-***************************************************************************************************************************************
-
-Version 4.7
-
-Published / Released: 2022-12.29 18:56
-
-NEW FEATURES
-
-- Expanded Add / Subtract seconds to time. 
-- Alow this feature to be hidden or disabled
-- This feature now allows a limit for updating the timer (Zero = infinite)
-- A source text note can be defined to notify the user when the limit was reached
-- User can define how long the note is displayed (Zero = disables the hide feature)
-
-OPTIMIZATION
-
-- some back end improvements or changes
-
-USER EXPERIENCE & FEATURE ENHANCEMENTS
-
-- Some improvements with conflict prevention for text source selection 
-- Renamed 'Autoload last time stamp on OBS start'
-
-BUGS
-
-- Fixed some bugs introduced during the previous release
-- Fixed an issue that caused timer to crash when OBS shuts down if the script was duplicated (used multiple times) [@Xagika]
-- Fixed a bug that would reset the timer if user enables 'auto load end timsestamp'
-
-***************************************************************************************************************************************
-
-Version 4.6
-
-Published / Released: 2022-12.20 12:48
-
-NEW FEATURES
-
-- Allow Timer reset if scene becomes activated
-
-
-OPTIMIZATION
-
-- 
-
-USER EXPERIENCE & FEATURE ENHANCEMENTS
-
-- Start on Scene active improvements
-
-BUGS
-
-- Fixed an issue that caused the stinger transition to break when the timer is in countdown mode.
-
-***************************************************************************************************************************************
-
-Version 4.5
-
-Published / Released: 2022-12.03 01:56
-
-NEW FEATURES
-
-- Add / Subtract seconds to time (3 sets available, configurable up to 72 hours or 259200 seconds)
-
-
-OPTIMIZATION
-
-- 
-
-USER EXPERIENCE & FEATURE ENHANCEMENTS
-
-- 
-
-BUGS
-
--
-***************************************************************************************************************************************
-
-Version 4.4
-
-Published / Released: 2022-11.04 19:25
-
-NEW FEATURES
-
-- Change counter direction
-- Prevent Negative Time Value (Opt-In)
-- Enable / Disable new feature: Change counter direction (Opt-In)
-- Hotkey and Button to change counter direction (Supported in Stopwatch and Countdown mode)
-
-
-OPTIMIZATION
-
-- 
-
-USER EXPERIENCE & FEATURE ENHANCEMENTS
-
-- 
-
-BUGS
-
--
-
-***************************************************************************************************************************************
-Version 4.3
-
-Published / Released: 2022-10.20 11:51
-
-NEW FEATURES
-
-- 
-
-OPTIMIZATION
-
-- 
-
-USER EXPERIENCE & FEATURE ENHANCEMENTS
-
-- 
-
-BUGS
-
-- Fixed the expired timestamp for 'custom time format'
-
-***************************************************************************************************************************************
-
-Version 4.2
-
-Published / Released: 2022-10.20 21:23
-
-NEW FEATURES
-
-- Add Media Playback for Timer end
-
-OPTIMIZATION
-
-- 
-
-USER EXPERIENCE & FEATURE ENHANCEMENTS
-
-- Changed Property Setting label 'Trigger Text' to 'Marker Notes'
-
-
-BUGS
-
-- Fixed an infinate timer callback loop
-- Reverted and applied new Fix for timer Reset issue
-- Fixed an issue for recording call when recording is already active
-- Fixed switching "split type" does not reset the timer display
-- Fixed changing "Mark Time" does not reset the timer display
-- Fixed timer display color reset after Mark A & B conditions were met
-- Fixed stopping Media playback if media is set to loop when the timer expires
-- Fixed a routine issue on sources loaded
-- Fixed a timer reset issue (for activate timer on visible)
-- Fixed a load 'last saved time' issue (for activate timer on visible)
-- Fixed a 'set stopwatch' issue (for activate timer on visible)
-
-***************************************************************************************************************************************
-
-Version 4.1
-
-Published / Released: 2022-10.06 15:23
-
-NEW FEATURES
-
-- 
-
-OPTIMIZATION
-
-- 
-
 USER EXPERIENCE & FEATURE ENHANCEMENTS
 - 
-
 BUGS
-
-- Fixed timer Reset issue
-
-***************************************************************************************************************************************
-
-Version 4.0
-
-Published / Released: 2022-10.06 12:26
-
-NEW FEATURES
-
 - 
-
-OPTIMIZATION
-
-- Backend updates
-
-USER EXPERIENCE & FEATURE ENHANCEMENTS
-- 
-
-BUGS
-
-- Fixed a signal handler crash due to an unloaded source
-- Fixed a bug that triggered the Media when the timer was not active
-
 ***************************************************************************************************************************************
-
-Version 3.9
-
-Published / Released: 2022-10.10 15:15
-
-NEW FEATURES
-
-- Added button Show / Hide Milliseconds
-- Added Time Stamp trigger for Show / Hide Milliseconds
-- Added Timer text output options (Still not convinvinced this makes sense)
-- Added Hotkey for Show / Hide Milliseconds
-- Pause Media if timer is paused
-- Added option to force visibility of the "Active Source"
-
-OPTIMIZATION
-
-- OBS 28 Supported
-- Rebuild timer text options
-- Prevented unnecessary Callback Events
-- Localized functions to reduce Globals clutter
-- Renamed some functions to something more sensible 
-- Added and updated developer code comments
-- Realigned function stacking order
-- Renamed Hotkey references 
- 
-USER EXPERIENCE & FEATURE ENHANCEMENTS
-- Added tooltip for Next Scene list
-- Added tooltip for Recording list
-- Items listed in Cycle Sources list will ignore incorrectly referenced sources. 
-- User can now define the direction of Cycle Sources
-- Cycle Sources (and toggle source visibility) with timer is now fully automated without third party plugins/scripts
-- Cycle Sources now support Nested Scenes
-- Added new Toggles for settings properties to hide or show certain settings
-
-BUGS
-
-- Fixed a Stack Overflow Crash produced by the Next Scene process.
-- Fixed an issue that caused a timer feature to break.
-- Fixed a critical memory leak for media sources that caused OBS to crash
-- Fixed Media Playback time limit
-- Fixed Split time outputs for Stopwatch
-
-----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 --Globals
 obs           				= obslua;
-gversion 					= "4.10";
+gversion 					= "5";
 luafile						= "StopWatch.lua";
 obsurl						= "comprehensive-stopwatch-countdown-timer.1364/";
 patch_notes					= "Patch Notes";
@@ -328,6 +34,8 @@ desc	    				=
 <center><a href="https://obsproject.com/forum/resources/]] .. obsurl ..[[updates">]] .. patch_notes ..[[</a></center>
 <br><p>The Properties for this script will adjust visibility as needed. Some advanced properties will only be visible if the Configuration is set to "Advanced". If the Configuration is set to "Basic" the defined values will still be used, so ensure you define those correctly.</p><p>Find help on the <a href="https://obsproject.com/forum/resources/]] .. obsurl ..[[">OBS Forum Thread</a>.</p><hr/>
 ]];
+debug_file							= ""
+debug_file_name						= "Debug Log"
 text_prefix 						= "";
 text_suffix 						= "";
 last_text    						= "";
@@ -358,6 +66,13 @@ add_limit_note_source 				= "";
 sub_limit_note_source 				= ""; 
 note_source_marker_a 				= "";
 note_source_marker_b 				= "";
+audio_marker_b						= "";
+audio_marker_a						= "";
+current_count_direction				= "UP";
+count_orientation					= "NORMAL";
+last_orientation					= "NORMAL";
+debug_entry							= 0;
+debug_entry							= 0;
 add_limit_note_source_visible		= 0;
 sub_limit_note_source_visible		= 0;
 sources_loaded 						= 0;
@@ -395,9 +110,16 @@ time_frequency						= 0;
 completed_cycles					= 0;
 ns_last								= 0;
 cycle_index 						= 1;
-current_count_direction				= 1;
 timer_cycle 						= 10; --milliseconds
 split_itm							= {};
+ignore_list							= {
+"",
+"none",
+"None",
+"Select",
+"select",
+"list"
+};
 split_data							= nil;
 minute_format						= nil;
 local ctx = {
@@ -409,6 +131,8 @@ local ctx = {
 };
 props								= nil;
 timer_mode_changed 					= false;
+debug_enabled	 					= true; -- careful, may use more sytem memory 
+script_ready 						= false;
 set_timer_activated					= false;
 color_normal_updated 				= false;
 activated     						= false;
@@ -440,10 +164,20 @@ note_marker_a 						= "",
 note_marker_b 						= "",
 activated_marker_b					= false,
 activated_marker_a					= false, 
+activated_media_marker_b			= false,
+activated_media_marker_a			= false, 
+activated_time_marker_b				= 0,
+activated_time_marker_a				= 0, 
+cycle_direction_marker_a			= 2;
+cycle_direction_marker_b			= 2;
+cycle_index_marker_a				= 1; -- index from 1-based table
+cycle_index_marker_b				= 1; -- index from 1-based table
 current_seconds_marker_a			= 0,
 current_seconds_marker_b			= 0, 
 duration_marker_a					= 0, 
 duration_marker_b					= 0, 
+reset_text_marker_a					= 0, 
+reset_text_marker_b					= 0, 
 duration_marker_end					= 0, 
 media_ended_marker_a				= false, 
 media_ended_marker_b				= false,
@@ -465,7 +199,6 @@ hotkey_id_sec_add_3					= obs.OBS_INVALID_HOTKEY_ID;
 hotkey_id_sec_sub_1					= obs.OBS_INVALID_HOTKEY_ID;
 hotkey_id_sec_sub_2					= obs.OBS_INVALID_HOTKEY_ID;
 hotkey_id_sec_sub_3					= obs.OBS_INVALID_HOTKEY_ID;
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	
@@ -473,9 +206,7 @@ hotkey_id_sec_sub_3					= obs.OBS_INVALID_HOTKEY_ID;
 					the user
 	
 	Credit:			OBS
-
 	Modified:		User dependent 
-
 	function:		Script Description
 	type:			OBS Core
 	input type: 	data
@@ -483,42 +214,55 @@ hotkey_id_sec_sub_3					= obs.OBS_INVALID_HOTKEY_ID;
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function script_description()
+	debug_log( 'script_description() -- function variable names: ' )
 	return string.format( desc, tostring( gversion ) );
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description: Get the name of this script	
+	
+	Credit:			midnight-studios, et al	
+	Modified:		
+	function:		regular expression 
+	type:			Support
+	input type: 	string
+	returns:		string
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function filename() 
+	local str = debug.getinfo(2).source:sub(2);
+	return str:match("^.*/(.*).lua$") or str;
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	Dumps input to string, if input is a table it returns the expanded table
 	
 	Credit:			et al	
-
 	Modified:		yes
-
 	function:		
 	type:			Support (debug tool)
 	input type: 	variable
 	returns:		string
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
-local function pre_dump( input )
-  if type( input ) == "table" then
-    local str = "{ ";
-    for key, value in pairs( input ) do
-      if type( key ) ~= "number" then key = "'" .. key .. "'" end;
-      str = str .. "[" .. key .. "] = " .. pre_dump( value ) .. ",";
-    end;
-    return str .. "} ";
+local function pre_dump(input)
+  if type(input) ~= "table" then
+    return tostring(input)
   else
-    return tostring( input );
-  end;
+    local tbl = {}
+    for key, value in pairs(input) do
+      local keyStr = (type(key) ~= "number") and "'" .. key .. "'" or tostring(key)
+      tbl[#tbl + 1] = "[" .. keyStr .. "] = " .. pre_dump(value)
+    end
+    return "{ " .. table.concat(tbl, ", ") .. " }"
+  end
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	Use this to create a Script Log Output used in testing	
 	
 	Credit:			et al	
-
 	Modified:		No	
-
 	function:		
 	type:			Support (debug tool)
 	input type: 	string
@@ -535,20 +279,168 @@ local function log( name, msg )
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
+	Description:		
+	
+	Credit:			
+	Modified:		
+	function:		
+	type:			
+	input type: 	
+	returns:		
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+function debug_log( content )
+	if not debug_enabled  then
+		return
+	end	
+	if debug_file == "" then
+		debug_file = create_debug_file( debug_file_name, content ) 
+	else
+		update_debug_file( debug_file, content )
+	end	
+end	
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:		
+	
+	Credit:			
+	Modified:		
+	function:		
+	type:			
+	input type: 	
+	returns:		
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+function create_debug_file( input_file_name, content )
+	content = content or string.format( "%s [%s]\n", "Debug Information", os.date("%Y-%m-%d_%H.%M.%S"))
+	local file_name = string.format( "%s-%s[%s]%s", filename(), input_file_name, os.date("%Y-%m-%d_%H.%M.%S"), ".txt");
+	-- set output path as the script path by default
+	local script_path = script_path();
+	local output_path = script_path .. file_name;
+	-- if specified output path exists, then set this as the new output path
+	output_path = script_path .. file_name;
+	output_path = output_path:gsub( [[\]], "/" );	
+	log( "create_debug_file", output_path )
+    -- Open file in write mode, this will create the file if it does not exist
+    local file = io.open( output_path, "w" )
+    -- If the file has been opened successfully
+    if file then
+        -- Write content to the file
+        file:write( content )
+        -- Close the file
+        file:close()
+    else
+        -- Print error message
+        print("Failed to open file " .. file_name .. " for writing")
+    end
+	return output_path;
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:		
+	
+	Credit:			
+	Modified:		
+	function:		
+	type:			
+	input type: 	
+	returns:		
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+function rewrite_line_debug_file( filename, line_num, content )
+    -- Store all lines in memory
+    local lines = {}
+
+    -- Open the file in read mode
+    local file = io.open(filename, 'r')
+
+    -- If the file has been opened successfully
+    if file then
+        -- Loop over all lines in the file
+        for line in file:lines() do
+            table.insert(lines, line)
+        end
+        -- Close the file
+        file:close()
+    else
+        -- Print error message
+        print("Failed to open file " .. filename .. " for reading")
+    end
+
+    -- Replace the line at the specified line number
+    if line_num <= #lines then
+        lines[line_num] = content
+    end
+
+    -- Open the file in write mode
+    file = io.open(filename, 'w')
+
+    -- If the file has been opened successfully
+    if file then
+        for i = 1, #lines do
+            -- Only add a newline if it's not the last line
+            if i < #lines then
+                file:write(lines[i] .. "\n")
+            else
+                file:write(lines[i])
+            end
+        end
+        -- Close the file
+        file:close()
+    else
+        -- Print error message
+        print("Failed to open file " .. filename .. " for writing")
+    end
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:		
+	
+	Credit:			
+	Modified:		
+	function:		
+	type:			
+	input type: 	
+	returns:		
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+function update_debug_file( filename, content )
+	if filename ~= nil then
+		debug_entry = debug_entry + 1
+		content = tostring(debug_entry) .. ") " .. string.rep( " ", string.len(debug_entry) ) .. content
+		-- Open file in append mode
+		local file = io.open( filename, "a" )
+		-- If the file has been opened successfully
+		if file then
+			-- Write new content on a new line
+			file:write( "\n" .. content )
+			-- Close the file
+			file:close()
+		else
+			-- Print error message
+			print("Failed to open file " .. tostring(filename) .. " for appending. Could not add content: " .. pre_dump(content))
+		end
+		-- adds unnecessary processing 
+		--rewrite_line_debug_file( filename, 2, "Last item entered: " .. content )
+	else
+		--print("Failed " .. tostring(filename) .. " Does not exist. Could not add content: " .. pre_dump(content))
+	end	
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	Builds a table by splitting a string by defined character or sequence of characters marking 
 					the beginning or end of a unit of data. That which delimits, that separates.	
 	
 	Credit:			midnight-studios, et al	
-
 	Modified:		
-
 	function:		breaks string into sections by a reference that is returned in a table
 	type:			
 	input type: 	string, delimiter	
 	returns:		table		
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
-local function explode( str, delim )
+local function explode_alt( str, delim )
+    debug_log( 'explode_alt(' .. pre_dump(str) .. ", " .. pre_dump(delim) .. ') -- function variable names:  str, delim ' )
    local tbl, index;
    tbl = {};
    index = 0;
@@ -564,6 +456,30 @@ local function explode( str, delim )
       end;
    end;
    return tbl;
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Builds a table by splitting a string by defined character or sequence of characters marking 
+					the beginning or end of a unit of data. That which delimits, that separates.	
+	
+	Credit:			midnight-studios, et al	
+	Modified:		
+	function:		breaks string into sections by a reference that is returned in a table
+	type:			
+	input type: 	string, delimiter	
+	returns:		table		
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function explode( str, div )
+    debug_log( 'explode(' .. pre_dump(str) .. ", " .. pre_dump(delim) .. ') -- function variable names:  str, delim ' )
+	if ( div == nil or div == '' ) or ( str == nil or str == '' )then return {} end
+	local pos, arr = 0, {}
+	for st, sp in function() return string.find(str, div, pos, true) end do
+		table.insert(arr, string.sub(str, pos, st - 1))
+		pos = sp + 1
+	end
+	table.insert(arr, string.sub(str, pos))
+	return arr
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
@@ -585,9 +501,7 @@ end
 					https://github.com/nickgammon/mushclient/tree/master/lua
 					If you need to sort keys other than strings, see:
 					See: http://lua-users.org/wiki/SortedIteration
-
 	Modified:		Yes, minor changes
-
 	function:		support: This prints the math functions in key order
 	type:			sort table
 	input type: 	table, function (optional)
@@ -595,18 +509,26 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function pairsByKeys( tbl, input_function )
-	if type( tbl ) ~= "table" then return tbl end; -- if the input table is not of type table return input
-	local temp_tbl = {}; -- build temporary table of the keys
-	for items in pairs( tbl ) do table.insert( temp_tbl, items ) end;
-	table.sort( temp_tbl, input_function ); -- sort using supplied function, if any
-	local i = 0 -- iterator variable
-	local iter = function () -- iterator function
-		i = i + 1;
-		if temp_tbl[i] == nil then return nil;
-		else return temp_tbl[i], tbl[temp_tbl[i]];
-		end;
-	end;
-	return iter;
+    debug_log( 'pairsByKeys(' .. pre_dump( tbl ) .. ", " .. pre_dump( input_function ) .. ')')
+    if type( tbl ) ~= "table" then return tbl end
+
+    -- instead of creating a new table and inserting all items into it, just get the keys
+    local keys = {}
+    for k in pairs(tbl) do keys[#keys+1] = k end
+
+    table.sort( keys, input_function )
+
+    local i = 0 
+    local iter = function ()
+        i = i + 1
+        if keys[i] == nil then 
+            return nil
+        else 
+            -- use keys[i] to get value from tbl
+            return keys[i], tbl[keys[i]]
+        end
+    end
+    return iter
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
@@ -614,9 +536,7 @@ end
 					(how many items the table contains)
 	
 	Credit:			midnight-studios, et al	
-
 	Modified:		Author
-
 	function:		Create a table with unique items
 	type:			Support
 	input type:		table 	
@@ -624,6 +544,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function tablelength( tbl )
+    debug_log( 'tablelength(' .. pre_dump(tbl) .. ') -- function variable names:  tbl ' )
 	local count = 0;
 	if type( tbl ) == "table" then -- if the input table is not of type table return 0
 		for _ in pairs( tbl ) do count = count + 1 end;
@@ -635,18 +556,18 @@ end
 	Description:	Remove duplicated values from table
 	
 	Credit:			midnight-studios, et al	
-
 	Modified:		Author
-
 	function:		Create a table with unique items
 	type:			Support
 	input type:		table, string 	
 	returns:		bool	
 ----------------------------------------------------------------------------------------------------------------------------------------
-
 ]]
 local function tableHasKey( tbl, key )
-	if type( tbl ) ~= "table" then return false end; -- if the input table is not of type table return bool(false)
+    debug_log( 'tableHasKey(' .. pre_dump(tbl) .. ", " .. pre_dump(key) .. ') -- function variable names:  tbl, key ' )
+	
+	if type( tbl ) ~= "table" or key == nil then return false end; -- if the input table is not of type table return bool(false)
+	
     return tbl[key] ~= nil;
 end
 --[[
@@ -654,9 +575,7 @@ end
 	Description:	Remove duplicated values from table
 	
 	Credit:			midnight-studios, et al	
-
 	Modified:		Author
-
 	function:		Create a table with unique items
 	type:			Support
 	input type:		table, string 	
@@ -664,24 +583,21 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function in_table( tbl, input_value )
-	if type( tbl ) ~= "table" then return false end; -- if the input table is not of type table return bool(false)
-	local found = false; -- set result default bool (not found)
-	for key, value in pairs( tbl ) do
-		if value == input_value then -- compare search value against table value
-			found = true; -- found, update result bool
-			break; -- found, end and exit here
+    debug_log( 'in_table(' .. pre_dump(tbl) .. ", " .. pre_dump(input_value) .. ') -- function variable names:  tbl, input_value ' )
+	if type( tbl ) ~= "table" or input_value == nil then return false end; -- if the input table is not of type table return bool(false)
+	for _, value in ipairs( tbl ) do
+		if value == input_value then	
+			return true
 		end;
 	end;
-	return found; -- return bool
+	return false
 end
 --[[
 ----------------------------------------------------------
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type:		 	
@@ -689,34 +605,713 @@ end
 ----------------------------------------------------------
 ]]
 function refresh_properties()
+    debug_log( 'refresh_properties() -- function variable names: ' )
 	return true;
 end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+	Modified:		
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]	
+function checkTimeString(str)
+    debug_log( 'checkTimeString(' .. pre_dump(str) .. ') -- function variable names: str' )
+  -- Pattern to match the format '00:00:00'
+  local pattern = "^%d%d:%d%d:%d%d$"
+  -- Check if the string matches the pattern
+  if string.match(str, pattern) then
+    return true
+  else
+    return false
+  end
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+	Modified:		
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+function removeDuplicates( tbl ) 
+    debug_log( 'removeDuplicates(' .. pre_dump( tbl ) .. ') -- function variable names: tbl' )
+if type( tbl ) ~= "table" or tbl == nil then return tbl end; -- if the input table is not of type table return input
+  local seen = {}
+  local result = {}
+  
+  for _, value in ipairs(tbl) do
+    if not seen[value] then
+      table.insert(result, value)
+      seen[value] = true
+    end
+  end
+  
+  return result
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	A function named script_update will be called when settings are changed
+	
+	Credit:			
+	Modified:		
+	function:		Called upon settings initialization and modification
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]	
+function convertToSeconds(timeString)
+    debug_log( 'convertToSeconds(' .. pre_dump(timeString) .. ') -- function variable names: timeString' )
+  local hours, minutes, seconds = string.match(timeString, "(%d%d):(%d%d):(%d%d)")
+  
+  -- Convert hours, minutes, and seconds to integers
+  hours = tonumber(hours)
+  minutes = tonumber(minutes)
+  seconds = tonumber(seconds)
+  
+  -- Calculate the total seconds
+  local totalSeconds = (hours * 3600) + (minutes * 60) + seconds
+  
+  return totalSeconds
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	set source visibility	
+	
+	Credit:			midnight-studios, et al		
+	Modified:		
+	function:		Update Text Source		
+	type:			Support, Render			
+	input type: 	
+	returns:		bool 
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function set_visible_OLD( source_name, visible )
+    debug_log( 'set_visible(' .. pre_dump(source_name) .. ", " .. pre_dump(visible) .. ') -- function variable names:  source_name, visible ' )
+	visible = visible or false;
+	local action_completed = false;
+	if source_name == nil then return action_completed; end;
+	if in_table( ignore_list, source_name ) then return action_completed; end;
+	local scenes = obs.obs_frontend_get_scenes();
+	if scenes ~= nil then
+		for i, scn in ipairs( scenes ) do	
+			local scene = obs.obs_scene_from_source( scn );
+			local sceneitem = obs.obs_scene_find_source_recursive( scene, source_name );
+			if sceneitem ~= nil then
+				if visible and not obs.obs_sceneitem_visible( sceneitem ) then -- only set visible if not visible
+					obs.obs_sceneitem_set_visible( sceneitem, visible );
+				end	
+				if not visible and obs.obs_sceneitem_visible( sceneitem ) then -- only hide if visible
+					obs.obs_sceneitem_set_visible( sceneitem, visible );
+				end;	
+				action_completed = true;
+				break;	
+			end;
+		end; --end for
+		obs.bfree( scn );
+		obs.source_list_release( scenes );		
+	end;
+	return action_completed;
+end
 
+local function set_visible( source_name, visible )
+    debug_log( 'set_visible(' .. pre_dump(source_name) .. ", " .. pre_dump(visible) .. ') -- function variable names:  source_name, visible ' )
+    visible = visible or false;
+    local action_completed = false;
+    if source_name == nil then 
+		debug_log( 'set_visible: ' .. pre_dump(action_completed)   )	
+		return action_completed; 
+	end;
+    if in_table( ignore_list, source_name ) then 
+		debug_log( 'set_visible: ' .. pre_dump(action_completed)   )	
+		return action_completed; 
+	end;
+	 debug_log( 'continue set_visible(' .. pre_dump(source_name) .. ", " .. pre_dump(visible) .. ') -- function variable names:  source_name, visible ' )
+    local scenes = obs.obs_frontend_get_scenes();
+    if scenes ~= nil then
+        for i, scn in ipairs( scenes ) do  
+            local scene = obs.obs_scene_from_source( scn );
+            local sceneitem = obs.obs_scene_find_source_recursive( scene, source_name );
+            if sceneitem ~= nil then
+                obs.obs_sceneitem_set_visible( sceneitem, visible );
+                action_completed = true;
+                break;  
+            end;
+        end; --end for
+        obs.bfree( scn );
+        obs.source_list_release( scenes );      
+    end;
+    return action_completed;
+end
 --[[
 ----------------------------------------------------------
-	Description:	Remove duplicated values from table
+	Description:	check source visibility	
 	
 	Credit:			midnight-studios, et al	
-
-	Modified:		Author
-
-	function:		Create a table with unique items
-	type:			Support
-	input type:		table 	
-	returns:		table
+	Modified:		
+	function:		Check source visibility state by name 
+	type:			
+	input type: 	source name (string)
+	returns:		boolean 
 ----------------------------------------------------------
 ]]
-local function remove_duplicates( tbl )
-	if type( tbl ) ~= "table" then return table end; -- if the input table is not of type table return input
-	local hash = {};
-	local clean_tbl = {};
-	for _, value in pairsByKeys( tbl ) do
-	   if ( not hash[value] ) then
-		   clean_tbl[#clean_tbl+1] = value; -- you could print here instead of saving to result table if you wanted
-		   hash[value] = true;
-	   end;
+local function is_visible( source_name )
+    debug_log( 'is_visible(' .. pre_dump(source_name) .. ') -- function variable names:  source_name ' )
+	local isvisible = false;
+	if source_name ~= nil then 
+		local scenes = obs.obs_frontend_get_scenes();
+		if scenes ~= nil then
+			for i, scn in ipairs( scenes ) do	
+				local scene = obs.obs_scene_from_source( scn );
+				local sceneitem = obs.obs_scene_find_source_recursive( scene, source_name );
+				if sceneitem ~= nil then
+					isvisible = obs.obs_sceneitem_visible( sceneitem );
+					break;	
+				end;	
+			end; --end for
+			obs.bfree( scn );
+			obs.source_list_release( scenes );		
+		end; --end scenes ~= nil	
 	end;
-	return clean_tbl; -- return final result
+	debug_log( 'is_visible: ' .. pre_dump(isvisible) )
+	return isvisible;
+end	
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Function to compare two time strings
+	
+	Credit:			
+	Modified:		
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function compareTimeStrings( timeString1, timeString2 )
+    debug_log( 'compareTimeStrings(' .. pre_dump(timeString1) .. ", " .. pre_dump(timeString2) .. ') -- function variable names: timeString1, timeString2' )
+  -- Extract hours, minutes, and seconds from time strings
+  local hours1, minutes1, seconds1 = string.match(timeString1, "(%d%d):(%d%d):(%d%d)")
+  local hours2, minutes2, seconds2 = string.match(timeString2, "(%d%d):(%d%d):(%d%d)")
+  
+  -- Convert hours, minutes, and seconds to integers
+  hours1 = tonumber(hours1)
+  minutes1 = tonumber(minutes1)
+  seconds1 = tonumber(seconds1)
+  hours2 = tonumber(hours2)
+  minutes2 = tonumber(minutes2)
+  seconds2 = tonumber(seconds2)
+  
+  -- Calculate the total seconds for each time string
+  local totalSeconds1 = (hours1 * 3600) + (minutes1 * 60) + seconds1
+  local totalSeconds2 = (hours2 * 3600) + (minutes2 * 60) + seconds2
+  
+  -- Compare the total seconds
+  return totalSeconds1 < totalSeconds2
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Function to sort the table items
+	
+	Credit:			
+	Modified:		
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function sortTimeTable( tbl )
+    debug_log( 'sortTimeTable(' .. pre_dump(tbl) .. ') -- function variable names: tbl' )
+
+	if type( tbl ) ~= "table" or tbl == nil then return tbl end; -- if the input table is not of type table return input
+	
+  table.sort(tbl, compareTimeStrings)
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	custom function
+					we use this to get a count of all sources
+	
+	Credit:			
+	Modified:		
+	function:		
+	type:			
+	input type: 	
+	returns:	interger
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function count_sources()
+    debug_log( 'count_sources() -- function variable names: ' )
+	local sources = obs.obs_enum_sources();
+	local i = 0;
+	if sources ~= nil then
+		for _, source in ipairs( sources ) do -- ipairs cycles auto incrimented items
+			i = i + 1;
+		end
+		obs.bfree(source); -- free memory, release source as it is no longer needed
+	end;
+	obs.source_list_release( sources ); -- free memory, release 
+	total_sources = i;
+	return i;
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+	Modified:		
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+function getNextItemMatchingTime( tbl, currentTime )
+	debug_log( 'getNextItemMatchingTime(' .. pre_dump(tbl) .. ", " .. pre_dump(currentTime) .. ') -- function variable names:  tbl, currentTime ' )
+
+	if type( tbl ) ~= "table" or tbl == nil then return nil end; -- if the input table is not of type table return input
+
+	local nextItem = nil
+	local currentTimeString = string.format( "%02d:%02d:%02d", math.floor( currentTime / 3600 ), math.floor( ( currentTime % 3600 ) / 60 ), currentTime % 60 )
+	for _, value in ipairs( tbl ) do		
+	if value > currentTimeString then
+	  nextItem = value
+	  break
+	end	
+	end	
+	if tbl[1] ~= nil and nextItem == nil then
+		-- loop to first item
+		-- nextItem = tbl[1]
+	end		
+	return nextItem
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+	Modified:		
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+function getPreviousItemMatchingTime( table, currentTime )
+    debug_log( 'getPreviousItemMatchingTime(' .. pre_dump(table) .. ", " .. pre_dump(currentTime) .. ') -- function variable names:  table, currentTime ' )
+  local previousItem = nil
+  local currentTimeString = string.format( "%02d:%02d:%02d", math.floor( currentTime / 3600 ), math.floor( ( currentTime % 3600 ) / 60 ), currentTime % 60 )
+  for _, value in ipairs(table) do
+    if value < currentTimeString then
+      previousItem = value
+    else
+      break
+    end
+  end	
+	if table[#table] ~= nil and previousItem == nil then
+		-- loop to last item
+		--previousItem = table[#table] 
+	end	
+  return previousItem
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Function to convert OBS data array to table
+	obs_data_array_to_table( settings, "reference" )
+	Description:	Grab OBS data array and return in a table
+	
+	Credit:			midnight-studios
+	Modified:		
+	function:		data array to table
+	type:			Support
+	input type: 	Settings, property reference 
+	returns:		table
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function obs_data_array_to_table( set, item )
+    debug_log( 'obs_data_array_to_table(' .. pre_dump(set) .. ", " .. pre_dump(item) .. ') -- function variable names:  set, item ' )
+	
+	local array = obs.obs_data_get_array( set, item );
+	
+	local count = obs.obs_data_array_count( array );
+	
+	local list = {};
+	
+	for i = 1, count do 
+		
+		local array_item = obs.obs_data_array_item( array, i-1 );
+		
+		local value = obs.obs_data_get_string( array_item, "value" );
+
+		table.insert( list, value )
+	end;
+	
+	obs.obs_data_array_release( array );
+	
+	return list;
+end	
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+	Modified:		
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]	
+local function getMarkerTime( ref, currentTime )
+    debug_log( 'getMarkerTime(' .. pre_dump(ref) .. ", " .. pre_dump(currentTime) .. ') -- function variable names:  ref, currentTime ' )
+	--[[
+		Create a table for a list
+	]]	
+	local result 	= nil
+	local i 		= 0;		-- create interger variable 
+	local list 		= {}; 		-- create temporary table variable 
+	local data_list = obs_data_array_to_table( ctx.propsSet, "text_arr_" .. ref ); -- fetch obs userdata from property settings and return in table
+	--[[
+		Build a cycle list
+		We only include valid string formats '00:00:00'
+		any other format will be excluded	
+	]]		
+	for key, value in pairs( data_list ) do
+		if value ~= nil and value ~= "" then
+			if checkTimeString( value ) then
+				i = i + 1;
+				table.insert( list, value )
+			end			
+		end	
+	end
+	list = removeDuplicates( list ); -- Ensure there are no duplicates
+	sortTimeTable( list ); -- Time runs linear, so order the list to be linear
+	local count = tablelength( list ); -- get how many items are listed
+	
+	if #list >= 1 then
+		media["activated_media_".. ref] = false; 	-- Signal media has not yet been activated because we now have a new media item.
+	end
+	
+	if current_count_direction == "UP" then 
+		result = getNextItemMatchingTime( list, currentTime ); -- basically, see what will be the next marker time
+	else
+		result = getPreviousItemMatchingTime( list, currentTime ); -- basically, see what will be the next marker time
+	end	
+	return result
+end	
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Function to cycle through a table list containing strings
+	
+	Credit:			
+	Modified:		
+	function:		
+	type:			
+	input type: 	string
+	returns:		nothing
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function source_exists_REMOVE_2( source_name )
+    debug_log( 'source_exists_alt(' .. pre_dump(source_name) .. ') -- function variable names:  source_name ' )
+	local sourceFound = false
+	local sources = obs.obs_enum_sources();
+	local i = 0;
+	if sources ~= nil then
+		for _, source in ipairs( sources ) do -- ipairs cycles auto incrimented items
+			local name = obs.obs_source_get_name( source );
+			if name == source_name then
+			sourceFound = true
+			end	
+		end
+		obs.bfree(source); -- free memory, release source as it is no longer needed
+	end;
+	obs.source_list_release( sources ); -- free memory, release 
+	return sourceFound
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Function to cycle through a table list containing strings
+	
+	Credit:			
+	Modified:		
+	function:		
+	type:			
+	input type: 	string
+	returns:		nothing
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+function source_exists( source_name )
+    debug_log( 'source_exists(' .. pre_dump(source_name) .. ') -- function variable names:  source_name ' )
+	-- Get all sources
+	local sources = obs.obs_enum_sources()
+	if sources ~= nil then
+		for i, source in ipairs(sources) do
+			local name = obs.obs_source_get_name(source)
+
+			-- Check if the source name matches the name you're looking for
+			if source_name == source_name then
+				obs.source_list_release(sources)
+				 debug_log( 'source ' .. source_name .. ' exists: true' )
+				return true
+			end
+		end
+		obs.source_list_release(sources)
+	end	
+	debug_log( 'source ' .. source_name .. ' exists: false' )
+	return false
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Function to cycle through a table list containing strings
+	
+	Credit:			
+	Modified:		
+	function:		
+	type:			
+	input type: 	string
+	returns:		nothing
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+function source_exists_REMOVE( source_name )
+    debug_log( 'source_exists(' .. pre_dump(source_name) .. ') -- function variable names:  source_name ' )
+	local sourceFound = false
+	local source = obs.obs_get_source_by_name( timer_source )
+	if source ~= nil then -- continue if we have a source
+		sourceFound = true
+	end
+	obs.obs_source_release( source ); -- release source
+	return sourceFound
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Check source type of media if the media is set to loop
+					The source is referenced by name.
+	Credit:			
+	Modified:		
+	function:		
+	type:			
+	input type: 	reference (string)
+	returns:		bool
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Check source type of media if the media is set to loop
+					The source is referenced by name.
+	Credit:			
+	Modified:		
+	function:		
+	type:			
+	input type: 	reference (string)
+	returns:		bool
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function is_valid_media_source( source_name )
+    debug_log( 'is_valid_media_source(' .. pre_dump(source_name) .. ') -- function variable names:  source_name ' )
+	local is_valid = false;
+	if source_name ~= nil and source_name ~= "" then
+		--[[
+			Increments the source reference counter, 
+			use obs_source_release() to release it when complete.
+
+			we got a source name, let's see if it exist...
+		]]	
+		local source = obs.obs_get_source_by_name( source_name ); -- get source by name	
+			debug_log( 'is_valid_media_source get source: ' )
+		if source ~= nil then -- continue if we have a source
+			debug_log( 'is_valid_media_source we have a source: ' )
+			local source_id = obs.obs_source_get_unversioned_id( source ); -- get source id
+			
+				debug_log( 'is_valid_media_source check if source_id is matching: ' .. pre_dump(source_id) )	
+			
+				if source_id == "ffmpeg_source" then -- check if source id match that of type we need to focus on
+					is_valid = true
+				end;
+		end;
+		obs.obs_source_release( source ); -- release source	
+	end	
+	debug_log( 'is_valid_media_source END result: ' .. pre_dump(is_valid) )	
+	return is_valid; -- bool
+end	
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	A single function, named 'assign_audio_source_name(property_name, ref)', is responsible for performing a task on 
+					two different types of lists. This function utilizes two String Type variables: 'property_name' and 	'ref'.
+					The 'property_name' variable indicates the specific list object that will be required, while 'ref' indicates the 
+					location where the function is applied. Within the function, there is a method called 
+					'obs_data_array_to_table(ctx.propsSet, property_name)'. This method retrieves the referenced list object and converts 
+					it into a table format that is assigned to the variable 'data_list', which is then used within the function for 
+					further processing.
+	
+	Credit:			
+	Modified:		
+	function:		
+	type:			
+	input type: 	string
+	returns:		nothing
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+function assign_audio_source_name( property_name, ref )
+    debug_log( 'assign_audio_source_name(' .. pre_dump(property_name) .. ", " .. pre_dump(ref) .. ') -- function variable names:  property_name, ref ' )
+	-- Convert data array to table
+	local data_list = obs_data_array_to_table( ctx.propsSet, property_name )
+	-- Create a table to hold the purified data list
+	local audioTable = {}
+	-- Iterate over the data list and validate each source
+	-- Use pairs instead of ipairs because ipairs assumes 1-based array
+	for i, source_name in pairs( data_list ) do
+		if is_valid_media_source( source_name ) then
+		  table.insert( audioTable, source_name )
+		end
+	end
+	-- Get current index of last assigned item
+	local current_index = media["cycle_index_".. ref]
+	
+	-- signal there was a change since the last orientation
+	if count_orientation ~= last_orientation then
+		 current_index = count_orientation == "NORMAL" and current_index + 1 or current_index - 1;
+	end	
+	
+	last_orientation = count_orientation
+	
+	if current_count_direction == "DOWN" and current_index < 1 then
+		current_index = #audioTable
+	end	
+	if current_count_direction == "UP" and current_index > #audioTable then
+		current_index = 1
+	end	
+	
+	if count_orientation == "NORMAL" then -- count_orientation == "NORMAL" or "INVERTED"
+		media["source_name_audio_".. ref] = audioTable[current_index]  -- '+1' because audioTable is 1-based
+	end
+	-- Depending on the 'count_orientation', set the next index.
+	if count_orientation == "NORMAL" then -- count_orientation == "NORMAL" or "INVERTED"
+	  current_index = ( current_index % #audioTable ) + 1
+	else
+	  current_index = ( current_index - 2 + #audioTable ) % #audioTable + 1
+	end
+	
+	-- Store the selected index and source_name in global 'media' table
+	media["cycle_index_".. ref] = current_index
+	if count_orientation == "INVERTED" then -- count_orientation == "NORMAL" or "INVERTED"
+		media["source_name_audio_".. ref] = audioTable[current_index] 
+	end	
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Function to cycle through a table list containing strings
+	
+	Credit:			
+	Modified:		
+	function:		
+	type:			
+	input type: 	string
+	returns:		nothing
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function reset_audio_source_visibility( property_name, ref )
+    debug_log( 'reset_audio_source_visibility(' .. pre_dump(property_name) .. ", " .. pre_dump(ref) .. ') -- function variable names:  property_name, ref ' )
+	local data_list = obs_data_array_to_table( ctx.propsSet, property_name ); -- fetch obs userdata from property settings and return in table
+	if data_list ~= nil then	
+		for key, value in pairs( data_list ) do
+			if is_valid_media_source( value ) then
+					set_visible( value, false );
+			end
+		end	
+	end	
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	 
+	Credit:			
+	Modified:		
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+function reset_audio_marker_arr()
+    debug_log( 'reset_audio_marker_arr() -- function variable names: ' )
+	audio_marker_a = obs.obs_data_get_string( ctx.propsSet, "audio_marker_a" );
+	audio_marker_b = obs.obs_data_get_string( ctx.propsSet, "audio_marker_b" );
+	if audio_marker_a == "list" then
+		reset_audio_source_visibility( "audio_marker_a_arr", "marker_a" );
+	end
+	if audio_marker_b == "list" then
+		reset_audio_source_visibility( "audio_marker_b_arr", "marker_b" );
+	end
+end	
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	This function asigns a variable to a global
+	
+	Credit:			
+	Modified:		
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]	
+function update_time_markers( currentTime ) 	
+    debug_log( 'update_time_markers(' .. pre_dump(currentTime) .. ') -- function variable names:  currentTime ' )
+	media["text_marker_a"] = getMarkerTime( "marker_a", currentTime );			
+	media["text_marker_b"] = getMarkerTime( "marker_b", currentTime );
+end	
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+	Modified:		
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]	
+function update_media_names( position_reset )
+    debug_log( 'update_media_names(' .. pre_dump(position_reset) .. ') -- function variable names:  position_reset ' )
+	-- If position_reset is not provided, set it to false
+  	position_reset = position_reset or false
+	--[[
+		If we do not force a complete reset when required, then
+		media names will cycle each time the function is called
+		during the startup or reset stages
+	]]
+	if position_reset then
+		media["cycle_index_marker_a"] = 1; -- index from 1-based table
+		media["cycle_index_marker_b"] = 1; -- index from 1-based table
+	end
+	--[[
+		If Marker Audio is set to "Allow Multiple Selections"
+		then it will cycle any strings listed in the Marker Audio List
+	]]
+	if audio_marker_a == "list" then
+		assign_audio_source_name( "audio_marker_a_arr", "marker_a" );
+	end
+	if audio_marker_b == "list" then
+		assign_audio_source_name( "audio_marker_b_arr", "marker_b" );
+	end
+	
+	local temp_ref = "marker_a"
+	debug_log( temp_ref .. ": ".. "["..(count_orientation == "NORMAL" and "Descending" or "Acending").."] Loaded Media:[" .. tostring(media["source_name_audio_" .. temp_ref]) .. "]" .. " Time ["..(count_orientation == "NORMAL" and "Next" or "Previous").."] " .. tostring(media["text_" .. temp_ref]) .. " Index: " .. tostring(media["cycle_index_" .. temp_ref]) )
+	temp_ref = "marker_b"
+	debug_log( temp_ref .. ": ".. "["..(count_orientation == "NORMAL" and "Descending" or "Acending").."] Loaded Media:[" .. tostring(media["source_name_audio_" .. temp_ref]) .. "]" .. " Time ["..(count_orientation == "NORMAL" and "Next" or "Previous").."] " .. tostring(media["text_" .. temp_ref]) .. " Index: " .. tostring(media["cycle_index_" .. temp_ref]) )
+
 end	
 --[[
 ----------------------------------------------------------
@@ -724,9 +1319,7 @@ end
 					but "Nested Scenes" are not listed in "obs.obs_enum_sources()"
 	
 	Credit:			midnight-studios, et al	
-
 	Modified:		Author
-
 	function:		Used to build a list from OBS source names into a table
 	type:			Support			
 	input type: 	"id", "unversioned_id", "display_name", "source_name"
@@ -734,6 +1327,7 @@ end
 ----------------------------------------------------------
 ]]
 function get_source_list( return_ref )
+    debug_log( 'get_source_list(' .. pre_dump(return_ref) .. ') -- function variable names:  return_ref ' )
 	
 	local scenes = obs.obs_frontend_get_scenes();
 	local source_list = {};
@@ -745,8 +1339,6 @@ function get_source_list( return_ref )
 	]]
     if scenes ~= nil then
 		--[[
-
-
 		]]
         for key_scenesource, value_scenesource in pairs( scenes ) do
 			
@@ -754,8 +1346,6 @@ function get_source_list( return_ref )
             local scene = obs.obs_scene_from_source( value_scenesource );
             local sceneitems = obs.obs_scene_enum_items( scene );
 			--[[
-
-
 			]]
 			local index = 0;
             for key_sceneitem, value_sceneitem in pairs( sceneitems ) do
@@ -771,8 +1361,8 @@ function get_source_list( return_ref )
 				sub["unversioned_id"] = unversioned_id_parent;
 				sub["display_name"] = display_name_parent;
 				sub["source_name"] = source_name_parent;
-				list[index] = sub;
-				source_list[source_name_parent] = source_name_parent; -- will return this by default if return_ref not defined as the name is a unique id					
+				table.insert( list, sub )
+					source_list[source_name_parent] = source_name_parent; -- will return this by default if return_ref not defined as the name is a unique id					
 				if group ~= nil then
 					local groupitems = obs.obs_scene_enum_items( group );	
 					if groupitems ~= nil then
@@ -788,7 +1378,7 @@ function get_source_list( return_ref )
 							sub["unversioned_id"] = unversioned_id_group;
 							sub["display_name"] = display_name_group;
 							sub["source_name"] = source_name_group;
-							list[index] = sub;
+							table.insert( list, sub )
 							source_list[source_name_group] = source_name_group; -- will return this by default if return_ref not defined as the name is a unique id
 						end -- end for
 						obs.sceneitem_list_release( groupitems );
@@ -798,8 +1388,6 @@ function get_source_list( return_ref )
             obs.sceneitem_list_release( sceneitems );
 		end -- end for in pairs( scenes )
 		--[[
-
-
 		]]		
         obs.source_list_release( scenes );
     end; -- scenes ~= nil
@@ -811,12 +1399,15 @@ function get_source_list( return_ref )
 	local found = false;
 	if return_ref ~= nil then
 		for key, value in pairs( list ) do
-			if type( list[key] ) == "table" then
-				if tableHasKey( list[key], return_ref ) then
-					found = true;
-					tmp_list[list[key]["source_name"]] = list[key][return_ref];
+			if value ~= nil and key ~= nil then
+				local itm = list[key]
+				if type( itm ) == "table" and itm ~= nil then
+					if tableHasKey( itm, return_ref ) then
+						found = true;
+						tmp_list[itm["source_name"]] = itm[return_ref];
+					end;
 				end;
-			end;
+			end
 		end;
 	end;
 	if found then source_list = tmp_list end;
@@ -824,69 +1415,10 @@ function get_source_list( return_ref )
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Function to convert OBS data array to table
-
-	obs_data_array_to_table( settings, "reference" )
-
-	Description:	Grab OBS data array and return in a table
-	
-	Credit:			midnight-studios
-
-	Modified:		
-
-	function:		data array to table
-	type:			Support
-	input type: 	Settings, property reference 
-	returns:		table
-----------------------------------------------------------------------------------------------------------------------------------------
-]]
-local function obs_data_array_to_table( set, item )
-	
-	local array = obs.obs_data_get_array( set, item );
-	
-	local count = obs.obs_data_array_count( array );
-	
-	local list = {};
-	
-	for i = 0, count do 
-		
-		local array_item = obs.obs_data_array_item( array, i );
-		
-		local value = obs.obs_data_get_string( array_item, "value" );
-		
-		list[i] = value;
-	end;
-	
-	obs.obs_data_array_release( array );
-	
-	return list;
-end	
---[[
-----------------------------------------------------------------------------------------------------------------------------------------
-	Description: Get the name of this script	
-	
-	Credit:			midnight-studios, et al	
-
-	Modified:		
-
-	function:		regular expression 
-	type:			Support
-	input type: 	string
-	returns:		string
-----------------------------------------------------------------------------------------------------------------------------------------
-]]
-local function filename() 
-	local str = debug.getinfo(2).source:sub(2);
-	return str:match("^.*/(.*).lua$") or str;
-end
---[[
-----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	List files
 	
 	Credit:			midnight-studios
-
 	Modified:		midnight-studios, et al	
-
 	function:		Used to list files with target extension
 	type:			directory path, file extension
 	input type: 	
@@ -894,6 +1426,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function get_filenames( path, file_extension )
+    debug_log( 'get_filenames(' .. pre_dump(path) .. ", " .. pre_dump(file_extension) .. ') -- function variable names:  path, file_extension ' )
 	local filenames = {};
 	local dir = obs.os_opendir( path );
 	local entry;
@@ -915,9 +1448,7 @@ end
 	Description:	Convert data to json
 	
 	Credit:			midnight-studios, et al
-
 	Modified:		Yes, custom params to suit targeted need
-
 	function:		
 	type:			Support
 	input type: 	OBS data (Settings)
@@ -925,6 +1456,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function write_to_json( data )
+    debug_log( 'write_to_json(' .. pre_dump(data) .. ') -- function variable names:  data ' )
 	output_folder = backup_folder;
 	-- convert Windows path to UNIX path
 	local file_name = filename() .. output_file_name:gsub("$date_stamp", os.date("%Y-%m-%d-%H%M"));
@@ -944,7 +1476,6 @@ local function write_to_json( data )
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-
 	Description:	Assign a default Frequency based on the Frame Rate	
 					video_info.base_width
 					video_info.base_height
@@ -955,9 +1486,7 @@ end
 					video_info.colorspace
 	
 	Credit:			midnight-studios
-
 	Modified:		
-
 	function:		Get obs user defined video frame rate
 	type:			Support
 	input type: 	none
@@ -965,40 +1494,30 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function assign_default_frequency()
+    debug_log( 'assign_default_frequency() -- function variable names: ' )
 	local fps = 60; -- 60 is the maximum supported frame rate
 	local video_info = obs.obs_video_info();
     if obs.obs_get_video_info(video_info) then
 		fps = video_info.fps_num;		
 	end;
 	time_frequency = ( 1/fps );
+    debug_log( 'assign default frequency: ' .. pre_dump(time_frequency) )
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:
-
 					Local variables format_hour, format_minutes, format_seconds, format_mili are initialized to the strings that define the format of hour, minutes, seconds and mili based on whether they are present or not.
-
 					"time" variable is initialized with the formatted string using string.format and the values of format_hour, format_minutes, format_seconds, format_mili and the input arguments hour, minutes, seconds, and mili.
-
 					If show_mili is false, then time is re-initialized with the formatted string using string.format and values of format_hour, format_minutes, format_seconds and input arguments hour, minutes, and seconds.
-
 					Return time.
-
 					Take the time segments:
-
 					Hours, Minutes, Seconds, Millisieconds
-
 					Configure to standard format:
-
 					HH:MM:SS:FF
-
 					$function status: in service
 	
 	Credit:			midnight-studios
-
 	Modified:		
-
 	function:		Dependency / Support 
 	type:			
 	input type: 	4 variables - "HH" "MM" "SS" "FF"
@@ -1006,6 +1525,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function config_time( hour, minutes, seconds, mili )
+    debug_log( 'config_time(' .. pre_dump(hour) .. ", " .. pre_dump(minutes) .. ", " .. pre_dump(seconds) .. ", " .. pre_dump(mili) .. ') -- function variable names:  hour, minutes, seconds, mili ' )
 	local format_hour, 
 	format_minutes, 
 	format_seconds, 
@@ -1023,6 +1543,7 @@ local function config_time( hour, minutes, seconds, mili )
 	if not show_mili then
 		time = string.format( format_hour..format_minutes..format_seconds, hour, minutes, seconds );
 	end;
+	debug_log( 'config time: ' .. pre_dump(time) )
 	return time;
 end
 --[[
@@ -1030,43 +1551,26 @@ end
 	Description:	Convert Seconds to hours:minutes:seconds:miliseconds
 	
 					$function status: in service
-
 					Local variables hour, minutes, seconds, and mili are initialized to 0.
 					
 					If time is greater than 86399 (23:59:59), c_time is calculated as the nearest multiple of 86400 that is less than time and time is updated by subtracting c_time from it.
-
 					Hour is calculated as the floor division of time by 3600.
-
 					If hour is less than 10 and trim is true, hour is updated with a leading zero.
-
 					Minutes are calculated based on whether the custom_time_format has a value of 90.
-
 					If minutes are greater than or equal to 60, minutes are updated as the remainder after dividing by 90.
-
 					If minutes are less than 10 and trim is true, minutes are updated with a leading zero.
 					
 					Seconds are calculated as the floor value of time minus the product of hour and 3600 and the product of minutes and 60.
-
 					If seconds are less than 10 and trim is true, seconds are updated with a leading zero.
-
 					Miliseconds are calculated as the floor value of time minus the product of hour and 3600 and the product of minutes and 60 and the value of seconds.
-
 					If miliseconds are less than 10 and trim is true, miliseconds are updated with a leading zero.
-
 					Local variable "output" is initialized to an empty string.
-
 					If simplify is true, "output" is updated with the result of calling config_time with hour, minutes, seconds and nil.
-
 					"output" is updated with the result of calling config_time with hour, minutes, seconds, and miliseconds.
-
 					Return "output".
-
-
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	Double (Seconds / Split Seconds)
@@ -1074,6 +1578,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function raw_time( time, simplify )
+    debug_log( 'raw_time(' .. pre_dump(time) .. ", " .. pre_dump(simplify) .. ') -- function variable names:  time, simplify ' )
 	
 	local hour, minutes, seconds, mili = 0, 0, 0, 0;
 	--[[
@@ -1138,22 +1643,19 @@ local function raw_time( time, simplify )
 	else
 		output = config_time( hour, minutes, seconds,  mili );
 	end;
-	
+	debug_log( 'raw time: ' .. pre_dump(output) )
 	return output;
 end	
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	
 	Description:	Used this in testing to measure accuracy
-
 					The Text Source and the Log should produce the same value
 					The Text source is updated by the time function while the debug 
 					uses start and end time stamps to get a value	
 	
 	Credit:			midnight-studios
-
 	Modified:		
-
 	function:		calculate time difference between two points in time
 	type:			Support
 	input type: 	none
@@ -1161,6 +1663,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function get_time_lapsed()
+    debug_log( 'get_time_lapsed() -- function variable names: ' )
 	local ns = obs.os_gettime_ns();
 	local delta = ( ns/1000000000.0 ) - ( orig_time/1000000000.0 );
 	return raw_time( delta );
@@ -1170,22 +1673,18 @@ end
 	Description:	The true frequency between cycles varies due to script
 					and system task processing, therefore a static frequency
 					will produce inaccuarte results over time. 
-
 					Start with a default frequency of 1 second devided by
 					the assigned active fps and then update the frequency 
 					calculated from the difference between cycles for the 
 					previous and current cycle using high-precision system 
 					time, in nanoseconds.
-
 					It should be noted, the frequency is based on the
 					script defined cycle time, which in this case is 
 					10 miliseconds. Based on testing 10 Miliseconds is the
 					fastest cycle supported in OBS lua.
 	
 	Credit:			midnight-studios
-
 	Modified:		
-
 	function:		determine the correct fraction of the split second based on frame rate
 	type:			Support
 	input type: 	double
@@ -1193,20 +1692,95 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function get_frequency( previous )
+    debug_log( 'get_frequency(' .. pre_dump(previous) .. ') -- function variable names:  previous ' )
 	local ns = obs.os_gettime_ns();
 	ns_last = ns;
 	local f = ( ns/1000000000.0 ) - ( previous/1000000000.0 );
 	if f > 1 then f = time_frequency end;
+    debug_log( 'frequency: ' .. pre_dump(f) )
 	return f;	
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			midnight-studios
+	Modified:		
+	function:		
+	type:			
+	input type: 	
+	returns:		
+----------------------------------------------------------------------------------------------------------------------------------------
+]]	
+function timer_remove( input )
+    debug_log( 'timer_remove(' .. pre_dump(input) .. ') -- function variable names: input' )
+ if type( input ) ~= "table" then
+	if input ~= nil and type( input ) == "function" then	
+		obs.timer_remove( input );
+		debug_log( 'removed timer (' .. pre_dump(input) .. ')' )
+	else
+		debug_log( 'requested timer for removal does not exist. Aborting.' )	
+	end				
+  else
+    debug_log( 'timer remove items: (' .. pre_dump(#input) .. ')' )
+    for key, value in pairs( input ) do
+		if value ~= nil and type( input ) == "function" then
+			obs.timer_remove( value );
+    		debug_log( 'removed timer (' .. pre_dump(value) .. ')' )
+		else
+			debug_log( 'requested timer for removal does not exist. Aborting.' )	
+		end		
+    end;
+  end;
+end	
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			midnight-studios
+	Modified:		
+	function:		
+	type:			
+	input type: 	
+	returns:		
+----------------------------------------------------------------------------------------------------------------------------------------
+]]	
+function timer_add( input, ms )
+    debug_log( 'timer_add(' .. pre_dump(input) .. ", " .. pre_dump(ms) .. ') -- function variable names: input' )
+ 	obs.timer_add( input, ms );
+end	
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			midnight-studios
+	Modified:		
+	function:		
+	type:			
+	input type: 	
+	returns:		
+----------------------------------------------------------------------------------------------------------------------------------------
+]]	
+function remove_all_timers()
+    debug_log( 'remove_all_timers() -- function variable names: ' )
+	local timerNames = {}
+	table.insert( timerNames, timer_callback );
+	table.insert( timerNames, sal_timer_callback );
+	table.insert( timerNames, ssl_timer_callback );
+	table.insert( timerNames, timer_end_media_end_callback );
+	table.insert( timerNames, frontend_recording_start_callback );
+	table.insert( timerNames, reset_text_a_colour_timer_callback );
+	table.insert( timerNames, reset_text_b_colour_timer_callback );
+	table.insert( timerNames, marker_a_media_end_callback );
+	table.insert( timerNames, marker_b_media_end_callback );
+	timer_remove( timerNames )
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	This was developed because some tasks were not completing
 	
 	Credit:			midnight-studios
-
 	Modified:		
-
 	function:		delayed recording task to allow other tasks to complete
 	type:			
 	input type: 	
@@ -1214,11 +1788,12 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]	
 local function frontend_recording_start_callback( )
+    debug_log( 'frontend_recording_start_callback() -- function variable names:  ' )
 	if not record_timer_set then return end;
 	if not obs.obs_frontend_recording_active() then
 		obs.obs_frontend_recording_start();
 	end;
-	obs.timer_remove( frontend_recording_start_callback );
+	timer_remove( frontend_recording_start_callback );
 	record_timer_set = false;
 end
 --[[
@@ -1231,9 +1806,7 @@ end
 	
 	
 	Credit:			midnight-studios
-
 	Modified:		
-
 	function:		Start obs call obs_frontend_recording_start()
 	type:			
 	input type: 	reference, milliseconds
@@ -1241,6 +1814,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function record( mark, ms )
+    debug_log( 'record(' .. pre_dump(mark) .. ", " .. pre_dump(ms) .. ') -- function variable names:  mark, ms ' )
 	if obs.obs_frontend_recording_active() then -- if already recording, remove and reset timer
 		frontend_recording_start_callback( );
 		return;
@@ -1248,7 +1822,7 @@ local function record( mark, ms )
 	if timer_mode ~= 2 or obs.obs_frontend_recording_active() then return end; -- if not countdown or timer active, then exit
 	if start_recording == 1 and mark == recording_type then	
 		if not record_timer_set then
-			obs.timer_add( frontend_recording_start_callback, ms ); --< milliseconds
+			timer_add( frontend_recording_start_callback, ms ); --< milliseconds
 			record_timer_set = true; 	
 		end;
 	end;
@@ -1260,14 +1834,11 @@ end
 					When the user defines the Hours, Minutes & Seconds
 					we need to convert it to seconds as the timer works
 					on the value "seconds"
-
 					$function status: in service
 		
 	
 	Credit:			midnight-studios
-
 	Modified:		
-
 	function:		convert date, hour, minutes and secods to seconds
 	type:			
 	input type: 	interger for date, time
@@ -1275,6 +1846,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function delta_time( year, month, day, hour, minute, second )
+    debug_log( 'delta_time(' .. pre_dump(year) .. ", " .. pre_dump(month) .. ", " .. pre_dump(day) .. ", " .. pre_dump(hour) .. ", " .. pre_dump(minute) .. ", " .. pre_dump(second) .. ') -- function variable names:  year, month, day, hour, minute, second ' )
 	local now = os.time();
 	if ( year == -1 ) then
 		year = os.date( "%Y", now );
@@ -1292,25 +1864,21 @@ local function delta_time( year, month, day, hour, minute, second )
 	end;
 	return seconds; 
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	Take the raw time format "HH:MM:SS:FF" and allow the user to
 					define a custom format.
-
 					$function status: in service	
 	
 	Credit:			
-
 	Modified:		midnight-studios
-
 	function:		The timestamp is what we put in, the format is what we want this little princess to be transformed into
 	type:			
 	input type: 	00:00:00,00
 	returns:		Whatever the format incleded: $T $D $H $M $S $F and anything inbetween
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
-local function format_time( timestamp, format )
+local function format_time_old( timestamp, format )
 	--[[
 			table 1, break time stamp in pieces by character reference ":" 
 			input: DD:HH:MM:SS,FF
@@ -1417,12 +1985,139 @@ local function format_time( timestamp, format )
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Take the raw time format "HH:MM:SS:FF" and allow the user to
+					define a custom format.
+					$function status: in service	
+	
+	Credit:			
+	Modified:		midnight-studios
+	function:		The timestamp is what we put in, the format is what we want this little princess to be transformed into
+	type:			
+	input type: 	00:00:00,00
+	returns:		Whatever the format incleded: $T $D $H $M $S $F and anything inbetween
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function format_time( timestamp, format )
+	local days, hours, minutes, seconds, mili = "00", "00", "00", "00", "00";
+	local timeTable = explode( timestamp, ":" ) or {timestamp}; -- reference ":" 4 parts
+	local trim = format:find("$T");	
+	local replacements = {}
+	if #timeTable == 4 then
+        days, hours, minutes, seconds = unpack(timeTable)
+        seconds, mili = unpack(explode(seconds, ","))
+    elseif #timeTable == 3 then
+        hours, minutes, seconds = unpack(timeTable)
+        seconds, mili = unpack(explode(seconds, ","))
+    elseif #timeTable == 2 then
+        minutes, seconds = unpack(timeTable)
+        seconds, mili = unpack(explode(seconds, ","))
+    elseif #timeTable == 1 then
+        seconds = unpack(timeTable)
+        seconds, mili = unpack(explode(seconds, ","))
+    end
+	if tonumber(days) < 10 then 
+		days = "0"..days;
+	end;
+	
+	local replacements = { ["$D"]=days, ["$H"]=hours, ["$M"]=minutes, ["$S"]=seconds }
+	
+	timestamp = format:gsub("$T", "")
+	
+	if show_mili then
+		replacements["$F"]=mili
+	else
+		timestamp = timestamp:gsub("$F", "")
+	end
+	
+    for k, v in pairs(replacements) do
+        timestamp = timestamp:gsub(k, v)
+    end
+	
+	if trim then
+		local reg = "^[0:,]*" -- close, but misses 1 instance
+		timestamp = timestamp:gsub(reg, "");
+	end
+	
+	local epsilon = 0.0001  -- tolerance value
+	
+    if math.abs( current_seconds ) < epsilon and timestamp:find("^0") then
+        timestamp = timestamp:gsub("^0+:", "")
+    end
+	
+	if math.abs( current_seconds ) < epsilon and ( timer_display == 1 and timer_mode ~= 1 ) then
+		if not in_table( {1,5}, timer_format ) then timestamp = "0" end; -- the user wants the timer to end with a reminder that it is Game Over
+	end;
+	
+	if math.abs( current_seconds) < epsilon and timer_display == 2 then -- else it will show 00:00:00
+		timestamp = ""; -- the user wants the timer to disapear
+	end;	
+  return timestamp
+end
+
+local function format_time_REMOVE(timestamp, format)
+    debug_log( 'format_time(' .. pre_dump(timestamp) .. ", " .. pre_dump(format) .. ') -- function variable names:  timestamp, format ' )
+  
+	--[[
+			table 1, break time stamp in pieces by character reference ":" 
+			input: DD:HH:MM:SS,FF
+			result: [DD], [HH], [MM], [SS,FF]
+	
+	]]
+	local timeTable = explode( timestamp, ":" ) or {timestamp} -- reference ":" 4 parts
+	if timeTable == nil then return timestamp end; -- have result or return input
+	--[[
+		This does something fancy that is needed
+	]]
+	
+	local unpack = table.unpack or unpack -- for compatibility between Lua 5.1 and later versions
+
+    local days, hours, minutes, seconds, mili = "00", "00", "00", "00", "00"
+	local _, divs = timestamp:gsub(":","");
+	local _, t = format:gsub("$T","");
+    --local divs = #table1 - 1
+
+    if divs >= 3 then
+        days, hours, minutes, seconds = unpack(timeTable)
+        seconds, mili = unpack(explode(seconds, ","))
+    elseif divs == 2 then
+        hours, minutes, seconds = unpack(timeTable)
+        seconds, mili = unpack(explode(seconds, ","))
+    elseif divs == 1 then
+        minute, seconds = unpack(timeTable)
+        seconds, mili = unpack(explode(seconds, ","))
+    end
+	if tonumber(days) < 10 then 
+		days = "0"..days;
+	end;
+    timestamp = format:gsub("$T", "")
+    local replacements = { ["$D"]=days, ["$H"]=hours, ["$M"]=minutes, ["$S"]=seconds, ["$F"]=mili }
+    for k, v in pairs(replacements) do
+        timestamp = timestamp:gsub(k, v)
+    end
+    if not show_mili then 
+        timestamp = timestamp:gsub(",?$F", "")
+    end 
+
+	local epsilon = 0.0001  -- tolerance value
+    if math.abs( current_seconds ) < epsilon and timestamp:find("^0") then
+        timestamp = timestamp:gsub("^0+:", "")
+    end
+	
+	if math.abs( current_seconds ) < epsilon and ( timer_display == 1 and timer_mode ~= 1 ) then
+		if not in_table( {1,5}, timer_format ) then timestamp = "0" end; -- the user wants the timer to end with a reminder that it is Game Over
+	end;
+	
+	if math.abs( current_seconds) < epsilon and timer_display == 2 then -- else it will show 00:00:00
+		timestamp = ""; -- the user wants the timer to disapear
+	end;
+    return timestamp
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -1430,6 +2125,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function long_time( time )
+    debug_log( 'long_time(' .. pre_dump(time) .. ') -- function variable names:  time ' )
 	local c_time = time;
 	-- If there is more than 24 hours, remove 23:59:59 as it will be in the clock 
 	if time > 86399 then -- 23:59:59
@@ -1443,11 +2139,9 @@ end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	
-
 	Description:	This function checks if a string contains the characters "{" and "}" and the character "M" followed 
 					by a numeric value
 					If the string meets these conditions, the function returns the numeric value
-
 					Check to see if a user defined a custom time format and if the format defined a minute allocation.
 	
 					If the user need the minute clock to be for example 90 minutes instead of 60 then the user could add the expression as followes:
@@ -1456,9 +2150,7 @@ end
 					Note, the M90 must be inside brackets to be considered. 
 	
 	Credit:			
-
 	Modified:		Asking if miliseconds property must be shown or hidden and this is for back end UI
-
 	function:		yer, no
 	type:			Support, UI
 	input type: 	properties, settings
@@ -1466,6 +2158,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function get_minutes_allocation( str )
+    debug_log( 'get_minutes_allocation(' .. pre_dump(str) .. ') -- function variable names:  str ' )
     -- Find the first occurrence of a balanced pair of braces in the string
     local start_index, end_index = string.find(str, "%b{}")
     -- If no balanced pair of braces is found, return nil
@@ -1486,15 +2179,11 @@ end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	
-
 	Description:	This function uses the string.find function to find the first occurrence of a balanced pair of braces 					(%b{}) in the input string str. If no such pair is found, the function returns the input string as is.
-
 					If a pair of braces is found, the function uses string.sub to extract the substrings of str before and after the pair of braces, concatenates them using the .. operator, and returns the result.
 	
 	Credit:			
-
 	Modified:		Asking if miliseconds property must be shown or hidden and this is for back end UI
-
 	function:		yer, no
 	type:			Support, UI
 	input type: 	properties, settings
@@ -1502,6 +2191,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function removeBrackets(str)
+    debug_log( 'removeBrackets(' .. pre_dump(str) .. ') -- function variable names: str' )
     local start_index, end_index = string.find(str, "%b{}")
     if start_index == nil then
         return str
@@ -1510,8 +2200,136 @@ function removeBrackets(str)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Change color of font for text source	
 	
+	Credit:			et al		
+	Modified:		
+	function:		Update Text Source (timer text source)		
+	type:			Support, Render			
+	input type: 	Integer
+	returns:		none
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function set_timer_text_color( int )
+    debug_log( 'set_timer_text_color(' .. pre_dump(int) .. ') -- function variable names:  int ' )
+	if in_table( {"Select", "select"}, timer_source ) then return end; -- if timer_source not defined, then return
+	local source = obs.obs_get_source_by_name( timer_source ); -- get source by name
+	if source ~= nil then -- continue if we have a source
+		local settings = obs.obs_source_get_settings( source ); -- get source settings
+		obs.obs_data_set_int( settings, "color", int ); -- update source settings
+	end
+	obs.obs_source_update( source, settings ); -- save source new settings
+	obs.obs_data_release( settings ); -- release settings
+	obs.obs_source_release( source ); -- release source
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	
+	Description:	Add timer here so we have a global setting
+	
+	Credit:			
+	Modified:		
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function reset_text_a_colour_timer_callback()
+    debug_log( 'reset_text_a_colour_timer_callback() -- function variable names: ' )
+	set_timer_text_color( media["color_normal"] );
+	timer_remove( reset_text_a_colour_timer_callback );
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Remove timer here so we have a global setting
+	
+	Credit:			
+	Modified:		
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function reset_text_a_colour_end_timer()
+    debug_log( 'reset_text_a_colour_end_timer() -- function variable names: ' )
+	timer_remove( reset_text_a_colour_timer_callback ); -- Removing the callback stops the timer	
+end	
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Add timer here so we have a global setting
+	
+	Credit:			
+	Modified:		
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function reset_text_a_colour_start_timer( int )
+    debug_log( 'reset_text_a_colour_start_timer(' .. pre_dump(int) .. ') -- function variable names:  int ' )
+	if int ~= 0 then
+		timer_add( reset_text_a_colour_timer_callback, int ); --<- milliseconds 
+	end
+end	
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
 
+	
+	Description:	Add timer here so we have a global setting
+	
+	Credit:			
+	Modified:		
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function reset_text_b_colour_timer_callback()
+    debug_log( 'reset_text_b_colour_timer_callback() -- function variable names: ' )
+	set_timer_text_color( media["color_normal"] );
+	timer_remove( reset_text_b_colour_timer_callback );
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Remove timer here so we have a global setting
+	
+	Credit:			
+	Modified:		
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function reset_text_b_colour_end_timer()
+    debug_log( 'reset_text_b_colour_end_timer() -- function variable names: ' )
+	timer_remove( reset_text_b_colour_timer_callback ); -- Removing the callback stops the timer	
+end	
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Add timer here so we have a global setting
+	
+	Credit:			
+	Modified:		
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function reset_text_b_colour_start_timer( int )
+    debug_log( 'reset_text_b_colour_start_timer(' .. pre_dump(int) .. ') -- function variable names:  int ' )
+	if int ~= 0 then
+		timer_add( reset_text_b_colour_timer_callback, int ); --<- milliseconds 
+	end
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	
 	Description:	Callback on properties modification
 	
 					Show/Hide a field in the properties based on a 
@@ -1519,9 +2337,7 @@ end
 					"Toggle Milliseconds" only when required.	
 	
 	Credit:			
-
 	Modified:		Asking if miliseconds property must be shown or hidden and this is for back end UI
-
 	function:		yer, no
 	type:			Support, UI
 	input type: 	properties, settings
@@ -1529,6 +2345,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function show_split( props, settings )
+    debug_log( 'show_split(' .. pre_dump(props) .. ", " .. pre_dump(settings) .. ') -- function variable names:  props, settings ' )
 	local config_value = obs.obs_data_get_int( settings, "config" );
 	local mode = obs.obs_data_get_int( settings, "timer_mode" );
 	local shw = false;
@@ -1547,9 +2364,7 @@ end
 	Description:	Function to set the source text
 	
 	Credit:			et al
-
 	Modified:		
-
 	function:		Update Text Source
 	type:			Support, Render
 	input type: 	target source by name, contents to be added to text contents
@@ -1557,6 +2372,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function set_text( source_name, text )
+    debug_log( 'set_text(' .. pre_dump(source_name) .. ", " .. pre_dump(text) .. ') -- function variable names:  source_name, text ' )
 	if source_name == "Select" or  source_name == "select" then
 		return;
 	end;	
@@ -1575,83 +2391,10 @@ local function set_text( source_name, text )
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	set source visibility	
-	
-	Credit:			midnight-studios, et al		
-
-	Modified:		
-
-	function:		Update Text Source		
-	type:			Support, Render			
-	input type: 	
-	returns:		bool 
-----------------------------------------------------------------------------------------------------------------------------------------
-]]
-local function set_visible( source_name, visible )
-	if visible == nil then visible = true end;
-	local action_completed = false;
-	if in_table( {"","None", "Select","none", "select"}, source_name ) then return action_completed; end;
-	local scenes = obs.obs_frontend_get_scenes();
-	if scenes ~= nil then
-		for i, scn in ipairs( scenes ) do	
-			local scene = obs.obs_scene_from_source( scn );
-			local sceneitem = obs.obs_scene_find_source_recursive( scene, source_name );
-			if sceneitem ~= nil then
-				if visible and not obs.obs_sceneitem_visible( sceneitem ) then -- only set visible if not visible
-					obs.obs_sceneitem_set_visible( sceneitem, visible );
-				end	
-				if not visible and obs.obs_sceneitem_visible( sceneitem ) then -- only hide if visible
-					obs.obs_sceneitem_set_visible( sceneitem, visible );
-				end;	
-				action_completed = true;
-				break;	
-			end;
-		end; --end for
-		obs.bfree( scn );
-		obs.source_list_release( scenes );		
-	end;
-	return action_completed;
-end
-
---[[
-----------------------------------------------------------
-	Description:	check source visibility	
-	
-	Credit:			midnight-studios, et al	
-
-	Modified:		
-
-	function:		Check source visibility state by name 
-	type:			
-	input type: 	source name (string)
-	returns:		boolean 
-----------------------------------------------------------
-]]
-local function is_visible( source_name )
-	local isvisible = false;
-	local scenes = obs.obs_frontend_get_scenes();
-	if scenes ~= nil then
-		for i, scn in ipairs( scenes ) do	
-			local scene = obs.obs_scene_from_source( scn );
-			local sceneitem = obs.obs_scene_find_source_recursive( scene, source_name );
-			if sceneitem ~= nil then
-				isvisible = obs.obs_sceneitem_visible( sceneitem );
-				break;	
-			end;	
-		end; --end for
-		obs.bfree( scn );
-		obs.source_list_release( scenes );		
-	end; --end scenes ~= nil
-	return isvisible;
-end	
---[[
-----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	Set source visibility to hidden
 	
 	Credit:			
-
 	Modified:		
-
 	function:		a callback for a timer used to set a source visibility to hidden 
 	type:			
 	input type: 	none
@@ -1659,17 +2402,16 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]	
 local function marker_a_media_end_callback( )
+    debug_log( 'marker_a_media_end_callback() -- function variable names:  ' )
 	set_visible( media["source_name_audio_marker_a"], false );
-	obs.remove_current_callback();
+	timer_remove( marker_a_media_end_callback );
 end		
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	Set source visibility to hidden
 	
 	Credit:			
-
 	Modified:		
-
 	function:		a callback for a timer used to set a source visibility to hidden 
 	type:			
 	input type: 	none
@@ -1677,17 +2419,16 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]	
 local function marker_b_media_end_callback( )
+    debug_log( 'marker_b_media_end_callback() -- function variable names:  ' )
 	set_visible( media["source_name_audio_marker_b"], false );	
-	obs.remove_current_callback();
+	timer_remove( marker_b_media_end_callback );
 end	
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -1695,6 +2436,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]	
 local function signal_media_ended( cd )
+    debug_log( 'signal_media_ended(' .. pre_dump(cd) .. ') -- function variable names:  cd ' )
 	--[[
 	
 		Get source from CallData
@@ -1709,12 +2451,9 @@ local function signal_media_ended( cd )
 	if source ~= nil then 
 		local name = obs.obs_source_get_name( source );
 		--[[
-
 			Set Source Visibility to Hidden
-
 		]]
 		set_visible( name, false );
-		obs.remove_current_callback();
 	end	
 end
 --[[
@@ -1722,9 +2461,7 @@ end
 	Description:	
 	
 	Credit:			OBS, Source Signals, https://obsproject.com/docs/reference-sources.html?highlight=media_ended
-
 	Modified:		
-
 	function:		
 	type:			Support
 	input type: 	ref
@@ -1732,9 +2469,13 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]	
 local function disconnect_after_media_end( ref )
-
+    debug_log( 'disconnect_after_media_end(' .. pre_dump(ref) .. ') -- function variable names:  ref ' )
+	if source_name == nil then
+		debug_log( 'disconnect_after_media_end source_name nil ' )
+		return
+	end	
 	local source_name = media["source_name_audio_".. ref]; 
-	local source = obs.obs_get_source_by_name( source_name ); -- Increments the source reference counter, use obs_source_release() to release it when complete.  	--[[
+	local source = obs.obs_get_source_by_name( source_name ); -- Increments the source reference counter, use obs_source_release() to release it when complete.
 	--[[
 		Found Source?
 	]]
@@ -1759,9 +2500,7 @@ end
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -1769,10 +2508,13 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function start_media_action( source_name, ref )
+    debug_log( 'start_media_action(' .. pre_dump(source_name) .. ", " .. pre_dump(ref) .. ') -- function variable names:  source_name, ref ' )
 	
-	if in_table( {"","None", "Select","none", "select"}, source_name ) then return end;
+	if in_table( ignore_list, source_name ) then return end;
 	
-	if not media["activated_".. ref] then 
+	if not timer_active then return end; -- only start_media_action if the timer is active
+	
+	if not media["activated_media_".. ref] then 
 		media["current_seconds_".. ref] = math.ceil( current_seconds );
 		set_visible( source_name, true );
 		
@@ -1782,7 +2524,7 @@ local function start_media_action( source_name, ref )
 		
 		]]
 		disconnect_after_media_end( ref );
-		media["activated_".. ref] = true; 	
+		media["activated_media_".. ref] = true; 	
 	end
 end
 --[[
@@ -1790,9 +2532,7 @@ end
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -1800,6 +2540,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function start_media( source_name, ref )
+    debug_log( 'start_media(' .. pre_dump(source_name) .. ", " .. pre_dump(ref) .. ') -- function variable names:  source_name, ref ' )
 	start_media_action( source_name, ref );
 end
 --[[
@@ -1807,34 +2548,7 @@ end
 	Description:	Change color of font for text source	
 	
 	Credit:			et al		
-
 	Modified:		
-
-	function:		Update Text Source (timer text source)		
-	type:			Support, Render			
-	input type: 	Integer
-	returns:		none
-----------------------------------------------------------------------------------------------------------------------------------------
-]]
-local function set_text_timer_color( int )
-	if in_table( {"Select", "select"}, timer_source ) then return end; -- if timer_source not defined, then return
-	local source = obs.obs_get_source_by_name( timer_source ); -- get source by name
-	if source ~= nil then -- continue if we have a source
-		local settings = obs.obs_source_get_settings( source ); -- get source settings
-		obs.obs_data_set_int( settings, "color", int ); -- update source settings
-	end
-	obs.obs_source_update( source, settings ); -- save source new settings
-	obs.obs_data_release( settings ); -- release settings
-	obs.obs_source_release( source ); -- release source
-end
---[[
-----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Change color of font for text source	
-	
-	Credit:			et al		
-
-	Modified:		
-
 	function:		Update Text Source		
 	type:			Support, Render			
 	input type: 	
@@ -1842,6 +2556,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function set_text_note_color( ref )
+    debug_log( 'set_text_note_color(' .. pre_dump(ref) .. ') -- function variable names:  ref ' )
 	if media["note_source_" .. ref] == "Select" then return end; -- if source not defined, then return
 	local source = obs.obs_get_source_by_name( media["note_source_" .. ref] ); -- get source by name
 	if source ~= nil then -- continue if we have a source
@@ -1853,6 +2568,32 @@ local function set_text_note_color( ref )
 	obs.obs_data_release( settings ); -- release settings
 	obs.obs_source_release( source ); -- release source
 end	
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+	Modified:		
+	function:		
+	type:			
+	input type: 	
+	returns:		
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+function roundSeconds()
+    debug_log( 'roundSeconds() -- function variable names: ' )
+	
+		local round_seconds = math.ceil( current_seconds ); -- round to nearset upper value
+	--[[
+	 	if not Countdown so target Stopwatch, or
+		if the count direction changed and the count direction is positive
+	]]
+	
+	if current_count_direction == "UP" then
+		round_seconds = math.floor( current_seconds ); -- round to nearset lower value
+	end		
+	return round_seconds
+end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	Comapre current time with a time mark reference. 
@@ -1868,9 +2609,7 @@ end
 					enable_marker_notes equal to 1 is disabled
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -1878,44 +2617,66 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function time_mark_check( ref )
+    debug_log( 'time_mark_check(' .. pre_dump(ref) .. ') -- function variable names:  ref ' )
 	
 	if not timer_active then return end; -- only allow mark checks if the timer is active
 	--[[
 	 		Make sure the trigger is as accurate as possible depending
 			if the timer is counting up or down.
 	]]
-	local round_seconds = math.ceil( current_seconds ); -- round to nearset upper value
-	--[[
-	 	if not Countdown so target Stopwatch, or
-		if the count direction changed and the count direction is positive
-	]]
-	if timer_mode ~= 2 and not direction_changed or ( direction_changed and current_count_direction == 2 ) then
-		round_seconds = math.floor( current_seconds ); -- round to nearset lower value
-	end	
-	if raw_time( round_seconds, true ) == media["text_".. ref] then -- compare current time with marker
+	local round_seconds = roundSeconds();
+	local activation_time = media["activated_time_".. ref];
+	local text_marker = media["text_".. ref];
+	if activation_time == nil or text_marker == nil then 	
+		--return; 
+	end; -- nothing to activate further
+	if activation_time == nil or text_marker == nil then 	
+		--return; 
+	end; -- nothing to activate further
+	
+	if ( current_count_direction == "UP" and activation_time < round_seconds ) or ( current_count_direction == "DOWN" and activation_time > round_seconds ) then  -- a second or more passed
+			media["activated_".. ref] = false; 
+	end
+	
+	if raw_time( round_seconds, true ) == text_marker and not media["activated_".. ref] then -- compare current time with marker
+		--[[
+			Only do this stuff once when first activated, prevent wastage of resources
+		]]
+		media["activated_".. ref] = true; -- signal already started
+		media["activated_time_".. ref] = round_seconds; -- signal already started
+		
+		
+		if ref == "marker_a" and media["reset_text_marker_a"] ~= nil and media["reset_text_marker_a"] ~= 0 then -- marker notes is enabled and the input reference matches
+			reset_text_a_colour_start_timer( math.floor( media["reset_text_marker_a"] * 1000 ) );
+		end
+		if ref == "marker_b" and media["reset_text_marker_b"] ~= nil and media["reset_text_marker_b"] ~= 0 then -- marker notes is enabled and the input reference matches
+			reset_text_b_colour_start_timer( math.floor( media["reset_text_marker_b"] * 1000 )  );
+		end		
 		--[[
 			If Marker notes is enabled and the reference provided
 			match to Marker A, complete some tasks
 		]]	
 		if enable_marker_notes ~= 1 and ref == "marker_a" then -- marker notes is enabled and the input reference matches
+			
+    		debug_log( 'time_mark_check error (' .. pre_dump(media["note_source_" .. ref]) .. ')' )
 			set_visible( media["note_source_" .. ref], true );  -- Set visble the source for the note for marker a
-			set_visible( media["note_source_marker_b"], false );  -- Set hiden the source for the note for marker b (only show one note at a time)
-			set_text_note_color( ref ); -- Update the note text font to match the font colour defined for marker a
+			--set_visible( media["note_source_marker_b"], false );  -- Set hiden the source for the note for marker b (only show one note at a time)
+			--set_text_note_color( ref ); -- Update the note text font to match the font colour defined for marker a
 		end;		
 		--[[
 			If Marker notes is enabled and the reference provided
 			match to Marker B, complete some tasks
 		]]		
 		if enable_marker_notes ~= 1 and ref == "marker_b" then -- marker notes is enabled and the input reference matches
-			set_visible( media["note_source_" .. ref], true ); -- Set visble the source for the note for marker b
-			set_visible( media["note_source_marker_a"], false ); -- Set hiden the source for the note for marker a (only show one note at a time)
-			set_text_note_color( ref );  -- Update the note text font to match the font colour defined for marker b
+			--set_visible( media["note_source_" .. ref], true ); -- Set visble the source for the note for marker b
+			--set_visible( media["note_source_marker_a"], false ); -- Set hiden the source for the note for marker a (only show one note at a time)
+			--set_text_note_color( ref );  -- Update the note text font to match the font colour defined for marker b
 		end;	
 		--[[
 			Update the timer text source font colour to match the defined font colour for the referenced marker
 			This will ensure that the timer text font matches the font colour of the currently displayed note.
 		]]
-		set_text_timer_color( media["color_".. ref] );
+		set_timer_text_color( media["color_".. ref] );
 		--[[
 		
 		]]
@@ -1932,7 +2693,14 @@ local function time_mark_check( ref )
 			4 = "Timer Visible", 
 			5 = "Timer Start"
 			
-		]]	
+		]]
+		
+		--[[
+			There may be more markers, if so check if there are and upddate variables
+		]]		
+		update_time_markers( round_seconds );
+		update_media_names(); -- we don't reset because here the list must cycle
+		
 		if ref == "marker_a" then record( 2, 100 ) end; -- an integer reference used to compare with recording_type
 		if ref == "marker_b" then record( 3, 100 ) end; -- an integer reference used to compare with recording_type
 	end;		
@@ -1942,9 +2710,7 @@ end
 	Description:	Check source type of media if the media is set to loop
 					The source is referenced by name.
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	reference (string)
@@ -1952,6 +2718,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function get_source_looping( source_name )
+    debug_log( 'get_source_looping(' .. pre_dump(source_name) .. ') -- function variable names:  source_name ' )
 	local property = "looping"; -- we want to check this property setting
 	--[[
 		Increments the source reference counter, 
@@ -1971,7 +2738,7 @@ local function get_source_looping( source_name )
 	obs.obs_data_release( settings ); -- release settings
 	obs.obs_source_release( source ); -- release source
 	return enabled; -- bool
-end	
+end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	
@@ -1979,9 +2746,7 @@ end
 					if so, set source visble = false
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			tasks
 	input type: 	ref (string)
@@ -1989,10 +2754,11 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function stop_media_action( ref )
+    debug_log( 'stop_media_action(' .. pre_dump(ref) .. ') -- function variable names:  ref ' )
 	
 	local source_name = media["source_name_audio_".. ref]; -- assign local variable 
 	
-	if in_table( {nil, "","None", "Select","none", "select"}, source_name ) and not media["media_ended_".. ref]	then return end; -- if source not defined, then return
+	if in_table( ignore_list, source_name ) and not media["media_ended_".. ref]	then return end; -- if source not defined, then return
 	--[[
 	
 		ref is either Mark A or B
@@ -2008,9 +2774,7 @@ local function stop_media_action( ref )
 			we got a source name, let's see if it exist...
 		]]	
 		local source = obs.obs_get_source_by_name( source_name );
-
 		if source ~= nil then -- source is valid
-
 			local state = obs.obs_source_media_get_state( source ); -- get the current state for the source
 			
 			if media["last_state_".. ref] ~= state then -- The state has changed
@@ -2049,17 +2813,15 @@ local function stop_media_action( ref )
 				end;
 			end;	 -- source state check end
 		end; -- 	source ~= nil
+    	obs.obs_source_release( source ); -- release source from the reference counter	
 	end;
-    obs.obs_source_release( source ); -- release source from the reference counter	
 end	
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	Stop Media Playback
 	
 	Credit:			OBS, midnight-studios
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -2067,8 +2829,9 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function stop_media_playback( source_name )
+    debug_log( 'stop_media_playback(' .. pre_dump(source_name) .. ') -- function variable names:  source_name ' )
 	
-	if in_table( {"","None", "Select","none", "select"}, source_name ) or not is_visible( source_name ) then return end;
+	if in_table( ignore_list, source_name ) or not is_visible( source_name ) then return end;
 			
 		local source = obs.obs_get_source_by_name( source_name );
 	
@@ -2090,9 +2853,7 @@ end
 	Description:	Play / Pause Media
 	
 	Credit:			OBS, midnight-studios
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -2100,8 +2861,9 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function pause_play_media( source_name, play )
+    debug_log( 'pause_play_media(' .. pre_dump(source_name) .. ", " .. pre_dump(play) .. ') -- function variable names:  source_name, play ' )
 	
-	if in_table( {"","None", "Select","none", "select"}, source_name ) or not is_visible( source_name ) then return end;
+	if in_table( ignore_list, source_name ) or not is_visible( source_name ) then return end;
 			
 		local source = obs.obs_get_source_by_name( source_name );
 	
@@ -2129,9 +2891,7 @@ end
 					defined time.
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -2139,6 +2899,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function stop_looping_media( ref )
+    debug_log( 'stop_looping_media(' .. pre_dump(ref) .. ') -- function variable names:  ref ' )
 	local source_name = media["source_name_audio_".. ref];
 	if get_source_looping( source_name ) then 
 		stop_media_playback( source_name );
@@ -2160,9 +2921,7 @@ end
 					defined time.
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -2170,6 +2929,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function stop_media( ref, bypass )
+    debug_log( 'stop_media(' .. pre_dump(ref) .. ", " .. pre_dump(bypass) .. ') -- function variable names:  ref, bypass ' )
 	if bypass == nil then bypass = false end;
 	if bypass then -- No checks, just stop it
 		set_visible( media["source_name_audio_".. ref], false );  -- Set the media source state to hidden
@@ -2182,10 +2942,7 @@ end
 	Description:	Function to cycle through a list for sources or scenes
 	
 	Credit:			
-
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	string
@@ -2193,6 +2950,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function cycle_source_list_by_source_type( source_type )
+    debug_log( 'cycle_source_list_by_source_type(' .. pre_dump(source_type) .. ') -- function variable names:  source_type ' )
 	--[[
 	
 		Create a table for a list
@@ -2218,7 +2976,6 @@ local function cycle_source_list_by_source_type( source_type )
 	else -- List Source names
 		direction = 1;-- Descend Ascend change direction to 1 or 2
 		local sources = get_source_list(); -- "id" or "unversioned_id" or "display_name" or "source_name"
-		--sources = remove_duplicates( sources )
 		for key, value in pairsByKeys( sources ) do
 			item_list[value] = value;
 		end
@@ -2231,7 +2988,7 @@ local function cycle_source_list_by_source_type( source_type )
 	for key, value in pairs( data_list ) do
 		if in_table( item_list, value ) then
 			i = i + 1;
-			list[i] = value;
+			table.insert( list, value )
 		end
 	end	
 	
@@ -2242,7 +2999,6 @@ local function cycle_source_list_by_source_type( source_type )
 	end	
 	
 	local index = 0;
-
 	if cycle_direction ~= direction then
 		index = 1;
 	else
@@ -2286,7 +3042,9 @@ local function cycle_source_list_by_source_type( source_type )
 					force the visibility 
 					state of this source. 
 				]]			
-				if active_source_force_visible then set_visible( active_source, true ) end;
+				if active_source_force_visible then 
+					set_visible( active_source, true ) 
+				end;
 				set_text( active_source, list[i] ); 
 			end;
 		end;
@@ -2304,16 +3062,15 @@ end
 	
 	
 	Credit:			midnight-studios, et al
-
 	Modified:		
-
 	function:		check true or false
 	type:			Dependency / Support
 	input type: 	string, string
 	returns:		bool
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
-local function scene_name_has_source_name( scene_name, source_name )
+local function scene_name_has_source_name_OLD( scene_name, source_name )
+    debug_log( 'scene_name_has_source_name(' .. pre_dump(scene_name) .. ", " .. pre_dump(source_name) .. ') -- function variable names:  scene_name, source_name ' )
 			scene_source = obs.obs_get_source_by_name( scene_name );
             local scenename = obs.obs_source_get_name( scene_source );
             local scene = obs.obs_scene_from_source( scene_source );
@@ -2346,14 +3103,49 @@ local function scene_name_has_source_name( scene_name, source_name )
 		obs.obs_source_release( scene_source );
 	return result;
 end
+		
+local function scene_name_has_source_name(scene_name, source_name)
+    debug_log('scene_name_has_source_name(' .. pre_dump(scene_name) .. ", " .. pre_dump(source_name) .. ') -- function variable names:  scene_name, source_name ')
+    local scene_source = obs.obs_get_source_by_name(scene_name)
+    local scene = obs.obs_scene_from_source(scene_source)
+    local scene_items = obs.obs_scene_enum_items(scene)
+
+    for _, scene_item in pairs(scene_items) do
+        local item_source = obs.obs_sceneitem_get_source(scene_item)
+        local item_source_name = obs.obs_source_get_name(item_source)
+
+        if item_source_name == source_name then
+            obs.sceneitem_list_release(scene_items)
+            obs.obs_source_release(scene_source)
+            return true
+        end
+
+        local group = obs.obs_group_from_source(item_source)
+        if group then
+            local group_items = obs.obs_scene_enum_items(group)
+            for _, group_item in pairs(group_items) do
+                local group_item_source_name = obs.obs_source_get_name(obs.obs_sceneitem_get_source(group_item))
+                if group_item_source_name == source_name then
+                    obs.sceneitem_list_release(group_items)
+                    obs.sceneitem_list_release(scene_items)
+                    obs.obs_source_release(scene_source)
+                    return true
+                end
+            end
+            obs.sceneitem_list_release(group_items)
+        end
+    end
+
+    obs.sceneitem_list_release(scene_items)
+    obs.obs_source_release(scene_source)
+    return false
+end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	Called when a scene is activated/deactivated	
 	
 	Credit:			midnight-studios, et al
-
 	Modified:		
-
 	function:		make a source visible
 	type:			Dependency / Support 
 	input type: 	source, bool, start_on_scene_active (global), scene_name_has_source_name() 
@@ -2361,6 +3153,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function activate_timer_on_scene( source, activating )
+    debug_log( 'activate_timer_on_scene(' .. pre_dump(source) .. ", " .. pre_dump(activating) .. ') -- function variable names:  source, activating ' )
 		--[[ 
 				Reset to starting point
 				if, start_on_scene_active then set to visible
@@ -2384,9 +3177,7 @@ end
 	Description:	Update Properties
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -2394,6 +3185,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function update_properties_setting_int( reference, value )
+    debug_log( 'update_properties_setting_int(' .. pre_dump(reference) .. ", " .. pre_dump(value) .. ') -- function variable names:  reference, value ' )
 	--[[
 		When this is updated it will trigger a 
 		callback "property_onchange", let's 
@@ -2418,9 +3210,7 @@ end
 	Description:	Update Properties
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -2428,6 +3218,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function update_prop_settings_current_seconds( value )
+    debug_log( 'update_prop_settings_current_seconds(' .. pre_dump(value) .. ') -- function variable names:  value ' )
 	--[[
 		When this is updated it will trigger a 
 		callback "property_onchange", let's 
@@ -2453,9 +3244,7 @@ end
 					it will happen here
 	
 	Credit:			
-
 	Modified:		
-
 	function:		update the timer value
 	type:			Dependency / Support 
 	input type: 	double
@@ -2463,6 +3252,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function timer_value( value )
+    debug_log( 'timer_value(' .. pre_dump(value) .. ') -- function variable names:  value ' )
 	
 	current_seconds = value;
 	
@@ -2474,9 +3264,7 @@ end
 					depending on if timer is counting up or down
 	
 	Credit:			
-
 	Modified:		
-
 	function:		update the timer value
 	type:			Dependency / Support			
 	input type: 	
@@ -2484,6 +3272,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function set_time_direction( )
+    debug_log( 'set_time_direction() -- function variable names:  ' )
 	--[[
 	
 	]]
@@ -2492,14 +3281,13 @@ local function set_time_direction( )
 	
 	]]	
 	if direction_changed then -- normal function suspended
-		if current_count_direction == 1 then
-			t = ( current_seconds - time_frequency ); -- value
-		else	
+		if current_count_direction == "UP" then
 			t = ( current_seconds + time_frequency ); -- value
+		else	
+			t = ( current_seconds - time_frequency ); -- value
 		end
 	else -- normal function active	
 		--[[
-
 		]]	
 		if timer_mode ~= 2 then
 			t = ( current_seconds + time_frequency ); -- value
@@ -2517,9 +3305,7 @@ end
 	Description:	Function to set the defined time text source value 
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -2527,7 +3313,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function update_timer_display( source_name, text )
-	
+    debug_log( 'update_timer_display(' .. pre_dump(source_name) .. ", " .. pre_dump(text) .. ') -- function variable names:  source_name, text ' )
 	--[[
 		Increments the source reference counter, 
 		use obs_source_release() to release it when complete.
@@ -2535,7 +3321,7 @@ function update_timer_display( source_name, text )
 	local source = obs.obs_get_source_by_name( source_name );
 	if source ~= nil then
 		local settings = obs.obs_source_get_settings( source );
-		if not media["activated_marker_a"] and not media["activated_marker_b"] and not color_normal_updated then
+		if not media["activated_media_marker_a"] and not media["activated_media_marker_b"] and not color_normal_updated then
 			obs.obs_data_set_int( settings, "color", media["color_normal"] );
 			color_normal_updated = true;
 		end	
@@ -2552,9 +3338,7 @@ end
 	Description:	Function to toggle milliseconds
 	
 	Credit:			
-
 	Modified:		
-
 	function:		mili_toggle
 	type:			
 	input type: 	globals: toggle_mili_trigger, timer_mode, mili_toggle_triggered, raw_time()
@@ -2562,6 +3346,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function toggle_mili()
+    debug_log( 'toggle_mili() -- function variable names: ' )
 	--[[
 		This feature will only activate if "Trigger Value" is defined
 		and if "Trigger Value" matches "Current Time" and if
@@ -2571,15 +3356,12 @@ local function toggle_mili()
 		local time_offset = 1; -- offset by 1 second to allow user to achieve accurate setting
 		if raw_time( ( current_seconds + time_offset ), true ) == toggle_mili_trigger then
 			--[[
-
 				The action trigger a toggle, so if the
 				active state at the time of the trigger
 				is "Show" the toggle will "Hide" and
 				Vicas Versa. 
-
 				Should we force a state? 
 				To force define: show_mili = false
-
 			]]
 			mili( true );
 			mili_toggle_triggered = true;
@@ -2592,9 +3374,7 @@ end
 	Description:	Function to set the defined time text source value 
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -2602,6 +3382,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function set_time_text( source_name )
+    debug_log( 'set_time_text(' .. pre_dump(source_name) .. ') -- function variable names:  source_name ' )
 	--[[
 		First Check we have a source reference
 	]]
@@ -2609,7 +3390,7 @@ local function set_time_text( source_name )
 	--[[
 		Force absolute zero at this point
 	]]
-	if current_seconds <= 0.01 and ( timer_mode ~= 1 or ( direction_changed and current_count_direction == 1 and prevent_negative_time ) ) then 
+	if current_seconds <= 0.01 and ( timer_mode ~= 1 or ( direction_changed and current_count_direction == "DOWN" and prevent_negative_time ) ) then 
 		timer_value( 0 );   -- value, update_settings 
 	end;
 	
@@ -2686,8 +3467,8 @@ local function set_time_text( source_name )
 	--[[
 		Timer Ended
 	]]
-	if current_seconds <= 0.01 and ( timer_mode ~= 1 or ( direction_changed and current_count_direction == 1 and prevent_negative_time ) ) then
-
+	local epsilon = 0.0001  -- tolerance value
+	if math.abs(current_seconds) < epsilon and ( timer_mode ~= 1 or ( direction_changed and current_count_direction == "DOWN" and prevent_negative_time ) ) then
 		--[[
 		
 			Timer is shutting down, this would be a 
@@ -2722,8 +3503,9 @@ local function set_time_text( source_name )
 			as the timer callback may be removed by 
 			timer_ended() if needed
 		]]--
-		if current_seconds == 0 then timer_expired = true end;
-
+		if math.abs(current_seconds) < epsilon then 
+			timer_expired = true 
+		end;	
 	end
 	--return true
 end
@@ -2731,14 +3513,11 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	This captures the split times and unpack it in the
 					correct format.
-
 					The text source only permits linebreaks ( "\n" ) this 
 					limitation affects how the data can be formated  ):
 	
 	Credit:			
-
 	Modified:		
-
 	function:		split time
 	type:			Dependency / Support 
 	input type: 	globals
@@ -2746,6 +3525,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function split_unpack()
+    debug_log( 'split_unpack() -- function variable names: ' )
 	local data = nil;
 	local c = table.getn( split_itm );
 	local text = "";
@@ -2799,9 +3579,7 @@ end
 	Description:	Decide if current_seconds needs to reset to default_seconds
 	
 	Credit:			
-
 	Modified:		
-
 	function:		Check if current_seconds needs to reset to default_seconds
 	type:			check
 	input type: 	next_scene
@@ -2809,6 +3587,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function update_default_time()
+    debug_log( 'update_default_time() -- function variable names: ' )
 	if next_scene == "Source List" or next_scene == "Scene List" then
 		return true;
 	end	
@@ -2819,9 +3598,7 @@ end
 	Description:	Function to set the split time text
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -2829,7 +3606,8 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function set_split_text( source_name )
-	if in_table( {"","None", "Select","none", "select"}, source_name ) then return end;
+    debug_log( 'set_split_text(' .. pre_dump(source_name) .. ') -- function variable names:  source_name ' )
+	if in_table( ignore_list, source_name ) then return end;
 	local text = split_data;
 	if text ~= last_split_data then
 		set_text( source_name, text );
@@ -2842,9 +3620,7 @@ end
 	Description:	Used when we need to set some gloabsl for the timer to default state
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -2852,6 +3628,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function default_timer_globals( set_to_default )
+    debug_log( 'default_timer_globals(' .. pre_dump(set_to_default) .. ') -- function variable names:  set_to_default ' )
 	
 	--[[
 		if set_to_default == true
@@ -2860,20 +3637,14 @@ local function default_timer_globals( set_to_default )
 	if set_to_default then
 		--[[
 			Used for source cycling
-
 			default_seconds: Default Seconds
-
 			the default timer state
-
 			This is the state of the timer that will set or
 			reset the time ( current_seconds ) 
-
 			If the timer expires because current_seconds == 0, 
 			then the time ( current_seconds ) will be be restarted
 			from default_seconds for another function such as source cycling.
-
 			Every instance that a timer time is defined, we must record it to default_seconds
-
 			THIS WILL UPDATE current_seconds to the value current_seconds
 		]]
 		--if set_to_default and timer_mode == 2 and update_default_time() then
@@ -2887,12 +3658,15 @@ local function default_timer_globals( set_to_default )
 			update_prop_settings_current_seconds( 0 );
 		end	
 		color_normal_updated = false;
-		media["activated_marker_a"] 		= false;
-		media["activated_marker_b"] 		= false;
+		media["activated_media_marker_a"] 		= false;
+		media["activated_media_marker_b"] 		= false;
+		media["activated_marker_a"] 			= false;
+		media["activated_marker_b"] 			= false;
+		media["activated_time_marker_a"] 		= 0;
+		media["activated_time_marker_b"] 		= 0;
 	end
 	timer_expired = true;
 	completed_cycles = 0;
-
 	split_count = 0;
 	split_itm = {};
 	split_data = nil;
@@ -2905,15 +3679,12 @@ local function default_timer_globals( set_to_default )
 	media["last_state_marker_a"]		= obs.OBS_MEDIA_STATE_NONE;
 	media["last_state_marker_b"]		= obs.OBS_MEDIA_STATE_NONE;
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	toggle_mili_trigger, set_time_text, timer_mode
@@ -2921,6 +3692,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function reset_mili( )
+    debug_log( 'reset_mili() -- function variable names:  ' )
 	if timer_mode ~= 2 then
 		return true;
 	end	
@@ -2939,26 +3711,18 @@ end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 Description:		Called if the timer setting change and needsto be updated.
-
 					default_seconds is used for source cycling
-
 					default_seconds: Default Seconds
-
 					the default timer state
-
 					This is the state of the timer that will set or
 					reset the time ( current_seconds ) 
-
 					If the timer expires because current_seconds == 0, 
 					then the time ( current_seconds ) will be be restarted
 					from default_seconds for another function such as source cycling.
-
 					Every instance that a timer time is defined, we must record it to default_seconds
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -2966,11 +3730,11 @@ Description:		Called if the timer setting change and needsto be updated.
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function update_timer_settings( set_to_default, new_settings ) -- optional inputs: set_to_default(bool), new_settings(obs_property_data/obs_userdata)
+    debug_log( 'update_timer_settings(' .. pre_dump(set_to_default) .. ", " .. pre_dump(new_settings) .. ') -- function variable names:  set_to_default, new_settings ' )
 	local update_timer_display = false;
 	if set_to_default == nil then set_to_default = false end; -- incase not defined, set default
 	if new_settings == nil then new_settings = ctx.propsSet end; -- incase not defined, set default
 	--[[
-
 	
 	]]	
 	reset_mili( );
@@ -3047,7 +3811,6 @@ local function update_timer_settings( set_to_default, new_settings ) -- optional
 			or
 			timer_mode_changed
 		);
-
 		--[[
 		
 		
@@ -3063,20 +3826,14 @@ local function update_timer_settings( set_to_default, new_settings ) -- optional
 					NB: This must always be called 
 					last in this routine so that 
 					current_seconds can be updated first
-
 					Used for source cycling
-
 					default_seconds: Default Seconds
-
 					the default timer state
-
 					This is the state of the timer that will set or
 					reset the time ( current_seconds ) 
-
 					If the timer expires because current_seconds == 0, 
 					then the time ( current_seconds ) will be be restarted
 					from default_seconds for another function such as source cycling.
-
 					Every instance that a timer time is defined, we must record it to default_seconds
 					In this instance a Setting may be updated, so update default_seconds
 			]]		
@@ -3130,9 +3887,7 @@ end
 	Description:	Add timer here so we have a global setting
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -3140,6 +3895,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function timer_callback()
+    debug_log( 'timer_callback() -- function variable names: ' )
 	time_frequency = get_frequency( ns_last );
 	set_time_direction( );
 	completed_cycles = completed_cycles + 1; -- we just keeping track of these for debugging, if needed.
@@ -3149,15 +3905,13 @@ local function timer_callback()
 			the animation effect. 
 	]]
 	set_time_text( timer_source );
-end
+end	
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	Remove timer here so we have a global setting
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -3165,17 +3919,16 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function end_timer()
+    debug_log( 'end_timer() -- function variable names: ' )
 	timer_active = false;
-	obs.timer_remove( timer_callback ); -- Removing the callback stops the timer	
+	timer_remove( timer_callback ); -- Removing the callback stops the timer	
 end	
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	Add timer here so we have a global setting
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -3183,18 +3936,17 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function start_timer()
+    debug_log( 'start_timer() -- function variable names: ' )
 	record( 5, 100 ); -- wait 100 miliseconds
 	timer_active = true;
-	obs.timer_add( timer_callback, timer_cycle ); --<- milliseconds 
+	timer_add( timer_callback, timer_cycle ); --<- milliseconds 
 end	
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -3202,6 +3954,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function activate( activating )
+    debug_log( 'activate(' .. pre_dump(activating) .. ') -- function variable names:  activating ' )
 	--[[
 		We skip/cancel anything requested if the 
 		Script was disabled by the user.
@@ -3213,12 +3966,14 @@ local function activate( activating )
 	if timer_active and not activating then
 		--[[
 			moved from function pause( pressed )
+    debug_log( 'pause(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ' )
 		
 			more information needed
 		]]	
 		split_unpack();
 		--[[
 			moved from function pause( pressed )
+    debug_log( 'pause(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ' )
 		
 			more information needed
 		]]	
@@ -3256,12 +4011,15 @@ local function activate( activating )
 			Timer ENDED (EXPIRED) or
 			PAUSED 
 		]]	
+			reset_text_a_colour_end_timer();
+			reset_text_b_colour_end_timer();
+		
 		if timer_expired and timer_active then
 			end_timer() -- Removing the callback stops the timer
 			set_visible( media["source_name_audio_marker_a"], false ); -- The timer expired, reset media.
 			set_visible( media["source_name_audio_marker_b"], false ); -- The timer expired, reset media.
 		else
-			end_timer(); -- Removing the callback stops the timer	
+			end_timer(); -- Removing the callback stops the timer
 		end
 		--[[
 			update_timer_settings:
@@ -3279,15 +4037,15 @@ local function activate( activating )
 			--update_timer_settings( false ) -- optional inputs: set_to_default(bool), new_settings(obs_property_data/obs_userdata) < BUG
 		end;
 	end;
+	
+    debug_log( 'END of function activate()') -- function variable names:  activating ' )
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	Usually called by a button or hotkey press
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -3295,6 +4053,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function pause( pressed )
+    debug_log( 'pause(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ' )
 	if not pressed then 
 		return;
 	end
@@ -3319,9 +4078,7 @@ end
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		reset timer	
 	type:			
 	input type: 	
@@ -3329,6 +4086,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function hotkey_send_pause( pressed )
+    debug_log( 'hotkey_send_pause(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ' )
 	--[[
 		For hotkeys: This is called on key down & key up. A bool check: 
 		
@@ -3351,9 +4109,7 @@ end
 	Description:	Take the values from the properties and assign it to the timer
 	
 	Credit:			
-
 	Modified:		
-
 	function:		Used to mannually set stopwatch
 	type:			Dependency / Support 	
 	input type: 	none
@@ -3361,6 +4117,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function set_stopwatch()
+    debug_log( 'set_stopwatch() -- function variable names: ' )
 	time_frequency = get_frequency( ns_last );
 	local hh = ( sw_hours_saved * 3600 );
 	local mm = 0;
@@ -3382,15 +4139,12 @@ end
 					in which February month has 29 days. 
 					With this additional day in February, 
 					a year becomes a Leap year. 
-
 					on every year that is evenly divisible by 4
 					except every year that is evenly divisible by 100
 					unless the year is also evenly divisible by 400
 	
 	Credit:			et al
-
 	Modified:		
-
 	function:		A leap year is a year with 366 days instead of 365
 	type:			Dependency / Support, UI		
 	input type: 	integer
@@ -3398,6 +4152,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function is_leap_year( year )
+    debug_log( 'is_leap_year(' .. pre_dump(year) .. ') -- function variable names:  year ' )
 	if year % 4 == 0 then -- A leap year comes once in four years
 		if year % 100 == 0 then
 			if year % 400 == 0 then
@@ -3419,6 +4174,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function mili_button_clicked( props, p, settings )
+    debug_log( 'mili_button_clicked(' .. pre_dump(props) .. ", " .. pre_dump(p) .. ", " .. pre_dump(settings) .. ') -- function variable names:  props, p, settings ' )
 	mili( true );
 	return true;
 end	
@@ -3427,9 +4183,7 @@ end
 	Description:	Callback for button press
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -3437,6 +4191,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function update_button_label( props )
+    debug_log( 'update_button_label(' .. pre_dump(props) .. ') -- function variable names:  props ' )
 	--[[
 		A button has it's own callback so we can not action anything
 		on the button press through the Properties Callback, instead
@@ -3448,7 +4203,7 @@ local function update_button_label( props )
 		We are only setting the button label depending if the timer is active
 		and on the timer type.
 	]]
-	if current_count_direction == 1 then
+	if current_count_direction == "DOWN" then
 		obs.obs_property_set_description( direction_button_prop, "Count Up" );
 	else
 		obs.obs_property_set_description( direction_button_prop, "Count Down" );
@@ -3461,6 +4216,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function direction_button_clicked( props, p, settings )
+    debug_log( 'direction_button_clicked(' .. pre_dump(props) .. ", " .. pre_dump(p) .. ", " .. pre_dump(settings) .. ') -- function variable names:  props, p, settings ' )
 	--[[
 		Only allow if enable 
 	]]
@@ -3476,9 +4232,7 @@ end
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -3486,6 +4240,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function update_timer_direction( pressed )	
+    debug_log( 'update_timer_direction(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ' )
 	if not pressed and not enable_direction_toggle then
 		return;
 	end
@@ -3493,15 +4248,32 @@ function update_timer_direction( pressed )
 		Signal that the feature is in use, this will indicate that 'normal operation'
 		is suspended. It will be reset if 'Reset' is called.
 	]] 
-	direction_changed = true;
 	--[[
 		Change direction each time the feature is activated
 	]]
-	if current_count_direction == 1 then
-		current_count_direction = 2;
+	current_count_direction = ( current_count_direction == "UP" and "DOWN" or "UP")
+	--[[
+	 		Make sure the trigger is as accurate as possible depending
+			if the timer is counting up or down.
+	]]
+	
+	if timer_mode == 1 then
+		count_orientation = current_count_direction == "UP" and "NORMAL" or "INVERTED"
+	end
+	
+	if timer_mode == 2 then
+		count_orientation = current_count_direction == "DOWN" and "NORMAL" or "INVERTED"
+	end
+	
+	if count_orientation == "INVERTED" then
+		direction_changed = true;
 	else
-		current_count_direction = 1;
-	end	
+		direction_changed = false;
+	end
+	
+	local round_seconds = roundSeconds()
+		update_time_markers( round_seconds )
+		update_media_names(); -- we don't reset because here the list must cycle
 	return true;
 end
 --[[
@@ -3509,9 +4281,7 @@ end
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -3519,6 +4289,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function mili( pressed )	
+    debug_log( 'mili(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ' )
 	if not pressed then
 		return;
 	end
@@ -3541,7 +4312,7 @@ function mili( pressed )
 		we will action it on the button Callback directly.
 	]]
 	local mode = obs.obs_data_get_int( ctx.propsSet, "timer_mode" );
-	local mili_button_prop = obs.obs_properties_get( props, "mili_button" );
+	local mili_button_prop = obs.obs_properties_get( props, "mili_button" ); -- should it not be ctx.propsDef
 	--[[
 		We are only setting the button label depending if the timer"s milliseconds
 		value visibility state.
@@ -3558,9 +4329,7 @@ end
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -3568,6 +4337,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function hotkey_send_mili( pressed )
+    debug_log( 'hotkey_send_mili(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ' )
 	--[[
 		For hotkeys: This is called on key down & key up. A bool check: 
 		
@@ -3577,7 +4347,6 @@ local function hotkey_send_mili( pressed )
 		When a hotkeys is pressed the callback checks if the key state 
 		is currently pressed 'true' or 'false' (released)
 		so a hotkey key press has a dual function: key down, key up
-
 	]]
 	if pressed then -- key is currently down
 		--return -- uncomment 'return' to ignore the call while key is down
@@ -3591,9 +4360,7 @@ end
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -3601,6 +4368,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function hotkey_send_direction( pressed )
+    debug_log( 'hotkey_send_direction(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ' )
 	--[[
 		For hotkeys: This is called on key down & key up. A bool check: 
 		
@@ -3610,7 +4378,6 @@ local function hotkey_send_direction( pressed )
 		When a hotkeys is pressed the callback checks if the key state 
 		is currently pressed 'true' or 'false' (released)
 		so a hotkey key press has a dual function: key down, key up
-
 	]]
 	if pressed then -- key is currently down
 		--return -- uncomment 'return' to ignore the call while key is down
@@ -3624,9 +4391,7 @@ end
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -3634,18 +4399,17 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function sal_timer_callback()
+    debug_log( 'sal_timer_callback() -- function variable names: ' )
 	if timer_manipulation == 3 then return end;
 	set_visible( add_limit_note_source, false );
-	obs.timer_remove( sal_timer_callback );
+	timer_remove( sal_timer_callback );
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -3653,19 +4417,18 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function start_sal_timer()
+    debug_log( 'start_sal_timer() -- function variable names: ' )
 	if timer_manipulation == 3 then return end;
 	set_visible( add_limit_note_source, true );
 	if add_limit_note_source_visible == 0 then return end;
-	obs.timer_add( sal_timer_callback, add_limit_note_source_visible );
+	timer_add( sal_timer_callback, add_limit_note_source_visible );
 end	
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -3673,6 +4436,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function sal_check( )
+    debug_log( 'sal_check() -- function variable names:  ' )
 	if timer_manipulation == 3 then return end;
 	if sec_add_limit == 0 then return end;
 	if sec_add_limit_used >= sec_add_limit then
@@ -3686,9 +4450,7 @@ end
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -3696,6 +4458,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function sec_add_1_update( )
+    debug_log( 'sec_add_1_update() -- function variable names:  ' )
 	if timer_manipulation == 3 then return end;
 	if sec_add_limit ~= 0 and sec_add_limit_used >= sec_add_limit then
 	-- do nothing
@@ -3713,9 +4476,7 @@ end
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -3723,6 +4484,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function sec_add_2_update( )
+    debug_log( 'sec_add_2_update() -- function variable names:  ' )
 	if timer_manipulation == 3 then return end;
 	if sec_add_limit ~= 0 and sec_add_limit_used >= sec_add_limit then
 	-- do nothing
@@ -3740,9 +4502,7 @@ end
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -3750,6 +4510,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function sec_add_3_update( )
+    debug_log( 'sec_add_3_update() -- function variable names:  ' )
 	if timer_manipulation == 3 then return end;
 	if sec_add_limit ~= 0 and sec_add_limit_used >= sec_add_limit then
 	-- do nothing
@@ -3767,9 +4528,7 @@ end
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -3777,18 +4536,17 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function ssl_timer_callback()
+    debug_log( 'ssl_timer_callback() -- function variable names: ' )
 	if timer_manipulation == 3 then return end;
 	set_visible( sub_limit_note_source, false );
-	obs.timer_remove( ssl_timer_callback );
+	timer_remove( ssl_timer_callback );
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -3796,19 +4554,18 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function start_ssl_timer()
+    debug_log( 'start_ssl_timer() -- function variable names: ' )
 	if timer_manipulation == 3 then return end;
 	set_visible( sub_limit_note_source, true );
 	if sub_limit_note_source_visible == 0 then return end;
-	obs.timer_add( ssl_timer_callback, sub_limit_note_source_visible );
+	timer_add( ssl_timer_callback, sub_limit_note_source_visible );
 end	
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -3816,6 +4573,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function ssl_check( )
+    debug_log( 'ssl_check() -- function variable names:  ' )
 	if timer_manipulation == 3 then return end;
 	if sec_sub_limit == 0 then return end;
 	if sec_sub_limit_used >= sec_sub_limit then
@@ -3829,9 +4587,7 @@ end
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -3839,6 +4595,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function sec_sub_1_update( )
+    debug_log( 'sec_sub_1_update() -- function variable names:  ' )
 	if timer_manipulation == 3 then return end;
 	if sec_sub_limit ~= 0 and sec_sub_limit_used >= sec_sub_limit then
 	-- do nothing
@@ -3856,9 +4613,7 @@ end
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -3866,6 +4621,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function sec_sub_2_update( )
+    debug_log( 'sec_sub_2_update() -- function variable names:  ' )
 	if timer_manipulation == 3 then return end;
 	if sec_sub_limit ~= 0 and sec_sub_limit_used >= sec_sub_limit then
 	-- do nothing
@@ -3882,9 +4638,7 @@ end
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -3892,6 +4646,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function sec_sub_3_update( )
+    debug_log( 'sec_sub_3_update() -- function variable names:  ' )
 	if timer_manipulation == 3 then return end;
 	if sec_sub_limit ~= 0 and sec_sub_limit_used >= sec_sub_limit then
 	-- do nothing
@@ -3908,9 +4663,7 @@ end
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -3918,6 +4671,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function hotkey_send_sec_add_1( pressed )
+    debug_log( 'hotkey_send_sec_add_1(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ' )
 	--[[
 		For hotkeys: This is called on key down & key up. A bool check: 
 		
@@ -3927,7 +4681,6 @@ local function hotkey_send_sec_add_1( pressed )
 		When a hotkeys is pressed the callback checks if the key state 
 		is currently pressed 'true' or 'false' (released)
 		so a hotkey key press has a dual function: key down, key up
-
 	]]
 	if pressed then -- key is currently down
 		--return -- uncomment 'return' to ignore the call while key is down
@@ -3941,9 +4694,7 @@ end
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -3951,6 +4702,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function hotkey_send_sec_add_2( pressed )
+    debug_log( 'hotkey_send_sec_add_2(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ' )
 	--[[
 		For hotkeys: This is called on key down & key up. A bool check: 
 		
@@ -3960,7 +4712,6 @@ local function hotkey_send_sec_add_2( pressed )
 		When a hotkeys is pressed the callback checks if the key state 
 		is currently pressed 'true' or 'false' (released)
 		so a hotkey key press has a dual function: key down, key up
-
 	]]
 	if pressed then -- key is currently down
 		--return -- uncomment 'return' to ignore the call while key is down
@@ -3974,9 +4725,7 @@ end
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -3984,6 +4733,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function hotkey_send_sec_add_3( pressed )
+    debug_log( 'hotkey_send_sec_add_3(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ' )
 	--[[
 		For hotkeys: This is called on key down & key up. A bool check: 
 		
@@ -3993,7 +4743,6 @@ local function hotkey_send_sec_add_3( pressed )
 		When a hotkeys is pressed the callback checks if the key state 
 		is currently pressed 'true' or 'false' (released)
 		so a hotkey key press has a dual function: key down, key up
-
 	]]
 	if pressed then -- key is currently down
 		--return -- uncomment 'return' to ignore the call while key is down
@@ -4007,9 +4756,7 @@ end
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -4017,6 +4764,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function hotkey_send_sec_sub_1( pressed )
+    debug_log( 'hotkey_send_sec_sub_1(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ' )
 	--[[
 		For hotkeys: This is called on key down & key up. A bool check: 
 		
@@ -4026,7 +4774,6 @@ local function hotkey_send_sec_sub_1( pressed )
 		When a hotkeys is pressed the callback checks if the key state 
 		is currently pressed 'true' or 'false' (released)
 		so a hotkey key press has a dual function: key down, key up
-
 	]]
 	if pressed then -- key is currently down
 		--return -- uncomment 'return' to ignore the call while key is down
@@ -4040,9 +4787,7 @@ end
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -4050,6 +4795,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function hotkey_send_sec_sub_2( pressed )
+    debug_log( 'hotkey_send_sec_sub_2(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ' )
 	--[[
 		For hotkeys: This is called on key down & key up. A bool check: 
 		
@@ -4059,7 +4805,6 @@ local function hotkey_send_sec_sub_2( pressed )
 		When a hotkeys is pressed the callback checks if the key state 
 		is currently pressed 'true' or 'false' (released)
 		so a hotkey key press has a dual function: key down, key up
-
 	]]
 	if pressed then -- key is currently down
 		--return -- uncomment 'return' to ignore the call while key is down
@@ -4073,9 +4818,7 @@ end
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -4083,6 +4826,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function hotkey_send_sec_sub_3( pressed )
+    debug_log( 'hotkey_send_sec_sub_3(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ' )
 	--[[
 		For hotkeys: This is called on key down & key up. A bool check: 
 		
@@ -4092,7 +4836,6 @@ local function hotkey_send_sec_sub_3( pressed )
 		When a hotkeys is pressed the callback checks if the key state 
 		is currently pressed 'true' or 'false' (released)
 		so a hotkey key press has a dual function: key down, key up
-
 	]]
 	if pressed then -- key is currently down
 		--return -- uncomment 'return' to ignore the call while key is down
@@ -4106,9 +4849,7 @@ end
 	Description:	Called when a source is activated/deactivated
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -4116,6 +4857,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function activate_signal( cd, connected )
+    debug_log( 'activate_signal(' .. pre_dump(cd) .. ", " .. pre_dump(connected) .. ') -- function variable names:  cd, connected ' )
 	--[[
 	
 		Capture / Retrieve Callback Data
@@ -4150,16 +4892,11 @@ local function activate_signal( cd, connected )
 					pause_play_media( media["source_name_audio_marker_a"], true );
 					pause_play_media( media["source_name_audio_marker_b"], true );
 				end
-
 				--[[
-
 					timer_mode: either
-
 					timer_active: timer not running
-
 					define > set_to_default: (true) * we are starting the timer from the default position and therfore want to set the settings to default.
 					define > new_settings: not required here because we will use the global (ctx.propsSet)
-
 					purpose: User requires the timer to intiate.
 				]]
 				if not set_timer_activated and ( force_reset_on_visible or force_reset_on_scene_active ) then
@@ -4180,9 +4917,7 @@ end
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		reset timer	
 	type:			
 	input type: 	
@@ -4190,6 +4925,9 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function reset( pressed )
+    debug_log( 'reset(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ' )
+	if not script_ready then return end
+	reset_activated = true; -- notify timer settings a reset call is in process
 	--[[
 		For hotkeys: This is called on key down & key up. A bool check: 
 		
@@ -4199,7 +4937,6 @@ local function reset( pressed )
 		When a hotkeys is pressed the callback checks if the key state 
 		is currently pressed 'true' or 'false' (released)
 		so a hotkey key press has a dual function: key down, key up
-
 	]]
 	if pressed then -- key is currently down
 		--return -- uncomment 'return' to ignore the call while key is down
@@ -4212,7 +4949,11 @@ local function reset( pressed )
 	set_visible( media["source_name_audio_marker_a"], false );
 	set_visible( media["source_name_audio_marker_b"], false );
 	set_visible( media["source_name_audio_marker_end"], false );
-	
+	media["cycle_index_marker_a"] = 1; -- index from 1-based table
+	media["cycle_index_marker_b"] = 1; -- index from 1-based table
+	media["cycle_direction_marker_a"] = 2;
+	media["cycle_direction_marker_b"] = 2;
+	cycle_index = 1;
 	set_visible( add_limit_note_source, false );
 	set_visible( sub_limit_note_source, false );
 	obs.obs_data_set_int( ctx.propsSet, "sec_add_limit_used", 0 );
@@ -4228,17 +4969,25 @@ local function reset( pressed )
 	color_normal_updated 		  	= false;
 	set_timer_activated 		  	= false;
 	direction_changed				= false;
+	media["activated_media_marker_a"] 		= false;
+	media["activated_media_marker_b"] 		= false;
+	media["activated_marker_a"] 			= false;
+	media["activated_marker_b"] 			= false;
+	media["activated_time_marker_a"] 		= 0;
+	media["activated_time_marker_b"] 		= 0;
+	
 	--[[
-		Determine the current_count_direction
+		Reset the current_count_direction
 		If the timer is in Stopwatch mode the
-		timer is counting up thus the default
-		current_count_direction must then be 
-		down, and vica-versa
+		timer is counting up
 	]]
+	
+	count_orientation = "NORMAL"
+	last_orientation = "NORMAL"
 	if timer_mode == 1 then
-		current_count_direction = 2;
+		current_count_direction = "UP";
 	else
-		current_count_direction = 1;
+		current_count_direction = "DOWN";
 	end		
 	--[[
 	
@@ -4247,14 +4996,10 @@ local function reset( pressed )
 	]]
 	last_text = tostring( obs.os_gettime_ns() );
 	--[[
-
 		timer_mode: eiher
-
 		timer_active: either
-
 		define > set_to_default: (true) * User requested a reset, so we do not want to set the settings to default.
 		define > new_settings: not required here because we will use the global (ctx.propsSet)
-
 		purpose: User is resetting the timer settings and we need to provide instant feedback output to the timer display (timer text source)
 	]]
 	update_timer_settings( true ); -- optional inputs: set_to_default(bool), new_settings(obs_property_data/obs_userdata) -- based on UI Settings
@@ -4285,15 +5030,27 @@ local function reset( pressed )
 		]]	
 		if active_source_force_visible then set_visible( active_source, false ) end;
 	end
+	
+	--[[
+	 		Make sure the trigger is as accurate as possible depending
+			if the timer is counting up or down.
+	]]
+	
+	reset_audio_marker_arr();
+	local round_seconds = roundSeconds();
+	update_time_markers( round_seconds );		
+	update_media_names( true );	
+	reset_activated = false; -- notify timer settings a reset call ended
+	
+	debug_log( 'END of function reset()') -- function variable names:  activating ' )
+	
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		reset timer	
 	type:			
 	input type: 	
@@ -4301,6 +5058,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function activate_reset( pressed )
+    debug_log( 'activate_reset(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ' )
 	--[[
 		For hotkeys: This is called on key down & key up. A bool check: 
 		
@@ -4310,25 +5068,20 @@ local function activate_reset( pressed )
 		When a hotkeys is pressed the callback checks if the key state 
 		is currently pressed 'true' or 'false' (released)
 		so a hotkey key press has a dual function: key down, key up
-
 	]]
 	if pressed then -- key is currently down
 		--return -- uncomment 'return' to ignore the call while key is down
 	else -- key was released 
 		return; -- uncomment 'return' to ignore the call when key is released
 	end
-	reset_activated = true; -- notify timer settings a reset call is in process
 	reset( pressed );
-	reset_activated = false; -- notify timer settings a reset call ended
 end	
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		reset timer	
 	type:			
 	input type: 	
@@ -4336,6 +5089,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function hotkey_send_reset( pressed )
+    debug_log( 'hotkey_send_reset(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ' )
 	--[[
 		For hotkeys: This is called on key down & key up. A bool check: 
 		
@@ -4345,7 +5099,6 @@ local function hotkey_send_reset( pressed )
 		When a hotkeys is pressed the callback checks if the key state 
 		is currently pressed 'true' or 'false' (released)
 		so a hotkey key press has a dual function: key down, key up
-
 	]]
 	if pressed then -- key is currently down
 		--return -- uncomment 'return' to ignore the call while key is down
@@ -4359,9 +5112,7 @@ end
 	Description:	Set the titles / labels of the Start / Pause Button
 	
 	Credit:			
-
 	Modified:		
-
 	function:		Update start/puase button label
 	type:			
 	input type: 	mode, timer_active
@@ -4369,6 +5120,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function property_button_update_start( props )
+    debug_log( 'property_button_update_start(' .. pre_dump(props) .. ') -- function variable names:  props ' )
 	--[[
 		A button has it's own callback so we can not action anything
 		on the button press through the Properties Callback, instead
@@ -4403,9 +5155,7 @@ end
 	Description:	Callback for button press
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -4413,6 +5163,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function pause_button_clicked( props, p )
+    debug_log( 'pause_button_clicked(' .. pre_dump(props) .. ", " .. pre_dump(p) .. ') -- function variable names:  props, p ' )
 	pause( true );
 	property_button_update_start( props );
 	return true;
@@ -4422,9 +5173,7 @@ end
 	Description:	Callback for button press
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -4432,6 +5181,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function sec_add_1_button_clicked( props, p )
+    debug_log( 'sec_add_1_button_clicked(' .. pre_dump(props) .. ", " .. pre_dump(p) .. ') -- function variable names:  props, p ' )
 	sec_add_1_update( );
 	return true;
 end
@@ -4440,9 +5190,7 @@ end
 	Description:	Callback for button press
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -4450,6 +5198,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function sec_add_2_button_clicked( props, p )
+    debug_log( 'sec_add_2_button_clicked(' .. pre_dump(props) .. ", " .. pre_dump(p) .. ') -- function variable names:  props, p ' )
 	sec_add_2_update( );
 	return true;
 end
@@ -4458,9 +5207,7 @@ end
 	Description:	Callback for button press
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -4468,6 +5215,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function sec_add_3_button_clicked( props, p )
+    debug_log( 'sec_add_3_button_clicked(' .. pre_dump(props) .. ", " .. pre_dump(p) .. ') -- function variable names:  props, p ' )
 	sec_add_3_update( );
 	return true;
 end
@@ -4476,9 +5224,7 @@ end
 	Description:	Callback for button press
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -4486,6 +5232,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function sec_sub_1_button_clicked( props, p )
+    debug_log( 'sec_sub_1_button_clicked(' .. pre_dump(props) .. ", " .. pre_dump(p) .. ') -- function variable names:  props, p ' )
 	sec_sub_1_update( );
 	return true;
 end
@@ -4494,9 +5241,7 @@ end
 	Description:	Callback for button press
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -4504,6 +5249,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function sec_sub_2_button_clicked( props, p )
+    debug_log( 'sec_sub_2_button_clicked(' .. pre_dump(props) .. ", " .. pre_dump(p) .. ') -- function variable names:  props, p ' )
 	sec_sub_2_update( );
 	return true;
 end
@@ -4512,9 +5258,7 @@ end
 	Description:	Callback for button press
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -4522,6 +5266,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function sec_sub_3_button_clicked( props, p )
+    debug_log( 'sec_sub_3_button_clicked(' .. pre_dump(props) .. ", " .. pre_dump(p) .. ') -- function variable names:  props, p ' )
 	sec_sub_3_update( );
 	return true;
 end
@@ -4530,9 +5275,7 @@ end
 	Description:	Usually called by a button or hotkey press
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -4540,6 +5283,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function export( pressed )
+    debug_log( 'export(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ' )
 	if not pressed then
 		return;
 	end;
@@ -4550,9 +5294,7 @@ end
 	Description:	Callback for button press
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -4560,6 +5302,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function export_button_clicked( props, p )
+    debug_log( 'export_button_clicked(' .. pre_dump(props) .. ", " .. pre_dump(p) .. ') -- function variable names:  props, p ' )
 	export( true );
 	return false;
 end
@@ -4568,9 +5311,7 @@ end
 	Description:	Callback for button press	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -4578,6 +5319,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function import_button_clicked( props, p, settings )
+    debug_log( 'import_button_clicked(' .. pre_dump(props) .. ", " .. pre_dump(p) .. ", " .. pre_dump(settings) .. ') -- function variable names:  props, p, settings ' )
 	return true;
 end
 --[[
@@ -4585,9 +5327,7 @@ end
 	Description:	Callback for button press
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -4595,6 +5335,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function sw_saved_button_clicked( props, p, settings )
+    debug_log( 'sw_saved_button_clicked(' .. pre_dump(props) .. ", " .. pre_dump(p) .. ", " .. pre_dump(settings) .. ') -- function variable names:  props, p, settings ' )
 	if timer_mode == 1 then
 		set_stopwatch();
 		set_timer_activated = true;
@@ -4606,9 +5347,7 @@ end
 	Description:	Callback for button press
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -4616,6 +5355,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function reset_button_clicked( props, p, settings )
+    debug_log( 'reset_button_clicked(' .. pre_dump(props) .. ", " .. pre_dump(p) .. ", " .. pre_dump(settings) .. ') -- function variable names:  props, p, settings ' )
 	activate_reset( true );
 	return true;
 end
@@ -4624,9 +5364,7 @@ end
 	Description:	Usually called by a button or hotkey press
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -4634,6 +5372,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function split_time( pressed )
+    debug_log( 'split_time(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ' )
 	if not pressed then
 		return;
 	end;
@@ -4649,9 +5388,7 @@ end
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		reset timer	
 	type:			
 	input type: 	
@@ -4659,6 +5396,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function hotkey_send_split( pressed )
+    debug_log( 'hotkey_send_split(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ' )
 	--[[
 		For hotkeys: This is called on key down & key up. A bool check: 
 		
@@ -4668,7 +5406,6 @@ local function hotkey_send_split( pressed )
 		When a hotkeys is pressed the callback checks if the key state 
 		is currently pressed 'true' or 'false' (released)
 		so a hotkey key press has a dual function: key down, key up
-
 	]]
 	if pressed then -- key is currently down
 		--return -- uncomment 'return' to ignore the call while key is down
@@ -4682,9 +5419,7 @@ end
 	Description:	Callback for button press
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -4692,156 +5427,16 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function split_button_clicked( props, p )
+    debug_log( 'split_button_clicked(' .. pre_dump(props) .. ", " .. pre_dump(p) .. ') -- function variable names:  props, p ' )
 	split_time( true );
 	return false;
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	custom function
-
-					we use this to get a count of all sources
-	
-	Credit:			
-
-	Modified:		
-
-	function:		
-	type:			
-	input type: 	
-	returns:	interger
-----------------------------------------------------------------------------------------------------------------------------------------
-]]
-local function count_sources()
-	local sources = obs.obs_enum_sources();
-	local i = 0;
-	if sources ~= nil then
-		for _, source in ipairs( sources ) do -- ipairs cycles auto incrimented items
-			i = i + 1;
-		end
-		obs.bfree(source); -- free memory, release source as it is no longer needed
-	end;
-	obs.source_list_release( sources ); -- free memory, release 
-	total_sources = i;
-	return i;
-end
---[[
-----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	 custom function
-
-					we use this to get a signal handler for a specific source once
-					it is loaded to ensure it is connected when OBS starts up
-	
-	Credit:			
-
-	Modified:		
-
-	function:		
-	type:			
-	input type: 	
-	returns:
-----------------------------------------------------------------------------------------------------------------------------------------
-]]
-local function loaded( cd )
-	local all_sources_loaded = false;
-	--[[
-		Get source from CallData
-	]]
-	local source = obs.calldata_source( cd, "source" );
-
-	--[[
-		Found Source:
-	]]
-	if source ~= nil then 
-				
-		local name = obs.obs_source_get_name( source ); -- Get the source name, this will be a unique identifier 
-		--[[
-			Does the name match the property value?
-		]] 
-		if ( name == timer_source ) then
-			if start_on_visible and not start_on_scene_active then
-				set_visible( timer_source, false ); -- set hidden as a starting point, the user can start the timer by setting it to visible
-			end;
-		end;
-		
-		if obs.obs_source_get_id( source ) ~= "scene" then
-			sources_loaded = sources_loaded + 1; -- add this to the loaded sopurce tally
-		end;	
-	end;
-	--[[
-		Check if all sources are loaded
-	]]	
-	all_sources_loaded = ( sources_loaded == count_sources() );
-	--[[
-		Some of the functions included requires the source to be loaded, 
-		so check that all sources are loaded before continuing
-	]]
-	if all_sources_loaded then
-		
-		set_visible( media["source_name_audio_marker_a"], false ); -- set hidden just in case
-		set_visible( media["source_name_audio_marker_b"], false ); -- set hidden just in case
-		set_visible( media["source_name_audio_marker_end"], false ); -- set hidden just in case
-		set_visible( add_limit_note_source, false );	-- set hidden just in case
-		set_visible( sub_limit_note_source, false ); -- set hidden just in case
-		if start_on_visible and not start_on_scene_active then
-			set_visible( timer_source, false ) -- set hidden as a starting point, the user can start the timer by setting it to visible
-		end	
-		if timer_mode == 1 then
-			if load_saved_time then
-				timer_value( sw_current_seconds ); -- value
-			else
-				timer_value( 0 );
-				reset( true );	-- <BUG signal handler crash on startup?	
-			end;
-		else
-			reset( true );	-- <BUG signal handler crash on startup?	
-		end;	
-	end;	
-end
---[[
-----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
-	function:		
-	type:			
-	input type: 	
-	returns:
-----------------------------------------------------------------------------------------------------------------------------------------
-]]
-local function source_activated( cd )
-   if disable_script then
-		return;		
-	end;
-	activate_signal( cd, true );
-end
---[[
-----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	
-	
-	Credit:			
-
-	Modified:		
-
-	function:		
-	type:			
-	input type: 	
-	returns:
-----------------------------------------------------------------------------------------------------------------------------------------
-]]
-local function source_deactivated( cd )
-	activate_signal( cd, false );
-end
---[[
-----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	
-	
-	Credit:			
-
-	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -4849,6 +5444,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function load_settings_globals( settings )
+    debug_log( 'load_settings_globals(' .. pre_dump(settings) .. ') -- function variable names:  settings ' )
 	
 	last_timer_mode = timer_mode;
 	timer_day = obs.obs_data_get_int( settings, "day" );
@@ -4896,6 +5492,8 @@ local function load_settings_globals( settings )
 	longtimetext_p = string.gsub(obs.obs_data_get_string( settings, "days_text" ), "\\([n])", {n="\n"});
 	media["note_marker_a"] = string.gsub(obs.obs_data_get_string( settings, "note_marker_a" ), "\\([n])", {n="\n"});
 	media["note_marker_b"] = string.gsub(obs.obs_data_get_string( settings, "note_marker_b" ), "\\([n])", {n="\n"});
+	script_ready = obs.obs_data_get_bool( settings, "script_ready" );-- -- Retrieves property value from reference
+	debug_log( 'load_settings_globals get script_ready (' .. pre_dump(script_ready) .. ') ' )
 	--[[
 				Used for source cycling
 		
@@ -4929,18 +5527,24 @@ local function load_settings_globals( settings )
 	media["color_normal"] = obs.obs_data_get_int( settings, "color_normal" );
 	media["color_marker_b"] = obs.obs_data_get_int( settings, "color_marker_b" );
 	media["color_marker_a"] = obs.obs_data_get_int( settings, "color_marker_a" );
-	media["text_marker_a"] = obs.obs_data_get_string( settings, "text_marker_a" );							
-	media["text_marker_b"] = obs.obs_data_get_string( settings, "text_marker_b" );
+	audio_marker_a = obs.obs_data_get_string( ctx.propsSet, "audio_marker_a" );
+	audio_marker_b = obs.obs_data_get_string( ctx.propsSet, "audio_marker_b" );
+	if audio_marker_a ~= "list" then
+		media["source_name_audio_marker_a"] = audio_marker_a
+	end	
+	if audio_marker_a ~= "list" then
+		media["source_name_audio_marker_b"] = audio_marker_b
+	end	
 	media_playback_limit = obs.obs_data_get_int( settings, "media_playback_limit" );
     start_on_scene_active = obs.obs_data_get_bool( settings, "start_on_scene_active" );
     force_reset_on_visible = obs.obs_data_get_bool( settings, "force_reset_on_visible" );
-    force_reset_on_scene_active = obs.obs_data_get_bool( settings, "force_reset_on_scene_active" );	
-	media["source_name_audio_marker_a"] = obs.obs_data_get_string( settings, "audio_marker_a" );
-	media["source_name_audio_marker_b"] = obs.obs_data_get_string( settings, "audio_marker_b" );
+    force_reset_on_scene_active = obs.obs_data_get_bool( settings, "force_reset_on_scene_active" );
     active_source_force_visible = obs.obs_data_get_bool( settings, "active_source_force_visible" );
 	media["source_name_audio_marker_end"] = obs.obs_data_get_string( settings, "audio_marker_end" );	
 	text_prefix = string.gsub(obs.obs_data_get_string( settings, "text_prefix" ), "\\([n])", {n="\n"});
 	text_suffix = string.gsub(obs.obs_data_get_string( settings, "text_suffix" ), "\\([n])", {n="\n"});
+	media["reset_text_marker_a"] = obs.obs_data_get_int( settings, "reset_text_marker_a" );
+	media["reset_text_marker_b"] = obs.obs_data_get_int( settings, "reset_text_marker_b" );
 	if media_playback_limit ~= 1 then
 		media["duration_marker_a"] = obs.obs_data_get_int( settings, "duration_marker_a" );
 		media["duration_marker_b"] = obs.obs_data_get_int( settings, "duration_marker_b" );
@@ -4955,15 +5559,139 @@ local function load_settings_globals( settings )
 	timer_mode_changed = ( last_timer_mode ~= timer_mode );
 	
 	update_source_list();
+	--[[
+	 		Make sure the trigger is as accurate as possible depending
+			if the timer is counting up or down.
+	]]
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	 custom function
+					we use this to get a signal handler for a specific source once
+					it is loaded to ensure it is connected when OBS starts up
+	
+	Credit:			
+	Modified:		
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function loaded( cd )
+    debug_log( 'loaded(' .. pre_dump(cd) .. ') -- function variable names:  cd ' )
+	
+	obs.obs_data_set_bool( settings, "script_ready", false ); -- set false to signal that the script is not yet ready.
+	debug_log( 'loaded set script_ready (' .. pre_dump(false) .. ') ' )
+	
+	local all_sources_loaded = false;
+	--[[
+		Get source from CallData
+	]]
+	local source = obs.calldata_source( cd, "source" );
+	--[[
+		Found Source:
+	]]
+	if source ~= nil then 
+				
+		local name = obs.obs_source_get_name( source ); -- Get the source name, this will be a unique identifier 
+		debug_log( 'loaded source: (' .. pre_dump(name) .. ')' )
+		
+		--[[
+			Does the name match the property value?
+		]] 
+		if ( name == timer_source ) then
+			if start_on_visible and not start_on_scene_active then
+				set_visible( timer_source, false ); -- set hidden as a starting point, the user can start the timer by setting it to visible
+			end;
+		end;
+		
+		if obs.obs_source_get_id( source ) ~= "scene" then
+			sources_loaded = sources_loaded + 1; -- add this to the loaded sopurce tally
+		end;	
+	end;
+	--[[
+		Check if all sources are loaded
+	]]	
+	local curent_source_count = count_sources()
+	all_sources_loaded = ( sources_loaded == curent_source_count );
+	
+		debug_log( 'all_sources_loaded source: (' .. pre_dump(all_sources_loaded) .. ' loaded: ' .. pre_dump(sources_loaded) .. " of "  .. pre_dump(curent_source_count) .. ')' )
+	
+	--[[
+		Some of the functions included requires the source to be loaded, 
+		so check that all sources are loaded before continuing
+	]]
+	if all_sources_loaded then
+		debug_log( 'all_sources_loaded are now loaded!' )
+		obs.obs_data_set_bool( ctx.propsSet, "script_ready", true ); -- set to signal ready state.
+		debug_log( 'loaded set script_ready (' .. pre_dump(true) .. ') ' )
+		--[[
+			load any property values available to globals
+		]]
+		load_settings_globals( ctx.propsSet );	
+		
+		set_visible( media["source_name_audio_marker_a"], false ); -- set hidden just in case
+		set_visible( media["source_name_audio_marker_b"], false ); -- set hidden just in case
+		set_visible( media["source_name_audio_marker_end"], false ); -- set hidden just in case
+		set_visible( add_limit_note_source, false );	-- set hidden just in case
+		set_visible( sub_limit_note_source, false ); -- set hidden just in case
+		if start_on_visible and not start_on_scene_active then
+			set_visible( timer_source, false ) -- set hidden as a starting point, the user can start the timer by setting it to visible
+		end	
+		if timer_mode == 1 then
+			if load_saved_time then
+				timer_value( sw_current_seconds ); -- value
+			else
+				timer_value( 0 );
+				reset( true );	-- <BUG signal handler crash on startup?	
+			end;
+		else
+			reset( true );	-- <BUG signal handler crash on startup?	
+		end;	
+	end;	
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+	Modified:		
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function source_activated( cd )
+    debug_log( 'source_activated(' .. pre_dump(cd) .. ') -- function variable names:  cd ' )
+   if disable_script then
+		return;		
+	end;
+	activate_signal( cd, true );
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+	Modified:		
+	function:		
+	type:			
+	input type: 	
+	returns:
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function source_deactivated( cd )
+    debug_log( 'source_deactivated(' .. pre_dump(cd) .. ') -- function variable names:  cd ' )
+	activate_signal( cd, false );
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	Callback on property modification
 	
 	Credit:			
-
 	Modified:		
-
 	function:		Callback for Settings import
 	type:			
 	input type: 	
@@ -4971,6 +5699,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function import_properties( props, property, settings )
+    debug_log( 'import_properties(' .. pre_dump(props) .. ", " .. pre_dump(property) .. ", " .. pre_dump(settings) .. ') -- function variable names:  props, property, settings ' )
 	local import_folder = backup_folder
 	-- convert Windows path to UNIX path
 	import_folder = import_folder .. "/" .. import_list .. ".json"
@@ -4991,9 +5720,7 @@ end
 	Description:	Callback on property modification
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			property event
 	input type: 	props, property, settings
@@ -5001,6 +5728,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function property_onchange( props, property, settings )
+    debug_log( 'property_onchange(' .. pre_dump(props) .. ", " .. pre_dump(property) .. ", " .. pre_dump(settings) .. ') -- function variable names:  props, property, settings ' )
 	--[[
 	
 		Optimization: prevent unnecessary callbacks
@@ -5032,6 +5760,8 @@ local function property_onchange( props, property, settings )
 	local trigger_options_value = obs.obs_data_get_int( settings, "trigger_options" );-- -- Retrieves property value from reference
 	local note_source_marker_a_value = obs.obs_data_get_string( settings, "note_source_marker_a" );-- -- Retrieves property value from reference
 	local note_source_marker_b_value = obs.obs_data_get_string( settings, "note_source_marker_b" );-- -- Retrieves property value from reference
+	local audio_marker_a_value = obs.obs_data_get_string( settings, "audio_marker_a" );-- -- Retrieves property value from reference
+	local audio_marker_b_value = obs.obs_data_get_string( settings, "audio_marker_b" );-- -- Retrieves property value from reference
 	local media_playback_limit_value = obs.obs_data_get_int( settings, "media_playback_limit" );-- -- Retrieves property value from reference
 	
 	--[[
@@ -5142,17 +5872,21 @@ local function property_onchange( props, property, settings )
 	local c_note_prop = obs.obs_properties_get( props, "note_marker_a" );
 	local w_note_prop = obs.obs_properties_get( props, "note_marker_b" );
 	local enable_marker_notes_prop = obs.obs_properties_get( props, "enable_marker_notes" );
-	local text_marker_a_prop = obs.obs_properties_get( props, "text_marker_a" );
-	local text_marker_b_prop = obs.obs_properties_get( props, "text_marker_b" );
+	local text_arr_marker_a_prop = obs.obs_properties_get( props, "text_arr_marker_a" );
+	local text_arr_marker_b_prop = obs.obs_properties_get( props, "text_arr_marker_b" );
 	local color_marker_a_prop = obs.obs_properties_get( props, "color_marker_a" );
 	local color_marker_b_prop = obs.obs_properties_get( props, "color_marker_b" );
 	local audio_marker_a_prop = obs.obs_properties_get( props, "audio_marker_a" );
 	local audio_marker_b_prop = obs.obs_properties_get( props, "audio_marker_b" );
+	local audio_marker_a_arr_prop = obs.obs_properties_get( props, "audio_marker_a_arr" );
+	local audio_marker_b_arr_prop = obs.obs_properties_get( props, "audio_marker_b_arr" );
 	local audio_marker_end_prop = obs.obs_properties_get( props, "audio_marker_end" );
 	local cn_source_prop = obs.obs_properties_get( props, "note_source_marker_a" );
 	local wn_source_prop = obs.obs_properties_get( props, "note_source_marker_b" );
 	local duration_marker_a_prop = obs.obs_properties_get( props, "duration_marker_a" );
 	local duration_marker_b_prop = obs.obs_properties_get( props, "duration_marker_b" );
+	local reset_text_marker_a_prop = obs.obs_properties_get( props, "reset_text_marker_a" );
+	local reset_text_marker_b_prop = obs.obs_properties_get( props, "reset_text_marker_b" );
 	local duration_marker_end_prop = obs.obs_properties_get( props, "duration_marker_end" );
 	local media_playback_limit_prop = obs.obs_properties_get( props, "media_playback_limit" );
 	--[[
@@ -5223,10 +5957,12 @@ local function property_onchange( props, property, settings )
 	]]
 	obs.obs_property_set_visible( to_prop, ( config_value == 2 ) );
 	obs.obs_property_set_visible( enable_marker_notes_prop, ( config_value == 2 and trigger_options_value == 2 ));
-	obs.obs_property_set_visible( text_marker_a_prop, ( config_value == 2 and trigger_options_value == 2 ) );
-	obs.obs_property_set_visible( text_marker_b_prop, ( config_value == 2 and trigger_options_value == 2 ) );
+	obs.obs_property_set_visible( text_arr_marker_a_prop, ( config_value == 2 and trigger_options_value == 2 ) );
+	obs.obs_property_set_visible( text_arr_marker_b_prop, ( config_value == 2 and trigger_options_value == 2 ) );
 	obs.obs_property_set_visible( audio_marker_a_prop, ( config_value == 2 and trigger_options_value == 2 ) );
-	obs.obs_property_set_visible( audio_marker_b_prop, ( config_value == 2 and trigger_options_value == 2) );
+	obs.obs_property_set_visible( audio_marker_a_arr_prop, ( config_value == 2 and trigger_options_value == 2 and audio_marker_a_value == 'list' ) );
+	obs.obs_property_set_visible( audio_marker_b_arr_prop, ( config_value == 2 and trigger_options_value == 2 and audio_marker_b_value == 'list' ) );
+	obs.obs_property_set_visible( audio_marker_b_prop, ( config_value == 2 and trigger_options_value == 2 ) );
 	obs.obs_property_set_visible( audio_marker_end_prop, ( in_table( {"TIMER END TEXT", "Select"}, next_scene_value ) and config_value == 2 and trigger_options_value == 2) );
 	obs.obs_property_set_visible( color_marker_a_prop, ( config_value == 2 and trigger_options_value == 2 ) );
 	obs.obs_property_set_visible( color_marker_b_prop, ( config_value == 2 and trigger_options_value == 2 ) );
@@ -5237,6 +5973,8 @@ local function property_onchange( props, property, settings )
 	obs.obs_property_set_visible( wn_source_prop, ( config_value == 2 and enable_marker_notes_value ~= 1 and trigger_options_value == 2 ) );
 	obs.obs_property_set_visible( duration_marker_a_prop, ( config_value == 2 and trigger_options_value == 2 and media_playback_limit_value == 2 ) );
 	obs.obs_property_set_visible( duration_marker_b_prop, ( config_value == 2 and trigger_options_value == 2 and media_playback_limit_value == 2 ) );
+	obs.obs_property_set_visible( reset_text_marker_a_prop, ( config_value == 2 and trigger_options_value == 2 ) );
+	obs.obs_property_set_visible( reset_text_marker_b_prop, ( config_value == 2 and trigger_options_value == 2 ) );
 	obs.obs_property_set_visible( duration_marker_end_prop, ( in_table( {"TIMER END TEXT", "Select"}, next_scene_value ) and config_value == 2 and trigger_options_value == 2 and media_playback_limit_value == 2 ) );
 	--[[
 	
@@ -5290,7 +6028,6 @@ local function property_onchange( props, property, settings )
 		Some Calandar Stuff
 	
 	]]	
-
 	if( minute_format ~= nil ) then
 		obs.obs_property_int_set_limits( sw_minutes_saved_prop, 0, ( minute_format - 1 ), 1 );	
 	else
@@ -5336,17 +6073,13 @@ local function property_onchange( props, property, settings )
 		obs.obs_property_set_description( reset_button_prop, "Reset Countdown" );
 	else
 		--[[
-
 			Timer type is Stopwatch?
 			Set button labels
-
 		]]
 		obs.obs_property_set_description( reset_button_prop, "Reset Stopwatch" );	
 	end;
 	--[[
-
 		Set button labels
-
 	]]
 	if timer_mode_value == 2 then
 			obs.obs_property_set_description( direction_button_prop, "Count Up" );
@@ -5364,7 +6097,6 @@ local function property_onchange( props, property, settings )
 		end;
 	end;
 	--[[
-
 		Rebuild text source lists
 	]]
 	if tableHasKey( selected_source_list, property_name ) then 	
@@ -5374,9 +6106,7 @@ local function property_onchange( props, property, settings )
 		]]	
 		local sources = obs.obs_enum_sources();
 			for i,v in pairs( {timer_source_prop, split_source_prop, active_source_prop, note_source_marker_a_prop, note_source_marker_b_prop, sub_limit_note_source_prop, add_limit_note_source_prop} ) do 
-
 				local reference = obs.obs_property_name( v ) 
-
 				obs.obs_property_list_clear( v );
 				obs.obs_property_list_add_string( v, "Select", "select" );
 				list = {} -- Reset / clear a defined table variable to be used to build lists that will be passed to the property list
@@ -5414,10 +6144,9 @@ local function property_onchange( props, property, settings )
 			end	
 		obs.source_list_release( sources ); -- free memory, release sources as it is no longer needed
 	end	
+
 	--[[
-
 		Other fancy stuff
-
 	]]
 	if sec_add_limit > 1 then
 		obs.obs_property_int_set_suffix( sec_add_limit_prop, " Calls" );
@@ -5440,9 +6169,7 @@ local function property_onchange( props, property, settings )
 		obs.obs_property_int_set_suffix( sec_sub_limit_prop, "     Zero allow infinite calls" );
 	end	
 	--[[
-
 		Rebuild backup file list
-
 	]]	
 	local filenames = get_filenames( backup_folder, ".json" );
 	local has_file_list = ( table.getn( filenames ) > 0 );
@@ -5461,11 +6188,8 @@ end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	
-
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -5473,6 +6197,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function cycle_source_list( source_type )
+    debug_log( 'cycle_source_list(' .. pre_dump(source_type) .. ') -- function variable names:  source_type ' )
 		reset( true ); -- Reset the timer
 		cycle_source_list_by_source_type( source_type );
 		--[[
@@ -5486,9 +6211,7 @@ end
 	Description:	
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -5496,17 +6219,16 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]	
 function timer_end_media_end_callback( )
+    debug_log( 'timer_end_media_end_callback() -- function variable names:  ' )
 	set_visible( media['source_name_audio_marker_end'], false );
-	obs.remove_current_callback();
+	timer_remove( timer_end_media_end_callback );
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	Only used in Countdown mode
 	
 	Credit:			
-
 	Modified:		
-
 	function:		
 	type:			
 	input type: 	
@@ -5514,6 +6236,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]] 
 function timer_ended( source_name )
+    debug_log( 'timer_ended(' .. pre_dump(source_name) .. ') -- function variable names:  source_name ' )
 	--[[
 		stop the timer
 	]]
@@ -5535,7 +6258,6 @@ function timer_ended( source_name )
 		
 		
 		--[[
-
 			The timer expired and the timer will not restart.
 		]]	
 		set_visible( timer_source, false ); -- last thing, set visibility of timer to hide because we are changing to another scene
@@ -5550,14 +6272,10 @@ function timer_ended( source_name )
 			obs.obs_frontend_set_current_scene( source );
 			obs.obs_source_release( source );
 			--[[
-
 				timer_mode: countdown only
-
 				timer_active: timer not running
-
 				define > set_to_default: (true) * Timer time expired and the timer time needs to be set to the default state, so we do want to set the settings to default.
 				define > new_settings: not required here because we will use the global (ctx.propsSet)
-
 				purpose: The timer is completed and we need to provide instant feedback output to the timer display (timer text source)
 			]]
 			
@@ -5578,15 +6296,12 @@ function timer_ended( source_name )
 		timer_expired = true;
 		timer_active = false;
 	end
-
 	if next_scene == "Source List" then
 		cycle_source_list( "source" );
 	end	
-
 	if next_scene == "Scene List" then
 		cycle_source_list( "scene" );
 	end	
-
 	if next_scene == "TIMER END TEXT" then
 		local text = stop_text;
 		set_text( source_name, text );
@@ -5600,16 +6315,15 @@ function timer_ended( source_name )
 		
 				if a Media source has not been defined, then ignore
 			]]
-			if not in_table( {"None", "none", "select", "Select"}, media["source_name_audio_marker_end"] ) then
+			if not in_table( ignore_list, media["source_name_audio_marker_end"] ) then
 			set_visible( media["source_name_audio_marker_end"], true ); -- play the media
 			disconnect_after_media_end( "marker_end" ); -- attach a signal handler to set source hidden when media playback ends
 			--[[
-
 				If the user wants the media to stop after defined duration
 				we need to add this timer callback
 			]]
 			if media["duration_marker_end"] ~= 0 and media_playback_limit ~= 1 then
-				obs.timer_add( timer_end_media_end_callback, math.floor( media["duration_marker_end"] * 1000 ) ); --<- milliseconds
+				timer_add( timer_end_media_end_callback, math.floor( media["duration_marker_end"] * 1000 ) ); --<- milliseconds
 			end;
 		end;
 	end;
@@ -5622,11 +6336,8 @@ end
 	Description:	A function named script_properties defines the properties that the user
 					can change for the entire script module itself. The stacking order of properties detirmine 
 					the order and position of the items on the UI
-
 	Credit:			
-
 	Modified:		
-
 	function:		Creates UI
 	type:			Properties
 	input type: 	none
@@ -5634,6 +6345,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function script_properties()
+    debug_log( 'script_properties() -- function variable names: ' )
 	
 	props = obs.obs_properties_create(); -- save original object	
 	ctx.propsDef = props; -- this becomes a data object	
@@ -5863,13 +6575,31 @@ function script_properties()
 	--[[
 		 Text Field
 	]]	
-	local p_21 = obs.obs_properties_add_text( ctx.propsDef, "text_marker_a", "<font color=".. font_dimmed ..">Marker A Time</font>", obs.OBS_TEXT_DEFAULT );
-	obs.obs_property_set_long_description( p_21, "\nUse format 00:00:00 ( hoursa:minutes:seconds )\n" ); -- User Tip
+	
+	-- upgraded local p_21 = obs.obs_properties_add_text( ctx.propsDef, "text_marker_a", "<font color=".. font_dimmed ..">Marker A Time</font>", obs.OBS_TEXT_DEFAULT );
+	-- upgraded obs.obs_property_set_long_description( p_21, "\nUse format 00:00:00 ( hoursa:minutes:seconds )\n" ); -- User Tip
+	
+	 --[[
+		Editable Option list: User adds a text time stamp that will trigger time Marker functions.
+		This provides function options to change feature behaviour.
+		Changing this setting will impact on feature behaviour. 
+	]]	
+	local p_21 = obs.obs_properties_add_editable_list( ctx.propsDef, "text_arr_marker_a", "Marker A Time", obs.OBS_EDITABLE_LIST_TYPE_STRINGS, nil, nil );
 	--[[
 		 Text Field
 	]]	
-	local p_22 = obs.obs_properties_add_text( ctx.propsDef, "text_marker_b", "<font color=".. font_dimmed ..">Marker B Time</font>", obs.OBS_TEXT_DEFAULT );
-	obs.obs_property_set_long_description( p_22, "\nUse format 00:00:00 ( hoursa:minutes:seconds )\n" ); -- User Tip
+	-- upgraded local p_22 = obs.obs_properties_add_text( ctx.propsDef, "text_marker_b", "<font color=".. font_dimmed ..">Marker B Time</font>", obs.OBS_TEXT_DEFAULT );
+	-- upgraded obs.obs_property_set_long_description( p_22, "\nUse format 00:00:00 ( hoursa:minutes:seconds )\n" ); -- User Tip
+	--[[
+		Editable Option list: User adds a text time stamp that will trigger time Marker functions.
+		This provides function options to change feature behaviour.
+		Changing this setting will impact on feature behaviour. 
+	]]	
+	
+	local p_22 = obs.obs_properties_add_editable_list( ctx.propsDef, "text_arr_marker_b", "Marker B Time", obs.OBS_EDITABLE_LIST_TYPE_STRINGS, nil, nil );
+	--*props, *name, *description, min, max, step
+	obs.obs_properties_add_int_slider( ctx.propsDef, "reset_text_marker_a", "Reset Marker A Text", 0, 10800, 1 );
+	obs.obs_properties_add_int_slider( ctx.propsDef, "reset_text_marker_b", "Reset Marker A Text", 0, 10800, 1 );
   	 --[[
 		Option list: User select <media-source> to be used as audio visual at a defined time.
 		This provides function options that will impact on audio visual feedback to the user.
@@ -5878,6 +6608,7 @@ function script_properties()
 	local p_23 = obs.obs_properties_add_list( ctx.propsDef, "audio_marker_a", "<font color=".. font_dimmed ..">Marker A Audio</font>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING );
 	obs.obs_property_set_long_description( p_23, "\nSelect available media source to activate on defined time stamp.\n" ); -- User Tip
 	obs.obs_property_list_add_string( p_23, "None", "none" ); -- Add options to the list
+	obs.obs_property_list_add_string( p_23, "Allow Multiple Selections", "list" ); -- Add options to the list
 	if sources ~= nil then
 		for _, source in ipairs( sources ) do
 			source_id = obs.obs_source_get_unversioned_id( source ); -- unversioned_id will not be affected by language settings
@@ -5888,6 +6619,10 @@ function script_properties()
 		end
 			obs.bfree(source); -- free memory, release source as it is no longer needed
 	end	
+	--[[
+	]]	
+	
+	local p_23a = obs.obs_properties_add_editable_list( ctx.propsDef, "audio_marker_a_arr", "Marker A Audio List", obs.OBS_EDITABLE_LIST_TYPE_STRINGS, nil, nil );
   	 --[[
 		Option list: User select <media-source> to be used as audio visual at a defined time.
 		This provides function options that will impact on audio visual feedback to the user.
@@ -5896,6 +6631,7 @@ function script_properties()
 	local p_24 = obs.obs_properties_add_list( ctx.propsDef, "audio_marker_b", "<font color=".. font_dimmed ..">Marker B Audio</font>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING );
 	obs.obs_property_set_long_description( p_24, "\nSelect available media source to activate on defined time stamp.\n" ); -- User Tip
 	obs.obs_property_list_add_string( p_24, "None", "none" ); -- Add options to the list
+	obs.obs_property_list_add_string( p_24, "Allow Multiple Selections", "list" ); -- Add options to the list
 	if sources ~= nil then
 		for _, source in ipairs( sources ) do
 			source_id = obs.obs_source_get_unversioned_id( source ); -- unversioned_id will not be affected by language settings
@@ -5906,6 +6642,10 @@ function script_properties()
 		end
 			obs.bfree(source); -- free memory, release source as it is no longer needed
 	end	
+	--[[
+	]]	
+	
+	local p_24a = obs.obs_properties_add_editable_list( ctx.propsDef, "audio_marker_b_arr", "Marker B Audio List", obs.OBS_EDITABLE_LIST_TYPE_STRINGS, nil, nil );
   	 --[[
 		Option list: User select <media-source> to be used as audio visual at a defined time.
 		This provides function options that will impact on audio visual feedback to the user.
@@ -5935,10 +6675,10 @@ function script_properties()
 	 t_type = {"Disabled", "Enabled"}; -- Add options to the list
   	for i,v in ipairs( t_type ) do obs.obs_property_list_add_int( p_26, v, i ) end; -- This list is auto indexed thus have an interger reference containing a string value
 	obs.obs_property_set_long_description( p_26, "\nSet a maximum time limit for media playback.\n" ); -- User Tip
-	
 	--*props, *name, *description, min, max, step
 	obs.obs_properties_add_int_slider( ctx.propsDef, "duration_marker_a", "Marker A Duration", 0, 10800, 1 );
 	obs.obs_properties_add_int_slider( ctx.propsDef, "duration_marker_b", "Marker B Duration", 0, 10800, 1 );
+	
 	obs.obs_properties_add_int_slider( ctx.propsDef, "duration_marker_end", "End Audio Duration", 0, 10800, 1 );
 	obs.obs_properties_add_color( ctx.propsDef, "color_normal", "Normal Color" );
 	obs.obs_properties_add_color( ctx.propsDef, "color_marker_a", "Marker A Color" );
@@ -6291,7 +7031,6 @@ function script_properties()
 	]]		
 	local group_props_1 = obs.obs_properties_create();
 	obs.obs_properties_add_group( ctx.propsDef, "_group_1", "Stopwatch Start Point", obs.OBS_GROUP_NORMAL, group_props_1 );
-
 	local p_41 = obs.obs_properties_add_int( group_props_1, "sw_hours_saved", "HH", 0, 23, 1);
 	local p_42 = obs.obs_properties_add_int( group_props_1, "sw_minutes_saved", "MM", 0, 59, 1);
 	local p_43 = obs.obs_properties_add_int( group_props_1, "sw_seconds_saved", "SS", 0, 59, 1);
@@ -6478,6 +7217,12 @@ function script_properties()
 	]]
 	--local p_65 = obs.obs_properties_add_button( ctx.propsDef, "sec_sub_3_button", "Add Set 3", sec_sub_3_button_clicked );
 	
+	 --[[
+		SCRIPT READY
+		MUST BE HIDDEN
+	]]
+	local p_61 = obs.obs_properties_add_bool( ctx.propsDef, "script_ready", "Script Ready" );
+	obs.obs_property_set_visible( p_61 , false );
 	
 	
 	obs.source_list_release( sources ); -- free memory, release sources as it is no longer needed
@@ -6512,6 +7257,8 @@ function script_properties()
 	obs.obs_property_set_modified_callback( p_17, property_onchange );		-- timer_display
 	obs.obs_property_set_modified_callback( p_18, property_onchange );		-- split_source
 	obs.obs_property_set_modified_callback( p_20, property_onchange );		-- trigger_options
+	obs.obs_property_set_modified_callback( p_23, property_onchange );		-- audio_marker_a
+	obs.obs_property_set_modified_callback( p_24, property_onchange );		-- audio_marker_b
 	obs.obs_property_set_modified_callback( p_26, property_onchange );		-- media_playback_limit
   	obs.obs_property_set_modified_callback( p_27, property_onchange );		-- enable_marker_notes
   	obs.obs_property_set_modified_callback( p_28, property_onchange );		-- note_source_marker_a
@@ -6534,15 +7281,12 @@ function script_properties()
 	
 	return ctx.propsDef;
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	We use this to keep track of what text type sources was assigned/selected in properties
 	
 	Credit:			
-
 	Modified:		
-
 	function:		Called upon settings initialization and modification
 	type:			
 	input type: 	
@@ -6550,6 +7294,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function update_source_list()
+    debug_log( 'update_source_list() -- function variable names: ' )
 	selected_source_list["timer_source"] = timer_source; 
 	selected_source_list["split_source"] = split_source;
 	selected_source_list["active_source"] = active_source;
@@ -6563,9 +7308,7 @@ end
 	Description:	We use this to keep track of what text type sources was assigned/selected in properties
 	
 	Credit:			
-
 	Modified:		
-
 	function:		Called upon settings initialization and modification
 	type:			
 	input type: 	
@@ -6573,27 +7316,31 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function source_selected( input_value, reference )
+    debug_log( 'source_selected(' .. pre_dump(input_value) .. ", " .. pre_dump(reference) .. ') -- function variable names:  input_value, reference ' )
 	if in_table( {'Select, select'}, input_value ) or selected_source_list[reference] == input_value then return false end;
 	return in_table( selected_source_list, input_value );
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	A function named script_update will be called when settings are changed
 	
 	Credit:			
-
 	Modified:		
-
 	function:		Called upon settings initialization and modification
 	type:			
 	input type: 	
 	returns:
 ----------------------------------------------------------------------------------------------------------------------------------------
-]]
+]]	
 function script_update( settings )
-
+    debug_log( 'script_update(' .. pre_dump(settings) .. ') -- function variable names:  settings ' )
+	--[[
+		something changed, remove all timers. 
+	]]
+	remove_all_timers();
+	
   	ctx.propsSet = settings;-- Keep track of current settings
+	
 	--[[
 		Update a gloabl in case something changed. 
 	]]
@@ -6606,27 +7353,27 @@ function script_update( settings )
 		load any property values available to globals
 	]]
 	load_settings_globals( settings ); -- load all property settings to globals
-
 	reset_mili( ); -- ensure mili hide/show settings are updated
 	
 	reset( true ); -- anything could have changed so reset everything
 	--[[
-
 		If setting changed, update timer
-
 	]]
 	update_timer_settings( false ); -- optional inputs: set_to_default(bool), new_settings(obs_property_data/obs_userdata)	
 	
 	minute_format = get_minutes_allocation( custom_time_format );
+	
+	--[[
+	 		Make sure the trigger is as accurate as possible depending
+			if the timer is counting up or down.
+	]]
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	A function named script_defaults will be called to set the default settings
 	
 	Credit:			
-
 	Modified:		
-
 	function:		Called when the script is started for the first time or when the script settings 
 					is set to default
 	type:			settings
@@ -6635,6 +7382,9 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function script_defaults( settings )
+    debug_log( 'script_defaults(' .. pre_dump(settings) .. ') -- function variable names:  settings ' )
+	
+	
 	--[[
 		Get the correct frequency for splitseconds when the script loads. 
 	]]
@@ -6673,6 +7423,8 @@ function script_defaults( settings )
 	obs.obs_data_set_default_int( settings, "sw_seconds_saved", 0 );
 	obs.obs_data_set_default_int( settings, "cycle_direction", 1 );
 	obs.obs_data_set_default_int( settings, "start_recording", 2 );
+	obs.obs_data_set_default_int( settings, "reset_text_marker_a", 3 );
+	obs.obs_data_set_default_int( settings, "reset_text_marker_b", 3 );
 	obs.obs_data_set_default_int( settings, "duration_marker_a", 5 );
 	obs.obs_data_set_default_int( settings, "duration_marker_b", 5 );
 	obs.obs_data_set_default_int( settings, "timer_manipulation", 3 );
@@ -6694,8 +7446,8 @@ function script_defaults( settings )
 	obs.obs_data_set_default_string( settings, "text_suffix", "" );
 	obs.obs_data_set_default_string( settings, "note_marker_a", "" );
 	obs.obs_data_set_default_string( settings, "note_marker_b", "" );
-	obs.obs_data_set_default_string( settings, "text_marker_a", "" );
-	obs.obs_data_set_default_string( settings, "text_marker_b", "" );
+	-- upgraded obs.obs_data_set_default_string( settings, "text_marker_a", "" );
+	-- upgraded obs.obs_data_set_default_string( settings, "text_marker_b", "" );
 	obs.obs_data_set_default_string( settings, "next_scene", "select" );
 	obs.obs_data_set_default_string( settings, "day_text", "# Day \n" );
 	obs.obs_data_set_default_string( settings, "audio_marker_b", "None" );
@@ -6725,6 +7477,8 @@ function script_defaults( settings )
 	obs.obs_data_set_default_bool( settings, "force_reset_on_scene_active", false );
 	obs.obs_data_set_default_bool( settings, "prevent_negative_time", false );
 	obs.obs_data_set_default_bool( settings, "active_source_force_visible", false );
+	obs.obs_data_set_default_bool( settings, "script_ready", true ); -- Assume it is ready
+	debug_log( 'loaded get default script_ready (' .. pre_dump(true) .. ') ' )
 	-- Keep track of current settings
   	ctx.propsSet = settings; 
 end
@@ -6736,9 +7490,7 @@ end
 						automatically.
 	
 	Credit:			
-
 	Modified:		
-
 	function:			Called when script is saved
 	type:				OBS
 	input type: 		settings
@@ -6746,6 +7498,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function script_save( settings )
+    debug_log( 'script_save(' .. pre_dump(settings) .. ') -- function variable names:  settings ' )
 	--[[
 		script save
 		
@@ -6762,7 +7515,6 @@ function script_save( settings )
 	]]	
 	local hotkey_save_array_pause = obs.obs_hotkey_save( hotkey_id_pause );
 	obs.obs_data_set_array( settings, "pause_hotkey", hotkey_save_array_pause );
-
 	obs.obs_data_array_release( hotkey_save_array_pause );
 	--[[
 		script save
@@ -6781,7 +7533,6 @@ function script_save( settings )
 	obs.obs_data_set_array( settings, "mili_hotkey", hotkey_save_array_mili );
 	obs.obs_data_array_release( hotkey_save_array_mili );
 	--[[
-
 	]]
 	local hotkey_save_array_direction = obs.obs_hotkey_save( hotkey_id_direction );
 	obs.obs_data_set_array( settings, "direction_hotkey", hotkey_save_array_direction );
@@ -6825,7 +7576,6 @@ function script_save( settings )
 	--[[
 		It is really important that this the last item in this routine
 	]]
-
 	--obs.obs_properties_set_flags( ctx.propsDef, obs.obs_properties_get_flags( ctx.propsDef ) or obs.OBS_PROPERTIES_DEFER_UPDATE)
 	if load_saved_time then
 		--update_prop_settings_current_seconds( current_seconds ) -- update current time to last time in properties
@@ -6846,9 +7596,7 @@ end
 					disconnect callbacks that are intended to last until the script is
 					unloaded.
 	Credit:			
-
 	Modified:		
-
 	function:		Called when OBS is launched or the script is added
 	type:			OBS
 	input type: 	settings
@@ -6856,15 +7604,16 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function script_load( settings )
-	
+	debug_log( 'script_load(' .. pre_dump(settings) .. ') -- function variable names:  settings ' )
+	local status = count_sources()
+	debug_log( 'script_load sources ready (' .. pre_dump(status) .. ') ' )
+	status = ( status ~= 0)
+	obs.obs_data_set_bool( ctx.propsSet, "script_ready", status ); -- set to signal ready state.
+	debug_log( 'script_load set script_ready (' .. pre_dump(status) .. ') ' )
 	--[[
 		Get the correct frequency for splitseconds when the script loads. 
 	]]
 	assign_default_frequency();
-		--[[
-		load any property values available to globals
-	]]
-	load_settings_globals( settings );
 	local sh = obs.obs_get_signal_handler();
 	--[[
 		attach event listener callback [loaded]
@@ -6883,7 +7632,6 @@ function script_load( settings )
 		%p: This is a special sequence which matches all punctuation characters (!, ?, &, ...).
 		%w: This is a special sequence which matches all alphanumeric characters (A-Z, a-z, 0-9).
 		see also: 	https://riptutorial.com/lua/example/20315/lua-pattern-matching
-
 	]]
 	--[[
 		script is loading. register and assign hotkeys 
