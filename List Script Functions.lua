@@ -6,9 +6,9 @@ OBS > Tools > Scripts
 Stopwatch
 ***************************************************************************************************************************************
 
-Version 0.2
+Version 1
 
-Published / Released: 2023-07-13 16:11
+Published / Released: 2023-06-04 01:07
 
 NEW FEATURES
 
@@ -24,14 +24,13 @@ USER EXPERIENCE & FEATURE ENHANCEMENTS
 
 BUGS
 
-- fixed an issue where certain file names are incorrectly validated. 
-
+- 
 ***************************************************************************************************************************************
 ]]
 --Globals
 obs           				= obslua
 luafileTitle				= "Index Script Functions"
-gversion 					= 0.2
+gversion 					= 0.1
 luafile						= ""
 obsurl						= ""
 icon="data:image/png;base64,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"
@@ -190,7 +189,8 @@ function lookup_functions(fileName)
         local f = io.open(fileName, "r")
         local txt = f:read("*a")
         f:close()
-        local extension = fileName:match("^.+%.(.+)$")
+        
+        local extension = fileName:match("%.(.-)$")
         if not extension then
             return nil
         end
@@ -201,7 +201,6 @@ function lookup_functions(fileName)
             local functionCount = 0
             local lineNumber = 1
             for line in txt:gmatch("[^\r\n]+") do
-				
                 local functionName = line:match("function%s+([%w_]+)%(")
                 if functionName then
                     local variables = line:match("%b()")
@@ -468,7 +467,7 @@ end
 function script_defaults( settings )
 	obs.obs_data_set_default_string( settings, "path", "" )
 	obs.obs_data_set_default_string( settings, "file", "Select" )
-	obs.obs_data_set_default_string( settings, "statusMessage", "To get started, please select the file folder." )
+	obs.obs_data_set_default_string( settings, "notice", "To get started, please select the file folder." )
     obs.obs_data_set_default_string( settings, "statusMessage", "" )
 end
 --[[
@@ -487,5 +486,5 @@ end
 ]]
 function script_load( settings )
     --  clear status message
-    --obs.obs_data_set_string( settings, "statusMessage", "" );
+    obs.obs_data_set_string( settings, "statusMessage", "" );
 end
