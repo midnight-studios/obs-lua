@@ -7081,28 +7081,28 @@ local function property_onchange( props, property, settings )
 			BACKUP SETTINGS INPUTS
 	
 	]]
-	obs.obs_property_set_visible( debug_enabled_prop, enable_property_debug and ( layout_value == 2 ) );
-	obs.obs_property_set_visible( backup_mode_prop, enable_property_backup and ( layout_value == 2 ) and not in_table( ignore_list, timer_source_value ) );
-	obs.obs_property_set_visible( import_list_prop, enable_property_backup and backup_mode_value and backup_folder ~= "" and backup_folder ~= nil and layout_value == 2 and not in_table( ignore_list, timer_source_value ) );
+	obs.obs_property_set_visible( debug_enabled_prop, enable_property_debug and ( layout_value == 2 ) and timer_options_value == 2 );
+	obs.obs_property_set_visible( backup_mode_prop, enable_property_backup and ( layout_value == 2 ) and not in_table( ignore_list, timer_source_value ) and timer_options_value == 2 );
+	obs.obs_property_set_visible( import_list_prop, enable_property_backup and backup_mode_value and backup_folder ~= "" and backup_folder ~= nil and layout_value == 2 and not in_table( ignore_list, timer_source_value ) and timer_options_value == 2 );
 	obs.obs_property_set_visible( export_button_prop, enable_property_backup and backup_mode_value and backup_folder ~= "" and backup_folder ~= nil  and layout_value == 2 and not in_table( ignore_list, timer_source_value ) );
-	obs.obs_property_set_visible( import_button_prop, enable_property_backup and backup_mode_value and layout_value == 2 and not in_table( ignore_list, timer_source_value ) );
-	obs.obs_property_set_visible( export_folder_prop, enable_property_backup and backup_mode_value and layout_value == 2 and not in_table( ignore_list, timer_source_value ) );
-	obs.obs_property_set_visible( import_button_prop, import_list_value ~= "select" and import_list_value ~= "none" and import_list_value ~= "" and layout_value == 2 and not in_table( ignore_list, timer_source_value ) );
+	obs.obs_property_set_visible( import_button_prop, enable_property_backup and backup_mode_value and layout_value == 2 and not in_table( ignore_list, timer_source_value ) and timer_options_value == 2 );
+	obs.obs_property_set_visible( export_folder_prop, enable_property_backup and backup_mode_value and layout_value == 2 and not in_table( ignore_list, timer_source_value ) and timer_options_value == 2 );
+	obs.obs_property_set_visible( import_button_prop, import_list_value ~= "select" and import_list_value ~= "none" and import_list_value ~= "" and layout_value == 2 and not in_table( ignore_list, timer_source_value ) and timer_options_value == 2 );
 	--[[
 	
 			OTHER INPUTS
 	
 	]]		
 	obs.obs_property_set_visible( disable_script_prop, layout_value == 2 );
-	obs.obs_property_set_visible( enable_direction_toggle_prop, layout_value == 2 and ( timer_mode_value == 2 and countdown_type_value == 2 or timer_mode_value == 1 ) and not in_table( ignore_list, timer_source_value ) ); 
-	obs.obs_property_set_visible( prevent_negative_time_prop, enable_direction_toggle and layout_value == 2 and ( timer_mode_value == 2 and countdown_type_value == 2 or timer_mode_value == 1 ) and not in_table( ignore_list, timer_source_value ) );
-	obs.obs_property_set_visible( start_on_visible_prop, layout_value == 2 and not start_on_scene_active and not in_table( ignore_list, timer_source_value ) );
-	obs.obs_property_set_visible( force_reset_on_visible_prop, layout_value == 2 and start_on_visible and not in_table( ignore_list, timer_source_value ) );
-	obs.obs_property_set_visible( force_reset_on_scene_active_prop, layout_value == 2 and start_on_scene_active and not in_table( ignore_list, timer_source_value ) );
-	obs.obs_property_set_visible( start_on_scene_active_prop, layout_value == 2 and not start_on_visible and not in_table( ignore_list, timer_source_value ) );
+	obs.obs_property_set_visible( enable_direction_toggle_prop, layout_value == 2 and timer_options_value == 2 and ( timer_mode_value == 2 and countdown_type_value == 2 or timer_mode_value == 1 ) and not in_table( ignore_list, timer_source_value ) ); 
+	obs.obs_property_set_visible( prevent_negative_time_prop, enable_direction_toggle and layout_value == 2 and ( timer_mode_value == 2 and countdown_type_value == 2 or timer_mode_value == 1 ) and not in_table( ignore_list, timer_source_value ) and timer_options_value == 2 );
+	obs.obs_property_set_visible( start_on_visible_prop, layout_value == 2 and timer_options_value == 2 and not start_on_scene_active and not in_table( ignore_list, timer_source_value ) );
+	obs.obs_property_set_visible( force_reset_on_visible_prop, layout_value == 2 and timer_options_value == 2 and start_on_visible and not in_table( ignore_list, timer_source_value ) );
+	obs.obs_property_set_visible( force_reset_on_scene_active_prop, layout_value == 2 and timer_options_value == 2 and start_on_scene_active and not in_table( ignore_list, timer_source_value ) );
+	obs.obs_property_set_visible( start_on_scene_active_prop, layout_value == 2 and timer_options_value == 2 and not start_on_visible and not in_table( ignore_list, timer_source_value ) );
 	
-	obs.obs_property_set_visible( _group_4_prop, select_features and layout_value == 2 );
-	obs.obs_property_set_visible( select_features_prop, layout_value == 2 );
+	obs.obs_property_set_visible( _group_4_prop, select_features and timer_options_value == 2 and layout_value == 2 );
+	obs.obs_property_set_visible( select_features_prop, layout_value == 2 and timer_options_value == 2 );
 	--[[
 		
 		Try to prevent reference conflicts
