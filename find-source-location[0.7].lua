@@ -59,10 +59,10 @@ search_param				= 1
 list_all 					= "List Everything"
 goto 						= false
 print_log			 		= false
-output_json	 			= false
+output_json	 			    = false
 output_results	 			= false
 search			 			= false
-output_file_name 					= "-data ($date_stamp).json";
+output_file_name 			= "";
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	Description:	Dumps input to string, if input is a table it returns the expanded table
@@ -122,46 +122,6 @@ end
 local function filename() 
 	local str = debug.getinfo(2).source:sub(2);
 	return str:match("^.*/(.*).lua$") or str;
-end
---[[
-----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Convert data to file
-	
-	Credit:			midnight-studios, et al
-	Modified:		Yes, custom params to suit targeted need
-	function:		
-	type:			Support
-	input type: 	OBS data (Settings)
-	returns:		json file
-----------------------------------------------------------------------------------------------------------------------------------------
-]]
-local function write_to_file( file_type, content, user_path, output_file_name )
-	output_file_name = output_file_name or "Search Results"
-	content = content or string.format( "%s [%s]\n", output_file_name, os.date("%Y-%m-%d_%H.%M.%S"))
-	local file_name = string.format( "Script [%s]-%s [%s]%s", filename(), output_file_name, os.date("%Y-%m-%d_%H.%M.%S"), "." .. file_type );
-	-- set output path as the script path by default
-	local script_path = script_path();
-	local output_path = script_path .. file_name;
-	-- if specified output path exists, then set this as the new output path
-	if user_path ~= "" then
-		output_path = user_path .. "/" .. file_name;
-	else
-		output_path = script_path .. file_name;
-	end
-	output_path = output_path:gsub( [[\]], "/" );	
-    -- Open file in write mode, this will create the file if it does not exist
-    local file = io.open( output_path, "w" )
-    -- If the file has been opened successfully
-    if file then
-        -- Write content to the file
-        file:write( content )
-        -- Close the file
-        file:close()
-    else
-        -- Print error message
-        print("Failed to open file " .. file_name .. " for writing")
-    end
-	return output_path;
 end
 --[[
 ----------------------------------------------------------
@@ -496,11 +456,10 @@ end
 
 ----------------------------------------------------------
 ]]
-function export_table_to_json( tbl )
+function export_table_to_json( tbl, user_path )
 
-	local user_path = ""
 	local file_type = "json"
-	output_file_name = output_file_name or "Search Results"
+	output_file_name = "json Tree"
 	
 	local file_name = string.format( "Script [%s]-%s [%s]%s", filename(), output_file_name, os.date("%Y-%m-%d_%H.%M.%S"), "." .. file_type );
 	-- set output path as the script path by default
@@ -515,6 +474,46 @@ function export_table_to_json( tbl )
 	output_path = output_path:gsub( [[\]], "/" );	
 
 	obs.obs_data_save_json( tableToObsData(tbl), output_path );
+end
+--[[ 
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Convert data to file
+	
+	Credit:			midnight-studios, et al
+	Modified:		Yes, custom params to suit targeted need
+	function:		
+	type:			Support
+	input type: 	OBS data (Settings)
+	returns:		json file
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function write_to_file( file_type, content, user_path, output_file_name )
+	output_file_name = output_file_name or "Search Results"
+	content = content or string.format( "%s [%s]\n", output_file_name, os.date("%Y-%m-%d_%H.%M.%S"))
+	local file_name = string.format( "Script [%s]-%s [%s]%s", filename(), output_file_name, os.date("%Y-%m-%d_%H.%M.%S"), "." .. file_type );
+	-- set output path as the script path by default
+	local script_path = script_path();
+	local output_path = script_path .. file_name;
+	-- if specified output path exists, then set this as the new output path
+	if user_path ~= "" then
+		output_path = user_path .. "/" .. file_name;
+	else
+		output_path = script_path .. file_name;
+	end
+	output_path = output_path:gsub( [[\]], "/" );	
+    -- Open file in write mode, this will create the file if it does not exist
+    local file = io.open( output_path, "w" )
+    -- If the file has been opened successfully
+    if file then
+        -- Write content to the file
+        file:write( content )
+        -- Close the file
+        file:close()
+    else
+        -- Print error message
+        print("Failed to open file " .. file_name .. " for writing")
+    end
+	return output_path;
 end
 --[[
 ----------------------------------------------------------
@@ -561,11 +560,19 @@ function getSourcesTable()
             local filter_count = obs.obs_source_filter_count(source)
             local filters = obs.obs_source_enum_filters(source)
 
+            local isvisible = obs.obs_sceneitem_visible(scene_item_value);
+
+
+
+
+
+
             local source_info = {
                 position = group and "group" or "source",
                 nested_scene = (type_parent == obs.OBS_SOURCE_TYPE_SCENE and not group ),
                 type = type_parent,
                 id = id_parent,
+                visible = isvisible,
                 unversioned_id = unversioned_id_parent,
                 display_name = display_name_parent,
                 source_name = source_name_parent,
@@ -978,7 +985,7 @@ function doSearch( do_search )
 
 	if output_json then 
 		local sources_table = getSourcesTable()
-		export_table_to_json( sources_table )
+		export_table_to_json( sources_table, output_folder )
 	end
 	return true
 end
