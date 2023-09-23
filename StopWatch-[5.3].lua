@@ -2860,13 +2860,9 @@ local function set_timer_text_color( color )
 				Win = "color"
 				Mac = "color2" and "color3"
 			]]
-			if osType == "Windows" then
-				obs.obs_data_set_int( settings, "color", color ); -- update source settings
-			else
-				obs.obs_data_set_int( settings, "color", color ); -- compatibility for settings transfer
-				obs.obs_data_set_int( settings, "color1", color ); -- update source settings
-				obs.obs_data_set_int( settings, "color2", color ); -- update source settings
-			end
+			obs.obs_data_set_int( settings, "color", color ); -- compatibility for settings transfer
+			obs.obs_data_set_int( settings, "color1", color ); -- update source settings
+			obs.obs_data_set_int( settings, "color2", color ); -- update source settings
 		end	
 		obs.obs_source_update( source, settings ); -- save source new settings
 		obs.obs_data_release( settings ); -- release settings
@@ -3331,13 +3327,9 @@ local function set_text_note_color( ref )
 					Win = "color"
 					Mac = "color2" and "color3"
 				]]
-				if osType == "Windows" then
-					obs.obs_data_set_int( settings, "color", color ); -- update source settings
-				else
-					obs.obs_data_set_int( settings, "color", color ); -- compatibility for settings transfer
-					obs.obs_data_set_int( settings, "color1", color ); -- update source settings
-					obs.obs_data_set_int( settings, "color2", color ); -- update source settings
-				end
+				obs.obs_data_set_int( settings, "color", color ); -- compatibility for settings transfer
+				obs.obs_data_set_int( settings, "color1", color ); -- update source settings
+				obs.obs_data_set_int( settings, "color2", color ); -- update source settings
 			end				
 		end	
 	end;
@@ -4343,13 +4335,9 @@ function update_timer_display( source_name, text )
 					Win = "color"
 					Mac = "color2" and "color3"
 				]]
-				if osType == "Windows" then
-					obs.obs_data_set_int( settings, "color", media["color_normal"] ); -- update source settings
-				else
-					obs.obs_data_set_int( settings, "color", media["color_normal"] ); -- compatibility for settings transfer
-					obs.obs_data_set_int( settings, "color1", media["color_normal"] ); -- update source settings
-					obs.obs_data_set_int( settings, "color2", media["color_normal"] ); -- update source settings
-				end
+				obs.obs_data_set_int( settings, "color", media["color_normal"] ); -- compatibility for settings transfer
+				obs.obs_data_set_int( settings, "color1", media["color_normal"] ); -- update source settings
+				obs.obs_data_set_int( settings, "color2", media["color_normal"] ); -- update source settings
 				color_normal_updated = true;
 			end	
 			time_mark_check( "marker_a" );
