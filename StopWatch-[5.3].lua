@@ -2863,6 +2863,7 @@ local function set_timer_text_color( color )
 			if osType == "Windows" then
 				obs.obs_data_set_int( settings, "color", color ); -- update source settings
 			else
+				obs.obs_data_set_int( settings, "color", color ); -- compatibility for settings transfer
 				obs.obs_data_set_int( settings, "color1", color ); -- update source settings
 				obs.obs_data_set_int( settings, "color2", color ); -- update source settings
 			end
@@ -3333,6 +3334,7 @@ local function set_text_note_color( ref )
 				if osType == "Windows" then
 					obs.obs_data_set_int( settings, "color", color ); -- update source settings
 				else
+					obs.obs_data_set_int( settings, "color", color ); -- compatibility for settings transfer
 					obs.obs_data_set_int( settings, "color1", color ); -- update source settings
 					obs.obs_data_set_int( settings, "color2", color ); -- update source settings
 				end
@@ -4344,6 +4346,7 @@ function update_timer_display( source_name, text )
 				if osType == "Windows" then
 					obs.obs_data_set_int( settings, "color", media["color_normal"] ); -- update source settings
 				else
+					obs.obs_data_set_int( settings, "color", media["color_normal"] ); -- compatibility for settings transfer
 					obs.obs_data_set_int( settings, "color1", media["color_normal"] ); -- update source settings
 					obs.obs_data_set_int( settings, "color2", media["color_normal"] ); -- update source settings
 				end
