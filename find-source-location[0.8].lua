@@ -10,12 +10,11 @@ Simple Source Search Tool
 ***************************************************************************************************************************************
 Version 0.8
 
-Published / Released: 2023-09-24 01:05
+Published / Released: 2023-09-24 15:46
 
 NEW FEATURES
 
-- Json Tree output
-- Text File output
+- 
 
 OPTIMIZATION
 
@@ -23,7 +22,7 @@ OPTIMIZATION
 
 USER EXPERIENCE & FEATURE ENHANCEMENTS
 
-- 
+- Output improvements
 
 BUGS
 
@@ -286,15 +285,11 @@ function property_onchange( props, property, settings )
 	local prop_name = obs.obs_property_name( property )
 	local prop_val = obs.obs_data_get_string( settings, prop_name )
 	local prop = obs.obs_properties_get( props, prop_name )
-	--obs.obs_data_set_string( settings, "statusMessage", "" )
-	local source_type = obs.obs_data_get_string( ctx.propsSet, "source_type" )
-	local filter_type = obs.obs_data_get_string( ctx.propsSet, "filter_type" )
-	local search_param = obs.obs_data_get_int( ctx.propsSet, "search_param" )
 	local output_folder_props = obs.obs_properties_get( props, "output_folder" )
 	local search_source_name_props = obs.obs_properties_get( props, "search_source_name" )
 	local filter_type_props = obs.obs_properties_get( props, "filter_type" )
 	obs.obs_property_set_visible( output_folder_props, output_results or output_json )
-	obs.obs_property_set_visible( filter_type_props, ( search_param == 2) )
+	obs.obs_property_set_visible( filter_type_props, ( search_param ~= 1) )
 	obs.obs_property_list_clear( search_source_name_props )
 	obs.obs_property_list_add_string( search_source_name_props, list_all, list_all )
 	if prop_name == "source_type" then
