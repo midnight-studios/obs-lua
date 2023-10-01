@@ -1092,7 +1092,7 @@ function doSearch( do_search )
                             result.kind == "Group" and string.format("Visible:  \'%s\' ", tostring(result.visible)) or 
                             result.kind == "Nested Scene" and string.format("Visible: %s ", tostring(result.visible)) or ""
               
-            local value_2 = in_table( {"Scene", "Source", "Group", "Nested Scene"}, result.kind ) and string.format("Filters:  \'%s\',  ", tostring(result.filters_applied)) or ""
+            local value_2 = in_table( {"Scene", "Source", "Group", "Nested Scene"}, result.kind ) and string.format("Filters:  \'%s\',  ", tostring(result.filters_applied and result.filters_applied or 0 )) or ""
 
             resultString = resultString .. string.format( "%s Kind:  \'%s\',  Name:  \'%s\',  %s%s\n%s Location: \"%s\"\n%s%s\n\n", tostring(i) .. ".1", result.kind, result.name, value_2, value_1, tostring(i) .. ".2", result.location, tostring(i) .. ".3", msg )            
         end    
