@@ -832,7 +832,7 @@ function getOBSTable( params )
                     end
                 end
                 if params.searchFocus ~= 1 then
-                    info.filters, info.filters_applied = searchFilters(source, params, info.location)
+                    info.filters, info.installed_filters = searchFilters(source, params, info.location)
                 end
                 if insertData then 
 					table.insert(data, info)
@@ -905,7 +905,7 @@ function getOBSTable( params )
                 end 
                 -- Search current source filters
                 if params.searchFocus ~= 1 then
-                    info.filters, info.filters_applied = searchFilters(source, params, info.location)
+                    info.filters, info.installed_filters = searchFilters(source, params, info.location)
                 end
                 if insertData then 
                     info.children = {}
@@ -967,7 +967,7 @@ function getOBSTable( params )
                 end    
                 -- Search current source filters
                 if params.searchFocus ~= 1 then
-                    info.filters, info.filters_applied = searchFilters(source, params, info.location)
+                    info.filters, info.installed_filters = searchFilters(source, params, info.location)
                 end  
 				if insertData then  
                     info.children = {}
@@ -1092,7 +1092,7 @@ function doSearch( do_search )
                             result.kind == "Group" and string.format("Visible:  \'%s\' ", tostring(result.visible)) or 
                             result.kind == "Nested Scene" and string.format("Visible: %s ", tostring(result.visible)) or ""
               
-            local value_2 = in_table( {"Scene", "Source", "Group", "Nested Scene"}, result.kind ) and string.format("Filters:  \'%s\',  ", tostring(result.filters_applied and result.filters_applied or 0 )) or ""
+            local value_2 = in_table( {"Scene", "Source", "Group", "Nested Scene"}, result.kind ) and string.format("Filters:  \'%s\',  ", tostring(result.installed_filters and result.installed_filters or 0 )) or ""
 
             resultString = resultString .. string.format( "%s Kind:  \'%s\',  Name:  \'%s\',  %s%s\n%s Location: \"%s\"\n%s%s\n\n", tostring(i) .. ".1", result.kind, result.name, value_2, value_1, tostring(i) .. ".2", result.location, tostring(i) .. ".3", msg )            
         end    
