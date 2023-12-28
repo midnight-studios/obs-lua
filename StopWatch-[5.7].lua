@@ -30,7 +30,7 @@ BUGS
 ]]
 --Globals
 obs           				= obslua;
-gversion 					= "5.6";
+gversion 					= "5.7";
 luafile						= "StopWatch.lua";
 obsurl						= "comprehensive-stopwatch-countdown-timer.1364/";
 patch_notes					= "Patch Notes";
