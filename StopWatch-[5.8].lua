@@ -439,7 +439,7 @@ end
 ]]
 function script_description()
 	debug_log( 'script_description() -- function variable names: ' )
-	return string.format( 'desc', tostring( gversion ) );
+	return string.format( desc, tostring( gversion ) );
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
