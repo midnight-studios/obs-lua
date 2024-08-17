@@ -5,13 +5,13 @@ OBS > Tools > Scripts
 @midnight-studios
 Stopwatch
 ***************************************************************************************************************************************
-Version 5.8 
+Version 5.9 
 
-Published / Released: 2024-02-16 12:08
+Published / Released: 2024-08-17 20:43
 
 NEW FEATURES
 
-- Timer Expire Events ('Source List', 'Scene List', 'Auto List') has been expanded to exit out of the timer loop when source list contains only one item.
+- Export split time to text file (opt-in) @RobertWilliams
 
 OPTIMIZATION
 
@@ -19,28 +19,21 @@ OPTIMIZATION
 
 USER EXPERIENCE & FEATURE ENHANCEMENTS
 
-- 
+- Updated script description @rez1coder
 
 BUGS
 
-- Fixed hour input limit for count down mode
-- Fixed minute input limit for count down mode
-- Fixed bug related Timer Expire Events ('Source List', 'Scene List', 'Auto List')
-- Fixed an issue when Timer Expire Events ('Source List', 'Scene List', 'Auto List') contains only one item.
-
+- Fixed error on load for setting 'Autoload last time stamp when OBS starts' @goods0ul
 
 NOTES
 
-When Timer Expire Events is set to 'Source List', 'Scene List' or 'Auto List' and only one source/scene is defined/available, 
-the timer will not reset. If the timer does not reset it will display the timer's expired timestamp. If a userbase requires the timestamp to
-change, then this feature refactoring for the script will be considered for future updates.
 
 
 ***************************************************************************************************************************************
 ]]
 --Globals
 obs           				= obslua;
-gversion 					= "5.8";
+gversion 					= "5.9";
 luafile						= "StopWatch.lua";
 obsurl						= "comprehensive-stopwatch-countdown-timer.1364/";
 patch_notes					= "Patch Notes";
@@ -51,7 +44,7 @@ desc	    				=
 <br><center><img width=38 height=42 src="]] .. icon .. [["/></center>
 <br><center><a href="https://github.com/midnight-studios/obs-lua/blob/main/]] .. luafile ..[[">Find it on GitHub</a></center>
 <center><a href="https://obsproject.com/forum/resources/]] .. obsurl ..[[updates">]] .. patch_notes ..[[</a></center>
-<br><p>The Properties for this script will adjust visibility as needed. Some advanced properties will only be visible if the Layout setting is set to "Advanced". If the Layout setting is set to "Basic" any defined values will still be active, so ensure you define those correctly.</p><p>Find help on the <a href="https://obsproject.com/forum/resources/]] .. obsurl ..[[">OBS Forum Thread</a>.</p><hr/>
+<br><p>The script's visibility adjusts with layout settings: "Advanced" shows advanced properties. "Basic" hides them but keeps values active, so set them correctly.</p><p>Find help on the <a href="https://obsproject.com/forum/resources/]] .. obsurl ..[[">OBS Forum Thread</a>.</p><hr/>
 ]];
 debug_file							= ""
 debug_file_name						= "Debug Log"
@@ -81,7 +74,8 @@ sec_add_3							= "";
 sec_sub_1							= "";
 sec_sub_2							= "";
 sec_sub_3							= "";
-output_file_name 					= "-backup($date_stamp).json";
+output_file_name 					= "-backup($date_stamp)";
+output_file_ext 					= ".json";
 font_normal							= "#ffffff";
 font_dimmed							= "#bfbbbf";
 font_highlight						= "#fffdcf";
@@ -187,6 +181,7 @@ active_source_force_visible			= false;
 split_startpause					= false;
 disable_script   					= false;
 enable_direction_toggle  			= false;
+backup_split_time		  			= false;
 show_mili   						= true;
 timer_expired  						= true;
 mili_toggle_triggered				= false; 
@@ -2133,11 +2128,11 @@ end
 	returns:		json file
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
-local function write_to_json( data )
+local function write_to_json( data, file_name )
     debug_log( 'write_to_json(' .. pre_dump(data) .. ') -- function variable names:  data ' )
 	output_folder = backup_folder;
 	-- convert Windows path to UNIX path
-	local file_name = filename() .. output_file_name:gsub("$date_stamp", os.date("%Y-%m-%d-%H%M"));
+	file_name = filename() .. (file_name or output_file_name:gsub("$date_stamp", os.date("%Y-%m-%d-%H%M"))) .. output_file_ext
 	-- set output path as the script path by default
 	local script_path = script_path();
 	local output_path = script_path .. file_name;
@@ -2151,6 +2146,49 @@ local function write_to_json( data )
 	obs.obs_data_erase( data, "backup_folder" );
 	obs.obs_data_erase( data, "backup_mode" );
 	return obs.obs_data_save_json( data, output_path );
+end
+--[[ 
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	Convert data to file
+	
+	Credit:			midnight-studios, et al
+	Modified:		Yes, custom params to suit targeted need
+	function:		
+	type:			Support
+	input type: 	OBS data (Settings)
+	returns:		json file
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function write_to_file( file_type, content, file_name )
+    debug_log( 'write_to_file(' .. pre_dump(data) .. ') -- function variable names:  data ' )
+	output_folder = backup_folder;
+	file_type = file_type or output_file_ext
+	-- convert Windows path to UNIX path
+	file_name = filename() .. (file_name or output_file_name:gsub("$date_stamp", os.date("%Y-%m-%d-%H%M"))) .. file_type 
+	-- set output path as the script path by default
+	local script_path = script_path();
+	local output_path = script_path .. file_name;
+	-- if specified output path exists, then set this as the new output path
+	if (output_folder ~= "") then
+		output_path = output_folder .. "/" .. file_name;
+	else
+		output_path = script_path .. file_name;
+	end
+	output_path = output_path:gsub([[\]], "/");
+    -- Open file in write mode, this will create the file if it does not exist
+    local file = io.open( output_path, "w" )
+    -- If the file has been opened successfully
+	content = content or 'no content'
+    if file then
+        -- Write content to the file
+        file:write( content )
+        -- Close the file
+        file:close()
+    else
+        -- Print error message
+        print("Failed to open file " .. file_name .. " for writing")
+    end
+	return output_path;
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
@@ -3558,15 +3596,21 @@ local function time_mark_check( ref )
 	local round_seconds = roundSeconds();
 	local activation_time = media["activated_time_".. ref];
 	local text_marker = media["text_".. ref];
+
 	if activation_time == nil or text_marker == nil then 	
 		--return; 
 	end; -- nothing to activate further
+
 	if activation_time == nil or text_marker == nil then 	
 		--return; 
 	end; -- nothing to activate further
-	
-	if ( current_count_direction == "UP" and activation_time < round_seconds ) or ( current_count_direction == "DOWN" and activation_time > round_seconds ) then  -- a second or more passed
+
+	if activation_time ~= nil then 
+		if ( current_count_direction == "UP" and activation_time < round_seconds ) or ( current_count_direction == "DOWN"and activation_time > round_seconds ) then -- a second or more passed
 			media["activated_".. ref] = false; 
+		end
+	else
+		-- Handle the case where activation_time is nil-- For example, you could set a default value or skip the comparison
 	end
 	
 	validate_presuf()
@@ -4687,6 +4731,9 @@ local function set_split_text( source_name )
 	local text = split_data;
 	if text ~= last_split_data then
 		set_text( source_name, text );
+		if backup_split_time then 
+			write_to_file( '.txt', text, '-split-time' )
+		end
 	end
 	last_split_data = text;
 end
@@ -6835,6 +6882,7 @@ local function load_settings_globals( settings )
 	cycle_direction = obs.obs_data_get_int( settings, "cycle_direction" );
 	sw_current_seconds = obs.obs_data_get_double( settings, "sw_current_seconds" );
 	load_saved_time = obs.obs_data_get_bool( settings, "load_saved_time" );
+	backup_split_time = obs.obs_data_get_bool( settings, "backup_split_time" );
 	sw_minutes_saved = obs.obs_data_get_int( settings, "sw_minutes_saved" );
 	sw_seconds_saved = obs.obs_data_get_int( settings, "sw_seconds_saved" );
 	custom_time_format = obs.obs_data_get_string( settings, "custom_time_format" );
@@ -7280,6 +7328,7 @@ local function property_onchange( props, property, settings )
 	
 	]]	
 	local backup_mode_prop = obs.obs_properties_get( props, "backup_mode" );
+	local backup_split_time_prop = obs.obs_properties_get( props, "backup_split_time" );
 	local debug_enabled_prop = obs.obs_properties_get( props, "debug_enabled" );
 	local import_list_prop = obs.obs_properties_get( props, "import_list" );
 	--[[
@@ -7385,6 +7434,7 @@ local function property_onchange( props, property, settings )
 	local a_note_prop = obs.obs_properties_get( props, "note_marker_a" );
 	local b_note_prop = obs.obs_properties_get( props, "note_marker_b" );
 	local enable_marker_notes_prop = obs.obs_properties_get( props, "enable_marker_notes" );
+	local text_marker_tip_prop = obs.obs_properties_get( props, "text_marker_tip" );
 	local text_arr_marker_a_prop = obs.obs_properties_get( props, "text_arr_marker_a" );
 	local text_arr_marker_b_prop = obs.obs_properties_get( props, "text_arr_marker_b" );
 	local color_marker_a_prop = obs.obs_properties_get( props, "color_marker_a" );
@@ -7476,6 +7526,7 @@ local function property_onchange( props, property, settings )
 	]]
 	obs.obs_property_set_visible( to_prop, enable_property_trigger_options and ( layout_value == 2 and not in_table( ignore_list, timer_source_value ) ) );
 	obs.obs_property_set_visible( enable_marker_notes_prop, ( layout_value == 2 and enable_property_trigger_options and trigger_options_value == 2 and ( editable_list_has_values( "text_arr_marker_a" ) or editable_list_has_values( "text_arr_marker_b" ) ) ));
+	obs.obs_property_set_visible( text_marker_tip_prop, ( layout_value == 2 and enable_property_trigger_options and trigger_options_value == 2 ) );
 	obs.obs_property_set_visible( text_arr_marker_a_prop, ( layout_value == 2 and enable_property_trigger_options and trigger_options_value == 2 ) );
 	obs.obs_property_set_visible( text_arr_marker_b_prop, ( layout_value == 2 and enable_property_trigger_options and trigger_options_value == 2 ) );
 	obs.obs_property_set_visible( audio_marker_a_prop, ( layout_value == 2 and enable_property_trigger_options and trigger_options_value == 2 and editable_list_has_values( "text_arr_marker_a" ) ) ); -- text_arr_marker_b  audio_marker_b_arr
@@ -7504,6 +7555,7 @@ local function property_onchange( props, property, settings )
 	]]
 	obs.obs_property_set_visible( debug_enabled_prop, enable_property_debug and ( layout_value == 2 ) and timer_options_value == 2 );
 	obs.obs_property_set_visible( backup_mode_prop, enable_property_backup and ( layout_value == 2 ) and not in_table( ignore_list, timer_source_value ) and timer_options_value == 2 );
+	obs.obs_property_set_visible( backup_split_time_prop, enable_property_backup and ( layout_value == 2 ) and backup_mode_value and not in_table( ignore_list, timer_source_value ) and timer_options_value == 2 );
 	obs.obs_property_set_visible( import_list_prop, enable_property_backup and backup_mode_value and backup_folder ~= "" and backup_folder ~= nil and layout_value == 2 and not in_table( ignore_list, timer_source_value ) and timer_options_value == 2 );
 	obs.obs_property_set_visible( export_button_prop, enable_property_backup and backup_mode_value and backup_folder ~= "" and backup_folder ~= nil  and layout_value == 2 and not in_table( ignore_list, timer_source_value ) );
 	obs.obs_property_set_visible( import_button_prop, enable_property_backup and backup_mode_value and layout_value == 2 and not in_table( ignore_list, timer_source_value ) and timer_options_value == 2 );
@@ -8250,6 +8302,7 @@ function script_properties()
 	]]
 	local p_65_a = obs.obs_properties_add_list( ctx.propsDef, "timer_activation_source", "<i>Activation Source</i>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING );
 	obs.obs_property_list_add_string( p_65_a, "Select", "select" );  -- Adds a default option to the list. First (top-most) list item. If selected the option is ignored. 
+	obs.obs_property_set_long_description( p_65_b, "\nSelect a trigger source that activates the timer upon its visibility or display.\n" ); -- User Tip
 	
 	--[[
 		Option list: User select to show or hide available features.
@@ -8261,7 +8314,7 @@ function script_properties()
 	local p_65_b = obs.obs_properties_add_list( ctx.propsDef, "timer_reset", "<font color=".. font_dimmed ..">Timer Reset</font>", obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_INT );
 	 t_type = {"Manual", "Auto"}; -- Add options to the list
   	for i,v in ipairs( t_type ) do obs.obs_property_list_add_int( p_65_b, v, i ) end; -- This list is auto indexed thus have an interger reference containing a string value
-	obs.obs_property_set_long_description( p_65_b, "\nConfigure how the timer is activated.\n" ); -- User Tip
+	obs.obs_property_set_long_description( p_65_b, "\nChoose how the timer resets: manually by you, or automatically based on specific actions.\n" ); -- User Tip
 	
 	--[[
 		 Text Field
@@ -8269,7 +8322,7 @@ function script_properties()
 		This property is referenced to trigger an onchange event listener.
 	]]	
 	local p_16 = obs.obs_properties_add_text( ctx.propsDef, "toggle_mili_trigger", "<font color=".. font_dimmed ..">Toggle Milliseconds</font>", obs.OBS_TEXT_DEFAULT );
-	obs.obs_property_set_long_description( p_16, "\nUse format 00:00:00 ( hoursa:minutes:seconds ) \nSetting to determine when to show Milliseconds\n" ); -- User Tip
+	obs.obs_property_set_long_description( p_16, "\nUse format 00:00:00 ( hours:minutes:seconds ) \nSetting to determine when to show Milliseconds\n" ); -- User Tip
  	--[[
 		Option list: User select <text-source> to be used as visual feedback indicating a snip of the time stamp.
 		This provides function options that will impact on visual feedback to the user.
@@ -8326,13 +8379,20 @@ function script_properties()
 	 t_type = {"Hidden", "Expanded"}; -- Add options to the list
   	for i,v in ipairs( t_type ) do obs.obs_property_list_add_int( p_20, v, i ) end; -- This list is auto indexed thus have an interger reference containing a string value
 	obs.obs_property_set_long_description( p_20, "\nExpand or hide additional options triggered by time stamps.\n" ); -- User Tip
-	 --[[
+	
+    local p_21_n = obs.obs_properties_add_text( ctx.propsDef, "text_marker_tip", "<font color=".. font_dimmed ..">Tip</font>", obs.OBS_TEXT_DEFAULT );
+	obs.obs_property_set_long_description( p_21_n, "\nUse format 00:00:00 ( hours:minutes:seconds )\n" ); -- User Tip
+    obs.obs_property_set_enabled( p_21_n, false );
+    --[[
 		Editable Option list: User adds a text time stamp that will trigger time Marker functions.
 		This provides function options to change feature behaviour.
 		Changing this setting will impact on feature behaviour. 
 	]]	
 	local p_21 = obs.obs_properties_add_editable_list( ctx.propsDef, "text_arr_marker_a", "Marker A Time", obs.OBS_EDITABLE_LIST_TYPE_STRINGS, nil, nil );
-	--[[
+	obs.obs_property_set_long_description( p_21, "\nExpand or hide additional options triggered by time stamps.\n" ); -- User Tip
+    obs.obs_property_set_long_description( p_21, "\nUse format 00:00:00 ( hours:minutes:seconds )\n" ); -- User Tip
+
+    --[[
 		Editable Option list: User adds a text time stamp that will trigger time Marker functions.
 		This provides function options to change feature behaviour.
 		Changing this setting will impact on feature behaviour. 
@@ -8849,7 +8909,7 @@ function script_properties()
 	local p_gp_5 = obs.obs_properties_add_int( group_props_1, "sw_milliseconds_saved", "FF", 0, 99, 1);
 	local p_gp_6 = obs.obs_properties_add_bool( group_props_1, "load_saved_time", "Autoload last time stamp when OBS starts" );
 	local p_gp_7 = obs.obs_properties_add_button( group_props_1, "sw_button", "Set", sw_saved_button_clicked );
-	--[[
+	--[[ 
 		Hidden Value
 		We save last count in the properties for when OBS shuts down and starts again
 	]]
@@ -8968,6 +9028,14 @@ function script_properties()
 			obs.obs_property_list_add_string( p_58, v, v ); -- Add options to the list
 		end;
 	end;
+	obs.obs_properties_add_bool( ctx.propsDef, "backup_split_time", "Export Split Time" );
+	--[[
+	   Property Directory Path: User interaction that select a directory path.
+	   This provides function interaction to change feature behaviour.
+	   Interacting with this property will impact on feature options and behaviour.
+		
+	   This property is referenced to trigger an onchange event listener.
+   ]]
 	 --[[
 		Property Button: User interaction that will import available property settings from a json file
 		and apply them to the properties.
@@ -9334,6 +9402,7 @@ function script_defaults( settings )
 	obs.obs_data_set_default_int( settings, "reset_text_marker_b", 3 );
 	obs.obs_data_set_default_int( settings, "hide_note_marker_a", 3 );
 	obs.obs_data_set_default_int( settings, "hide_note_marker_b", 3 );
+	obs.obs_data_set_default_string( settings, "text_marker_tip", "Use format 00:00:00 ( hours:minutes:seconds )" );
 	obs.obs_data_set_default_int( settings, "duration_marker_a", 5 );
 	obs.obs_data_set_default_int( settings, "duration_marker_b", 5 );
 	obs.obs_data_set_default_int( settings, "timer_manipulation", 3 );
@@ -9376,11 +9445,12 @@ function script_defaults( settings )
 		Set property BOOL TYPES. 
 	]]
 	obs.obs_data_set_default_bool( settings, "backup_mode", false );
+	obs.obs_data_set_default_bool( settings, "backup_split_time", false );
 	obs.obs_data_set_default_bool( settings, "set_stopwatch", false );
 	obs.obs_data_set_default_bool( settings, "disable_script", false );
 	obs.obs_data_set_default_bool( settings, "debug_enabled", false );
 	obs.obs_data_set_default_bool( settings, "load_saved_time", false );
-
+	obs.obs_data_set_default_bool( settings, "backup_split_time", false );
 	obs.obs_data_set_default_bool( settings, "enable_direction_toggle", false );
 	obs.obs_data_set_default_bool( settings, "prevent_negative_time", false );
 	obs.obs_data_set_default_bool( settings, "active_source_force_visible", false );
