@@ -229,6 +229,7 @@ last_state_marker_a					= obs.OBS_MEDIA_STATE_NONE,
 last_state_marker_b					= obs.OBS_MEDIA_STATE_NONE
 };									-- table end
 selected_source_list				= {};
+hotkey_id_set						= obs.OBS_INVALID_HOTKEY_ID;
 hotkey_id_reset						= obs.OBS_INVALID_HOTKEY_ID;
 hotkey_id_start						= obs.OBS_INVALID_HOTKEY_ID;
 hotkey_id_pause						= obs.OBS_INVALID_HOTKEY_ID;
@@ -6362,6 +6363,71 @@ end
 	returns:		none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
+local function activate_set( pressed )
+    debug_log( 'activate_set(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ' )
+	--[[
+		For hotkeys: This is called on key down & key up. A bool check: 
+		
+		pressed = true (key down)
+		pressed = false (key up)
+	
+		When a hotkeys is pressed the callback checks if the key state 
+		is currently pressed 'true' or 'false' (released)
+		so a hotkey key press has a dual function: key down, key up
+	]]
+	if pressed then -- key is currently down
+		--return -- uncomment 'return' to ignore the call while key is down
+	else -- key was released 
+		return; -- uncomment 'return' to ignore the call when key is released
+	end
+	reset( pressed );
+end	
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+	Modified:		
+	function:		set timer	
+	type:			
+	input type: 	
+	returns:		none
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function hotkey_send_set( pressed )
+    debug_log( 'hotkey_send_set(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ' )
+	--[[
+		For hotkeys: This is called on key down & key up. A bool check: 
+		
+		pressed = true (key down)
+		pressed = false (key up)
+	
+		When a hotkeys is pressed the callback checks if the key state 
+		is currently pressed 'true' or 'false' (released)
+		so a hotkey key press has a dual function: key down, key up
+	]]
+	if pressed then -- key is currently down
+		--return -- uncomment 'return' to ignore the call while key is down
+	else -- key was released 
+		return; -- uncomment 'return' to ignore the call when key is released
+	end
+	if timer_mode == 1 then
+		set_stopwatch();
+		set_timer_activated = true;
+	end;
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description:	
+	
+	Credit:			
+	Modified:		
+	function:		reset timer	
+	type:			
+	input type: 	
+	returns:		none
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
 local function activate_reset( pressed )
     debug_log( 'activate_reset(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ' )
 	--[[
@@ -9495,6 +9561,15 @@ function script_save( settings )
 	--[[
 		script save
 		
+		Set (Timer)
+	]]	
+	local hotkey_save_array_set = obs.obs_hotkey_save( hotkey_id_set );
+	obs.obs_data_set_array( settings, "set_hotkey", hotkey_save_array_set );
+	obs.obs_data_array_release( hotkey_save_array_set );
+	
+	--[[
+		script save
+		
 		Reset (Timer)
 	]]	
 	local hotkey_save_array_reset = obs.obs_hotkey_save( hotkey_id_reset );
@@ -9617,6 +9692,16 @@ function assign_hotkeys( settings, load_globals )
 		%w: This is a special sequence which matches all alphanumeric characters (A-Z, a-z, 0-9).
 		see also: 	https://riptutorial.com/lua/example/20315/lua-pattern-matching
 	]]
+	--[[
+		script is loading. register and assign hotkeys 
+		
+		Reset (Timer)
+	]]	
+	hotkey_name = "timer_set_" .. filename():lower():gsub("[%W%p%c%s]", "");
+	hotkey_id_set = obs.obs_hotkey_register_frontend( hotkey_name, "Set " .. filename(), hotkey_send_set );
+	local hotkey_save_array_set = obs.obs_data_get_array( settings, "set_hotkey" );
+	obs.obs_hotkey_load( hotkey_id_set, hotkey_save_array_set );
+	obs.obs_data_array_release( hotkey_save_array_set );
 	--[[
 		script is loading. register and assign hotkeys 
 		
