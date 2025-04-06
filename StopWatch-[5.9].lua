@@ -143,8 +143,8 @@ ignore_list							= {
 "list"
 };
 split_data							= nil;
-hour_format							= nil;
-minute_format						= nil;
+hour_unit							= nil;
+minute_unit							= nil;
 local ctx = {
     propsDef    = nil,  -- property definition
     propsDefSrc = nil,  -- property definition (source scene)
@@ -2249,7 +2249,22 @@ local function config_time( hour, minutes, seconds, mili )
 	( hour and "%02d" or "" ),
 	( minutes and ":%02d" or "" ),
 	( seconds and ":%02d" or "" ),
-	( mili and ",%02d" or "" ); 
+	( mili and ",%02d" or "" );
+
+	--[[
+		We need to check if we have a custom time format and unit, 
+		if unit is higher than 100 then we need to format the time string accordingly.
+	]]
+	if (hour_unit ~= nil and format_hour ~= "") then
+		if hour_unit >= 100 then
+			format_hour = ":%03d"
+		end
+	end
+	if (minute_unit ~= nil and format_minutes ~= "") then
+		if minute_unit >= 100 then
+			format_minutes = ":%03d"
+		end
+	end
 	local time = string.format( format_hour..format_minutes..format_seconds..format_mili, hour, minutes, seconds, mili );
 	--[[
 		
@@ -2301,9 +2316,9 @@ local function raw_time( time, simplify )
 	--[[
 		There may be a custom hour time 
 	]]
-	if hour_format ~= nil then
+	if hour_unit ~= nil then
 		hours = math.floor( time/3600 );
-		hours = hours % hour_format;
+		hours = hours % hour_unit;
 	else	
 		--[[
 			If there is more than 24 hours in the time value
@@ -2327,9 +2342,9 @@ local function raw_time( time, simplify )
 	
 			If there is a use case, this could potentially be expanded here but we will have to make sure the code checks out.
 	]]
-	if minute_format ~= nil then
+	if minute_unit ~= nil then
 		minutes = math.floor( ( ( time/3600 ) * 3600 ) / 60 );
-		minutes = minutes % minute_format;
+		minutes = minutes % minute_unit;
 	else
 		minutes = math.floor( ( time - math.floor( time/3600 ) * 3600 ) / 60 );
 	end	
@@ -2846,6 +2861,27 @@ end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	
+	Description:	This function takes the custom time format string and removes any instructions that are not needed for the timer.
+					It uses string.gsub to replace the instructions with a dollar sign followed by the first character of the instruction.
+					The function returns the modified string.
+					For example, if the input string is "{$H100}", the function will return "$H".
+	
+	Credit:			deekei
+	Modified:		
+	function:		yer
+	type:			Support
+	input type: 	properties, settings
+	returns:		string
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+function removeInstructions( str )
+    debug_log( 'removeInstructions(' .. pre_dump( str ) .. ') -- function variable names: str' )
+	local result = string.gsub(str, "{%$([%u])%d*}", "%$%1")
+	return result
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	
 	Description:	This function uses the string.find function to find the first occurrence of a balanced pair of braces 
 					(%b{}) in the input string str. If no such pair is found, the function returns the input string as is.
 					If a pair of braces is found, the function uses string.sub to extract the substrings of str before and 
@@ -3166,7 +3202,7 @@ local function show_split( props, settings )
 	local shw = false;
 	shw = ( layout_value == 2 and mode == 2 and in_table( {1, 2}, timer_format ) );
 	if ( timer_format == 5 and layout_value == 2 and mode == 2 ) then
-		if ( string.find( custom_time_format, "$F" ) ~= nil ) then
+		if ( string.find( removeInstructions(custom_time_format), "$F" ) ~= nil ) then
 			shw = true;
 		else
 			shw = false;
@@ -4560,7 +4596,7 @@ local function set_time_text( source_name )
 	]]
 	
 	if timer_format == 5 then
-		text = format_time( ( l_time ~= 0 ) and string.format( "%s:%s", l_time, t_time ) or string.format( "%s", t_time ), removeBrackets(custom_time_format) );
+		text = format_time( ( l_time ~= 0 ) and string.format( "%s:%s", l_time, t_time ) or string.format( "%s", t_time ), removeInstructions(custom_time_format) );
 	end	
 	
 	if timer_mode ~= 2 then
@@ -7598,17 +7634,17 @@ local function property_onchange( props, property, settings )
 
 	local adjsut_limit = (timer_mode == 2 and countdown_type ~= 1 or timer_mode ~= 2 )
 
-	if( hour_format ~= nil and adjsut_limit) then
-		obs.obs_property_int_set_limits( hours_prop, 0, ( hour_format - 1 ), 1 );	
-		obs.obs_property_int_set_limits( sw_hours_saved_prop, 0, ( hour_format - 1 ), 1 );
+	if( hour_unit ~= nil and adjsut_limit) then
+		obs.obs_property_int_set_limits( hours_prop, 0, ( hour_unit - 1 ), 1 );	
+		obs.obs_property_int_set_limits( sw_hours_saved_prop, 0, ( hour_unit - 1 ), 1 );
 	else
 		if(timer_hours > 23) then timer_hours = 23;	end
 		obs.obs_property_int_set_limits( hours_prop, 0, 23, 1 );	
 		obs.obs_property_int_set_limits( sw_hours_saved_prop, 0, 23, 1 );	
 	end
-	if( minute_format ~= nil and adjsut_limit) then
-		obs.obs_property_int_set_limits( minutes_prop, 0, ( minute_format - 1 ), 1 );	
-		obs.obs_property_int_set_limits( sw_minutes_saved_prop, 0, ( minute_format - 1 ), 1 );	
+	if( minute_unit ~= nil and adjsut_limit) then
+		obs.obs_property_int_set_limits( minutes_prop, 0, ( minute_unit - 1 ), 1 );	
+		obs.obs_property_int_set_limits( sw_minutes_saved_prop, 0, ( minute_unit - 1 ), 1 );	
 	else
 		if(timer_minutes > 59) then timer_minutes = 59;	end
 		obs.obs_property_int_set_limits( minutes_prop, 0, 59, 1 );	
@@ -8279,11 +8315,14 @@ function script_properties()
 		This property is referenced to trigger an onchange event listener.
 	]]	
 	local p_15 = obs.obs_properties_add_text( ctx.propsDef, "custom_time_format", "<font color=".. font_dimmed ..">Time Format</font>", obs.OBS_TEXT_DEFAULT );
-	obs.obs_property_set_long_description( p_15, "\n Timestamp is represented by $D = day, $H = hour, $M = minute, $S = second, $F = split second. \n\n Add 'M' and number enclosed in '{}' to adjust minute format: {M90} will display 90 minutes units.\n\n To trim leading zeros, include $T = truncate leading zeros. This will ONLY affect a format matching '$D:$H:$M:$S,$F' (00:00:00:00,00)\n" ); -- User Tip
-	
-	
-	
-	
+	obs.obs_property_set_long_description(
+		p_15,
+		"\n Timestamp format is represented by $D = day, $H = hour, $M = minute, $S = second, $F = split second. \n" ..
+		" Default is \"$T$D:$H:$M:$S,$F\"\n" ..
+		" To change hour or minute unit, change $M to {$M999}, where number represents the unit. \n" ..
+		" Expression `{$M200}:$S` will count minutes till 199m:59s \n\n" ..
+		" To trim leading zeros, include $T = truncate leading zeros. This will ONLY affect a format matching '$D:$H:$M:$S,$F' (00:00:00:00,00)\n"
+	);
 	
 	--[[
 		Option list: User select to show or hide available features.
@@ -9332,11 +9371,12 @@ function script_update( settings )
 	--[[
 		If setting changed, update timer
 	]]
-	update_timer_settings( false ); -- optional inputs: set_to_default(bool), new_settings(obs_property_data/obs_userdata)	
+	update_timer_settings( false ); -- optional inputs: set_to_default(bool), new_settings(obs_property_data/obs_userdata)
 	
-	hour_format = get_unit_allocation( custom_time_format, 'H' );
+	hour_unit = get_unit_allocation( custom_time_format, 'H' );
 
-	minute_format = get_unit_allocation( custom_time_format, 'M' );
+	local custom_time_format_without_hour_instruction = custom_time_format:gsub( "{$H" .. tostring(hour_unit) .. "}", "$H" );
+	minute_unit = get_unit_allocation( custom_time_format_without_hour_instruction, 'M' );
 	--[[
 	 		Make sure the trigger is as accurate as possible depending
 			if the timer is counting up or down.
