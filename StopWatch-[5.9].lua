@@ -3458,7 +3458,7 @@ end
 	returns:		
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
-function prep_presuf()
+function prepare_text_prefix_suffix()
 	if hasBrackets( text_prefix ) then
 		local text_prefix_cleaned = removeBrackets( text_prefix )
 		text_prefix_validated = ""
@@ -6137,7 +6137,7 @@ local function reset( pressed )
 	media["cycle_index_note_marker_b"] = 1; -- index from 1-based table
 	media["cycle_direction_marker_a"] = 2;
 	media["cycle_direction_marker_b"] = 2;
-	prep_presuf()
+	prepare_text_prefix_suffix()
 	--[[
 		This is only required because technically the timer is still active
 	]]
@@ -6990,7 +6990,8 @@ local function init()
 			load any property values available to globals
 		]]
 		load_settings_globals( ctx.propsSet );	
-		
+		prepare_text_prefix_suffix()
+
 		set_visible( media["source_name_audio_marker_a"], false ); -- set hidden just in case
 		set_visible( media["source_name_audio_marker_b"], false ); -- set hidden just in case
 		set_visible( media["source_name_audio_marker_end"], false ); -- set hidden just in case
