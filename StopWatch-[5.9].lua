@@ -89,8 +89,7 @@ current_count_direction				= "UP";
 count_orientation					= "NORMAL";
 timer_activation					= 1;
 timer_reset							= 0;
-debug_entry							= 0;
-debug_entry							= 0;
+debug_entry							= 1;
 add_limit_note_source_visible		= 0;
 sub_limit_note_source_visible		= 0;
 sources_loaded 						= 0;
@@ -522,7 +521,7 @@ function debug_log( content )
 		return
 	end	
 	if debug_file == "" then
-		debug_file = create_debug_file( debug_file_name, content ) 
+		create_debug_file( debug_file_name, content ) 
 	else
 		update_debug_file( debug_file, content )
 	end	
@@ -539,16 +538,16 @@ end
 	returns:		
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
-function create_debug_file( input_file_name, content )
+function create_debug_file( input_file_name, content, callback )
 	if disable_script then return; end;
-	content = content or string.format( "%s [%s]\n", "Debug Information", os.date("%Y-%m-%d_%H.%M.%S"))
+	content = tostring(debug_entry) .. ") " .. string.rep( " ", string.len(debug_entry) ) .. content or string.format( "%s [%s]\n", "Debug Information", os.date("%Y-%m-%d_%H.%M.%S"))
 	local file_name = string.format( "%s-%s[%s]%s", filename(), input_file_name, os.date("%Y-%m-%d_%H.%M.%S"), ".txt");
 	-- set output path as the script path by default
 	local script_path = script_path();
 	local output_path = script_path .. file_name;
 	-- if specified output path exists, then set this as the new output path
 	output_path = script_path .. file_name;
-	output_path = output_path:gsub( [[\]], "/" );	
+	output_path = output_path:gsub( [[\]], "/" );
 	log( "create_debug_file", output_path )
     -- Open file in write mode, this will create the file if it does not exist
     local file = io.open( output_path, "w" )
@@ -562,7 +561,12 @@ function create_debug_file( input_file_name, content )
         -- Print error message
         print("Failed to open file " .. file_name .. " for writing")
     end
-	return output_path;
+
+    debug_file = output_path
+
+    if callback then
+		callback()
+    end
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
@@ -9306,42 +9310,50 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]	
 function script_update( settings )
-    debug_log( 'script_update(' .. pre_dump(settings) .. ') -- function variable names:  settings ' )
-	--[[
-		something changed, remove all timers. 
-	]]
-	remove_all_timers();
-	
-  	ctx.propsSet = settings;-- Keep track of current settings
-	
-	--[[
-		Update a gloabl in case something changed. 
-	]]
-	count_required_sources();
-	--[[
-		Get the correct frequency for splitseconds when the script loads. 
-	]]
-	assign_default_frequency();
-	--[[
-		load any property values available to globals
-	]]
-	load_settings_globals( settings ); -- load all property settings to globals
-	reset_mili( ); -- ensure mili hide/show settings are updated
-	
-	reset( true ); -- anything could have changed so reset everything
-	--[[
-		If setting changed, update timer
-	]]
-	update_timer_settings( false ); -- optional inputs: set_to_default(bool), new_settings(obs_property_data/obs_userdata)	
-	
-	hour_format = get_unit_allocation( custom_time_format, 'H' );
+    local function after_file_created()
+		debug_log( 'script_update sources ready (' .. pre_dump(status) .. ') ' )
+		obs.obs_data_set_bool( ctx.propsSet, "script_ready", true ); -- set to signal ready state
 
-	minute_format = get_unit_allocation( custom_time_format, 'M' );
-	--[[
-	 		Make sure the trigger is as accurate as possible depending
-			if the timer is counting up or down.
-	]]
-	timer_activation_signals()
+		--[[
+			something changed, remove all timers. 
+		]]
+		remove_all_timers();
+
+	  	ctx.propsSet = settings;-- Keep track of current settings
+		
+		--[[
+			Update a global in case something changed. 
+		]]
+		count_required_sources();
+		--[[
+			Get the correct frequency for splitseconds when the script loads. 
+		]]
+		assign_default_frequency();
+		--[[
+			load any property values available to globals
+		]]
+		load_settings_globals( settings ); -- load all property settings to globals
+
+		reset_mili( ); -- ensure mili hide/show settings are updated
+		
+		reset( true ); -- anything could have changed so reset everything
+		--[[
+			If setting changed, update timer
+		]]
+		update_timer_settings( false ); -- optional inputs: set_to_default(bool), new_settings(obs_property_data/obs_userdata)	
+		
+		hour_format = get_unit_allocation( custom_time_format, 'H' );
+
+		minute_format = get_unit_allocation( custom_time_format, 'M' );
+		--[[
+		 		Make sure the trigger is as accurate as possible depending
+				if the timer is counting up or down.
+		]]
+		timer_activation_signals()
+    end
+
+    content = 'script_update(' .. pre_dump(settings) .. ') -- function variable names:  settings '
+	create_debug_file( debug_file_name, content, after_file_created ) 
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
