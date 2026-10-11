@@ -5,62 +5,15 @@ OBS > Tools > Scripts
 @midnight-studios
 Stopwatch
 ***************************************************************************************************************************************
-Version 6.0
+Version 6.1
 
 Published / Released: Unreleased
 
-NEW FEATURES
-
-- Overtime: Timer Expire Event "Continue counting (overtime)" counts up after zero, optional '+' and Marker B colour @AkashicStreaming
-- "Pause timer at Marker A / B": pauses exactly on the marker time, marker audio keeps playing @Brancix
-- "Play Timer Expired Audio first, then switch" for a scene Timer Expire Event @SheriMJ
-- Frame display in Custom Time Format: {$F60} (60 fps) or {$F} (OBS frame rate) @Leduit
-- Independent hour / minute units: {$H100}, {$M200}, {$H100}:{$M200}; old {M90} / {H100M200} still work @DominikKriss (deekei)
-- "Set" hotkey to apply the manually set time @ccpaging
-- "Round up displayed countdown" for formats without seconds ($H:$M shows 00:01 until zero) @viscountexx
-
-OPTIMIZATION
-
-- Pending one-shot timers are now really cleared when settings change
-- Autoload time stamp saved every 30 s and when the timer stops, so it survives a crash @Guilherme Santos
-
-USER EXPERIENCE & FEATURE ENHANCEMENTS
-
-- "Script Description" checkbox at the top of the settings hides the description on small screens @rez1dev
-- Add / Subtract Seconds sets go down to 1 second @RavenStreamer
-- Timer Manipulation defaults to Hidden, so the Add / Subtract hotkeys work out of the box @RavenStreamer
-- Start / Pause hotkey names describe both modes, no OBS restart needed @RavenStreamer @jmsflms
-- Split Source: explains when no Text source is free, plus a "Refresh sources" button @RICHIMAGES
-- Duration inputs accept 0-9999; values a unit cannot show are reported in the script log
-- Tooltips added or improved for Time Format, Timer Manipulation, Split Source, Autoload and Split Start Pause
-
-BUGS
-
-- Reset did nothing on new installs, OBS 32 text sources, or when added while OBS runs @Kaelum @almothafar @sgort87 @KOR3S @brohirrim
-- Reset / hotkeys failed with the Scripts panel closed; "Failed to call timer_cb" @aidivas @RobertWilliams
-- Add / Subtract Seconds hotkeys did nothing; now also update the display while paused @RavenStreamer
-- Marker audio only replayed after Reset @ViniJusty
-- Marker A / B audio Duration never applied
-- Marker colour and note stayed after a pause
-- Time Format cursor jumped to the end on every keystroke @Kaelum
-- Prefix and suffix are restored after an OBS restart @brohirrim
-- Manual Set did not match {M90} style units; hour input capped below the unit
-- Text source settings reference leak in set_text()
-
-NOTES
-
-- Marker and expiry audio durations count real time, not timer time.
-- With looping expiry audio and "audio first, then switch", set an End Audio Duration.
-- Units of 101 or more are zero-padded to a fixed width (e.g. {$M200} shows 005).
-
-***************************************************************************************************************************************
-Version 5.9
-
-Published / Released: 2024-08-17 20:43
+Bug-fix release for 6.0, with one new option. 
 
 NEW FEATURES
 
-- Export split time to text file (opt-in) @RobertWilliams
+- NEW OPTION: Marker A/B note Groups can include Image (and Image Slide Show), Browser, Colour and Media (and VLC Video Source) sources, not only Text (Disable Features > "Marker note groups: include these source types"; default Text only, as before). Group items are only shown and hidden in turn
 
 OPTIMIZATION
 
@@ -68,21 +21,117 @@ OPTIMIZATION
 
 USER EXPERIENCE & FEATURE ENHANCEMENTS
 
-- Updated script description @rez1coder
+-
 
-BUGS
+FIXES
 
-- Fixed error on load for setting 'Autoload last time stamp when OBS starts' @goods0ul
+- With "Text Colour [Normal]" unticked, the timer text froze, the script log filled with errors, and OBS could hang when closing
+- A note group with Marker Notes disabled made the hide-note timer raise 'deque is empty' every few seconds (and pop up the Script Log)
+- "Timer Scene Active": a scene activating while OBS was still loading could look up a source with no name (possible OBS crash)
+- Each timer text update kept a reference to the text source's settings, so they were never freed (reported as a memory leak when OBS exits)
+- Marker note text and marker audio looping checks kept a reference to the source settings each time (never freed)
+- Reading the marker time, marker audio and cycle lists kept a reference to every list item
+- Each settings import kept the loaded file's data in memory
+- Media helpers could keep a reference to a non-media source, and tried to stop media that had already ended
+- Opening or changing the script's settings with no Backup Folder set leaked a little memory each time (an OBS bug on empty paths; the script no longer checks an empty folder)
+- A pause, or Reset / Set followed by Start, shorter than about 1 second was counted as running time
+- A frame stall longer than 1 second (OBS busy) silently dropped that running time
+- The first run after loading lost about one frame at fractional frame rates (29.97, 59.94, 23.976 fps)
+- Count Down to a specific date and time ended late after a delayed Start or a pause
+- "No leading zeros" formats showed 0.50 s as '50', and an empty timer in the last second and at zero
+- Hiding hundredths left a trailing comma ('5,')
+- Frame display ({$F60} / {$F}) often showed the previous frame number
+- Changing the Time Format of a stopped timer showed it with the previous units until the next change
+- A custom minute unit ({M90}, {$M200}) also changed formats 1-4 and the marker check, so markers at 1 hour or later could never fire
+- A custom format with $D showed '000' days below one day
+- Subtract in Count Up went below zero, and negative time was shown as '-1:59:58'
+- "Interval" split times were wrong (and negative) in Count Down, across overtime and after a direction change
+- "Round up displayed countdown" also rounded overtime and counting up
+- A timed prefix / suffix in Count Down appeared one second late
+- Any settings change (even a prefix keystroke or a colour) stopped and reset a running timer, and set the Autoload time to zero
+- Undo / Redo of a scene or source change could reset or stop a running timer
+- "Specific Source Active" / "Specific Media Active" didn't work after an OBS restart until a setting was changed
+- Changing the activation source to another source of the same type (two media sources), or re-creating it under the same name, did nothing until the script reloaded
+- With Autoload, markers didn't fire after an OBS restart until Reset
+- With Autoload, the timer text showed the text saved earlier until Start or an edit, not the loaded time
+- Timer Expire Event "Select" (the default) hid the timer at zero, and the Timer Expired Audio never played (reported by @dippysmixtape)
+- The Active Source text was empty after every list expiry (and hidden with Force Visibility)
+- A marker was skipped when the time was moved into the marker second while paused (Add / Subtract / Set) with a display without hundredths
+- After an expiry with "Play Timer Expired Audio first, then switch", restarting without Reset switched scene mid-run when the audio ended
+- Marker audio, notes, list sources and the timer source were shown or hidden only in the first scene that contains them
+- "Ascending" cycled lists last to first
+- Reset didn't restart the Auto List cycle
+- In overtime, a pending marker colour reset replaced the overtime (Marker B) colour
+- A pending marker colour reset was dropped at expiry, so the expired timer kept the marker colour
+- With "Text Colour [Normal]" off, a settings edit while a marker colour showed made that colour the new normal colour
+- The first run after loading showed the second group note (or list entry) first; after an OBS start with Autoload a group note raised an error
+- Reset after a direction toggle started the marker audio / note list at entry 2
+- Two group notes within the hide time: the newer note was never hidden
+- A FreeType 2 text source chosen as Marker Note Source on Windows showed no note text and was never hidden
+- With Media Playback Limit on, a pause longer than the remaining duration ended the marker audio, and it didn't resume
+- With a Marker Audio list, Pause / Start didn't pause or resume the entry that was playing
+- "Timer Scene Active" / "Specific Scene Active": the timer didn't start when OBS started on that scene
+- A Count Down of 0:00:00 with a Scene / Source / Auto List expire event switched about 60 times a second
+- Disable Script didn't stop a running timer, and Start / Add / Reset still worked while disabled
+- "Specific Scene Active": the script's own expiry scene switch paused the timer
+- Re-activating a running timer (its scene going to Program again) restarted the countdown (with Auto reset) and the 'Timer Start' recording
+- "Timer Source Visible" / "Timer Scene Active" with Auto reset: hiding the timer reset the time and the splits
+- The Milliseconds hotkey worked with "Split Seconds Toggle" off
+- Rarely, Pause / Reset raised 'Failed to call timer_cb ... attempt to call a nil value' and popped up the Script Log (an OBS race; the script no longer removes its main timer)
+- "Timer Source Visible" / "Timer Scene Active": marker audio paused by hiding the timer stayed paused when the timer was shown again; during a marker pause its playback limit kept running while hidden
+- Export Settings erased Backup Mode and Backup Folder from the settings (lost at the next restart)
+- "Import Settings" did nothing when clicked; the selected file was imported later, on any panel rebuild
+- With "Enable debug logging" on, the debug file was opened for every line (about 50 per frame), so OBS dropped frames; lines are now written about once a second
+- "Activation Source" had no tooltip
+- "Import Settings" stayed visible after Backup Mode was switched off, once a file had been selected
+- The direction button label went back to the mode default after a toggle (on Start / Pause or reopening the settings), and read "Count Up" in Count Down
+- Backup files with "json" in the name were listed wrongly and couldn't be imported
+- Spelling in the settings text ("afater", "Refesh", "the update")
+- The split-time export failed in a backup folder with non-ASCII characters (Windows)
+- On a fresh install the audio lists held "None", a value not in the list, so OBS corrected it with an extra settings update
+- With Disable Script on, the Limit Note lists offered only "Select"
+- A Marker Audio list and a group note on the same marker: after a direction toggle the note list didn't step back
+- Reload Scripts, removing the script, or closing OBS while a marker colour showed left that colour on the timer source (and it could become the normal colour)
+
+BEHAVIOUR CHANGES
+
+- Count Down to a date and time: Pause freezes the display, and Start / resume jumps to the real remaining time
+- A running timer always counts the real elapsed time: after a long OBS stall, or sleep / hibernate, it jumps forward by the time that passed
+- Subtract stops at zero, unless the direction was changed with "Prevent Negative Time" off; negative time shows as -00:00:02
+- Custom hour / minute units and frames apply to the Custom Time Format only; markers always use plain time, and a marker saved in unit form (such as 01:90:00) is read as plain time (02:30:00)
+- Elapsed overtime rounds down; "Round up displayed countdown" applies to the remaining time only
+- A Count Down prefix / suffix window includes the marker second (it mirrors Count Up)
+- Count Down to a date and time: an Add / Subtract is replaced by the real remaining time at the next Start or resume
+- "Interval" splits measure running time: the first interval starts at the first Start (a Set or loaded time doesn't count), and Add / Subtract, direction changes and overtime don't change intervals
+- Only a change to a timing setting (mode, countdown type, target date, time or duration) resets the timer; other settings changes keep the time. Only a user Reset clears the Autoload time
+- Disable Script pauses a running timer and keeps the time; while disabled, Start, Pause, Add / Subtract, Set, Reset, Split, Milliseconds and Direction do nothing
+- "Timer Source Visible" / "Timer Scene Active" with Auto reset: the reset happens when the timer is shown again, before it starts; hiding only pauses
+- The Milliseconds hotkey does nothing while "Split Seconds Toggle" is off (like the button)
+- Timer Expire Event "Select" means no expire action: the timer stays visible at zero, and the Timer Expired Audio plays if one is set
+- Visibility (marker audio, notes, list sources, the timer source) applies to every scene that contains the source; a scene expire event hides the timer in every scene except the expire scene
+- "Ascending" cycles lists first to last (it used to cycle last to first; pick "Descending" for the old order)
+- The Media Playback Limit duration pauses and resumes with the timer (it counted real time in 6.0); while the timer is paused at a marker, or by Disable Script, the audio keeps playing and so does its limit
+- A pending marker colour reset completes after expiry, unless overtime sets its own colour
+- "Timer Scene Active" / "Specific Scene Active": when OBS starts, the script is added or reloaded, or the scene collection changes while the timer's scene (or the activation scene) is in Program, the timer starts at once
+- Picking a backup file in "Load Settings" no longer imports it; click "Import Settings"
+
+KNOWN LIMITS
+
+- Windows: the debug log (Enable debug logging) is written next to the script and fails if that folder path has non-ASCII characters; Lua file access there uses the ANSI code page. The split-time and settings exports are not affected
+- OBS saves the scene collection before scripts are told that OBS is closing, so a marker colour showing at exit is still saved on the timer source; the script restores the normal colour at the next start
+- A scene expire event leaves the timer as it is in the expire scene only when the timer is in that scene directly or in a group; shown there through a nested scene, it is hidden
+- With "Timer Scene Active", the timer is shown again in every scene that contains it after a scene expire event switches scenes
 
 NOTES
 
-
+- Legacy behaviour, unchanged: a minute unit ({M90} or {$M90}) shows the total minutes modulo the unit, so combined with $H the display mixes units (1 hour shows 01:60:00). For a long minute count, use a minute unit without $H, for example {$M200}:$S
+- Credits: @dippysmixtape (Timer Expire Event "Select" and the Timer Expired Audio)
 
 ***************************************************************************************************************************************
 ]]
 --Globals
 obs                                 = obslua;
-gversion                            = "6.0";
+gversion                            = "6.1";
 luafile                             = "StopWatch.lua";
 obsurl                              = "comprehensive-stopwatch-countdown-timer.1364/";
 patch_notes                         = "Patch Notes";
@@ -283,6 +332,8 @@ media                               = { -- table start
     duration_marker_end                 = 0,
     last_orientation_marker_a           = "NORMAL",
     last_orientation_marker_b           = "NORMAL",
+    last_orientation_note_marker_a      = "NORMAL", -- O-005: the note lists' own direction state
+    last_orientation_note_marker_b      = "NORMAL",
     media_ended_marker_a                = false,
     media_ended_marker_b                = false,
     last_state_marker_a                 = obs.OBS_MEDIA_STATE_NONE,
@@ -304,14 +355,11 @@ hotkey_id_sec_sub_2                 = obs.OBS_INVALID_HOTKEY_ID;
 hotkey_id_sec_sub_3                 = obs.OBS_INVALID_HOTKEY_ID;
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-
-	Description: Function to detect the operating system
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Reports the operating system from the OS environment variable, so the script can pick the text source type and default colours at load.
+	Scope: global; called once by the main chunk (sets osType)
+	type: helper
+	input type: none
+	returns: string: "Windows" when OS contains "windows", otherwise "Mac"
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function detectOS()
@@ -322,10 +370,8 @@ function detectOS()
         return "Mac"
     end
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-
 	Description: Assign OS type to variable
 	Credit:
 	Modified:
@@ -338,7 +384,6 @@ end
 osType = detectOS()
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-
 	Description: Compatibility Sequence Variable. Assign operating system specific variable
 	Credit:
 	Modified:
@@ -351,19 +396,16 @@ osType = detectOS()
 if osType == "Windows" then
     text_source_unversioned_id = "text_gdiplus"
     text_source_id = "text_gdiplus_v2"
-    media = {                        -- table start
-        color_normal   = 4294967295, -- 0xFFFFFFFF
-        color_marker_a = 4256749,    -- 0x40f3ed
-        color_marker_b = 329050      -- 0x05055a
-    }
+    -- B-027: set only the colour keys; replacing the table discarded the media defaults above
+    media.color_normal   = 4294967295; -- 0xFFFFFFFF
+    media.color_marker_a = 4256749;    -- 0x40f3ed
+    media.color_marker_b = 329050;     -- 0x05055a
 else
     text_source_unversioned_id = "text_ft2_source"
     text_source_id = "text_ft2_source_v2"
-    media = { -- table start
-        color_normal   = 4294967295,
-        color_marker_a = 4282446829,
-        color_marker_b = 4278519130
-    }
+    media.color_normal   = 4294967295; -- B-027: keep the media defaults
+    media.color_marker_a = 4282446829;
+    media.color_marker_b = 4278519130;
 end
 --[[
 	Unversioned IDs: OBS 32 creates text_gdiplus_v3, which a versioned list would miss
@@ -373,6 +415,52 @@ required_sources = {
     text_source_unversioned_id,
     "color_source"
 }
+--[[
+	B-032: the Marker Note list offers both text source types (on Windows a
+	FreeType 2 source still works), so the note logic accepts both.
+]]
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description: Tells whether a source type ID is a text source that can receive marker note text and colour: this platform's text source or FreeType 2 (B-032).
+	Scope: local; called by set_text_note_color, time_mark_check, default_timer_globals, property_onchange and the hide-note timer callbacks
+	type: helper
+	input type: id: string or nil (unversioned source ID)
+	returns: bool: true for a text source ID
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function is_note_text_id(id)
+    return id ~= nil and (id == text_source_unversioned_id or id == "text_ft2_source");
+end
+--[[
+	6.1 option: which source types inside a Marker A/B note Group take part in the
+	cycle (Disable Features > "Marker note groups: include these source types").
+	Unversioned IDs, so every version of a source type matches. Default: Text only,
+	as before. Items are only shown and hidden; nothing is written to them.
+]]
+local NOTE_GROUP_TYPES = {
+    text    = { [text_source_unversioned_id] = true, text_ft2_source = true }, -- this platform's text sources, as before (REV7)
+    image   = { image_source = true, slideshow = true },       -- Image, Image Slide Show
+    browser = { browser_source = true },
+    color   = { color_source = true },
+    media   = { ffmpeg_source = true, vlc_source = true },     -- Media Source, VLC Video Source
+};
+local note_group_types = { text = true };                     -- the ticked options (load_settings_globals)
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description: Tells whether an item inside a Marker A/B note Group takes part in the note cycle, from its type and the ticked "Marker note groups: include these source types" options (6.1 option).
+	Scope: local; called by assign_marker_note_source_name
+	type: helper
+	input type: id: string or nil (unversioned source ID of the group item)
+	returns: bool: true when the item's type is ticked
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function is_note_group_item(id)
+    if id == nil then return false end
+    for option, ids in pairs(NOTE_GROUP_TYPES) do
+        if note_group_types[option] and ids[id] then return true end
+    end
+    return false
+end
 --[[
 	deque implementation - First item in is firs item out
 
@@ -394,16 +482,11 @@ local Deque = {}      -- Declare the Deque table to act as the class
 Deque.__index = Deque -- Set the __index of Deque to itself to allow method lookups.
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-
-	Description: This function creates a new Deque instance (i.e., an object)
-				 Constructor for creating a new instance of Deque
-				 Initializes an empty Deque with the first index at 0 and the last index at -1.
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Creates an empty double-ended queue, used to remember which group notes are showing.
+	Scope: field of the local Deque table; called by the main chunk and reset()
+	type: helper (constructor)
+	input type: none
+	returns: table: a new deque {first = 0, last = -1}
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function Deque.new()
@@ -411,7 +494,6 @@ function Deque.new()
     -- The metatable is set to Deque, so methods can be invoked on this instance
     return setmetatable({ first = 0, last = -1 }, Deque)
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
 	We create a new instance of Deque to store items.
@@ -421,16 +503,11 @@ media["used_note_source_marker_a"] = Deque.new()
 media["used_note_source_marker_b"] = Deque.new()
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-
-	Description: This method adds a value to the start (left) of the Deque
-				 Method to add a value to the front (left) of the Deque.
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Adds a value at the left end of the deque.
+	Scope: method of Deque; called by assign_marker_note_source_name
+	type: helper
+	input type: value: any (a note source name)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function Deque:pushleft(value)
@@ -441,19 +518,13 @@ function Deque:pushleft(value)
     -- Assign the passed value at the new 'first' position.
     self[first] = value
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-
-	Description: This method removes a value from the end (right) of the Deque and returns it
-				 This method also returns the removed value.
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Removes and returns the value at the right end of the deque; raises an error if the deque is empty (callers check first).
+	Scope: method of Deque; called by the hide-note timer callbacks
+	type: helper
+	input type: none
+	returns: any: the removed value
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function Deque:popright()
@@ -470,34 +541,14 @@ function Deque:popright()
     -- Return the removed value.
     return value
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
-----------------------------------------------------------------------------------------------------------------------------------------
-]]
-
-
---[[
-----------------------------------------------------------------------------------------------------------------------------------------
-
-	Description:	A function named script_description returns the description shown to
-					the user
-
-	Credit:			OBS
-	Modified:		User dependent
-	function:		Script Description
-	type:			OBS Core
-	input type: 	data
-	returns:		string
+	Description: Supplies the script description shown in Tools > Scripts, with the version number; empty when "Script Description" is unticked.
+	Scope: global; called by OBS
+	type: OBS entry point
+	input type: none
+	returns: string: the HTML description, or ""
+	Credit: OBS
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function script_description()
@@ -512,17 +563,14 @@ function script_description()
     end
     return string.format(desc, tostring(gversion));
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description: Get the name of this script
-
-	Credit:			midnight-studios, et al
-	Modified:
-	function:		regular expression
-	type:			Support
-	input type: 	string
-	returns:		string
+	Description: Returns the script's file name without path or ".lua", taken from the calling chunk; used to name hotkeys, exports and the debug file.
+	Scope: local; called by create_debug_file, write_to_json, write_to_file and assign_hotkeys
+	type: helper
+	input type: none
+	returns: string: the file name, e.g. "StopWatch-[6.1]"
+	Credit: midnight-studios, et al
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function filename()
@@ -531,14 +579,12 @@ local function filename()
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Dumps input to string, if input is a table it returns the expanded table
-
-	Credit:			et al
-	Modified:		yes
-	function:
-	type:			Support (debug tool)
-	input type: 	variable
-	returns:		string
+	Description: Turns any value into a readable string for debug messages; tables are expanded recursively and cycles are marked.
+	Scope: local; called by debug messages throughout the script, and recursively by itself
+	type: helper (debug)
+	input type: input: any (the value); visited: table or nil (tables already being printed)
+	returns: string
+	Credit: et al
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function pre_dump(input, visited)
@@ -563,14 +609,12 @@ local function pre_dump(input, visited)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Use this to create a Script Log Output used in testing
-
-	Credit:			et al
-	Modified:		No
-	function:
-	type:			Support (debug tool)
-	input type: 	string
-	returns:		print(string)
+	Description: Writes one line to the OBS script log at debug level.
+	Scope: local; called by create_debug_file
+	type: helper (debug)
+	input type: name: any (label); msg: any or nil (detail)
+	returns: none
+	Credit: et al
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function log(name, msg)
@@ -583,14 +627,11 @@ local function log(name, msg)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Adds a line to the debug log when "Enable debug logging" is on and the script isn't disabled; creates the debug file on first use.
+	Scope: global; called throughout the script
+	type: helper (debug)
+	input type: content: string (the line)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function debug_log(content)
@@ -604,17 +645,13 @@ function debug_log(content)
         update_debug_file(debug_file, content)
     end
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Creates the debug log file next to the script, named after the script and the current date and time, and writes the first line to it. Prints a message if the file can't be opened.
+	Scope: global; called by debug_log
+	type: helper (debug)
+	input type: input_file_name: string (name part); content: string or nil (first line; default "Debug Information [date]")
+	returns: string: the file's path
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function create_debug_file(input_file_name, content)
@@ -642,17 +679,13 @@ function create_debug_file(input_file_name, content)
     end
     return output_path;
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Replaces one line of a text file by reading all lines and writing the file again. Not called by the script.
+	Scope: global; not called
+	type: helper (debug, unused)
+	input type: filename: string (file path); line_num: number (1-based line); content: string (new line)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function rewrite_line_debug_file(filename, line_num, content)
@@ -701,17 +734,41 @@ function rewrite_line_debug_file(filename, line_num, content)
         print("Failed to open file " .. filename .. " for writing")
     end
 end
-
+--[[
+	B-057: the timer logs about 50 lines per tick, and opening the file for each line
+	cost more than a frame on the graphics thread. Lines are buffered and appended
+	about once a second (and at script unload, see flush_debug_file).
+]]
+local debug_buffer = { lines = {}, flushed_ns = 0, failed = false };
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Appends the buffered debug lines to the debug file in one write and empties the buffer; reports a failure to open the file once (B-057).
+	Scope: local; called by update_debug_file (about once a second) and script_unload
+	type: helper (debug)
+	input type: none
+	returns: none
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function flush_debug_file()
+    if #debug_buffer.lines == 0 or debug_file == nil or debug_file == "" then return end
+    local file = io.open(debug_file, "a")
+    if file then
+        file:write(table.concat(debug_buffer.lines))
+        file:close()
+    elseif not debug_buffer.failed then
+        debug_buffer.failed = true; -- report once, not once a second (for example a non-ASCII folder, B-058)
+        print("Failed to open file " .. tostring(debug_file) .. " for appending; debug lines are not written")
+    end
+    debug_buffer.lines = {}
+    debug_buffer.flushed_ns = obs.os_gettime_ns()
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description: Numbers a debug line and adds it to the buffer; writes the buffer when a second has passed since the last write (B-057).
+	Scope: global; called by debug_log
+	type: helper (debug)
+	input type: filename: string or nil (the debug file; nothing is added when nil); content: string (the line)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function update_debug_file(filename, content)
@@ -719,37 +776,20 @@ function update_debug_file(filename, content)
     if filename ~= nil then
         debug_entry = debug_entry + 1
         content = tostring(debug_entry) .. ") " .. string.rep(" ", string.len(debug_entry)) .. content
-        -- Open file in append mode
-        local file = io.open(filename, "a")
-        -- If the file has been opened successfully
-        if file then
-            -- Write new content on a new line
-            file:write("\n" .. content)
-            -- Close the file
-            file:close()
-        else
-            -- Print error message
-            print("Failed to open file " ..
-                tostring(filename) .. " for appending. Could not add content: " .. pre_dump(content))
+        debug_buffer.lines[#debug_buffer.lines + 1] = "\n" .. content -- B-057: buffered
+        if obs.os_gettime_ns() - debug_buffer.flushed_ns >= 1000000000 then
+            flush_debug_file()
         end
-        -- adds unnecessary processing
-        --rewrite_line_debug_file( filename, 2, "Last item entered: " .. content )
-    else
-        --print("Failed " .. tostring(filename) .. " Does not exist. Could not add content: " .. pre_dump(content))
     end
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Builds a table by splitting a string by defined character or sequence of characters marking
-					the beginning or end of a unit of data. That which delimits, that separates.
-
-	Credit:			midnight-studios, et al
-	Modified:
-	function:		breaks string into sections by a reference that is returned in a table
-	type:
-	input type: 	string, delimiter
-	returns:		table
+	Description: Splits a string on a plain-text delimiter (an alternative to explode). Not called by the script.
+	Scope: local; not called
+	type: helper (string, unused)
+	input type: str: string; delim: string (plain-text delimiter)
+	returns: table: the parts
+	Credit: midnight-studios, et al
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function explode_alt(str, delim)
@@ -772,15 +812,12 @@ local function explode_alt(str, delim)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Builds a table by splitting a string by defined character or sequence of characters marking
-					the beginning or end of a unit of data. That which delimits, that separates.
-
-	Credit:			midnight-studios, et al
-	Modified:
-	function:		breaks string into sections by a reference that is returned in a table
-	type:
-	input type: 	string, delimiter
-	returns:		table
+	Description: Splits a string on a plain-text delimiter.
+	Scope: local; called by format_time
+	type: helper (string)
+	input type: str: string; div: string (plain-text delimiter)
+	returns: table: the parts; {} when the string or the delimiter is empty
+	Credit: midnight-studios, et al
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function explode(str, div)
@@ -796,30 +833,12 @@ local function explode(str, div)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Gives you an iterator that moves through an
-					ordinary table (eg. string keys) but sorted
-					into key sequence.
-					It does that by copying the table keys into
-					a temporary table and sorting that.
-
-					Possibly being string referenced the list
-					will be compiled chronologically, thus the
-					list names (values) may appear unordered and
-					random. To reorganise and arrange the list
-					alphabetically we will use pairsByKeys().
-					This will make it easier for the user to review
-					and select the desired item from the list.
-
-
-	Credit:			https://github.com/nickgammon/mushclient/blob/master/lua/pairsbykeys.lua
-					https://github.com/nickgammon/mushclient/tree/master/lua
-					If you need to sort keys other than strings, see:
-					See: http://lua-users.org/wiki/SortedIteration
-	Modified:		Yes, minor changes
-	function:		support: This prints the math functions in key order
-	type:			sort table
-	input type: 	table, function (optional)
-	returns:		table
+	Description: Iterates over a table's entries in sorted key order, for building sorted lists in the panel.
+	Scope: local; called by get_cycle_source_list, property_onchange, script_properties and fill_split_source_list
+	type: helper (iterator)
+	input type: tbl: table; input_function: function or nil (sort comparator for the keys)
+	returns: function: an iterator returning key, value (or tbl itself if it isn't a table)
+	Credit: https://github.com/nickgammon/mushclient/blob/master/lua/pairsbykeys.lua
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function pairsByKeys(tbl, input_function)
@@ -833,6 +852,15 @@ local function pairsByKeys(tbl, input_function)
     table.sort(keys, input_function)
 
     local i = 0
+    --[[
+    ----------------------------------------------------------------------------------------------------------------------------------------
+    	Description: The iterator pairsByKeys returns: gives the next key and value in sorted order.
+    	Scope: local inside pairsByKeys; called by the for loop that uses pairsByKeys
+    	type: helper (iterator)
+    	input type: none
+    	returns: key, value of the next entry, or nil at the end
+    ----------------------------------------------------------------------------------------------------------------------------------------
+    ]]
     local iter = function()
         i = i + 1
         if keys[i] == nil then
@@ -846,14 +874,11 @@ local function pairsByKeys(tbl, input_function)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Reverses an array in place; the array may start at index 0 or 1.
+	Scope: global; called by list_source_children_by_source_name
+	type: helper (table)
+	input type: tbl: table (array)
+	returns: none; nil and an error message if tbl isn't a table
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function reverseTable(tbl)
@@ -873,17 +898,13 @@ function reverseTable(tbl)
         tbl[i], tbl[n - i + base] = tbl[n - i + base], tbl[i]
     end
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Tells whether an array starts at index 0 or 1. Not called by the script.
+	Scope: global; not called
+	type: helper (table, unused)
+	input type: tbl: table
+	returns: number: 0 or 1; nil and an error message when neither index exists or tbl isn't a table
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function getTableBase(tbl)
@@ -897,17 +918,13 @@ function getTableBase(tbl)
         return nil, "Table is empty or does not have consecutive integer keys starting from 0 or 1";
     end
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Tells whether a table has at least one entry.
+	Scope: global; called by is_child_of_group, reset_cycle_source_list, property_onchange, timer_expire_event_cycle_source_list and script_properties
+	type: helper (table)
+	input type: table: table or any
+	returns: bool: true when it is a non-empty table
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function tableHasValue(table)
@@ -915,18 +932,14 @@ function tableHasValue(table)
     if type(table) ~= "table" then return false end
     return next(table) ~= nil
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Provides the length of a table
-					(how many items the table contains)
-
-	Credit:			midnight-studios, et al
-	Modified:		Author
-	function:		Create a table with unique items
-	type:			Support
-	input type:		table
-	returns:		integer
+	Description: Counts the entries of a table (all keys, not only the array part).
+	Scope: local; called by getMarkerTime and timer_expire_event_cycle_source_list
+	type: helper (table)
+	input type: tbl: table or any
+	returns: number: the count (0 if not a table)
+	Credit: midnight-studios, et al
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function tablelength(tbl)
@@ -939,14 +952,12 @@ local function tablelength(tbl)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Remove duplicated values from table
-
-	Credit:			midnight-studios, et al
-	Modified:		Author
-	function:		Create a table with unique items
-	type:			Support
-	input type:		table, string
-	returns:		bool
+	Description: Tells whether a table has a value for a key.
+	Scope: local; called by property_onchange
+	type: helper (table)
+	input type: tbl: table; key: any
+	returns: bool
+	Credit: midnight-studios, et al
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function tableHasKey(tbl, key)
@@ -958,14 +969,12 @@ local function tableHasKey(tbl, key)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Remove duplicated values from table
-
-	Credit:			midnight-studios, et al
-	Modified:		Author
-	function:		Create a table with unique items
-	type:			Support
-	input type:		table, string
-	returns:		bool
+	Description: Tells whether a value occurs in a table, searching nested tables too; used mainly to test names against ignore_list.
+	Scope: local; called throughout the script, and recursively by itself
+	type: helper (table)
+	input type: tbl: table; input_value: any
+	returns: bool: true when found
+	Credit: midnight-studios, et al
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function in_table(tbl, input_value)
@@ -986,28 +995,25 @@ local function in_table(tbl, input_value)
     return false
 end
 --[[
-----------------------------------------------------------
-	Description:	Function to connect a signal handler and store its information
-
-				https://obsproject.com/docs/reference-sources.html?highlight=media_started
-				attach event listener callback [source_signal]: Called when media has ended.
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
-----------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description: Connects a signal of a source to a callback once; keeps the connection under the source name with a weak reference to the source, so it can be found and disconnected later (B-034).
+	Scope: global; called by timer_activation_signals
+	type: helper (signals)
+	input type: source: obs_source; signal: string (signal name, e.g. "activate"); callback: function (the handler)
+	returns: none
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function connectSignalHandler(source, signal, callback)
     local sh = obs.obs_source_get_signal_handler(source)
     if sh then
-        local sourceId = obs.obs_source_get_id(source)
+        local sourceId = obs.obs_source_get_name(source) -- B-034: per source (by name), not per source type
 
         -- Check if the signal handler is already connected for this source
         if not connectedHandlers[sourceId] then
             connectedHandlers[sourceId] = {}
+            -- B-034: a weak reference finds this source again to disconnect it (also after a
+            -- rename), and tells a re-created source with the same name apart
+            connectedHandlers[sourceId].weak = obs.obs_source_get_weak_source(source)
         end
 
         local isAlreadyConnected = false
@@ -1026,34 +1032,26 @@ function connectSignalHandler(source, signal, callback)
         end
     end
 end
-
 --[[
-----------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
-----------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description: Returns true so the properties view rebuilds the panel (the "Refresh to update form" buttons).
+	Scope: global; triggered by the "Refresh to update form" buttons of the Add and Subtract limits
+	type: button callback
+	input type: none (OBS passes props and the button, which are not used)
+	returns: bool: true (refresh the panel)
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function refresh_properties()
     debug_log('refresh_properties() -- function variable names: ')
     return true;
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Tells whether a string is a time in the exact form "hh:mm:ss" (two digits each).
+	Scope: global; called by getMarkerTime and get_seconds_from_timestamp
+	type: helper (time)
+	input type: str: string or nil
+	returns: bool: true for "hh:mm:ss"; false otherwise, including nil
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function checkTimeString(str)
@@ -1068,17 +1066,13 @@ function checkTimeString(str)
         return false
     end
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Returns a copy of an array without repeated values, keeping the first occurrence of each.
+	Scope: global; called by getMarkerTime
+	type: helper (table)
+	input type: tbl: table (array) or any
+	returns: table: the new array (tbl itself if it isn't a table)
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function removeDuplicates(tbl)
@@ -1096,17 +1090,13 @@ function removeDuplicates(tbl)
 
     return result
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Convert a time string ( HH:MM:SS ) into seconds
-
-	Credit:
-	Modified:
-	function:		convert time string into seconds
-	type:
-	input type:
-	returns:
+	Description: Converts a time string "hh:mm:ss" to a number of seconds.
+	Scope: global; called by get_seconds_from_timestamp
+	type: helper (time)
+	input type: timeString: string ("hh:mm:ss"; callers check the form first)
+	returns: number: the total seconds
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function convertToSeconds(timeString)
@@ -1123,17 +1113,13 @@ function convertToSeconds(timeString)
 
     return totalSeconds
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Looks up a source by name and returns its OBS source type; releases the source. Not called by the script.
+	Scope: global; not called
+	type: helper (sources, unused)
+	input type: source_name: string (source name)
+	returns: number: an OBS_SOURCE_TYPE_* value, or nil if no such source
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function get_source_type_by_name(source_name)
@@ -1145,17 +1131,13 @@ function get_source_type_by_name(source_name)
     obs.obs_source_release(source);
     return result
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Looks up a source by name and returns its unversioned type ID (e.g. "text_gdiplus", "group"); releases the source.
+	Scope: global; called by assign_marker_note_source_name and load_settings_globals
+	type: helper (sources)
+	input type: source_name: string or nil (source name)
+	returns: string: the unversioned ID, or nil if no such source
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function get_source_unversioned_id_by_name(source_name)
@@ -1167,25 +1149,28 @@ function get_source_unversioned_id_by_name(source_name)
     obs.obs_source_release(source);
     return result
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description: 	Take the provided source_name for a Scene Item and search for it.
-					If the provided source name exists, find any children
-					sources. This applies to groups or scenes.
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Lists the names of the items inside a group (or a nested scene) found in any scene; groups inside a nested scene are expanded. The list is reversed before it is returned. The type filter has no effect: every item is listed.
+	Scope: global; called by reset_group_note_sources, assign_marker_note_source_name, reset_cycle_source_list and timer_expire_event_cycle_source_list
+	type: helper (sources)
+	input type: source_name: string (the group or nested scene); filter_unversioned_id: string or nil (type filter; not applied)
+	returns: table: array of item names (empty if the source isn't found)
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function list_source_children_by_source_name(source_name, filter_unversioned_id)
     --[[
 			we use this part more than once
 	]]
+    --[[
+    ----------------------------------------------------------------------------------------------------------------------------------------
+    	Description: Adds the names of all items in a group to a list.
+    	Scope: local inside list_source_children_by_source_name; called by it
+    	type: helper (sources)
+    	input type: group: obs_scene (the group's scene) or nil; list: table (array the names are added to)
+    	returns: none
+    ----------------------------------------------------------------------------------------------------------------------------------------
+    ]]
     local function get_group_children_from_source(group, list)
         if group then                                                                         -- is it a group, if not see elseif
             local group_items = obs.obs_scene_enum_items(group)                               -- the source is a group, get children if any
@@ -1271,17 +1256,13 @@ function list_source_children_by_source_name(source_name, filter_unversioned_id)
 
     return list
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Returns the name of the current program scene.
+	Scope: global; called by activate_timer_on_scene, init and on_event
+	type: helper (frontend)
+	input type: none
+	returns: string: the scene name (nil if there is no current scene)
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function frontend_get_current_scene()
@@ -1297,19 +1278,13 @@ function frontend_get_current_scene()
     debug_log(' frontend_get_current_scene() return: ' .. pre_dump(scene_name))
     return scene_name
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	OBS has a current scene only once the scene collection has loaded.
-					Used to detect a script added to an OBS session that is already running,
-					where OBS_FRONTEND_EVENT_FINISHED_LOADING will never fire.
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:		bool
+	Description: Tells whether the OBS frontend is ready, i.e. has a current scene; used to avoid frontend calls during startup and shutdown.
+	Scope: global; called by autosave_timestamp, script_update and script_load
+	type: helper (frontend)
+	input type: none
+	returns: bool: true when there is a current scene
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function frontend_ready()
@@ -1318,24 +1293,16 @@ function frontend_ready()
     obs.obs_source_release(current_scene)
     return true
 end
-
+autosave_last_time = 0;
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	B6: keep the "Autoload last time stamp" value safe while the timer runs.
-					Script settings only reach disk when OBS saves the scene collection
-					(which calls script_save()), so a crash used to lose the whole session.
-					Ask OBS to save every 30 seconds while running, and when the timer stops.
-					Only when autoload is enabled, in Count Up (autoload is Count Up only).
-
-	Credit:
-	Modified:
-	function:
-	type:			Support
-	input type: 	bool force (ignore the 30 second throttle)
-	returns:		none
+	Description: Saves the current Count Up time into the settings and asks OBS to save the scene collection, so the time survives a crash when "Autoload last time stamp when OBS starts" is on (B6). Runs at most every 30 seconds unless forced, and only for Count Up with the frontend ready.
+	Scope: global; called by timer_callback and activate
+	type: helper (persistence)
+	input type: force: bool or nil (true: save now, ignoring the 30-second limit)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
-autosave_last_time = 0;
 function autosave_timestamp(force)
     if not load_saved_time or timer_mode ~= 1 then return end
     local now = os.time();
@@ -1346,42 +1313,69 @@ function autosave_timestamp(force)
     obs.obs_data_set_double(ctx.propsSet, "sw_current_seconds", current_seconds);
     obs.obs_frontend_save(); -- saves the scene collection; OBS calls script_save(), which stores current_seconds
 end
-
+--[[
+	B-065: SCENE_CHANGED for a switch the script makes itself arrives after the
+	transition, when on_event is connected again. Remember the target, so
+	on_event can ignore that one event (for up to 10 s).
+]]
+local self_switch_scene, self_switch_ns = nil, 0;
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Records that the script itself is switching to a scene, with the time, so on_event can tell this switch from one made by the user (B-065).
+	Scope: local; called by frontend_set_current_scene and switch_to_expire_scene
+	type: helper (frontend)
+	input type: scene_name: string (the scene being switched to)
+	returns: none
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function note_self_switch(scene_name)
+    self_switch_scene, self_switch_ns = scene_name, obs.os_gettime_ns();
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description: Tells whether a scene change is the one the script recorded within the last 10 seconds, and clears the record (B-065).
+	Scope: local; called by on_event
+	type: helper (frontend)
+	input type: scene_name: string (the new current scene)
+	returns: bool: true when the script made this switch
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function is_self_switch(scene_name)
+    local mine = self_switch_scene ~= nil and scene_name == self_switch_scene
+        and (obs.os_gettime_ns() - self_switch_ns) < 10000000000;
+    self_switch_scene = nil;
+    return mine;
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description: Switches the program scene by name. The frontend event callback is removed during the switch and added again, and the switch is recorded as the script's own.
+	Scope: global; called by source_list_set_by_index
+	type: helper (frontend)
+	input type: scene_name: string (scene name; nothing happens if it doesn't exist)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function frontend_set_current_scene(scene_name)
     local source = obs.obs_get_source_by_name(scene_name);
     if source ~= nil then
+        note_self_switch(scene_name); -- B-065
         obs.obs_frontend_remove_event_callback(on_event)
         obs.obs_frontend_set_current_scene(source)
         obs.obs_frontend_add_event_callback(on_event)
     end
     obs.obs_source_release(source);
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	set source visibility
-
-	Credit:			midnight-studios, et al
-	Modified:
-	function:		Update Text Source
-	type:			Support, Render
-	input type:
-	returns:		bool
+	Description: Shows or hides a source in every scene that contains it (also inside groups and nested scenes), optionally skipping one scene. Names in ignore_list and nil are ignored.
+	Scope: local; called throughout the script
+	type: helper (sources)
+	input type: source_name: string or nil (source name); visible: bool or nil (true: show; nil counts as false); except_scene: string or nil (scene to leave alone)
+	returns: bool: true if the source was found in at least one scene
+	Credit: midnight-studios, et al
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
-local function set_visible(source_name, visible)
+local function set_visible(source_name, visible, except_scene) -- except_scene (optional): leave this scene as it is (B-031)
     debug_log('set_visible(' ..
         pre_dump(source_name) .. ", " .. pre_dump(visible) .. ') -- function variable names:  source_name, visible ')
     visible = visible or false;
@@ -1402,7 +1396,10 @@ local function set_visible(source_name, visible)
         debug_log('got scenes set_visible')
         for i, scn in ipairs(scenes) do
             local scene = obs.obs_scene_from_source(scn);
-            local sceneitem = obs.obs_scene_find_source_recursive(scene, source_name);
+            local sceneitem = nil;
+            if except_scene == nil or obs.obs_source_get_name(scn) ~= except_scene then
+                sceneitem = obs.obs_scene_find_source_recursive(scene, source_name);
+            end
             if sceneitem ~= nil then
                 debug_log('got sceneitem set_visible')
                 if visible and not obs.obs_sceneitem_visible(sceneitem) then -- only set visible if not visible
@@ -1411,8 +1408,7 @@ local function set_visible(source_name, visible)
                 if not visible and obs.obs_sceneitem_visible(sceneitem) then -- only hide if visible
                     obs.obs_sceneitem_set_visible(sceneitem, visible);
                 end;
-                action_completed = true;
-                break;
+                action_completed = true; -- B-031 (decision 2026-10-09): every scene that contains the source, no break
             end;
         end; --end for
         obs.bfree(scn);
@@ -1421,16 +1417,14 @@ local function set_visible(source_name, visible)
     return action_completed;
 end
 --[[
-----------------------------------------------------------
-	Description:	check source visibility
-
-	Credit:			midnight-studios, et al
-	Modified:
-	function:		Check source visibility state by name
-	type:
-	input type: 	source name (string)
-	returns:		boolean
-----------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description: Tells whether a source is visible in any scene (also inside groups and nested scenes). Names in ignore_list and nil count as not visible.
+	Scope: local; called by start_media_action, stop_media_playback and pause_play_media
+	type: helper (sources)
+	input type: source_name: string or nil (source name)
+	returns: bool: true when visible in at least one scene
+	Credit: midnight-studios, et al
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function is_visible(source_name)
     debug_log('is_visible(' .. pre_dump(source_name) .. ') -- function variable names:  source_name ')
@@ -1446,8 +1440,8 @@ local function is_visible(source_name)
             for i, scn in ipairs(scenes) do
                 local scene = obs.obs_scene_from_source(scn);
                 local sceneitem = obs.obs_scene_find_source_recursive(scene, source_name);
-                if sceneitem ~= nil then
-                    isvisible = obs.obs_sceneitem_visible(sceneitem);
+                if sceneitem ~= nil and obs.obs_sceneitem_visible(sceneitem) then
+                    isvisible = true; -- B-031: visible if visible in any scene
                     break;
                 end;
             end; --end for
@@ -1460,14 +1454,11 @@ local function is_visible(source_name)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Function to compare two time strings
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Compares two "hh:mm:ss" times; the sort order for marker times.
+	Scope: local; used by sortTimeTable as the table.sort comparator
+	type: helper (time)
+	input type: timeString1: string ("hh:mm:ss"); timeString2: string ("hh:mm:ss")
+	returns: bool: true when the first time is earlier
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function compareTimeStrings(timeString1, timeString2)
@@ -1495,14 +1486,11 @@ local function compareTimeStrings(timeString1, timeString2)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Function to sort the table items
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Sorts an array of "hh:mm:ss" times in place, earliest first.
+	Scope: local; called by getMarkerTime
+	type: helper (time)
+	input type: tbl: table (array of "hh:mm:ss") or any
+	returns: none (tbl itself, unsorted, if it isn't a table)
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function sortTimeTable(tbl)
@@ -1514,15 +1502,11 @@ local function sortTimeTable(tbl)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	custom function
-					we use this to get a count of essential sources
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:	interger
+	Description: Counts the sources of the types the script works with (media, this platform's text source and colour sources: required_sources) and stores the count in total_sources.
+	Scope: local; called by loaded, script_update and script_load
+	type: helper (sources)
+	input type: none
+	returns: number: the count
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function count_required_sources()
@@ -1543,14 +1527,11 @@ local function count_required_sources()
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Finds the first marker time later than the current time (Count Up); wraps to the first marker when none is later.
+	Scope: global; called by getMarkerTime
+	type: helper (markers)
+	input type: tbl: table (sorted array of "hh:mm:ss") or any; currentTime: number (seconds)
+	returns: string: the marker time, or nil if the array is empty or tbl isn't a table
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function getNextItemMatchingTime(tbl, currentTime)
@@ -1574,17 +1555,13 @@ function getNextItemMatchingTime(tbl, currentTime)
     end
     return nextItem
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Finds the last marker time earlier than the current time (Countdown); does not wrap.
+	Scope: global; called by getMarkerTime
+	type: helper (markers)
+	input type: table: table (sorted array of "hh:mm:ss"); currentTime: number (seconds)
+	returns: string: the marker time, or nil if none is earlier
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function getPreviousItemMatchingTime(table, currentTime)
@@ -1606,19 +1583,14 @@ function getPreviousItemMatchingTime(table, currentTime)
     end
     return previousItem
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Function to convert OBS data array to table
-	obs_data_array_to_table( settings, "reference" )
-	Description:	Grab OBS data array and return in a table
-
-	Credit:			midnight-studios
-	Modified:
-	function:		data array to table
-	type:			Support
-	input type: 	Settings, property reference
-	returns:		table
+	Description: Reads an editable-list setting into a Lua array of its "value" strings, releasing the OBS data objects.
+	Scope: local; called by getMarkerTime, editable_list_has_values, assign_audio_source_name, reset_audio_source_visibility, get_cycle_source_list and media_choice
+	type: helper (settings)
+	input type: set: obs_data (the settings); item: string (the setting name)
+	returns: table: array of strings (empty if the list is empty or missing)
+	Credit: midnight-studios
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function obs_data_array_to_table(set, item)
@@ -1636,6 +1608,8 @@ local function obs_data_array_to_table(set, item)
 
         local value = obs.obs_data_get_string(array_item, "value");
 
+        obs.obs_data_release(array_item); -- B-003: obs_data_array_item adds a reference
+
         table.insert(list, value)
     end;
 
@@ -1645,14 +1619,26 @@ local function obs_data_array_to_table(set, item)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Rewrites a marker time with any number of digits per part ("h:m:s") as "hh:mm:ss", carrying overflowing minutes and seconds; other text is returned unchanged. Markers compare plain time (B-023): a marker saved in unit form by 6.0 (e.g. 01:90:00 with a {M90} format) is read as 02:30:00, so saved markers keep firing.
+	Scope: local; called by getMarkerTime
+	type: helper (markers)
+	input type: value: string (a marker time as typed)
+	returns: string: the normalised time, or value unchanged
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function normalise_marker_time(value)
+    local h, m, s = string.match(value, "^(%d+):(%d+):(%d+)$");
+    if h == nil then return value end
+    local total = tonumber(h) * 3600 + tonumber(m) * 60 + tonumber(s);
+    return string.format("%02d:%02d:%02d", math.floor(total / 3600), math.floor((total % 3600) / 60), total % 60);
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description: Picks the next marker time for Marker A or B from its time list: valid times are normalised, de-duplicated and sorted; the next later time when counting up, the last earlier time when counting down. Clears the marker's "media activated" flag when the list has a time.
+	Scope: local; called by update_time_markers
+	type: helper (markers)
+	input type: ref: string ("marker_a" or "marker_b"); currentTime: number (seconds)
+	returns: string: the marker time "hh:mm:ss", or nil if none applies
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function getMarkerTime(ref, currentTime)
@@ -1672,6 +1658,7 @@ local function getMarkerTime(ref, currentTime)
 	]]
     for key, value in pairs(data_list) do
         if value ~= nil and value ~= "" then
+            value = normalise_marker_time(value); -- B-023: unit-form markers from 6.0
             if checkTimeString(value) then
                 i = i + 1;
                 table.insert(list, value)
@@ -1695,14 +1682,11 @@ local function getMarkerTime(ref, currentTime)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Function to cycle through a table list containing strings
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type: 	string
-	returns:		nothing
+	Description: Tells whether a source with this name exists. Names in ignore_list and nil count as not existing.
+	Scope: local; called by reset_group_note_sources and assign_marker_note_source_name
+	type: helper (sources)
+	input type: source_name: string or nil (source name)
+	returns: bool
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function source_exists(source_name)
@@ -1728,14 +1712,11 @@ local function source_exists(source_name)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Check source type of media if the media is set to loop
-					The source is referenced by name.
-	Credit:
-	Modified:
-	function:
-	type:
-	input type: 	reference (string)
-	returns:		bool
+	Description: Tells whether a named source exists and has the given unversioned type ID. Names in ignore_list and nil count as not valid.
+	Scope: local; called by assign_audio_source_name, reset_audio_source_visibility and hide_new_media_choices
+	type: helper (sources)
+	input type: source_name: string or nil (source name); unversioned_id: string (type ID, e.g. "ffmpeg_source")
+	returns: bool
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function is_valid_type_source(source_name, unversioned_id)
@@ -1771,16 +1752,11 @@ local function is_valid_type_source(source_name, unversioned_id)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	editable_list_has_values( property_name ) -- text_arr_marker_a text_arr_marker_b audio_marker_a_arr audio_marker_b_arr
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Tells whether an editable-list setting has at least one entry.
+	Scope: global; called by property_onchange
+	type: helper (settings)
+	input type: property_name: string (the setting name)
+	returns: bool
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function editable_list_has_values(property_name)
@@ -1788,17 +1764,13 @@ function editable_list_has_values(property_name)
     local data_list = obs_data_array_to_table(ctx.propsSet, property_name)
     return next(data_list) ~= nil
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Hides every item inside a Marker note group, whatever its type.
+	Scope: global; called by reset
+	type: helper (markers)
+	input type: group_source_name: string (the group's name)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function reset_group_note_sources(group_source_name)
@@ -1812,19 +1784,13 @@ function reset_group_note_sources(group_source_name)
         end
     end
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	A single function, named 'assign_marker_note_source_name(ref)', is responsible for performing a task on
-					two different types of lists. This function utilizes one String Type variable: 'ref'.
-					The variable 'ref' indicates the location where the function is applied.
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type: 	string
-	returns:		nothing
+	Description: Chooses the note source Marker A or B shows next. A single source is used as it is. For a Group, the items whose type is ticked are taken in turn, one per marker, following the count direction and orientation; the chosen name is added to the marker's list of shown notes so it can be hidden later. A group with no usable item leaves the marker without a note source.
+	Scope: global; called by time_mark_check
+	type: helper (markers)
+	input type: ref: string ("marker_a" or "marker_b")
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function assign_marker_note_source_name(ref)
@@ -1865,9 +1831,16 @@ function assign_marker_note_source_name(ref)
         -- Iterate over the data list and validate each source
         -- Use pairs instead of ipairs because ipairs assumes 1-based array
         for i, source_name in pairs(data_list) do
-            if is_valid_type_source(source_name, text_source_unversioned_id) then
+            if not in_table(ignore_list, source_name) and
+                is_note_group_item(get_source_unversioned_id_by_name(source_name)) then -- B-032; 6.1 option: the ticked types
                 table.insert(itemTable, source_name)
             end
+        end
+        if #itemTable == 0 then
+            -- 6.1 option (REV7): nothing eligible (empty group, or no type ticked): show nothing
+            -- and keep the cycle position, so ticking a type again carries on without a Reset
+            media["note_source_" .. ref] = nil
+            return
         end
         -- Get index of last assigned item
         local current_index = media["cycle_index_note_" .. ref]
@@ -1876,9 +1849,11 @@ function assign_marker_note_source_name(ref)
 				this function is used by both Marker A & B, so
 				orientation should be individually assigned
 		]]
-        if media["last_orientation_" .. ref] ~= count_orientation then
+        -- O-005: the note list keeps its own direction state; sharing the audio list's
+        -- meant whichever list ran first used up the change
+        if media["last_orientation_note_" .. ref] ~= count_orientation then
             current_index = count_orientation == "NORMAL" and current_index + 1 or current_index - 1;
-            media["last_orientation_" .. ref] = count_orientation
+            media["last_orientation_note_" .. ref] = count_orientation
         end
 
         if current_count_direction == "DOWN" and current_index < 1 then
@@ -1887,6 +1862,10 @@ function assign_marker_note_source_name(ref)
         if current_count_direction == "UP" and current_index > #itemTable then
             current_index = 1
         end
+        -- 6.1 option (REV7): the list can get shorter (a type unticked, an item removed);
+        -- wrap an index past the end round the list. A plain modulo keeps 6.0's step after a
+        -- direction toggle (index 0 there means "the item before the first"); #itemTable > 0 here
+        current_index = (current_index - 1) % #itemTable + 1
 
         if count_orientation == "NORMAL" then                       -- count_orientation == "NORMAL" or "INVERTED"
             media["note_source_" .. ref] = itemTable[current_index] -- '+1' because itemTable is 1-based
@@ -1925,23 +1904,13 @@ function assign_marker_note_source_name(ref)
             pre_dump(media["note_source_" .. ref]) .. " Currently listed" .. pre_dump(media["used_note_source_" .. ref]))
     end
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	A single function, named 'assign_audio_source_name(property_name, ref)', is responsible for performing a task on
-					two different types of lists. This function utilizes two String Type variables: 'property_name' and 	'ref'.
-					The 'property_name' variable indicates the specific list object that will be required, while 'ref' indicates the
-					location where the function is applied. Within the function, there is a method called
-					'obs_data_array_to_table(ctx.propsSet, property_name)'. This method retrieves the referenced list object and converts
-					it into a table format that is assigned to the variable 'data_list', which is then used within the function for
-					further processing.
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type: 	string
-	returns:		nothing
+	Description: Chooses the media source Marker A or B plays next from its media list: the valid media sources in the list are taken in turn, following the count direction and orientation.
+	Scope: global; called by update_media_names and hide_new_media_choices
+	type: helper (media)
+	input type: property_name: string (the list setting, "audio_marker_a_arr" or "audio_marker_b_arr"); ref: string ("marker_a" or "marker_b")
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function assign_audio_source_name(property_name, ref)
@@ -2008,17 +1977,13 @@ function assign_audio_source_name(property_name, ref)
         pre_dump(media["text_" .. ref] and media["text_" .. ref] or "out-of-range (nil)") ..
         "] Index: [" .. pre_dump(media["cycle_index_" .. ref]) .. "]")
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Function to cycle through a table list containing strings
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type: 	string
-	returns:		nothing
+	Description: Hides every media source in a marker's media list.
+	Scope: local; called by reset_audio_marker_arr
+	type: helper (media)
+	input type: property_name: string (the list setting); ref: string ("marker_a" or "marker_b"; only used in the debug message)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function reset_audio_source_visibility(property_name, ref)
@@ -2035,13 +2000,11 @@ local function reset_audio_source_visibility(property_name, ref)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Reads the Marker A and B media modes from the settings and hides the media sources of each marker set to a list.
+	Scope: global; called by reset
+	type: helper (media)
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function reset_audio_marker_arr()
@@ -2055,17 +2018,13 @@ function reset_audio_marker_arr()
         reset_audio_source_visibility("audio_marker_b_arr", "marker_b");
     end
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	This function asigns a variable to a global
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Works out the next Marker A and Marker B times from the current time and stores them for the marker check.
+	Scope: global; called by time_mark_check, update_timer_direction, reset, init and script_update
+	type: helper (markers)
+	input type: currentTime: number (seconds)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function update_time_markers(currentTime)
@@ -2074,17 +2033,13 @@ function update_time_markers(currentTime)
     media["text_marker_a"] = getMarkerTime("marker_a", currentTime);
     media["text_marker_b"] = getMarkerTime("marker_b", currentTime);
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Chooses the next media source for each marker whose media is a list, optionally starting the lists again from the first entry.
+	Scope: global; called by time_mark_check, update_timer_direction, reset and init
+	type: helper (media)
+	input type: position_reset: bool or nil (true: go back to the first entry of each list)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function update_media_names(position_reset)
@@ -2111,20 +2066,15 @@ function update_media_names(position_reset)
         assign_audio_source_name("audio_marker_b_arr", "marker_b");
     end
 end
-
 --[[
-----------------------------------------------------------
-	Description:	Check if a source is a child of a group
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
-----------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description: Finds the group a source is in, if it is a group item in any scene.
+	Scope: global; called by time_mark_check
+	type: helper (sources)
+	input type: source_name: string or nil (source name)
+	returns: string: the group's name; nil if the source isn't in a group (or is nil)
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
-
 function is_child_of_group(source_name)
     if source_name == nil then return nil end
 
@@ -2140,19 +2090,15 @@ function is_child_of_group(source_name)
         obs.bfree(sub); -- free memory, release source as it is no longer needed
     end
 end
-
 --[[
-----------------------------------------------------------
-	Description:	This is basically obs.obs_enum_sources()
-					but "Nested Scenes" are not listed in "obs.obs_enum_sources()"
-
-	Credit:			midnight-studios, et al
-	Modified:		Author
-	function:		Used to build a list from OBS source names into a table
-	type:			Support
-	input type: 	"id", "unversioned_id", "display_name", "source_name"
-	returns:		table default with "source_name" or define return_ref: "id" or "unversioned_id" or "display_name" or "source_name"
-----------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description: Lists the items of every scene, and the items of groups in them, with their name, type, ID, display name, parent group and whether they are nested scenes.
+	Scope: global; called by is_child_of_group, get_cycle_source_list, property_onchange and script_properties
+	type: helper (sources)
+	input type: trg_key: string or nil ("*" for a plain array; otherwise the field to key the table by, default "source_name"; a later item with the same key replaces an earlier one)
+	returns: table: the item records, as an array or keyed by trg_key
+	Credit: midnight-studios, et al
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function get_source_list(trg_key)
     debug_log('get_source_list(' .. pre_dump(trg_key) .. ') -- function variable names:  return_ref ')
@@ -2240,17 +2186,15 @@ function get_source_list(trg_key)
     end
     return source_list;
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	List files
-
-	Credit:			midnight-studios
-	Modified:		midnight-studios, et al
-	function:		Used to list files with target extension
-	type:			directory path, file extension
-	input type:
-	returns:		table
+	Description: Lists the files in a folder that have a given extension, without the extension; used to offer saved settings files for Import.
+	Scope: local; called by property_onchange and script_properties
+	type: helper (files)
+	input type: path: string or nil (folder); file_extension: string (e.g. ".json")
+	returns: table: array of file names (empty when no folder is given)
+	Credit: midnight-studios
+	Modified: midnight-studios, et al
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function get_filenames(path, file_extension)
@@ -2271,7 +2215,7 @@ local function get_filenames(path, file_extension)
         if entry then
             local ext = obs.os_get_path_extension(entry.d_name);
             if ext == file_extension then
-                local filename = string.gsub(entry.d_name, ext, "");
+                local filename = entry.d_name:sub(1, #entry.d_name - #ext); -- B-054: not gsub (the extension is not a pattern)
                 table.insert(filenames, filename);
             end
         end
@@ -2281,14 +2225,12 @@ local function get_filenames(path, file_extension)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Convert data to json
-
-	Credit:			midnight-studios, et al
-	Modified:		Yes, custom params to suit targeted need
-	function:
-	type:			Support
-	input type: 	OBS data (Settings)
-	returns:		json file
+	Description: Exports the settings to a JSON file in the backup folder (or the script's folder), without the backup folder and backup mode settings. The file is named after the script plus the given name, or the dated default name.
+	Scope: local; called by export
+	type: helper (files)
+	input type: data: obs_data (the settings); file_name: string or nil (name part; default "-backup(<date>)")
+	returns: bool: true when the file was saved
+	Credit: midnight-studios, et al
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function write_to_json(data, file_name)
@@ -2307,20 +2249,23 @@ local function write_to_json(data, file_name)
         output_path = script_path .. file_name;
     end
     output_path = output_path:gsub([[\]], "/");
-    obs.obs_data_erase(data, "backup_folder");
-    obs.obs_data_erase(data, "backup_mode");
-    return obs.obs_data_save_json(data, output_path);
+    -- B-044: leave the backup keys out of the file, not out of the live settings
+    local copy = obs.obs_data_create();
+    obs.obs_data_apply(copy, data);
+    obs.obs_data_erase(copy, "backup_folder");
+    obs.obs_data_erase(copy, "backup_mode");
+    local saved = obs.obs_data_save_json(copy, output_path);
+    obs.obs_data_release(copy);
+    return saved;
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Convert data to file
-
-	Credit:			midnight-studios, et al
-	Modified:		Yes, custom params to suit targeted need
-	function:
-	type:			Support
-	input type: 	OBS data (Settings)
-	returns:		json file
+	Description: Writes text to a file in the backup folder (or the script's folder), named after the script plus the given name; line breaks become CRLF on Windows. Prints a message if the file can't be written.
+	Scope: local; called by set_split_text
+	type: helper (files)
+	input type: file_type: string or nil (extension; default ".json"); content: string or nil (the text; default "no content"); file_name: string or nil (name part; default "-backup(<date>)")
+	returns: string: the file's path
+	Credit: midnight-studios, et al
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function write_to_file(file_type, content, file_name)
@@ -2339,69 +2284,47 @@ local function write_to_file(file_type, content, file_name)
         output_path = script_path .. file_name;
     end
     output_path = output_path:gsub([[\]], "/");
-    -- Open file in write mode, this will create the file if it does not exist
-    local file = io.open(output_path, "w")
-    -- If the file has been opened successfully
     content = content or 'no content'
-    if file then
-        -- Write content to the file
-        file:write(content)
-        -- Close the file
-        file:close()
-    else
-        -- Print error message
+    --[[
+		B-058: OBS paths are UTF-8, but Lua's io.open uses the ANSI code page on Windows,
+		so a folder such as C:/Users/José/... failed. libobs writes the whole file with a
+		UTF-8 path (_wfopen on Windows). It writes in binary mode, so convert the line
+		ends on Windows as io.open's text mode did (review: the file stays the same).
+	]]
+    if osType == "Windows" then content = content:gsub("\r?\n", "\r\n") end
+    if not obs.os_quick_write_utf8_file(output_path, content, #content, false) then
         print("Failed to open file " .. file_name .. " for writing")
     end
     return output_path;
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Assign a default Frequency based on the Frame Rate
-					video_info.base_width
-					video_info.base_height
-					video_info.fps_den
-					video_info.output_width
-					video_info.output_height
-					video_info.range
-					video_info.colorspace
-
-	Credit:			midnight-studios
-	Modified:
-	function:		Get obs user defined video frame rate
-	type:			Support
-	input type: 	none
-	returns:		double
+	Description: Sets the starting tick length (time_frequency) to one frame at the current OBS frame rate, or 1/60 second if the rate isn't available (B-016: fractional rates such as 29.97 are kept).
+	Scope: local; called by script_update, script_defaults and script_load
+	type: helper (timing)
+	input type: none
+	returns: none
+	Credit: midnight-studios
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function assign_default_frequency()
     debug_log('assign_default_frequency() -- function variable names: ')
     local fps = 60; -- 60 is the maximum supported frame rate
     local video_info = obs.obs_video_info();
-    if obs.obs_get_video_info(video_info) then
-        fps = video_info.fps_num;
+    if obs.obs_get_video_info(video_info) and video_info.fps_num > 0 and video_info.fps_den > 0 then
+        fps = video_info.fps_num / video_info.fps_den; -- B-016: 29.97 fps is 30000/1001, not 30000
     end;
     time_frequency = (1 / fps);
     debug_log('assign default frequency: ' .. pre_dump(time_frequency))
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-					Local variables format_hour, format_minutes, format_seconds, format_mili are initialized to the strings that define the format of hour, minutes, seconds and mili based on whether they are present or not.
-					"time" variable is initialized with the formatted string using string.format and the values of format_hour, format_minutes, format_seconds, format_mili and the input arguments hour, minutes, seconds, and mili.
-					If show_mili is false, then time is re-initialized with the formatted string using string.format and values of format_hour, format_minutes, format_seconds and input arguments hour, minutes, and seconds.
-					Return time.
-					Take the time segments:
-					Hours, Minutes, Seconds, Millisieconds
-					Configure to standard format:
-					HH:MM:SS:FF
-					$function status: in service
-
-	Credit:			midnight-studios
-	Modified:
-	function:		Dependency / Support
-	type:
-	input type: 	4 variables - "HH" "MM" "SS" "FF"
-	returns:		formatted time string: time stamp 00:00:00,00 (HH:MM:SS,FF)
+	Description: Formats hours, minutes, seconds and hundredths as "HH:MM:SS,FF"; parts that are nil are left out, and the hundredths only appear when they are shown.
+	Scope: local; called by raw_time
+	type: helper (time format)
+	input type: hour: number or nil; minutes: number or nil; seconds: number or nil; mili: number or nil (hundredths)
+	returns: string: the formatted time
+	Credit: midnight-studios
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function config_time(hour, minutes, seconds, mili)
@@ -2434,47 +2357,42 @@ local function config_time(hour, minutes, seconds, mili)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Convert Seconds to hours:minutes:seconds:miliseconds
-
-					$function status: in service
-					Local variables hour, minutes, seconds, and mili are initialized to 0.
-
-					If time is greater than 86399 (23:59:59), c_time is calculated as the nearest multiple of 86400 that is less than time and time is updated by subtracting c_time from it.
-					Hour is calculated as the floor division of time by 3600.
-					If hour is less than 10 and trim is true, hour is updated with a leading zero.
-					Minutes are calculated based on whether the custom_time_format has a value of 90.
-					If minutes are greater than or equal to 60, minutes are updated as the remainder after dividing by 90.
-					If minutes are less than 10 and trim is true, minutes are updated with a leading zero.
-
-					Seconds are calculated as the floor value of time minus the product of hour and 3600 and the product of minutes and 60.
-					If seconds are less than 10 and trim is true, seconds are updated with a leading zero.
-					Miliseconds are calculated as the floor value of time minus the product of hour and 3600 and the product of minutes and 60 and the value of seconds.
-					If miliseconds are less than 10 and trim is true, miliseconds are updated with a leading zero.
-					Local variable "output" is initialized to an empty string.
-					If simplify is true, "output" is updated with the result of calling config_time with hour, minutes, seconds and nil.
-					"output" is updated with the result of calling config_time with hour, minutes, seconds, and miliseconds.
-					Return "output".
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type: 	Double (Seconds / Split Seconds)
-	returns:		time stamp 00:00:00,00 (HH:MM:SS,FF)
+	Description: Converts seconds to "HH:MM:SS,FF". Negative times get a leading "-" (B-018). Hours wrap at 24 unless the Custom Time Format sets its own hour and minute units (B-023).
+	Scope: local; called by get_time_lapsed, time_mark_check, toggle_mili, set_time_text and split_unpack, and recursively by itself
+	type: helper (time format)
+	input type: time: number (seconds); simplify: bool or nil (true: no hundredths and no custom units, e.g. for marker comparison)
+	returns: string: the formatted time
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function raw_time(time, simplify)
     debug_log('raw_time(' ..
         pre_dump(time) .. ", " .. pre_dump(simplify) .. ') -- function variable names:  time, simplify ')
 
+    --[[
+		B-018: negative time (only after a direction change with "Prevent Negative
+		Time" off) is shown as the absolute time with a leading "-".
+	]]
+    if time < 0 then
+        if time > -0.01 then -- under one hundredth: no "-00:00:00,00"
+            time = 0;
+        else
+            return "-" .. raw_time(-time, simplify);
+        end
+    end
     local hours, minutes, seconds, mili = 0, 0, 0, 0;
+    --[[
+		B-023: custom hour/minute units belong to the Custom Time Format display
+		only. Formats 1-4 and the marker comparison (simplify) use plain time.
+	]]
+    local h_unit, m_unit = hour_unit, minute_unit;
+    if simplify or timer_format ~= 5 then h_unit, m_unit = nil, nil end
 
     --[[
 		There may be a custom hour time
 	]]
-    if hour_unit ~= nil then
+    if h_unit ~= nil then
         hours = math.floor(time / 3600);
-        hours = hours % hour_unit;
+        hours = hours % h_unit;
     else
         --[[
 			If there is more than 24 hours in the time value
@@ -2498,9 +2416,9 @@ local function raw_time(time, simplify)
 
 			If there is a use case, this could potentially be expanded here but we will have to make sure the code checks out.
 	]]
-    if minute_unit ~= nil then
+    if m_unit ~= nil then
         minutes = math.floor(((time / 3600) * 3600) / 60);
-        minutes = minutes % minute_unit;
+        minutes = minutes % m_unit;
     else
         minutes = math.floor((time - math.floor(time / 3600) * 3600) / 60);
     end
@@ -2525,12 +2443,10 @@ local function raw_time(time, simplify)
         mili = "0" .. mili;
     end
     --[[
-
 		Use this to see if the time stamp matches certain criteria
 		This looks at HH:MM:SS only and is used to match the
 		timer's current time stamp against a user defined time mark that
 		will for example activate Mark A or Mark B
-
 	]]
     local output = "";
     if simplify then
@@ -2544,18 +2460,12 @@ local function raw_time(time, simplify)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-
-	Description:	Used this in testing to measure accuracy
-					The Text Source and the Log should produce the same value
-					The Text source is updated by the time function while the debug
-					uses start and end time stamps to get a value
-
-	Credit:			midnight-studios
-	Modified:
-	function:		calculate time difference between two points in time
-	type:			Support
-	input type: 	none
-	returns:		double
+	Description: Returns the time since the timer's start time (orig_time) as "HH:MM:SS,FF". Not called by the script.
+	Scope: local; not called
+	type: helper (timing, unused)
+	input type: none
+	returns: string: the formatted time
+	Credit: midnight-studios
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function get_time_lapsed()
@@ -2566,25 +2476,12 @@ local function get_time_lapsed()
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	The true frequency between cycles varies due to script
-					and system task processing, therefore a static frequency
-					will produce inaccuarte results over time.
-					Start with a default frequency of 1 second devided by
-					the assigned active fps and then update the frequency
-					calculated from the difference between cycles for the
-					previous and current cycle using high-precision system
-					time, in nanoseconds.
-					It should be noted, the frequency is based on the
-					script defined cycle time, which in this case is
-					10 miliseconds. Based on testing 10 Miliseconds is the
-					fastest cycle supported in OBS lua.
-
-	Credit:			midnight-studios
-	Modified:
-	function:		determine the correct fraction of the split second based on frame rate
-	type:			Support
-	input type: 	double
-	returns:		double
+	Description: Measures the real time since the previous tick, so the timer advances by the time that actually passed; records this tick's time in ns_last. Never negative.
+	Scope: local; called by timer_callback
+	type: helper (timing)
+	input type: previous: number (the previous tick's time in nanoseconds)
+	returns: number: seconds since the previous tick
+	Credit: midnight-studios
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function get_frequency(previous)
@@ -2592,20 +2489,28 @@ local function get_frequency(previous)
     local ns = obs.os_gettime_ns();
     ns_last = ns;
     local f = (ns / 1000000000.0) - (previous / 1000000000.0);
-    if f > 1 then f = time_frequency end;
+    --[[
+		B-060 (decision 2026-10-10): count the real elapsed time, also after a frame
+		stall longer than 1 s (or sleep / hibernate), so the timer catches up.
+		Start stamps ns_last (B-015), so a pause is never counted.
+	]]
+    if f < 0 then f = 0 end;
     debug_log('frequency: ' .. pre_dump(f))
     return f;
 end
 --[[
+	B-015 (fix review): the running time between the last tick and a Pause, carried
+	into the next Start so a pause doesn't lose it. Cleared by Reset and Set.
+]]
+local pause_carry_ns = 0;
+--[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:			midnight-studios
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Removes one OBS timer callback, or every callback in a table; values that aren't functions are skipped.
+	Scope: global; called by remove_all_timers and by the timer callbacks and helpers that stop their own timers
+	type: helper (timers)
+	input type: input: function or table (a timer callback, or a table of them)
+	returns: none
+	Credit: midnight-studios
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function timer_remove(input)
@@ -2629,24 +2534,20 @@ function timer_remove(input)
         end;
     end;
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:			midnight-studios
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Starts an OBS timer that calls a function every ms milliseconds until it is removed.
+	Scope: global; called by record, start_timer, the marker colour and note timers, the media and limit helpers, and play_timer_end_audio
+	type: helper (timers)
+	input type: input: function (timer callback); ms: number (interval in milliseconds)
+	returns: none
+	Credit: midnight-studios
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function timer_add(input, ms)
     debug_log('timer_add(' .. pre_dump(input) .. ", " .. pre_dump(ms) .. ') -- function variable names: input')
     obs.timer_add(input, ms);
 end
-
 --[[
 	Forward declarations: these one-shot callbacks are defined further down as
 	locals. Without declaring them here, remove_all_timers() would see nil globals.
@@ -2657,15 +2558,12 @@ local hide_note_a_timer_callback, hide_note_b_timer_callback, marker_a_media_end
 local activate; -- F9: time_mark_check() pauses the timer at a marker; activate() is defined further down
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Remove pending one-shot timers, e.g. when settings change
-
-	Credit:			midnight-studios
-	Modified:		The main timer_callback is excluded: end_timer() / start_timer()
-					own it, and removing it here would desync timer_active.
-	function:
-	type:
-	input type:
-	returns:
+	Description: Stops the script's secondary timers (the Add and Subtract limit timers, the end-media and marker-media timers, the recording-start timer, and the marker colour and note-hide timers) and clears the pending recording start. The main timer is not touched.
+	Scope: global; called by script_update
+	type: helper (timers)
+	input type: none
+	returns: none
+	Credit: midnight-studios
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function remove_all_timers()
@@ -2684,19 +2582,14 @@ function remove_all_timers()
     timer_remove(timerNames)
     record_timer_set = false; -- the pending recording start was removed, allow it to be scheduled again
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	This was developed because some tasks were not completing
-
-	Credit:			midnight-studios
-	Modified:
-
-	function:		delayed recording task to allow other tasks to complete
-	type:
-	input type:
-
-	returns:
+	Description: Starts the OBS recording when a delayed start is pending and OBS isn't already recording, then stops its own timer and clears the pending flag.
+	Scope: local (declared in advance); a timer callback added by record, also called directly by record
+	type: timer callback
+	input type: none
+	returns: none
+	Credit: midnight-studios
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function frontend_recording_start_callback()
@@ -2708,24 +2601,14 @@ function frontend_recording_start_callback()
     timer_remove(frontend_recording_start_callback);
     record_timer_set = false;
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Auto Recording ( start_recording ), mark values:
-					"Disabled" 		= 1
-					"Timer Expires" 	= 2
-					"Marker A Time" 	= 3
-					"Marker B Time" 	= 4
-					"Timer Visible" 	= 5
-					"Timer Start" 		= 6
-
-
-	Credit:			midnight-studios
-	Modified:
-	function:		Start obs call obs_frontend_recording_start()
-	type:
-	input type: 	reference, milliseconds
-	returns:		none
+	Description: Auto Recording: when the Recording feature is enabled, the timer is in Countdown mode and the event matches the chosen "Auto Recording" trigger, schedules the recording start after a short delay, once. If OBS is already recording, a pending start is cancelled instead.
+	Scope: local; called by time_mark_check, start_timer, activate_signal, start_overtime and timer_ended
+	type: helper (recording)
+	input type: mark: number (the event: 2 timer expires, 3 Marker A, 4 Marker B, 5 timer visible, 6 timer start); ms: number (delay in milliseconds)
+	returns: none
+	Credit: midnight-studios
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function record(mark, ms)
@@ -2747,20 +2630,12 @@ local function record(mark, ms)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Convert hours:minutes:seconds to Seconds
-
-					When the user defines the Hours, Minutes & Seconds
-					we need to convert it to seconds as the timer works
-					on the value "seconds"
-					$function status: in service
-
-
-	Credit:			midnight-studios
-	Modified:
-	function:		convert date, hour, minutes and secods to seconds
-	type:
-	input type: 	interger for date, time
-	returns:		interger (seconds)
+	Description: Works out the seconds from now until a date and time; -1 for the year, month or day means today's value. Times in the past give 0.
+	Scope: local; called by update_timer_settings and activate
+	type: helper (time)
+	input type: year: number (or -1); month: number (or -1); day: number (or -1); hour: number; minute: number; second: number
+	returns: number: seconds until then (0 if past)
+	Credit: midnight-studios
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function delta_time(year, month, day, hour, minute, second)
@@ -2794,18 +2669,11 @@ local function delta_time(year, month, day, hour, minute, second)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Zero-pad an hour or minute value for a custom unit (B13, PR #15).
-					Width is the number of digits of the largest value the unit can show
-					(unit - 1), minimum 2: {$H100} counts 0-99 (2 digits), {$M200} 0-199 (3).
-					Done at display time only: raw_time() strings are also compared
-					against marker times (HH:MM:SS), which must stay 2 digits.
-
-	Credit:
-	Modified:
-	function:
-	type:			Support
-	input type: 	string|number, number|nil
-	returns:		string
+	Description: Zero-pads an hour or minute value to the width its custom unit needs, at least two digits: {$H100} shows 0-99, {$M200} 0-199 (B13, PR #15). Done at display time only, so marker comparisons keep two digits.
+	Scope: local; called by format_time
+	type: helper (time format)
+	input type: value: string or number; unit: number or nil (the custom unit; nil: value unchanged)
+	returns: string or the value unchanged
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function pad_unit(value, unit)
@@ -2816,22 +2684,23 @@ local function pad_unit(value, unit)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Take the raw time format "HH:MM:SS:FF" and allow the user to
-					define a custom format.
-					$function status: in service
-
-	Credit:
-	Modified:		midnight-studios
-	function:		The timestamp is what we put in, the format is what we want this little princess to be transformed into
-	type:
-	input type: 	00:00:00,00
-	returns:		Whatever the format incleded: $T $D $H $M $S $F and anything inbetween
+	Description: Turns "HH:MM:SS,FF" into the chosen display format by replacing $D, $H, $M, $S and $F; $T trims leading zeros. A negative time's "-" goes before the first unit shown. $F shows hundredths, or frames with a {$F} instruction in the Custom Time Format, and is removed when hundredths are hidden.
+	Scope: local; called by set_time_text
+	type: helper (time format)
+	input type: timestamp: string ("[-]HH:MM:SS,FF", also with days or fewer parts); format: string (the format with $ placeholders); shown_seconds: number or nil (the seconds shown, for the frame count)
+	returns: string: the text to display
+	Modified: midnight-studios
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
-local function format_time(timestamp, format)
+local function format_time(timestamp, format, shown_seconds) -- shown_seconds (optional): the time shown, for frames (B-022)
     debug_log('format_time(' ..
         pre_dump(timestamp) .. ", " .. pre_dump(format) .. ') -- function variable names:  timestamp, format ')
     local days, hours, minutes, seconds, mili = "00", "00", "00", "00", "00";
+    local sign = ""; -- B-018: a negative time shows its "-" in front of the first time unit
+    if type(timestamp) == "string" and timestamp:sub(1, 1) == "-" then
+        sign = "-";
+        timestamp = timestamp:sub(2);
+    end
     local timeTable = explode(timestamp, ":") or { timestamp }; -- reference ":" 4 parts
     local trim = format:find("$T");
     local replacements = {}
@@ -2848,27 +2717,46 @@ local function format_time(timestamp, format)
         seconds = unpack(timeTable)
         seconds, mili = unpack(explode(seconds, ","))
     end
-    if tonumber(days) < 10 then
+    if tonumber(days) < 10 and #tostring(days) < 2 then -- B-061: the default "00" is already two digits
         days = "0" .. days;
     end;
-    hours = pad_unit(hours, hour_unit);
-    minutes = pad_unit(minutes, minute_unit);
+    local custom = (timer_format == 5); -- B-023: units and frames apply to the Custom Time Format only
+    hours = pad_unit(hours, custom and hour_unit or nil);
+    minutes = pad_unit(minutes, custom and minute_unit or nil);
 
     local replacements = { ["$D"] = days, ["$H"] = hours, ["$M"] = minutes, ["$S"] = seconds }
 
     timestamp = format:gsub("$T", "")
+    --[[
+		B-018 (fix review): the "-" goes in front of the first time unit the format
+		shows, not in front of the first digit (which may be in the user's text).
+	]]
+    if sign ~= "" then
+        local first, first_at = nil, nil;
+        for _, k in ipairs({ "$D", "$H", "$M", "$S" }) do
+            local at = timestamp:find(k, 1, true);
+            if at ~= nil and (first_at == nil or at < first_at) then first, first_at = k, at end
+        end
+        if first ~= nil then replacements[first] = sign .. replacements[first] end
+    end
+    local frames_sign = (sign ~= "" and not (timestamp:find("$D", 1, true) or timestamp:find("$H", 1, true)
+        or timestamp:find("$M", 1, true) or timestamp:find("$S", 1, true))) and sign or ""; -- only $F shown
+    local frames = nil; -- B-020 (fix review): $F is filled in after the trim
 
     if show_mili then
         --[[
 			Frame display (F3): {$F60} / {F60} shows $F as frames instead of hundredths.
-			mili is hundredths of a second, so frame = floor( mili * fps / 100 ).
+			With a frame unit, the frame number comes from the fractional seconds (B-022).
 		]]
-        if frame_unit ~= nil and tonumber(mili) ~= nil then
-            mili = pad_unit(math.floor(tonumber(mili) * frame_unit / 100), frame_unit);
+        if custom and frame_unit ~= nil and tonumber(mili) ~= nil then
+            -- B-022: frames from the fractional seconds; the hundredths are already truncated
+            local fraction = (shown_seconds ~= nil) and (math.abs(shown_seconds) % 1) or (tonumber(mili) / 100);
+            local frame = math.min(math.floor(fraction * frame_unit + 0.000001), frame_unit - 1);
+            mili = pad_unit(frame, frame_unit);
         end
-        replacements["$F"] = mili
+        frames = mili
     else
-        timestamp = timestamp:gsub("$F", "")
+        timestamp = timestamp:gsub("[,.:]?%$F", "") -- B-021: remove the separator with it
     end
 
     for k, v in pairs(replacements) do
@@ -2882,9 +2770,10 @@ local function format_time(timestamp, format)
 			remove leading zeros.
 	]]
     if trim and (math.abs(current_seconds) > epsilon or math.abs(current_seconds) == 0) then
-        local reg = "^[0:,]*" -- close, but misses 1 instance
-        timestamp = timestamp:gsub(reg, "");
+        -- B-020: strip leading zeros and colons, but keep the sign and one digit before any separator
+        timestamp = timestamp:gsub("^(%-?)[0:]*(%d)", "%1%2", 1);
     end
+    if frames ~= nil then timestamp = timestamp:gsub("%$F", frames_sign .. frames) end
 
     if math.abs(current_seconds) < epsilon and timestamp:find("^0") then
         --timestamp = timestamp:gsub("^0+:", "")
@@ -2895,14 +2784,11 @@ local function format_time(timestamp, format)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Returns the number of whole days in a time, for the $D placeholder.
+	Scope: local; called by set_time_text
+	type: helper (time format)
+	input type: time: number (seconds)
+	returns: number: whole days (0 under a day)
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function long_time(time)
@@ -2919,18 +2805,11 @@ local function long_time(time)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-
-	Description:	This function checks if a string contains "{" and "}"
-
-					If the string meets these conditions, the function returns any value string in the brackets
-
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Finds the first {...} block (or another pattern) in a string and returns its inside.
+	Scope: global; called by get_presuf_allocation
+	type: helper (string)
+	input type: str: string; reg: string or nil (Lua pattern; default "{.-%}")
+	returns: string, number, number: the text without the first and last character, and the start and end index; nil if not found
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function extract_from_brackets(str, reg)
@@ -2950,28 +2829,14 @@ function extract_from_brackets(str, reg)
 
     return instructions, start_index, end_index
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-
-	Description:	This function checks if a string contains the characters "{" and "}" and the character "M" followed
-					by a numeric value
-					If the string meets these conditions, the function returns the numeric value
-					Check to see if a user defined a custom time format and if the format defined a minute allocation.
-
-					If the user need the minute clock to be for example 90 minutes instead of 60 then the user could add the expression as followes:
-
-					{M90} will assign a 90 minute value
-					Note, the M90 must be inside brackets to be considered.
-
-	Credit:
-	Modified:		Asking if miliseconds property must be shown or hidden and this is for back end UI
-	function:		yer, no
-	type:			Support, UI
-	input type: 	properties, settings
-	returns:		bool
+	Description: Reads a custom unit from the Custom Time Format, e.g. 24 from {$H24}, for one placeholder letter.
+	Scope: global; called by script_update
+	type: helper (time format)
+	input type: str: string or nil (the format); target_char: string (one uppercase letter, e.g. "H")
+	returns: number: the unit; nil if there is none (or it is 0); nil and an error message for an invalid letter
 ----------------------------------------------------------------------------------------------------------------------------------------
-
 ]]
 function get_unit_allocation(str, target_char)
     debug_log('get_unit_allocation(' .. pre_dump(str) .. ') -- function variable names:  str ')
@@ -2994,18 +2859,14 @@ function get_unit_allocation(str, target_char)
     end
     return nil
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Turn {$H100} style instructions back into their placeholder ($H), e.g.
-					"{$H100}:$S" returns "$H:$S".
-
-	Credit:			deekei (DominikKriss, PR #15)
-	Modified:
-	function:
-	type:			Support
-	input type: 	string
-	returns:		string
+	Description: Turns instruction blocks such as {$H24} back into the plain placeholder ($H), so the instruction never prints in the timer (B13).
+	Scope: global; called by clean_time_format
+	type: helper (time format)
+	input type: str: string (the format)
+	returns: string: the format without unit numbers
+	Credit: deekei (DominikKriss, PR #15)
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function removeInstructions(str)
@@ -3013,46 +2874,35 @@ function removeInstructions(str)
     local result = string.gsub(str, "{%$(%u)%d*}", "$%1")
     return result
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Prepare a custom time format for display: placeholders inside {$X999}
-					are kept ($X), and every other {} block (5.6 syntax such as {M90} or
-					{H100M200}) is removed so it never prints in the timer (B13).
-
-	Credit:
-	Modified:
-	function:
-	type:			Support
-	input type: 	string
-	returns:		string
+	Description: Removes the instruction blocks from a Custom Time Format, keeping their placeholders, so it can be used for display.
+	Scope: global; called by countdown_display_seconds, show_split and set_time_text
+	type: helper (time format)
+	input type: str: string (the format)
+	returns: string: the cleaned format
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function clean_time_format(str)
     local result = string.gsub(removeInstructions(str), "%b{}", "")
     return result
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	F8: the time to display. In Count Down with a Custom Time Format that has
-					no seconds ($S), round up to the smallest unit shown ($M = minute,
-					$H = hour, $D = day), so "$H:$M" reads 00:01 until the timer reaches zero
-					instead of 00:00 for the last 59 seconds.
-					Only the display changes; markers and expiry use current_seconds.
-
-	Credit:			viscountexx (feature request)
-	Modified:
-	function:
-	type:			Support
-	input type: 	none (globals)
-	returns:		number (seconds)
+	Description: Gives the time to display. With "Round up displayed countdown" on, in Countdown with a Custom Time Format that has no seconds ($S), it rounds up to the smallest unit shown ($M, $H or $D), so "$H:$M" reads 00:01 until zero (F8). Only the display changes; markers and expiry use current_seconds.
+	Scope: global; called by set_time_text
+	type: helper (time format)
+	input type: none (reads the timer globals)
+	returns: number: seconds to display
+	Credit: viscountexx (feature request)
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function countdown_display_seconds()
     if not round_up_countdown or timer_mode ~= 2 or timer_format ~= 5 or current_seconds <= 0 then
         return current_seconds
     end
+    -- B-014: only the remaining time rounds up; elapsed overtime and counting up round down
+    if overtime_active or current_count_direction == "UP" then return current_seconds end
     local format = clean_time_format(custom_time_format);
     if string.find(format, "$S", 1, true) then return current_seconds end
     local unit = nil;
@@ -3067,18 +2917,14 @@ function countdown_display_seconds()
     -- small tolerance so an exact 60.0000001 does not round up to the next minute
     return math.ceil(current_seconds / unit - 0.000001) * unit
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Frame display instruction (F3): {$F60} or {F60} shows $F as frames at
-					60 fps. {$F} or {F} without a number uses the OBS output frame rate.
-
-	Credit:			Leduit (feature request)
-	Modified:
-	function:
-	type:			Support
-	input type: 	string
-	returns:		nil (no frame instruction), 0 (use output fps) or the frame rate
+	Description: Reads the frame instruction from the Custom Time Format (F3): {$F60} or {F60} shows $F as frames at 60 fps; {$F} or {F} without a number means the OBS output frame rate.
+	Scope: global; called by script_update
+	type: helper (time format)
+	input type: str: string or nil (the format)
+	returns: number: the frame rate, 0 (use the output rate), or nil (no frame instruction)
+	Credit: Leduit (feature request)
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function get_frame_unit(str)
@@ -3091,17 +2937,13 @@ function get_frame_unit(str)
     end
     return nil
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	OBS output frame rate, rounded to whole frames (29.97 becomes 30)
-
-	Credit:
-	Modified:
-	function:
-	type:			Support
-	input type: 	none
-	returns:		integer
+	Description: Returns the OBS output frame rate rounded to whole frames (29.97 becomes 30), or 30 if it isn't available.
+	Scope: global; called by script_update
+	type: helper (timing)
+	input type: none
+	returns: number: frames per second (at least 1)
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function output_fps()
@@ -3111,22 +2953,13 @@ function output_fps()
     end
     return 30;
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Check if there are instructions included in the text for additional supported behaviour.
-					Instructions must be provided in '{}' and may contain two paramaters for example {param1:param2}
-					param1 may be one of three possible designations. It must be a numeric value of either 1 or 2 or a time stamp matching the format for
-					HH:MM:SS. If param1 is set to 1 it will pull time markers entries from the list for Marker A
-					and if param1 is set to 2 to it will pull time markers entries from the list for Marker B.
-					If param1 is defined with a time marker matching the format HH:MM:SS it will use this time marker instead.
-
-	Credit:
-	Modified:
-	function:		accepts  string, string
-	type:
-	input type:
-	returns:		3 variable [boolean, String, Interger] true or false if input contains a match to the pattern, param 1, param 2
+	Description: Reads the display instruction in a Timer Prefix or Suffix: {1} or {2} ties it to the Marker A or B time, {HH:MM:SS} to a fixed time, and ",n" after it sets how many seconds it shows.
+	Scope: global; called by validate_presuf
+	type: helper (prefix/suffix)
+	input type: str: string (the prefix or suffix text); reg: string or nil (Lua pattern of the block; default "{.-%}")
+	returns: bool, string, number: whether there is an instruction; "a", "b" or the "HH:MM:SS" time; the seconds, or nil
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function get_presuf_allocation(str, reg)
@@ -3169,17 +3002,13 @@ function get_presuf_allocation(str, reg)
     end
     return false, nil, nil
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-
-	Description:
-	Credit:
-	Modified:
-	function:		yer, no
-	type:			Support, UI
-	input type: 	properties, settings
-	returns:		bool
+	Description: Tells whether a string contains a {...} block.
+	Scope: global; called by prepare_text_prefix_suffix
+	type: helper (string)
+	input type: str: string
+	returns: bool
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function hasBrackets(str)
@@ -3187,21 +3016,13 @@ function hasBrackets(str)
     local start_index, end_index = string.find(str, "%b{}")
     return start_index ~= nil
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-
-	Description:	This function uses the string.find function to find the first occurrence of a balanced pair of braces
-					(%b{}) in the input string str. If no such pair is found, the function returns the input string as is.
-					If a pair of braces is found, the function uses string.sub to extract the substrings of str before and
-					after the pair of braces, concatenates them using the .. operator, and returns the result.
-
-	Credit:
-	Modified:		Asking if miliseconds property must be shown or hidden and this is for back end UI
-	function:		yer, no
-	type:			Support, UI
-	input type: 	properties, settings
-	returns:		bool
+	Description: Removes the first {...} block from a string.
+	Scope: global; called by prepare_text_prefix_suffix and validate_presuf
+	type: helper (string)
+	input type: str: string
+	returns: string: the string without the block (unchanged if there is none)
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function removeBrackets(str)
@@ -3212,17 +3033,14 @@ function removeBrackets(str)
     end
     return string.sub(str, 1, start_index - 1) .. string.sub(str, end_index + 1)
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:			et al
-	Modified:
-	function:
-	type:			Support, Render
-	input type: 	Integer
-	returns:		none
+	Description: Reads the text colour of a text source of this platform's type (on other platforms the first gradient colour, or the second if the first is 0); 0 counts as white.
+	Scope: local; called by load_settings_globals
+	type: helper (sources)
+	input type: source_name: string or nil (source name)
+	returns: number: the colour (ABGR), or nil if the source is missing, ignored or not that text type
+	Credit: et al
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function get_text_color(source_name)
@@ -3233,46 +3051,56 @@ local function get_text_color(source_name)
     if source ~= nil then                                                              -- continue if we have a source
         local source_id = obs.obs_source_get_unversioned_id(source);                   -- get source id
         if source_id == text_source_unversioned_id then                                -- identify text type sources only
+            --[[
+				B-053: read the colour from the source's own settings (the global
+				'settings' used here before was never assigned, so this always
+				returned nil and every redraw then failed in obs_data_set_int).
+				obs_data_get_int takes 2 arguments and returns 0 when the key is not set.
+
+				Operating compatibility MacOSX / Windows
+				The settings key for color
+				Win = "color"
+				Mac = "color1" and "color2"
+			]]
+            local settings = obs.obs_source_get_settings(source);
             if settings ~= nil then
-                --[[
-					Operating compatibility MacOSX / Windows
-					The settings key for color
-					Win = "color"
-					Mac = "color2" and "color3"
-				]]
                 if osType == "Windows" then
-                    color = obs.obs_data_get_int(settings, "color", color);      -- update source settings
+                    color = obs.obs_data_get_int(settings, "color");
                 else
-                    color = obs.obs_data_get_int(settings, "color1", color);     -- update source settings
-                    if not color then
-                        color = obs.obs_data_get_int(settings, "color2", color); -- update source settings
-                    end
-                    if not color then
-                        color = 4294967295 -- default is white
+                    color = obs.obs_data_get_int(settings, "color1");
+                    if color == 0 then
+                        color = obs.obs_data_get_int(settings, "color2");
                     end
                 end
+                if color == 0 then
+                    color = 4294967295 -- not set: the text source default is white
+                end
+                obs.obs_data_release(settings); -- release settings
             end
         end
+        obs.obs_source_release(source);         -- release source
     end
-    obs.obs_source_update(source, settings); -- save source new settings
-    obs.obs_data_release(settings);          -- release settings
-    obs.obs_source_release(source);          -- release source
     return color
 end
 --[[
+	B-067: true while the script shows a colour other than the normal one (a marker
+	or overtime colour), so the normal colour is not re-read from the source then.
+]]
+local script_colour_showing = false;
+--[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Change color of font for text source
-
-	Credit:			et al
-	Modified:
-	function:		Update Text Source (timer text source)
-	type:			Support, Render
-	input type: 	Integer
-	returns:		none
+	Description: Sets the colour of the timer text source, writing all three colour keys so it works on every platform's text source, and remembers whether a non-normal colour is showing.
+	Scope: local; called by the marker colour reset callbacks, time_mark_check, restore_saved_normal_colour, start_overtime and script_unload
+	type: helper (sources)
+	input type: color: number or nil (ABGR colour; nil: nothing happens)
+	returns: none
+	Credit: et al
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function set_timer_text_color(color)
     debug_log('set_timer_text_color(' .. pre_dump(color) .. ') -- function variable names:  int ')
+    if color == nil then return end;                                   -- B-053: nothing to write (unknown colour)
+    script_colour_showing = (color ~= media["color_normal"]);          -- B-067
     if in_table({ "Select", "select" }, timer_source) then return end; -- if timer_source not defined, then return
     local source = obs.obs_get_source_by_name(timer_source);           -- get source by name
     if source ~= nil then                                              -- continue if we have a source
@@ -3295,14 +3123,11 @@ local function set_timer_text_color(color)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Add timer here so we have a global setting
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Puts the timer text back to its normal colour after the Marker A colour time, then stops its own timer.
+	Scope: local (declared in advance); a timer callback added by reset_marker_text_colour_start_timer
+	type: timer callback
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function reset_text_a_colour_timer_callback()
@@ -3310,17 +3135,13 @@ function reset_text_a_colour_timer_callback()
     set_timer_text_color(media["color_normal"]);
     timer_remove(reset_text_a_colour_timer_callback);
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Remove timer here so we have a global setting
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Stops the pending Marker A colour reset timer.
+	Scope: local; called by activate and start_overtime
+	type: helper (timers)
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function reset_text_a_colour_end_timer()
@@ -3329,14 +3150,11 @@ local function reset_text_a_colour_end_timer()
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Add timer here so we have a global setting
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Puts the timer text back to its normal colour after the Marker B colour time, then stops its own timer.
+	Scope: local (declared in advance); a timer callback added by reset_marker_text_colour_start_timer
+	type: timer callback
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function reset_text_b_colour_timer_callback()
@@ -3344,17 +3162,13 @@ function reset_text_b_colour_timer_callback()
     set_timer_text_color(media["color_normal"]);
     timer_remove(reset_text_b_colour_timer_callback);
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Remove timer here so we have a global setting
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Stops the pending Marker B colour reset timer.
+	Scope: local; called by activate and start_overtime
+	type: helper (timers)
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function reset_text_b_colour_end_timer()
@@ -3363,38 +3177,34 @@ local function reset_text_b_colour_end_timer()
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Add timer here so we have a global setting
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Hides the Marker A note when its show time is over: a text note source, or every group item shown for it (emptying the list of shown notes). Stops its own timer first.
+	Scope: local (declared in advance); a timer callback added by hide_note_start_timer
+	type: timer callback
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function hide_note_a_timer_callback()
     debug_log('hide_note_a_timer_callback() -- function variable names: ')
-    if media["note_source_unversioned_id_marker_a"] == text_source_unversioned_id then
+    timer_remove(hide_note_a_timer_callback); -- B-029: one-shot; remove first so an error below cannot make it repeat
+    if is_note_text_id(media["note_source_unversioned_id_marker_a"]) then
         set_visible(media["note_source_marker_a"], false);                  -- Set hiden the source for the note for marker a
     end
     if media["note_source_unversioned_id_marker_a"] == "group" then         -- Hide Sources from a list
-        local source_to_use = media["used_note_source_marker_a"]:popright()
-        if source_to_use ~= nil then set_visible(source_to_use, false); end -- Set hiden the source for the note for marker b
+        local used = media["used_note_source_marker_a"]
+        while used.first <= used.last do -- B-029: nothing queued (e.g. notes disabled)
+            local source_to_use = used:popright()
+            if source_to_use ~= nil then set_visible(source_to_use, false); end -- B-030: hide every queued note, not only one
+        end
     end
-    timer_remove(hide_note_a_timer_callback);
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Remove timer here so we have a global setting
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Stops the pending Marker A note-hide timer.
+	Scope: local; called by activate
+	type: helper (timers)
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function hide_note_a_colour_end_timer()
@@ -3403,38 +3213,34 @@ local function hide_note_a_colour_end_timer()
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Add timer here so we have a global setting
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Hides the Marker B note when its show time is over: a text note source, or every group item shown for it (emptying the list of shown notes). Stops its own timer first.
+	Scope: local (declared in advance); a timer callback added by hide_note_start_timer
+	type: timer callback
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function hide_note_b_timer_callback()
     debug_log('hide_note_b_timer_callback() -- function variable names: ')
-    if media["note_source_unversioned_id_marker_b"] == text_source_unversioned_id then
+    timer_remove(hide_note_b_timer_callback); -- B-029: one-shot; remove first so an error below cannot make it repeat
+    if is_note_text_id(media["note_source_unversioned_id_marker_b"]) then
         set_visible(media["note_source_marker_b"], false); -- Set hiden the source for the note for marker b
     end
     if media["note_source_unversioned_id_marker_b"] == "group" then
-        local source_to_use = media["used_note_source_marker_b"]:popright()
-        if source_to_use ~= nil then set_visible(source_to_use, false); end --   -- Set hiden the source for the note for marker b
+        local used = media["used_note_source_marker_b"]
+        while used.first <= used.last do -- B-029: nothing queued (e.g. notes disabled)
+            local source_to_use = used:popright()
+            if source_to_use ~= nil then set_visible(source_to_use, false); end -- B-030: hide every queued note, not only one
+        end
     end
-    timer_remove(hide_note_b_timer_callback);
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Remove timer here so we have a global setting
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Stops the pending Marker B note-hide timer.
+	Scope: local; called by activate
+	type: helper (timers)
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function hide_note_b_colour_end_timer()
@@ -3443,14 +3249,11 @@ local function hide_note_b_colour_end_timer()
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Add timer here so we have a global setting
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Starts (or restarts) the timer that puts the timer text back to its normal colour after a marker, and records when it is due so a pause can keep the time left.
+	Scope: local; called by resume_marker_timers, time_mark_check and timer_ended
+	type: helper (timers)
+	input type: int: number (milliseconds; 0: no timer); ref: string ("marker_a" or "marker_b")
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function reset_marker_text_colour_start_timer(int, ref)
@@ -3470,14 +3273,11 @@ local function reset_marker_text_colour_start_timer(int, ref)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Add timer here so we have a global setting
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Starts (or restarts) the timer that hides a marker's note after its show time, and records when it is due so a pause can keep the time left.
+	Scope: local; called by resume_marker_timers and time_mark_check
+	type: helper (timers)
+	input type: int: number (milliseconds; 0: no timer); ref: string ("marker_a" or "marker_b")
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function hide_note_start_timer(int, ref)
@@ -3497,28 +3297,18 @@ local function hide_note_start_timer(int, ref)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Pausing the timer (activate(false)) removes the "Reset Marker Text" colour
-					timers and "Hide Note" timers. Without this they were never scheduled again,
-					so after a pause (manual, or F9 "Pause timer at Marker") the marker colour
-					and note stayed until Reset.
-
-					suspend_marker_timers(): on pause, keep the time each one still had left.
-					resume_marker_timers():  on Start, schedule them again with that time.
-					clear_marker_timers():   on Reset, forget them.
-
-	Credit:
-	Modified:
-	function:
-	type:			Support
-	input type: 	none
-	returns:		none
+	Description: On pause, keeps the time each pending marker timer (text colour reset, note hide, media playback limit) still had left, and stops the media limit timers, so Start can schedule them again. Does nothing if the timer isn't running.
+	Scope: local; called by activate (on pause)
+	type: helper (timers)
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function suspend_marker_timers()
     if not timer_active then return end -- already paused: keep what the first pause stored
     local now = obs.os_gettime_ns();
     for _, ref in ipairs({ "marker_a", "marker_b" }) do
-        for _, kind in ipairs({ "colour", "note" }) do
+        for _, kind in ipairs({ "colour", "note", "media" }) do -- B-068: the marker audio duration pauses too
             local due = media[kind .. "_due_" .. ref];
             if due ~= nil and due > now then
                 media[kind .. "_left_" .. ref] = math.floor((due - now) / 1000000); -- milliseconds
@@ -3528,40 +3318,112 @@ local function suspend_marker_timers()
             media[kind .. "_due_" .. ref] = nil;
         end
     end
+    timer_remove(marker_a_media_end_callback); -- B-068: resumed with the remaining time on Start
+    timer_remove(marker_b_media_end_callback);
 end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description: On Start, schedules the marker timers that a pause suspended (text colour reset, note hide, media playback limit) again with the time they had left.
+	Scope: local; called by activate (on start)
+	type: helper (timers)
+	input type: none
+	returns: none
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
 local function resume_marker_timers()
     for _, ref in ipairs({ "marker_a", "marker_b" }) do
         local left = media["colour_left_" .. ref];
         if left ~= nil and left > 0 then reset_marker_text_colour_start_timer(left, ref) end
         left = media["note_left_" .. ref];
         if left ~= nil and left > 0 then hide_note_start_timer(left, ref) end
+        left = media["media_left_" .. ref];
+        if left ~= nil and left > 0 then -- B-068 (decision 2026-10-10, option a)
+            local end_callback = (ref == "marker_a") and marker_a_media_end_callback or marker_b_media_end_callback;
+            timer_remove(end_callback);
+            timer_add(end_callback, left);
+            media["media_due_" .. ref] = obs.os_gettime_ns() + left * 1000000;
+        end
         media["colour_left_" .. ref] = nil;
         media["note_left_" .. ref] = nil;
+        media["media_left_" .. ref] = nil;
     end
 end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description: Forgets all pending and suspended marker timer times (text colour, note, media), on Reset.
+	Scope: local; called by reset
+	type: helper (timers)
+	input type: none
+	returns: none
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
 local function clear_marker_timers()
     for _, ref in ipairs({ "marker_a", "marker_b" }) do
-        for _, kind in ipairs({ "colour", "note" }) do
+        for _, kind in ipairs({ "colour", "note", "media" }) do -- B-068
             media[kind .. "_due_" .. ref] = nil;
             media[kind .. "_left_" .. ref] = nil;
         end
     end
 end
 --[[
+	B-068 (re-review): Pause on a timer that is already stopped (paused at a marker, or
+	expired while the marker audio finishes) pauses the audio; suspend its re-armed
+	limit too, so Start resumes it with the remaining time.
+]]
+--[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-
-	Description:	Callback on properties modification
-
-					Show/Hide a field in the properties based on a
-					some criteria. In this case, show or hide the field
-					"Toggle Milliseconds" only when required.
-
-	Credit:
-	Modified:		Asking if miliseconds property must be shown or hidden and this is for back end UI
-	function:		yer, no
-	type:			Support, UI
-	input type: 	properties, settings
-	returns:		bool
+	Description: Keeps the time left on the marker media playback limits and stops their timers, so the limit resumes when the audio does (B-068).
+	Scope: local; called by pause, startpause and activate_signal
+	type: helper (media)
+	input type: none
+	returns: none
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function suspend_media_limits()
+    local now = obs.os_gettime_ns();
+    for _, ref in ipairs({ "marker_a", "marker_b" }) do
+        local due = media["media_due_" .. ref];
+        if due ~= nil then
+            media["media_left_" .. ref] = math.max(0, math.floor((due - now) / 1000000)); -- milliseconds
+            media["media_due_" .. ref] = nil;
+        end
+    end
+    timer_remove(marker_a_media_end_callback);
+    timer_remove(marker_b_media_end_callback);
+end
+--[[
+	B-068 (review): where the timer stops but the marker audio keeps playing (expiry,
+	"Pause timer at Marker", Disable Script), re-arm the playback limit that
+	activate(false) suspended, so the audio still stops after its duration.
+]]
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description: Schedules the suspended marker media playback limits again with their time left, where the timer stops but marker audio keeps playing (expiry, "Pause timer at Marker", Disable Script), so the audio still stops after its duration (B-068).
+	Scope: local; called by time_mark_check, activate_signal, timer_ended and script_update
+	type: helper (media)
+	input type: none
+	returns: none
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function rearm_media_limits()
+    for _, ref in ipairs({ "marker_a", "marker_b" }) do
+        local left = media["media_left_" .. ref];
+        if left ~= nil and left > 0 then
+            local end_callback = (ref == "marker_a") and marker_a_media_end_callback or marker_b_media_end_callback;
+            timer_remove(end_callback);
+            timer_add(end_callback, left);
+            media["media_due_" .. ref] = obs.os_gettime_ns() + left * 1000000;
+        end
+        media["media_left_" .. ref] = nil;
+    end
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description: Tells whether the panel may offer the "Toggle Milliseconds" trigger: Advanced layout, Countdown mode, and a time format that shows hundredths (formats 1-2, or a Custom Time Format with $F).
+	Scope: local; called by property_onchange
+	type: helper (panel)
+	input type: props: obs_properties (the panel; not used); settings: obs_data (the script's settings)
+	returns: bool
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function show_split(props, settings)
@@ -3582,14 +3444,12 @@ local function show_split(props, settings)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Function to set the source text
-
-	Credit:			et al
-	Modified:
-	function:		Update Text Source
-	type:			Support, Render
-	input type: 	target source by name, contents to be added to text contents
-	returns:		nothing
+	Description: Sets the text of a text source. Names in ignore_list and nil are ignored.
+	Scope: local; called by source_list_set_by_index, set_split_text, reset and timer_ended
+	type: helper (sources)
+	input type: source_name: string or nil (source name); text: string (the new text)
+	returns: none
+	Credit: et al
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function set_text(source_name, text)
@@ -3599,7 +3459,6 @@ local function set_text(source_name, text)
     if source_name == nil or in_table(ignore_list, source_name) then
         return
     end
-
     --[[
 		Increments the source reference counter,
 		use obs_source_release() to release it when complete.
@@ -3619,68 +3478,57 @@ local function set_text(source_name, text)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Set source visibility to hidden
-
-	Credit:
-	Modified:
-	function:		a callback for a timer used to set a source visibility to hidden
-	type:
-	input type: 	none
-	returns:		none
+	Description: Ends the Marker A media when its playback limit is reached: hides the playing source and marks the media as ended. Stops its own timer first.
+	Scope: local (declared in advance); a timer callback added by start_media_action, resume_marker_timers and rearm_media_limits
+	type: timer callback
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function marker_a_media_end_callback()
     debug_log('marker_a_media_end_callback() -- function variable names:  ')
     timer_remove(marker_a_media_end_callback); -- one-shot
+    media["media_due_marker_a"] = nil; -- B-068
     -- hide the source that was started: with a Marker Audio list the name has already moved on
     set_visible(media["playing_audio_marker_a"] or media["source_name_audio_marker_a"], false);
     media["media_ended_marker_a"] = true;
+    media["playing_audio_marker_a"] = nil; -- B-076 (review): no longer playing
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Set source visibility to hidden
-
-	Credit:
-	Modified:
-	function:		a callback for a timer used to set a source visibility to hidden
-	type:
-	input type: 	none
-	returns:		none
+	Description: Ends the Marker B media when its playback limit is reached: hides the playing source and marks the media as ended. Stops its own timer first.
+	Scope: local (declared in advance); a timer callback added by start_media_action, resume_marker_timers and rearm_media_limits
+	type: timer callback
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function marker_b_media_end_callback()
     debug_log('marker_b_media_end_callback() -- function variable names:  ')
     timer_remove(marker_b_media_end_callback); -- one-shot
+    media["media_due_marker_b"] = nil; -- B-068
     -- hide the source that was started: with a Marker Audio list the name has already moved on
     set_visible(media["playing_audio_marker_b"] or media["source_name_audio_marker_b"], false);
     media["media_ended_marker_b"] = true;
+    media["playing_audio_marker_b"] = nil; -- B-076 (review): no longer playing
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Runs when a marker or end media source finishes playing: hides it and forgets it as playing. If an expire-scene switch is waiting for the end media, starts that switch.
+	Scope: local; connected to the source's "media_ended" signal by disconnect_after_media_end
+	type: signal handler
+	input type: cd: calldata (the signal's data, with the source)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function signal_media_ended(cd)
     debug_log('signal_media_ended(' .. pre_dump(cd) .. ') -- function variable names:  cd ')
     --[[
-
 		Get source from CallData
-
 	]]
     local source = obs.calldata_source(cd, "source");
     --[[
-
 		Found Source?
-
 	]]
     if source ~= nil then
         local name = obs.obs_source_get_name(source);
@@ -3688,6 +3536,9 @@ local function signal_media_ended(cd)
 			Set Source Visibility to Hidden
 		]]
         set_visible(name, false);
+        for _, ref in ipairs({ "marker_a", "marker_b", "marker_end" }) do -- B-076 (review): no longer playing
+            if media["playing_audio_" .. ref] == name then media["playing_audio_" .. ref] = nil end
+        end
         --[[
 			F4: the Timer Expired Audio finished naturally and a scene switch is waiting.
 			This signal arrives on a media thread, so switch from a one-shot timer
@@ -3701,14 +3552,12 @@ local function signal_media_ended(cd)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:			OBS, Source Signals, https://obsproject.com/docs/reference-sources.html?highlight=media_ended
-	Modified:
-	function:
-	type:			Support
-	input type: 	ref
-	returns:		signal_media_ended
+	Description: Connects signal_media_ended to the "media_ended" signal of the marker's media source (disconnecting first so it is connected once), so the source is hidden when it finishes.
+	Scope: local; called by start_media_action and play_timer_end_audio
+	type: helper (signals)
+	input type: ref: string ("marker_a", "marker_b" or "marker_end")
+	returns: none
+	Credit: OBS, Source Signals, https://obsproject.com/docs/reference-sources.html?highlight=media_ended
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function disconnect_after_media_end(ref)
@@ -3746,14 +3595,11 @@ local function disconnect_after_media_end(ref)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Plays a marker's media once per marker while the timer runs: restarts it if it is already visible, shows it, starts the playback limit timer when "Media Playback Limit" is enabled with a duration, and connects the media-ended signal.
+	Scope: local; called by start_media
+	type: helper (media)
+	input type: source_name: string (media source name); ref: string ("marker_a" or "marker_b")
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function start_media_action(source_name, ref)
@@ -3788,6 +3634,7 @@ local function start_media_action(source_name, ref)
             local end_callback = (ref == "marker_a") and marker_a_media_end_callback or marker_b_media_end_callback;
             timer_remove(end_callback);
             timer_add(end_callback, math.floor(media["duration_" .. ref] * 1000)); --<- milliseconds
+            media["media_due_" .. ref] = obs.os_gettime_ns() + math.floor(media["duration_" .. ref] * 1000) * 1000000; -- B-068
         end
         --[[
 			media must be avtive now, or have been made active started
@@ -3805,14 +3652,11 @@ local function start_media_action(source_name, ref)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Starts a marker's media (see start_media_action).
+	Scope: local; called by time_mark_check
+	type: helper (media)
+	input type: source_name: string (media source name); ref: string ("marker_a" or "marker_b")
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function start_media(source_name, ref)
@@ -3822,14 +3666,12 @@ local function start_media(source_name, ref)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Change color of font for text source
-
-	Credit:			et al
-	Modified:
-	function:		Update Text Source
-	type:			Support, Render
-	input type:
-	returns:		none
+	Description: Writes the marker note text into the marker's note text source and, if the marker's text colour feature is enabled, the marker colour. Only for text note sources (not groups), and not while the script is disabled.
+	Scope: local; called by time_mark_check and reset
+	type: helper (markers)
+	input type: ref: string ("marker_a" or "marker_b")
+	returns: none
+	Credit: et al
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function set_text_note_color(ref)
@@ -3838,7 +3680,7 @@ local function set_text_note_color(ref)
     --[[
 		Only control colour if source is a text source
 	]]
-    if media["note_source_unversioned_id_" .. ref] ~= text_source_unversioned_id then return end
+    if not is_note_text_id(media["note_source_unversioned_id_" .. ref]) then return end
 
     local source_name = media["note_source_" .. ref];
     local text        = media["note_" .. ref];
@@ -3868,22 +3710,20 @@ local function set_text_note_color(ref)
                 obs.obs_data_set_int(settings, "color1", color); -- update source settings
                 obs.obs_data_set_int(settings, "color2", color); -- update source settings
             end
+            -- B-002: update and release inside the block where the local 'settings' exists
+            obs.obs_source_update(source, settings); -- save source new settings
+            obs.obs_data_release(settings);          -- release settings
         end
+        obs.obs_source_release(source);              -- release source
     end;
-    obs.obs_source_update(source, settings); -- save source new settings
-    obs.obs_data_release(settings);          -- release settings
-    obs.obs_source_release(source);          -- release source
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Rounds the current time to whole seconds: down when counting up, up when counting down.
+	Scope: global; called by validate_presuf, time_mark_check, update_timer_direction, reset, init and script_update
+	type: helper (time)
+	input type: none
+	returns: number: whole seconds
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function roundSeconds()
@@ -3900,17 +3740,13 @@ function roundSeconds()
     end
     return round_seconds
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Sets the shown Timer Prefix and Suffix: plain text is shown as it is; text with a {...} instruction starts empty until validate_presuf shows it.
+	Scope: global; called by reset, init and script_update
+	type: helper (prefix/suffix)
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function prepare_text_prefix_suffix()
@@ -3927,17 +3763,13 @@ function prepare_text_prefix_suffix()
         text_suffix_validated = text_suffix;
     end
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	validate instructions
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Shows or hides a Timer Prefix or Suffix that has a {...} instruction, depending on whether the current time is inside its window (from the marker or fixed time, for the given seconds, in the count direction).
+	Scope: local; called by time_mark_check and set_time_text
+	type: helper (prefix/suffix)
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function validate_presuf()
@@ -3947,6 +3779,15 @@ local function validate_presuf()
     local text_prefix_cleaned = removeBrackets(text_prefix)
     local text_suffix_cleaned = removeBrackets(text_suffix)
     local round_seconds = roundSeconds();
+    --[[
+    ----------------------------------------------------------------------------------------------------------------------------------------
+    	Description: Converts an "hh:mm:ss" time to seconds.
+    	Scope: local inside validate_presuf; called by get_set_seconds
+    	type: helper (time)
+    	input type: timeString: string or nil
+    	returns: number: seconds, or nil if not "hh:mm:ss"
+    ----------------------------------------------------------------------------------------------------------------------------------------
+    ]]
     local function get_seconds_from_timestamp(timeString)
         local result
         if timeString ~= nil and checkTimeString(timeString) then
@@ -3954,17 +3795,44 @@ local function validate_presuf()
         end
         return result
     end
+    --[[
+    ----------------------------------------------------------------------------------------------------------------------------------------
+    	Description: Tells whether the rounded current time is inside a window. Counting down, the window runs (min, max]; counting up, [min, max). A missing end leaves that side open.
+    	Scope: local inside validate_presuf; called by validate_presuf
+    	type: helper (time)
+    	input type: min: number or nil (seconds); max: number or nil (seconds)
+    	returns: bool (false when both are nil)
+    ----------------------------------------------------------------------------------------------------------------------------------------
+    ]]
     local function isSecondsInRange(min, max)
+        --[[
+			B-026 (decision 2026-10-09): Count Up shows the text in [min, max);
+			Count Down mirrors it with (min, max], so the marker second is included.
+		]]
+        local down = (current_count_direction ~= "UP");
         if min == nil and max == nil then
             return false
         elseif min == nil then
+            if down then return round_seconds <= max end
             return round_seconds < max
         elseif max == nil then
+            if down then return round_seconds > min end
             return round_seconds >= min
+        elseif down then
+            return min < round_seconds and round_seconds <= max
         else
             return min <= round_seconds and round_seconds < max
         end
     end
+    --[[
+    ----------------------------------------------------------------------------------------------------------------------------------------
+    	Description: Gives the start time in seconds for a prefix or suffix instruction: the Marker A or B time, or the fixed time given. For a marker, the time is taken from the current marker time while the text is empty.
+    	Scope: local inside validate_presuf; called by validate_presuf
+    	type: helper (prefix/suffix)
+    	input type: set: string ("a", "b" or "hh:mm:ss"); text: string (the prefix or suffix currently shown)
+    	returns: number: seconds, or nil
+    ----------------------------------------------------------------------------------------------------------------------------------------
+    ]]
     local function get_set_seconds(set, text)
         local seconds
         if set == "a" then
@@ -4031,14 +3899,11 @@ local function validate_presuf()
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Fires Marker A or B when the running timer reaches the marker time (once, until the timer moves past it again): starts the text colour and note-hide timers, shows the note (choosing the next group item for a group) and writes the note text and colour, colours the timer text, plays the marker media, works out the next marker time and media, starts Auto Recording, and pauses the timer if "Pause timer at Marker" is set (F9). Also updates the prefix and suffix windows.
+	Scope: local; called by update_timer_display (every display update)
+	type: helper (markers)
+	input type: ref: string ("marker_a" or "marker_b")
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function time_mark_check(ref)
@@ -4103,7 +3968,7 @@ local function time_mark_check(ref)
 
             set_visible(source_name, true); -- Set visble the source for the note for marker a
 
-            if media["note_source_unversioned_id_" .. ref] == text_source_unversioned_id then
+            if is_note_text_id(media["note_source_unversioned_id_" .. ref]) then
                 if media["hide_note_marker_b"] == 0 then
                     set_visible(media["note_source_marker_b"], false); -- Set hiden the source for the note for marker b (only show one note at a time)
                 end
@@ -4125,7 +3990,7 @@ local function time_mark_check(ref)
             end
 
             set_visible(source_name, true); -- Set visble the source for the note for marker b
-            if media["note_source_unversioned_id_" .. ref] == text_source_unversioned_id then
+            if is_note_text_id(media["note_source_unversioned_id_" .. ref]) then
                 if media["hide_note_marker_a"] == 0 then
                     set_visible(media["note_source_marker_a"], false); -- Set hiden the source for the note for marker a (only show one note at a time)
                 end
@@ -4139,7 +4004,6 @@ local function time_mark_check(ref)
         if (enable_property_color_marker_a and ref == "marker_a") or (enable_property_color_marker_b and ref == "marker_b") then
             set_timer_text_color(media["color_" .. ref]);
         end
-
         --[[
 			B4: the marker has fired again (activated_ re-arms once the timer has moved
 			past the marker), so allow its audio to play again. Before, only Reset
@@ -4161,9 +4025,6 @@ local function time_mark_check(ref)
 			5 = "Timer Visible",
 			6 = "Timer Start"
 
-		]]
-
-        --[[
 			There may be more markers, if so check if there are and upddate variables
 		]]
         update_time_markers(round_seconds);
@@ -4186,20 +4047,18 @@ local function time_mark_check(ref)
 			]]
             current_seconds = round_seconds; -- what timer_value() does; it is defined further down, so not callable here
             activate(false);
+            rearm_media_limits();       -- B-068 (review): the marker audio keeps playing during a marker pause, with its limit
             marker_pause_redraw = true; -- set_time_text() already built the old text; redraw once at its end
         end
     end;
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Check source type of media if the media is set to loop
-					The source is referenced by name.
-	Credit:
-	Modified:
-	function:
-	type:
-	input type: 	reference (string)
-	returns:		bool
+	Description: Tells whether a media source has "Loop" ticked.
+	Scope: local; called by stop_looping_media
+	type: helper (media)
+	input type: source_name: string or nil (source name)
+	returns: bool: true when it loops (false for other source types); nil for nil or ignored names
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function get_source_looping(source_name)
@@ -4221,24 +4080,19 @@ local function get_source_looping(source_name)
         if source_id == "ffmpeg_source" then                         -- check if source id match that of type we need to focus on
             local settings = obs.obs_source_get_settings(source);    -- get source settings
             enabled = obs.obs_data_get_bool(settings, property);     -- check if media source has playback looping enabled
+            obs.obs_data_release(settings);                          -- B-002: release inside the block where 'settings' exists
         end;
+        obs.obs_source_release(source); -- release source
     end;
-    obs.obs_data_release(settings); -- release settings
-    obs.obs_source_release(source); -- release source
     return enabled;                 -- bool
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-
-	Description:	Check if the source state changed,
-					if so, set source visble = false
-
-	Credit:
-	Modified:
-	function:
-	type:			tasks
-	input type: 	ref (string)
-	returns:		none
+	Description: Does nothing now: the Marker A/B Duration is handled by a one-shot timer started with the media (marker_a/b_media_end_callback), and the natural end by the media_ended signal. Kept for stop_media.
+	Scope: local; called by stop_media
+	type: helper (media, no-op)
+	input type: ref: string ("marker_a" or "marker_b"; not used)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function stop_media_action(ref)
@@ -4255,14 +4109,12 @@ local function stop_media_action(ref)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Stop Media Playback
-
-	Credit:			OBS, midnight-studios
-	Modified:
-	function:
-	type:
-	input type:
-	returns:	none
+	Description: Stops a visible media source that is playing or paused.
+	Scope: local; called by stop_looping_media
+	type: helper (media)
+	input type: source_name: string (source name)
+	returns: none
+	Credit: OBS, midnight-studios
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function stop_media_playback(source_name)
@@ -4274,9 +4126,9 @@ local function stop_media_playback(source_name)
 
     if source ~= nil then
         local source_id = obs.obs_source_get_unversioned_id(source); -- unversioned_id will not be affected by language settings
-        if source_id ~= "ffmpeg_source" then return end;             -- apply this to media type sources only
+        if source_id ~= "ffmpeg_source" then obs.obs_source_release(source); return end; -- B-005: media sources only; release before returning
         local state = obs.obs_source_media_get_state(source)         -- get the current state for the source
-        if state == obs.OBS_MEDIA_STATE_PLAYING or obs.OBS_MEDIA_STATE_PAUSED then
+        if state == obs.OBS_MEDIA_STATE_PLAYING or state == obs.OBS_MEDIA_STATE_PAUSED then -- B-005: was always true
             obs.obs_source_media_stop(source);
         end;
         --obs.obs_source_media_get_duration( source )
@@ -4287,14 +4139,12 @@ local function stop_media_playback(source_name)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Play / Pause Media
-
-	Credit:			OBS, midnight-studios
-	Modified:
-	function:
-	type:
-	input type:
-	returns:	none, play /pause media source
+	Description: Pauses or resumes a visible media source.
+	Scope: local; called by start, pause, startpause and activate_signal
+	type: helper (media)
+	input type: source_name: string (source name); play: bool (true: pause; false: play, as obs_source_media_play_pause)
+	returns: none
+	Credit: OBS, midnight-studios
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function pause_play_media(source_name, play)
@@ -4307,7 +4157,7 @@ local function pause_play_media(source_name, play)
 
     if source ~= nil then
         local source_id = obs.obs_source_get_unversioned_id(source); -- unversioned_id will not be affected by language settings
-        if source_id ~= "ffmpeg_source" then return end;             -- apply this to media type sources only
+        if source_id ~= "ffmpeg_source" then obs.obs_source_release(source); return end; -- B-005: media sources only; release before returning
         obs.obs_source_media_play_pause(source, play);
         --obs.obs_source_media_get_duration( source )
         --obs.obs_source_media_get_time( source )
@@ -4322,18 +4172,11 @@ local function pause_play_media(source_name, play)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Stop Media is designed to reset the source to its
-					starting state. In other words, make the source
-					invisible again. This sould only happen if the media
-					ended, or if it is looped, then end the media after a
-					defined time.
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Stops a marker's media if it is set to loop, so it doesn't play on after the timer ends.
+	Scope: local; called by timer_ended
+	type: helper (media)
+	input type: ref: string ("marker_a", "marker_b" or "marker_end")
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function stop_looping_media(ref)
@@ -4355,19 +4198,11 @@ local function stop_looping_media(ref)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-
-	Description:	Stop Media is designed to reset the source to its
-					starting state. In other words, make the source
-					invisible again. This sould only happen if the media
-					ended, or if it is looped, then end the media after a
-					defined time.
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Hides a marker's media source when bypass is set; otherwise calls stop_media_action, which does nothing now.
+	Scope: local; called by set_time_text
+	type: helper (media)
+	input type: ref: string ("marker_a" or "marker_b"); bypass: bool or nil (true: hide the source)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function stop_media(ref, bypass)
@@ -4381,21 +4216,16 @@ local function stop_media(ref, bypass)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Function to cycle through a list for sources or scenes
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type: 	string
-	returns:		nothing
+	Description: Builds the list of scenes or sources to cycle through on expiry from the "Cycle List" setting, keeping only entries that still exist, in list order.
+	Scope: local; called by reset_cycle_source_list and timer_expire_event_cycle_source_list
+	type: helper (expire event)
+	input type: source_type: string ("scene" or "source")
+	returns: table: array of names
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function get_cycle_source_list(source_type)
     --[[
-
 		Create a table for a list
-
 	]]
     local list = {};                                                       -- create temporary table variable
     local item_list = {};                                                  -- A list containing the available source names
@@ -4418,7 +4248,6 @@ local function get_cycle_source_list(source_type)
         end
     end
     --[[
-
 		Create a clean list, compare the user name list with the available source name list
 		if the source exist (it must be listed in item_list) then add it to the output list and disregard
 		all other items. This will filter out all mispelled or non existent items that are listed
@@ -4433,14 +4262,11 @@ local function get_cycle_source_list(source_type)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Function to cycle through a list for sources or scenes
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type: 	string
-	returns:		nothing
+	Description: Shows or hides one entry of the cycle list: switches to a scene, or shows or hides a source. When shown, writes its name into the Active Source text source (and shows that source if "force visible" is ticked).
+	Scope: local; called by cycle_source_list_by_source_type, cycle_source_list_by_source_name and reset_cycle_source_list
+	type: helper (expire event)
+	input type: source_list: table (array of names); source_type: string ("scene" or "source"); index: number (1-based entry); visible: bool (true: show this entry)
+	returns: string: the entry's name, or nil if there is none at that index
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function source_list_set_by_index(source_list, source_type, index, visible)
@@ -4465,28 +4291,27 @@ local function source_list_set_by_index(source_list, source_type, index, visible
             set_visible(source_name, visible);
         end
 
-        set_text(active_source, source_name);
-        --[[
+        if visible then -- B-008: name only the entry that is shown
+            set_text(active_source, source_name);
+            --[[
 				force the visibility
 				state of this source.
 			]]
-        if active_source_force_visible then
-            set_visible(active_source, true)
-        end;
+            if active_source_force_visible then
+                set_visible(active_source, true)
+            end;
+        end
     end;
 
     return source_name;
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Function to cycle through a list for sources or scenes
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type: 	string
-	returns:		nothing
+	Description: Shows the cycle list entry at the current index and hides the others (scenes or sources), then moves the index on by one in the Cycle Direction, wrapping around.
+	Scope: local; called by timer_expire_event_cycle_source_list
+	type: helper (expire event)
+	input type: source_list: table or nil (array of names); source_type: string ("scene" or "source"); ctrl_index: number (current 1-based index)
+	returns: number, table: the next index and the list (the index unchanged and nil if there is no list)
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function cycle_source_list_by_source_type(source_list, source_type, ctrl_index)
@@ -4506,7 +4331,7 @@ local function cycle_source_list_by_source_type(source_list, source_type, ctrl_i
 		2: Desceneding
 		Depending on the 'cycle_direction', set the next index.
 	]]
-    if cycle_direction == 2 then --
+    if cycle_direction == 1 then -- B-009: Ascending steps first to last
         ctrl_index = (ctrl_index % #source_list) + 1
     else
         ctrl_index = (ctrl_index - 2 + #source_list) % #source_list + 1
@@ -4515,14 +4340,11 @@ local function cycle_source_list_by_source_type(source_list, source_type, ctrl_i
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Function to cycle through a list for sources or scenes
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type: 	string
-	returns:		nothing
+	Description: Shows the child source at the current index of a group's (or nested scene's) list and hides the others, then moves the index on by one in the Cycle Direction, wrapping around.
+	Scope: local; called by timer_expire_event_cycle_source_list
+	type: helper (expire event)
+	input type: source_list: table or nil (array of source names); ctrl_index: number (current 1-based index)
+	returns: number, table: the next index and the list (the index unchanged and nil if there is no list)
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function cycle_source_list_by_source_name(source_list, ctrl_index)
@@ -4542,7 +4364,7 @@ local function cycle_source_list_by_source_name(source_list, ctrl_index)
 		2: Desceneding
 		Depending on the 'cycle_direction', set the next index.
 	]]
-    if cycle_direction == 2 then --
+    if cycle_direction == 1 then -- B-009: Ascending steps first to last
         ctrl_index = (ctrl_index % #source_list) + 1
     else
         ctrl_index = (ctrl_index - 2 + #source_list) % #source_list + 1
@@ -4552,14 +4374,11 @@ local function cycle_source_list_by_source_name(source_list, ctrl_index)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Function to cycle through a list for sources or scenes
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type: 	string
-	returns:		nothing
+	Description: For a Countdown with a Source List, Auto List or Scene List expire event, hides all entries of the list (for Auto List, shows the parent and hides its children) and sets the cycle index so the next expiry starts at the first entry in the Cycle Direction.
+	Scope: local; called by reset
+	type: helper (expire event)
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function reset_cycle_source_list()
@@ -4578,7 +4397,7 @@ local function reset_cycle_source_list()
 
     if in_table({ "Auto List" }, timer_expire_event) and not in_table(ignore_list, cycle_source_children) then
         local source_name = cycle_source_children
-        local source_list = list_source_children_by_source_name(source_name)
+        source_list = list_source_children_by_source_name(source_name) -- B-010: the outer source_list (a local hid it)
         if source_list ~= nil and tableHasValue(source_list) and not in_table(ignore_list, source_name) then
             set_visible(cycle_source_children, true);
             -- Hide all children
@@ -4595,7 +4414,7 @@ local function reset_cycle_source_list()
 		2: Desceneding
 		Set initial 'cycle_direction', then update the next index.
 	]]
-    if cycle_direction == 2 then --
+    if cycle_direction == 1 then -- B-009: Ascending starts so that the first expiry shows entry 1
         cycle_index = #source_list
     else
         cycle_index = 1
@@ -4615,7 +4434,7 @@ local function reset_cycle_source_list()
 		2: Desceneding
 		Depending on the 'cycle_direction', set the next index.
 	]]
-    if cycle_direction == 2 then --
+    if cycle_direction == 1 then -- B-009: Ascending steps first to last
         cycle_index = (cycle_index % #source_list) + 1
     else
         cycle_index = (cycle_index - 2 + #source_list) % #source_list + 1
@@ -4623,15 +4442,12 @@ local function reset_cycle_source_list()
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Check if a scene with a specific name has a source with a specific name
-
-
-	Credit:			midnight-studios, et al
-	Modified:
-	function:		check true or false
-	type:			Dependency / Support
-	input type: 	string, string
-	returns:		bool
+	Description: Tells whether a scene contains a source directly or inside one of its groups.
+	Scope: local; called by activate_timer_on_scene
+	type: helper (sources)
+	input type: scene_name: string or nil (scene name); source_name: string (source name)
+	returns: bool
+	Credit: midnight-studios, et al
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function scene_name_has_source_name(scene_name, source_name)
@@ -4639,6 +4455,8 @@ local function scene_name_has_source_name(scene_name, source_name)
         pre_dump(scene_name) ..
         ", " .. pre_dump(source_name) .. ') -- function variable names:  scene_name, source_name ')
     local result = false;
+    -- B-039: no current scene (OBS still loading): never look up a nil name (libobs has no NULL check there)
+    if scene_name == nil then return result end
     local scene_source = obs.obs_get_source_by_name(scene_name)
     local scene = obs.obs_scene_from_source(scene_source)
     local scene_items = obs.obs_scene_enum_items(scene)
@@ -4669,14 +4487,12 @@ local function scene_name_has_source_name(scene_name, source_name)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Called when a scene is activated/deactivated
-
-	Credit:			midnight-studios, et al
-	Modified:
-	function:		make a source visible
-	type:			Dependency / Support
-	input type: 	source, bool, timer_activation (global), scene_name_has_source_name()
-	returns:		none
+	Description: With Timer Activation "Timer Scene Active", shows the timer source when a scene containing it becomes the current scene.
+	Scope: local; called by activate_signal
+	type: helper (activation)
+	input type: source: obs_source (the source that was activated); activating: bool (true when it became active)
+	returns: none
+	Credit: midnight-studios, et al
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function activate_timer_on_scene(source, activating)
@@ -4691,23 +4507,18 @@ local function activate_timer_on_scene(source, activating)
         local current_scene_name = frontend_get_current_scene()
         if source_id == "scene" then
             if scene_name_has_source_name(current_scene_name, timer_source) then
-                if not is_visible(timer_source) then
-                    set_visible(timer_source, true);
-                end;
+                set_visible(timer_source, true); -- B-031 (review): only items still hidden change
             end;
         end;
     end;
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Update Properties
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Writes an integer setting into the script's settings (used to count the Add and Subtract presses).
+	Scope: local; called by sec_add_1_update to sec_add_3_update and sec_sub_1_update to sec_sub_3_update
+	type: helper (settings)
+	input type: reference: string (setting name); value: number
+	returns: bool: true
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function update_properties_setting_int(reference, value)
@@ -4737,14 +4548,11 @@ local function update_properties_setting_int(reference, value)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Update Properties
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Stores the current time in the "sw_current_seconds" setting and its global, with property callbacks held off while it writes.
+	Scope: local; called by default_timer_globals and on_event
+	type: helper (settings)
+	input type: value: number (seconds)
+	returns: bool: true
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function update_prop_settings_current_seconds(value)
@@ -4775,15 +4583,11 @@ local function update_prop_settings_current_seconds(value)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Everytime the timer value is updated,
-					it will happen here
-
-	Credit:
-	Modified:
-	function:		update the timer value
-	type:			Dependency / Support
-	input type: 	double
-	returns:		current_seconds
+	Description: Sets the timer's current time (current_seconds).
+	Scope: local; called throughout the timer code
+	type: helper (timer)
+	input type: value: number (seconds)
+	returns: number: the new current time
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function timer_value(value)
@@ -4795,15 +4599,11 @@ local function timer_value(value)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Assign the correct frequency value to the timer incriment
-					depending on if timer is counting up or down
-
-	Credit:
-	Modified:
-	function:		update the timer value
-	type:			Dependency / Support
-	input type:
-	returns:		calls timer_value()
+	Description: Advances the time by one tick: up for Count Up (or after a direction change to up), down for Countdown (or after a change to down).
+	Scope: local; called by timer_callback
+	type: helper (timer)
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function set_time_direction()
@@ -4837,14 +4637,11 @@ local function set_time_direction()
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Function to set the defined time text source value
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Writes the time text into the timer source; first restores the normal text colour once if no marker media is active, and runs the Marker A and B checks.
+	Scope: global; called by set_time_text
+	type: helper (display)
+	input type: source_name: string or nil (the timer source); text: string (the time text)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function update_timer_display(source_name, text)
@@ -4861,7 +4658,8 @@ function update_timer_display(source_name, text)
     if source ~= nil then
         local settings = obs.obs_source_get_settings(source);
         if settings ~= nil then
-            if not media["activated_media_marker_a"] and not media["activated_media_marker_b"] and not color_normal_updated then
+            -- B-053: no colour to write when the normal colour is unknown (source not readable yet)
+            if not media["activated_media_marker_a"] and not media["activated_media_marker_b"] and not color_normal_updated and media["color_normal"] ~= nil then
                 --[[
 					Operating compatibility MacOSX / Windows
 					The settings key for color
@@ -4872,27 +4670,26 @@ function update_timer_display(source_name, text)
                 obs.obs_data_set_int(settings, "color1", media["color_normal"]); -- update source settings
                 obs.obs_data_set_int(settings, "color2", media["color_normal"]); -- update source settings
                 color_normal_updated = true;
+                script_colour_showing = false; -- B-067 (review): the normal colour is showing again
             end
             time_mark_check("marker_a");
             time_mark_check("marker_b");
             obs.obs_data_set_string(settings, "text", text);
+            -- B-001: update and release inside the block where the local 'settings' exists
+            -- (after the block the name meant an unassigned global, so one reference leaked per redraw)
+            obs.obs_source_update(source, settings);
+            obs.obs_data_release(settings);
         end
+        obs.obs_source_release(source);
     end
-    obs.obs_source_update(source, settings);
-    obs.obs_data_release(settings);
-    obs.obs_source_release(source);
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Function to toggle milliseconds
-
-	Credit:
-	Modified:
-	function:		mili_toggle
-	type:
-	input type: 	globals: toggle_mili_trigger, timer_mode, mili_toggle_triggered, raw_time()
-	returns:		none
+	Description: With the "Toggle Milliseconds" trigger enabled in Countdown, toggles the hundredths (shown to hidden, or hidden to shown) once, when the time plus one second matches the trigger value.
+	Scope: local; called by set_time_text (while running)
+	type: helper (display)
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function toggle_mili()
@@ -4922,14 +4719,11 @@ local function toggle_mili()
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Function to set the defined time text source value
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Builds and shows the timer text for the current time: clamps a finished countdown to 0, applies the time format (formats 1-5, the days text for a date countdown), the prefix and suffix and the overtime "+", and writes it to the timer source when it changed. When the time reaches 0 it hides text notes and starts overtime or ends the timer. Redraws once after a marker pause.
+	Scope: local; called by timer_callback, update_timer_settings, set_stopwatch, mili, the Add/Subtract updates, init and script_update, and by itself (redraw)
+	type: helper (display)
+	input type: source_name: string or nil (the timer source)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function set_time_text(source_name)
@@ -4948,11 +4742,9 @@ local function set_time_text(source_name)
     end;
 
     if timer_active then toggle_mili(); end              -- careful becuase this could cause a stack overflow (death loop)
-
     local display_seconds = countdown_display_seconds(); -- F8: may be rounded up; markers still use current_seconds
     local l_time = long_time(display_seconds);
     local t_time = raw_time(display_seconds);
-
     --[[
 		Timer Format Type: Full Format
 	]]
@@ -4963,7 +4755,7 @@ local function set_time_text(source_name)
     if timer_format == 2 then
         local system_time_format = "$T$H:$M:$S,$F";
         text = format_time((l_time ~= 0) and string.format("%s:%s", l_time, t_time) or string.format("%s", t_time),
-            system_time_format);
+            system_time_format, display_seconds);
     end
     --[[
 		Timer Format Type: No Leading Zeros, No Split Seconds
@@ -4971,7 +4763,7 @@ local function set_time_text(source_name)
     if timer_format == 3 then
         local system_time_format = "$T$H:$M:$S";
         text = format_time((l_time ~= 0) and string.format("%s:%s", l_time, t_time) or string.format("%s", t_time),
-            system_time_format);
+            system_time_format, display_seconds);
     end
     --[[
 		Timer Format Type: No Leading Zeros, No Split Seconds
@@ -4979,7 +4771,7 @@ local function set_time_text(source_name)
     if timer_format == 4 then
         local system_time_format = "$H:$M:$S";
         text = format_time((l_time ~= 0) and string.format("%s:%s", l_time, t_time) or string.format("%s", t_time),
-            system_time_format);
+            system_time_format, display_seconds);
     end
 
     if timer_format ~= 5 then
@@ -4997,21 +4789,20 @@ local function set_time_text(source_name)
             text = string.gsub(longtimetext .. text, "[#]", long_time(current_seconds));
         end
     end
-
-
     --[[
 		Timer Format Type: Custom Time Format
 	]]
 
     if timer_format == 5 then
         text = format_time((l_time ~= 0) and string.format("%s:%s", l_time, t_time) or string.format("%s", t_time),
-            clean_time_format(custom_time_format));
+            clean_time_format(custom_time_format), display_seconds);
     end
 
     if timer_mode ~= 2 then
         --text_prefix = ""
         --   text_suffix = ""
     end
+    validate_presuf(); -- B-026: decide the prefix / suffix for the time shown now, not one tick late
     if not enable_property_text_prefix then text_prefix_validated = "" end
     if not enable_property_text_suffix then text_suffix_validated = "" end
     if overtime_active and overtime_style then text = "+" .. text end -- F2
@@ -5019,11 +4810,8 @@ local function set_time_text(source_name)
     if text ~= last_text then
         update_timer_display(timer_source, text);
     end
-
     --[[
-
 		Check is media is playing and stop if required
-
 	]]
     stop_media("marker_a");
     stop_media("marker_b");
@@ -5034,22 +4822,17 @@ local function set_time_text(source_name)
     local epsilon = 0.0001 -- tolerance value
     if math.abs(current_seconds) <= epsilon and not overtime_active and (timer_mode ~= 1 or (direction_changed and current_count_direction == "DOWN" and prevent_negative_time)) then
         --[[
-
 			Timer is shutting down, this would be a
 			good time to reset some items.
-
 		]] --
         if enable_marker_notes ~= 1 then
             set_visible(media["note_source_marker_a"], false);
             set_visible(media["note_source_marker_b"], false);
         end
-
         --[[
-
 			Timer was started and now has EXPIRED
 			execute any final instructions that
 			the user require on TIMER END
-
 		]] --
         if timer_active and timer_mode == 2 and timer_expire_event == "OVERTIME" then
             start_overtime(); -- F2: keep running and count up instead of ending
@@ -5057,7 +4840,6 @@ local function set_time_text(source_name)
             timer_ended(source_name);
         end;
         --[[
-
 			Now remove the timer callback
 
 			"timer_ended()" offer options to
@@ -5086,18 +4868,19 @@ local function set_time_text(source_name)
     --return true
 end
 --[[
+	B-025: the running time of this run (the sum of the timer's ticks, whichever
+	way it counts, overtime included; Add / Subtract and Set don't count), and
+	its value at each split. Reset clears both.
+]]
+local split_run_elapsed = 0;
+local split_elapsed = {};
+--[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	This captures the split times and unpack it in the
-					correct format.
-					The text source only permits linebreaks ( "\n" ) this
-					limitation affects how the data can be formated  ):
-
-	Credit:
-	Modified:
-	function:		split time
-	type:			Dependency / Support
-	input type: 	globals
-	returns:		updates global split_data
+	Description: Builds the split list text from the recorded splits, as intervals, marks, or both in the order the Split Type sets, numbered with a heading.
+	Scope: local; called by activate and split_time
+	type: helper (splits)
+	input type: none
+	returns: none (sets split_data)
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function split_unpack()
@@ -5110,11 +4893,11 @@ local function split_unpack()
     local line = "______________________________";
     for i = 1, c do
         local mark = split_itm[i];
-        local interval = mark;
-        if i > 1 then
-            local j = i - 1;
-            interval = split_itm[i] - split_itm[j];
-        end
+        --[[
+			B-025: an interval is the running time that passed since the previous
+			split (the first one: since the start of the run).
+		]]
+        local interval = (split_elapsed[i] or 0) - (split_elapsed[i - 1] or 0);
         --[[
 			"Interval"			= 1
 			"Mark"				= 2
@@ -5152,14 +4935,11 @@ local function split_unpack()
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Decide if current_seconds needs to reset to default_seconds
-
-	Credit:
-	Modified:
-	function:		Check if current_seconds needs to reset to default_seconds
-	type:			check
-	input type: 	timer_expire_event
-	returns:		bool
+	Description: Tells whether the Timer Expire Event cycles a list (Source List, Scene List or Auto List), so a countdown restarts from its default time.
+	Scope: local; called by update_timer_settings
+	type: helper (expire event)
+	input type: none
+	returns: bool
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function update_default_time()
@@ -5171,14 +4951,11 @@ local function update_default_time()
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Function to set the split time text
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Writes the split list into the split text source when it changed, and also to a "-split-time" text file if "Export Split Time" is ticked.
+	Scope: local; called by default_timer_globals, activate, reset and split_time
+	type: helper (splits)
+	input type: source_name: string or nil (the split source)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function set_split_text(source_name)
@@ -5195,17 +4972,14 @@ local function set_split_text(source_name)
     end
     last_split_data = text;
 end
+local user_reset_in_progress = false; -- B-037: set by reset() while a user (button / hotkey) Reset runs
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-
-	Description:	Used when we need to set some globals for the timer to default state
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Puts the timer's run state back to the start: on a reset, Count Up goes to 0 (and the saved time too for a user Reset, B-037) and the marker flags are cleared; always clears the splits, cycle counts and pause carry-over, sets a new start time and hides the text notes.
+	Scope: local; called by update_timer_settings
+	type: helper (timer)
+	input type: set_to_default: bool or nil (true on a reset)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function default_timer_globals(set_to_default)
@@ -5236,7 +5010,9 @@ local function default_timer_globals(set_to_default)
 		]]
         if timer_mode == 1 and reset_activated then
             timer_value(0);
-            update_prop_settings_current_seconds(0);
+            if user_reset_in_progress then
+                update_prop_settings_current_seconds(0); -- B-037: only a user Reset clears the autoload time
+            end
         end
         color_normal_updated              = false;
         media["activated_media_marker_a"] = false;
@@ -5251,18 +5027,17 @@ local function default_timer_globals(set_to_default)
     split_count = 0;
     split_itm = {};
     split_data = nil;
-
+    split_run_elapsed = 0; -- B-025
+    split_elapsed = {};
+    pause_carry_ns = 0;    -- B-015: a Reset discards the time a pause cut off
     set_split_text(split_source);
     orig_time = obs.os_gettime_ns();
-    if media["note_source_unversioned_id_marker_a"] == text_source_unversioned_id then
+    if is_note_text_id(media["note_source_unversioned_id_marker_a"]) then
         set_visible(media["note_source_marker_a"], false);
     end
-    if media["note_source_unversioned_id_marker_b"] == text_source_unversioned_id then
+    if is_note_text_id(media["note_source_unversioned_id_marker_b"]) then
         set_visible(media["note_source_marker_b"], false);
     end
-
-
-
     --[[
 		-- TODO hide all note sources if nested in group
 		-- TODO do we need to show the group here?
@@ -5280,14 +5055,11 @@ local function default_timer_globals(set_to_default)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type: 	toggle_mili_trigger, set_time_text, timer_mode
-	returns:		show_mili (bool)
+	Description: With the "Toggle Milliseconds" trigger enabled in Countdown, sets the hundredths back to their state before the trigger: hidden if a trigger value is set, shown otherwise.
+	Scope: local; called by update_timer_settings and script_update
+	type: helper (display)
+	input type: none
+	returns: none (true outside Countdown)
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function reset_mili()
@@ -5310,23 +5082,11 @@ local function reset_mili()
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-Description:		Called if the timer setting change and needsto be updated.
-					default_seconds is used for source cycling
-					default_seconds: Default Seconds
-					the default timer state
-					This is the state of the timer that will set or
-					reset the time ( current_seconds )
-					If the timer expires because current_seconds == 0,
-					then the time ( current_seconds ) will be be restarted
-					from default_seconds for another function such as source cycling.
-					Every instance that a timer time is defined, we must record it to default_seconds
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Applies the timer settings: Count Up goes to 0 on a mode change or an Auto reset; Countdown takes its time from the date or from hours, minutes and seconds (when the timer is idle and expired, cycles a list, or the mode changed), stores it as the default time, goes back to the default time on a reset, and leaves overtime. Then resets the run state and redraws the text.
+	Scope: local; called by reset, activate_signal, switch_to_expire_scene and script_update
+	type: helper (timer)
+	input type: set_to_default: bool or nil (true on a reset); new_settings: obs_data or nil (default: the script's settings)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function update_timer_settings(set_to_default, new_settings) -- optional inputs: set_to_default(bool), new_settings(obs_property_data/obs_userdata)
@@ -5343,7 +5103,6 @@ local function update_timer_settings(set_to_default, new_settings) -- optional i
     --[[
 
 		STOPWATCH
-
 
 		We will look at some tasks if the timer mode is set to stopwatch
 
@@ -5414,8 +5173,6 @@ local function update_timer_settings(set_to_default, new_settings) -- optional i
                 timer_mode_changed
             );
         --[[
-
-
 
 		]]
         if do_update then
@@ -5495,21 +5252,27 @@ local function update_timer_settings(set_to_default, new_settings) -- optional i
     update_timer_display = false;
 end
 --[[
+	B-071: the main timer callback stays installed while the script is loaded.
+	Pause / Reset / expiry only clear timer_active, and the callback then returns
+	at once. Removing it from a hotkey callback could race OBS's lua_tick (OBS
+	calls a timer that was just removed: "attempt to call a nil value").
+	OBS removes it when the script unloads.
+]]
+local main_timer_installed = false;
+--[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-
-	Description:	Add timer here so we have a global setting
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: The main timer tick: measures the real time since the last tick, adds it to the split interval, moves the time on, autosaves a Count Up time, and redraws the timer text. Does nothing while the timer is stopped.
+	Scope: local; a timer callback added once by start_timer (every timer_cycle ms)
+	type: timer callback
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function timer_callback()
+    if not timer_active then return end -- B-071: paused / stopped: no work per tick
     debug_log('timer_callback() -- function variable names: ')
     time_frequency = get_frequency(ns_last);
+    split_run_elapsed = split_run_elapsed + time_frequency; -- B-025: running time for split intervals
     set_time_direction();
     completed_cycles = completed_cycles + 1; -- we just keeping track of these for debugging, if needed.
     autosave_timestamp(false);               -- B6: throttled to once every 30 seconds
@@ -5522,50 +5285,48 @@ local function timer_callback()
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Remove timer here so we have a global setting
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Stops the timer counting and keeps the part of the tick a pause cut off, so the next start continues from it.
+	Scope: local; called by activate
+	type: helper (timer)
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function end_timer()
     debug_log('end_timer() -- function variable names: ')
-    timer_active = false;
-    timer_remove(timer_callback); -- Removing the callback stops the timer
+    if timer_active then -- B-015: keep the running time since the last tick
+        pause_carry_ns = math.max(0, obs.os_gettime_ns() - ns_last);
+    end
+    timer_active = false; -- B-071: the callback stays installed and does nothing while inactive
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Add timer here so we have a global setting
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Starts the timer counting: triggers Auto Recording "Timer Start", restarts the tick clock (with the time a pause cut off), forces a redraw, and installs the main timer callback the first time.
+	Scope: local; called by activate
+	type: helper (timer)
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function start_timer()
     debug_log('start_timer() -- function variable names: ')
     record(6, 100);                         -- wait 100 miliseconds
+    ns_last = obs.os_gettime_ns() - pause_carry_ns; -- B-015: the first tick measures from Start (plus the time a pause cut off)
+    pause_carry_ns = 0;
+    last_text = tostring(obs.os_gettime_ns()); -- B-062: the first tick redraws and checks the markers, even if the text is unchanged
     timer_active = true;
-    timer_remove(timer_callback);           -- Remove any existing callbacks if they exist before assigning a new callback
-    timer_add(timer_callback, timer_cycle); --<- milliseconds
+    if not main_timer_installed then        -- B-071: install once, never removed while the script is loaded
+        timer_add(timer_callback, timer_cycle); --<- milliseconds
+        main_timer_installed = true;
+    end
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Starts or stops the timer. Starting (not while the script is disabled) clears the expired state and a waiting expire-scene switch, recalculates a date countdown, starts counting and resumes the suspended marker timers. Stopping writes the split list, suspends and stops the marker timers, stops counting and autosaves the time if it was running.
+	Scope: local (declared in advance); called by time_mark_check, start, pause, startpause, reset, activate_signal, timer_ended and script_update
+	type: helper (timer)
+	input type: activating: bool (true: start; false: stop)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function activate(activating) -- assigns the forward-declared local (F9)
@@ -5573,8 +5334,9 @@ function activate(activating) -- assigns the forward-declared local (F9)
     --[[
 		We skip/cancel anything requested if the
 		Script was disabled by the user.
+		B-042: stopping is still allowed, so Disable Script can pause a running timer.
 	]]
-    if disable_script then
+    if disable_script and activating then
         return;
     end
 
@@ -5607,7 +5369,17 @@ function activate(activating) -- assigns the forward-declared local (F9)
 			Once the timer started, this setting will default
 		]]
         set_timer_activated = false;
-
+        --[[
+			B-017: a countdown to a date and time takes its remaining time from the
+			wall clock at every Start and resume, so a late Start or a pause doesn't
+			move the end time (a pause freezes the display; resume jumps to the
+			real remaining time).
+		]]
+        pending_expire_scene = nil; -- B-063: a new run cancels a scene switch still waiting for the expiry audio
+        if timer_mode == 2 and countdown_type == 1 and not overtime_active and not direction_changed then
+            timer_value(delta_time(timer_year, timer_month, timer_day, timer_hours, timer_minutes, timer_seconds));
+            pause_carry_ns = 0; -- B-015: the wall clock already includes the time the pause cut off
+        end
         start_timer(); -- Timer now initiated
         resume_marker_timers(); -- continue any marker colour / note timers a pause interrupted
         --[[
@@ -5626,13 +5398,13 @@ function activate(activating) -- assigns the forward-declared local (F9)
         hide_note_b_colour_end_timer();
 
         local was_running = timer_active;                            -- B6: only a running timer that stops is worth saving
-        if timer_expired and timer_active then
-            end_timer()                                              -- Removing the callback stops the timer
-            set_visible(media["source_name_audio_marker_a"], false); -- The timer expired, reset media.
-            set_visible(media["source_name_audio_marker_b"], false); -- The timer expired, reset media.
-        else
-            end_timer();                                             -- Removing the callback stops the timer
-        end
+        --[[
+			B-011 (decision 2026-10-09): marker audio still playing at expiry is allowed
+			to finish. The former "timer expired, reset media" branch here never ran on
+			an expiry (timer_expired is only already true on a Reset of a running timer,
+			and reset() hides the marker audio itself).
+		]]
+        end_timer();                                                 -- Removing the callback stops the timer
         if was_running then autosave_timestamp(true) end             -- B6: save the time on pause / stop
         --[[
 			update_timer_settings:
@@ -5655,17 +5427,15 @@ function activate(activating) -- assigns the forward-declared local (F9)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Usually called by a button or hotkey press
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Start action: shows the timer source, starts the timer if it isn't running, and resumes or pauses the playing marker media to match. Ignored while the script is disabled and on key release.
+	Scope: local; called by hotkey_send_start, start_button_clicked, init, on_event and the Timer Activation handlers
+	type: helper (timer control)
+	input type: pressed: bool (true on key down or click)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function start(pressed)
+    if disable_script then return end -- B-043: Disable Script ignores user input
     debug_log('start(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ')
     if not pressed then
         return;
@@ -5678,23 +5448,22 @@ local function start(pressed)
     if not timer_active and activated == false then
         activate(true);
     end;
-    pause_play_media(media["source_name_audio_marker_a"], not timer_active);
-    pause_play_media(media["source_name_audio_marker_b"], not timer_active);
+    -- B-072: act on the marker audio the script is playing (nil once it ended: nothing to pause or resume; REV6)
+    pause_play_media(media["playing_audio_marker_a"], not timer_active);
+    pause_play_media(media["playing_audio_marker_b"], not timer_active);
     return;
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Usually called by a button or hotkey press
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Pause action: shows the timer source and stops the timer; if it is already stopped, suspends the marker media limits. Then pauses or resumes the playing marker media to match. Ignored while the script is disabled and on key release.
+	Scope: local; called by timer_activation_source_activate_signal and on_event
+	type: helper (timer control)
+	input type: pressed: bool (true on key down or click)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function pause(pressed)
+    if disable_script then return end -- B-043: Disable Script ignores user input
     debug_log('pause(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ')
     if not pressed then
         return;
@@ -5706,24 +5475,24 @@ local function pause(pressed)
 
     if timer_active then
         activate(false);
+    else
+        suspend_media_limits(); -- B-068 (re-review): already stopped, but the audio is paused now
     end;
-    pause_play_media(media["source_name_audio_marker_a"], not timer_active);
-    pause_play_media(media["source_name_audio_marker_b"], not timer_active);
+    pause_play_media(media["playing_audio_marker_a"], not timer_active);
+    pause_play_media(media["playing_audio_marker_b"], not timer_active);
     return;
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Usually called by a button or hotkey press
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Start/Pause toggle: shows the timer source and stops a running timer, or starts a stopped one (unless "Split Start Pause Button" is ticked and it isn't forced, in which case the media limits are suspended). Then pauses or resumes the playing marker media to match. Ignored while the script is disabled and on key release.
+	Scope: local; called by hotkey_send_start, hotkey_send_pause, pause_button_clicked and timer_expire_event_cycle_source_list
+	type: helper (timer control)
+	input type: pressed: bool (true on key down or click); force_activate: bool or nil (true: start even when Start and Pause are split)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function startpause(pressed, force_activate)
+    if disable_script then return end -- B-043: Disable Script ignores user input
     debug_log('startpausepause(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ')
     if not pressed then
         return;
@@ -5732,31 +5501,28 @@ local function startpause(pressed, force_activate)
     --[[
 		Set timer source  visibility to visible
 	]]
-    if not is_visible(timer_source) then
-        set_visible(timer_source, true);
-    end
+    set_visible(timer_source, true); -- B-031 (review): is_visible means "in any scene"; set_visible only changes hidden items
 
     if timer_active then
         activate(false);
     else
         if activated == false and (not split_startpause or force_activate) then
             activate(true);
+        else
+            suspend_media_limits(); -- B-068 (re-review): stays stopped, but the audio is paused below
         end;
     end;
-    pause_play_media(media["source_name_audio_marker_a"], not timer_active);
-    pause_play_media(media["source_name_audio_marker_b"], not timer_active);
+    pause_play_media(media["playing_audio_marker_a"], not timer_active);
+    pause_play_media(media["playing_audio_marker_b"], not timer_active);
     return;
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:		reset timer
-	type:
-	input type:
-	returns:		none
+	Description: Start hotkey: Start when "Split Start Pause Button" is ticked, otherwise Start/Pause.
+	Scope: local; registered by assign_hotkeys as the hotkey "Start (Start/Pause if not split)"
+	type: hotkey handler
+	input type: pressed: bool (true on key down, false on key up)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function hotkey_send_start(pressed)
@@ -5784,14 +5550,11 @@ local function hotkey_send_start(pressed)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:		reset timer
-	type:
-	input type:
-	returns:		none
+	Description: Pause hotkey: Start/Pause.
+	Scope: local; registered by assign_hotkeys as the hotkey "Pause (Start/Pause if not split)"
+	type: hotkey handler
+	input type: pressed: bool (true on key down, false on key up)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function hotkey_send_pause(pressed)
@@ -5815,19 +5578,16 @@ local function hotkey_send_pause(pressed)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Take the values from the properties and assign it to the timer
-
-	Credit:
-	Modified:
-	function:		Used to manually set stopwatch
-	type:			Dependency / Support
-	input type: 	none
-	returns:		calls set_time_text()
+	Description: Sets the timer to the saved time from the panel (days, hours, minutes, seconds, hundredths) and redraws it. With a Custom Time Format minute or hour unit, values outside the unit are adjusted and a warning is logged.
+	Scope: local; called by hotkey_send_set and sw_saved_button_clicked
+	type: helper (timer control)
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function set_stopwatch()
     debug_log('set_stopwatch() -- function variable names: ')
-    time_frequency = get_frequency(ns_last);
+    pause_carry_ns = 0; -- B-015: a Set discards the time a pause cut off
     local dd = (sw_days_saved * 86400)
     local hh = (sw_hours_saved * 3600);
     local mm = (sw_minutes_saved * 60);
@@ -5840,7 +5600,7 @@ local function set_stopwatch()
 		Example {M90}: HH=1, MM=89 becomes 89 minutes and displays 01:89:00
 		(nested HH*60+MM would have given 149 minutes and displayed 02:59:00).
 	]]
-    if minute_unit ~= nil then
+    if minute_unit ~= nil and timer_format == 5 then -- B-023: the unit only applies to the custom format
         --[[
 			The MM input accepts 0-9999 (Option A, no unit-based limits), so a value
 			at or above the unit cannot be a remainder: wrap it and say so.
@@ -5874,7 +5634,7 @@ local function set_stopwatch()
 		Hours at or above a {H…} unit wrap on display (HH=150 with {H100} shows 50).
 		The time itself is still valid, so keep it and only warn.
 	]]
-    if hour_unit ~= nil and sw_hours_saved >= hour_unit then
+    if hour_unit ~= nil and timer_format == 5 and sw_hours_saved >= hour_unit then
         obs.script_log(obs.LOG_WARNING, string.format(
             "Manual set: %d hours is outside the %d hour unit (0-%d); the timer will show %02d hours.",
             sw_hours_saved, hour_unit, hour_unit - 1, sw_hours_saved % hour_unit));
@@ -5886,20 +5646,12 @@ local function set_stopwatch()
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	A leap year comes once in four years,
-					in which February month has 29 days.
-					With this additional day in February,
-					a year becomes a Leap year.
-					on every year that is evenly divisible by 4
-					except every year that is evenly divisible by 100
-					unless the year is also evenly divisible by 400
-
-	Credit:			et al
-	Modified:
-	function:		A leap year is a year with 366 days instead of 365
-	type:			Dependency / Support, UI
-	input type: 	integer
-	returns:		bool
+	Description: Tells whether a year is a leap year (Gregorian rules).
+	Scope: local; called by property_onchange
+	type: helper (date)
+	input type: year: number
+	returns: bool
+	Credit: et al
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function is_leap_year(year)
@@ -5921,10 +5673,15 @@ local function is_leap_year(year)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Callback for button press
+	Description: "Show/Hide Milliseconds" button: toggles the hundredths and updates the button label. Ignored while the script is disabled or the toggle feature is off.
+	Scope: local; registered by script_properties as the button "mili_button"
+	type: button callback
+	input type: props: obs_properties (the panel); p: obs_property (the button; not used); settings: obs_data (not used)
+	returns: bool: true (refresh the panel), or none when ignored
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function mili_button_clicked(props, p, settings)
+    if disable_script then return end -- B-043: Disable Script ignores user input
     debug_log('mili_button_clicked(' ..
         pre_dump(props) ..
         ", " .. pre_dump(p) .. ", " .. pre_dump(settings) .. ') -- function variable names:  props, p, settings ')
@@ -5933,15 +5690,28 @@ local function mili_button_clicked(props, p, settings)
     return true;
 end
 --[[
+	B-051: the direction button offers the other direction of the one actually
+	counting (after a toggle too), in every place that sets its label.
+]]
+--[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Callback for button press
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Gives the label of the direction button: "Toggle: Count Up" while counting down, otherwise "Toggle: Count Down".
+	Scope: local; called by update_button_label, property_button_update_start and property_onchange
+	type: helper (panel)
+	input type: none
+	returns: string: the label
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function direction_button_label()
+    return current_count_direction == "DOWN" and "Toggle: Count Up" or "Toggle: Count Down";
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description: Sets the direction button's label to match the current count direction.
+	Scope: local; called by direction_button_clicked
+	type: helper (panel)
+	input type: props: obs_properties (the panel)
+	returns: bool: true
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function update_button_label(props)
@@ -5957,19 +5727,20 @@ local function update_button_label(props)
 		We are only setting the button label depending if the timer is active
 		and on the timer type.
 	]]
-    if current_count_direction == "DOWN" then
-        obs.obs_property_set_description(direction_button_prop, "Toggle: Count Up");
-    else
-        obs.obs_property_set_description(direction_button_prop, "Toggle: Count Down");
-    end
+    obs.obs_property_set_description(direction_button_prop, direction_button_label()); -- B-051
     return true;
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Callback for button press
+	Description: "Count Up/Down" button: reverses the count direction and updates the button label. Ignored while the script is disabled or the direction toggle is off.
+	Scope: local; registered by script_properties as the button "direction_button"
+	type: button callback
+	input type: props: obs_properties (the panel); p: obs_property (the button; not used); settings: obs_data (not used)
+	returns: bool: true (refresh the panel), or none when ignored
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function direction_button_clicked(props, p, settings)
+    if disable_script then return end -- B-043: Disable Script ignores user input
     debug_log('direction_button_clicked(' ..
         pre_dump(props) ..
         ", " .. pre_dump(p) .. ", " .. pre_dump(settings) .. ') -- function variable names:  props, p, settings ')
@@ -5985,14 +5756,11 @@ local function direction_button_clicked(props, p, settings)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Reverses the count direction, sets the orientation (normal for the mode's own direction, inverted otherwise) and works out the next marker times and media for the new direction.
+	Scope: global; called by direction_button_clicked and hotkey_send_direction
+	type: helper (timer control)
+	input type: pressed: bool (true from a button or key down)
+	returns: bool: true, or none when ignored
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function update_timer_direction(pressed)
@@ -6032,17 +5800,13 @@ function update_timer_direction(pressed)
     update_media_names(); -- we don't reset because here the list must cycle
     return true;
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Gives the label of the milliseconds button: "Hide Milliseconds" while hundredths are shown, otherwise "Show Milliseconds".
+	Scope: global; called by mili and script_properties
+	type: helper (panel)
+	input type: none
+	returns: string: the label
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function mili_button_label()
@@ -6050,18 +5814,26 @@ function mili_button_label()
     return "Show Milliseconds"
 end
 
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description: Toggles the hundredths display when the toggle feature is on, redraws a stopped timer, and updates the button label when the panel is given.
+	Scope: global; called by toggle_mili, mili_button_clicked and hotkey_send_mili
+	type: helper (display)
+	input type: pressed: bool (true from a button, key down or the trigger); button_props: obs_properties or nil (the panel)
+	returns: bool: true, or none when ignored
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
 function mili(pressed, button_props)
     debug_log('mili(' .. pre_dump(pressed) .. ') -- function variable names:  pressed, button_props ')
     if not pressed then
         return;
     end
+    if not enable_property_toggle_mili_trigger then return end -- B-052: feature off: the hotkey does nothing, like the button
     if show_mili then
         show_mili = false;
     else
         show_mili = true;
     end
-
-    if not enable_property_toggle_mili_trigger then return end
 
     --[[
 		The timer text will update if the timer is active
@@ -6088,20 +5860,17 @@ function mili(pressed, button_props)
     end
     return true
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:		none
+	Description: Milliseconds hotkey: toggles the hundredths. Ignored while the script is disabled and on key release.
+	Scope: local; registered by assign_hotkeys as the hotkey "Milliseconds Toggle"
+	type: hotkey handler
+	input type: pressed: bool (true on key down, false on key up)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function hotkey_send_mili(pressed)
+    if disable_script then return end -- B-043: Disable Script ignores user input
     debug_log('hotkey_send_mili(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ')
     --[[
 		For hotkeys: This is called on key down & key up. A bool check:
@@ -6122,17 +5891,15 @@ local function hotkey_send_mili(pressed)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:		none
+	Description: Direction hotkey: reverses the count direction when the direction toggle is on. Ignored while the script is disabled and on key release.
+	Scope: local; registered by assign_hotkeys as the hotkey "Change Timer Direction"
+	type: hotkey handler
+	input type: pressed: bool (true on key down, false on key up)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function hotkey_send_direction(pressed)
+    if disable_script then return end -- B-043: Disable Script ignores user input
     debug_log('hotkey_send_direction(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ')
     --[[
 		For hotkeys: This is called on key down & key up. A bool check:
@@ -6155,14 +5922,11 @@ local function hotkey_send_direction(pressed)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:		none
+	Description: Hides the Add Limit note source when its show time is over, then stops its own timer.
+	Scope: global; a timer callback added by start_sal_timer
+	type: timer callback
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function sal_timer_callback()
@@ -6172,17 +5936,13 @@ function sal_timer_callback()
     if timer_manipulation == 3 then return end;
     set_visible(add_limit_note_source, false);
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:		none
+	Description: Shows the Add Limit note source and, if it has a show time, starts the timer that hides it. Only when Timer Manipulation is enabled.
+	Scope: global; called by sal_check
+	type: helper (timer manipulation)
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function start_sal_timer()
@@ -6194,17 +5954,13 @@ function start_sal_timer()
     timer_remove(sal_timer_callback); -- Remove any existing callbacks if they exist before assigning a new callback
     timer_add(sal_timer_callback, add_limit_note_source_visible);
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:		none
+	Description: When the Add limit is reached, shows the Add Limit note; otherwise keeps it hidden. Only when Timer Manipulation is enabled and an Add limit is set.
+	Scope: local; called by sec_add_1_update to sec_add_3_update
+	type: helper (timer manipulation)
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function sal_check()
@@ -6218,20 +5974,16 @@ local function sal_check()
         set_visible(add_limit_note_source, false);
     end
 end
+local timer_manipulation_warned = false;
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Gate for the Add/Subtract Seconds hotkeys. When the feature is off,
-					log a warning once per session instead of failing silently (B2).
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:		bool
+	Description: Tells whether Add/Subtract Seconds may change the timer (feature on and Timer Manipulation not Disabled); logs a warning the first time it refuses, instead of failing silently (B2).
+	Scope: local; called by sec_add_1_update to sec_add_3_update and sec_sub_1_update to sec_sub_3_update
+	type: helper (timer manipulation)
+	input type: none
+	returns: bool
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
-local timer_manipulation_warned = false;
 local function timer_manipulation_allowed()
     if enable_property_timer_manipulation and timer_manipulation ~= 3 then return true end
     if not timer_manipulation_warned then
@@ -6243,14 +5995,11 @@ local function timer_manipulation_allowed()
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:		none
+	Description: Adds the "Add Seconds Set 1" seconds to the timer if allowed and the Add limit isn't reached, redraws a stopped timer, counts the use, and updates the Add Limit note.
+	Scope: local; called by hotkey_send_sec_add_1 and sec_add_1_button_clicked
+	type: helper (timer manipulation)
+	input type: none
+	returns: bool: true, or none when not allowed
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function sec_add_1_update()
@@ -6270,14 +6019,11 @@ local function sec_add_1_update()
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:		none
+	Description: Adds the "Add Seconds Set 2" seconds to the timer if allowed and the Add limit isn't reached, redraws a stopped timer, counts the use, and updates the Add Limit note.
+	Scope: local; called by hotkey_send_sec_add_2 and sec_add_2_button_clicked
+	type: helper (timer manipulation)
+	input type: none
+	returns: bool: true, or none when not allowed
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function sec_add_2_update()
@@ -6297,14 +6043,11 @@ local function sec_add_2_update()
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:		none
+	Description: Adds the "Add Seconds Set 3" seconds to the timer if allowed and the Add limit isn't reached, redraws a stopped timer, counts the use, and updates the Add Limit note.
+	Scope: local; called by hotkey_send_sec_add_3 and sec_add_3_button_clicked
+	type: helper (timer manipulation)
+	input type: none
+	returns: bool: true, or none when not allowed
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function sec_add_3_update()
@@ -6324,14 +6067,11 @@ local function sec_add_3_update()
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:		none
+	Description: Hides the Subtract Limit note source when its show time is over, then stops its own timer.
+	Scope: global; a timer callback added by start_ssl_timer
+	type: timer callback
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function ssl_timer_callback()
@@ -6341,17 +6081,13 @@ function ssl_timer_callback()
     if timer_manipulation == 3 then return end;
     set_visible(sub_limit_note_source, false);
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:		none
+	Description: Shows the Subtract Limit note source and, if it has a show time, starts the timer that hides it. Only when Timer Manipulation is enabled.
+	Scope: global; called by ssl_check
+	type: helper (timer manipulation)
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function start_ssl_timer()
@@ -6363,17 +6099,13 @@ function start_ssl_timer()
     timer_remove(ssl_timer_callback); -- Remove any existing callbacks if they exist before assigning a new callback
     timer_add(ssl_timer_callback, sub_limit_note_source_visible);
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:		none
+	Description: When the Subtract limit is reached, shows the Subtract Limit note; otherwise keeps it hidden. Only when Timer Manipulation is enabled and a Subtract limit is set.
+	Scope: local; called by sec_sub_1_update to sec_sub_3_update
+	type: helper (timer manipulation)
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function ssl_check()
@@ -6388,15 +6120,33 @@ local function ssl_check()
     end
 end
 --[[
+	B-018 (decision 2026-10-09): time goes below zero only after a direction
+	change with "Prevent Negative Time" off (not in overtime, which also sets
+	direction_changed); otherwise Subtract stops at zero, and never raises a
+	time that is already negative.
+]]
+--[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:		none
+	Description: Subtracts seconds from the timer without going below zero, unless negative time is allowed (direction changed, "Prevent Negative Time Value" off, not in overtime).
+	Scope: local; called by sec_sub_1_update to sec_sub_3_update
+	type: helper (timer manipulation)
+	input type: seconds: number (seconds to subtract)
+	returns: none
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function subtract_time(seconds)
+    local value = current_seconds - seconds;
+    local negative_allowed = direction_changed and not prevent_negative_time and not overtime_active;
+    if value < 0 and not negative_allowed then value = math.min(0, current_seconds) end
+    timer_value(value);
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description: Subtracts the "Subtract Seconds Set 1" seconds if allowed and the Subtract limit isn't reached, redraws a stopped timer, counts the use, and updates the Subtract Limit note.
+	Scope: local; called by hotkey_send_sec_sub_1 and sec_sub_1_button_clicked
+	type: helper (timer manipulation)
+	input type: none
+	returns: bool: true, or none when not allowed
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function sec_sub_1_update()
@@ -6405,7 +6155,7 @@ local function sec_sub_1_update()
     if sec_sub_limit ~= 0 and sec_sub_limit_used >= sec_sub_limit then
         -- do nothing
     else
-        timer_value(current_seconds - sec_sub_1);
+        subtract_time(sec_sub_1);
         if not timer_active then set_time_text(timer_source) end -- show the change while paused (B2)
         local update_value = sec_sub_limit_used + 1;
         sec_sub_limit_used = update_value;
@@ -6416,14 +6166,11 @@ local function sec_sub_1_update()
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:		none
+	Description: Subtracts the "Subtract Seconds Set 2" seconds if allowed and the Subtract limit isn't reached, redraws a stopped timer, counts the use, and updates the Subtract Limit note.
+	Scope: local; called by hotkey_send_sec_sub_2 and sec_sub_2_button_clicked
+	type: helper (timer manipulation)
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function sec_sub_2_update()
@@ -6432,7 +6179,7 @@ local function sec_sub_2_update()
     if sec_sub_limit ~= 0 and sec_sub_limit_used >= sec_sub_limit then
         -- do nothing
     else
-        timer_value(current_seconds - sec_sub_2);
+        subtract_time(sec_sub_2);
         if not timer_active then set_time_text(timer_source) end -- show the change while paused (B2)
         local update_value = sec_sub_limit_used + 1;
         sec_sub_limit_used = update_value;
@@ -6442,24 +6189,20 @@ local function sec_sub_2_update()
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:		none
+	Description: Subtracts the "Subtract Seconds Set 3" seconds if allowed and the Subtract limit isn't reached, redraws a stopped timer, counts the use, and updates the Subtract Limit note.
+	Scope: local; called by hotkey_send_sec_sub_3 and sec_sub_3_button_clicked
+	type: helper (timer manipulation)
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
-
 local function sec_sub_3_update()
     debug_log('sec_sub_3_update() -- function variable names:  ')
     if not timer_manipulation_allowed() then return end
     if sec_sub_limit ~= 0 and sec_sub_limit_used >= sec_sub_limit then
         -- do nothing
     else
-        timer_value(current_seconds - sec_sub_3);
+        subtract_time(sec_sub_3);
         if not timer_active then set_time_text(timer_source) end -- show the change while paused (B2)
         local update_value = sec_sub_limit_used + 1;
         sec_sub_limit_used = update_value;
@@ -6469,17 +6212,15 @@ local function sec_sub_3_update()
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:		none
+	Description: "Add Seconds Set 1" hotkey: adds the Set 1 seconds. Ignored while the script is disabled and on key release.
+	Scope: local; registered by assign_hotkeys as the hotkey "Add Seconds Set 1"
+	type: hotkey handler
+	input type: pressed: bool (true on key down, false on key up)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function hotkey_send_sec_add_1(pressed)
+    if disable_script then return end -- B-043: Disable Script ignores user input
     debug_log('hotkey_send_sec_add_1(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ')
     --[[
 		For hotkeys: This is called on key down & key up. A bool check:
@@ -6500,17 +6241,15 @@ local function hotkey_send_sec_add_1(pressed)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:		none
+	Description: "Add Seconds Set 2" hotkey: adds the Set 2 seconds. Ignored while the script is disabled and on key release.
+	Scope: local; registered by assign_hotkeys as the hotkey "Add Seconds Set 2"
+	type: hotkey handler
+	input type: pressed: bool (true on key down, false on key up)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function hotkey_send_sec_add_2(pressed)
+    if disable_script then return end -- B-043: Disable Script ignores user input
     debug_log('hotkey_send_sec_add_2(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ')
     --[[
 		For hotkeys: This is called on key down & key up. A bool check:
@@ -6531,17 +6270,15 @@ local function hotkey_send_sec_add_2(pressed)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:		none
+	Description: "Add Seconds Set 3" hotkey: adds the Set 3 seconds. Ignored while the script is disabled and on key release.
+	Scope: local; registered by assign_hotkeys as the hotkey "Add Seconds Set 3"
+	type: hotkey handler
+	input type: pressed: bool (true on key down, false on key up)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function hotkey_send_sec_add_3(pressed)
+    if disable_script then return end -- B-043: Disable Script ignores user input
     debug_log('hotkey_send_sec_add_3(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ')
     --[[
 		For hotkeys: This is called on key down & key up. A bool check:
@@ -6562,17 +6299,15 @@ local function hotkey_send_sec_add_3(pressed)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:		none
+	Description: "Subtract Seconds Set 1" hotkey: subtracts the Set 1 seconds. Ignored while the script is disabled and on key release.
+	Scope: local; registered by assign_hotkeys as the hotkey "Subtract Seconds Set 1"
+	type: hotkey handler
+	input type: pressed: bool (true on key down, false on key up)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function hotkey_send_sec_sub_1(pressed)
+    if disable_script then return end -- B-043: Disable Script ignores user input
     debug_log('hotkey_send_sec_sub_1(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ')
     --[[
 		For hotkeys: This is called on key down & key up. A bool check:
@@ -6593,17 +6328,15 @@ local function hotkey_send_sec_sub_1(pressed)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:		none
+	Description: "Subtract Seconds Set 2" hotkey: subtracts the Set 2 seconds. Ignored while the script is disabled and on key release.
+	Scope: local; registered by assign_hotkeys as the hotkey "Subtract Seconds Set 2"
+	type: hotkey handler
+	input type: pressed: bool (true on key down, false on key up)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function hotkey_send_sec_sub_2(pressed)
+    if disable_script then return end -- B-043: Disable Script ignores user input
     debug_log('hotkey_send_sec_sub_2(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ')
     --[[
 		For hotkeys: This is called on key down & key up. A bool check:
@@ -6624,17 +6357,15 @@ local function hotkey_send_sec_sub_2(pressed)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:		none
+	Description: "Subtract Seconds Set 3" hotkey: subtracts the Set 3 seconds. Ignored while the script is disabled and on key release.
+	Scope: local; registered by assign_hotkeys as the hotkey "Subtract Seconds Set 3"
+	type: hotkey handler
+	input type: pressed: bool (true on key down, false on key up)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function hotkey_send_sec_sub_3(pressed)
+    if disable_script then return end -- B-043: Disable Script ignores user input
     debug_log('hotkey_send_sec_sub_3(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ')
     --[[
 		For hotkeys: This is called on key down & key up. A bool check:
@@ -6655,14 +6386,11 @@ local function hotkey_send_sec_sub_3(pressed)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:		reset timer
-	type:
-	input type:
-	returns:		none
+	Description: Resets the timer to its starting state: hides the marker and end media, resets the media and note cycles, the prefix and suffix, the expire cycle list, the Add/Subtract limits and notes, the marker states and group notes, the direction and orientation; reapplies the timer settings, stops the timer, clears the marker timers, the split text and the Active Source text, and works out the first marker times and media. Skipped before the script is ready unless the user asked for it.
+	Scope: local; called by activate_reset, init, script_update, on_event, timer_expire_event_cycle_source_list and the Timer Activation handlers
+	type: helper (timer control)
+	input type: pressed: bool or nil (only used in the debug message); is_user: bool or nil (true for a Reset button or hotkey; B-037)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function reset(pressed, is_user)
@@ -6677,6 +6405,7 @@ local function reset(pressed, is_user)
         return
     end
     reset_activated = true; -- notify timer settings a reset call is in process
+    user_reset_in_progress = (is_user == true); -- B-037
     --[[
 		For hotkeys: This is called on key down & key up. A bool check:
 
@@ -6695,9 +6424,12 @@ local function reset(pressed, is_user)
     --[[
 		Set visibility to first position
 	]]
-    set_visible(media["source_name_audio_marker_a"], false);
-    set_visible(media["source_name_audio_marker_b"], false);
+    set_visible(media["playing_audio_marker_a"] or media["source_name_audio_marker_a"], false); -- B-076 (review): the entry playing
+    set_visible(media["playing_audio_marker_b"] or media["source_name_audio_marker_b"], false);
     set_visible(media["source_name_audio_marker_end"], false);
+    media["playing_audio_marker_a"] = nil;  -- B-076 (review): nothing plays after a Reset
+    media["playing_audio_marker_b"] = nil;
+    media["playing_audio_marker_end"] = nil;
     media["cycle_index_marker_a"] = 1;      -- index from 1-based table
     media["cycle_index_marker_b"] = 1;      -- index from 1-based table
     media["cycle_index_note_marker_a"] = 1; -- index from 1-based table
@@ -6711,7 +6443,6 @@ local function reset(pressed, is_user)
     if not timer_event_active then
         reset_cycle_source_list();
     end
-
     set_visible(add_limit_note_source, false);
     set_visible(sub_limit_note_source, false);
     obs.obs_data_set_int(ctx.propsSet, "sec_add_limit_used", 0);
@@ -6750,9 +6481,11 @@ local function reset(pressed, is_user)
 		If the timer is in Count Up mode the
 		timer is counting up
 	]]
-
     count_orientation = "NORMAL"
-    last_orientation = "NORMAL"
+    media["last_orientation_marker_a"] = "NORMAL"; -- B-028: the lists compare these (a global last_orientation was never read)
+    media["last_orientation_marker_b"] = "NORMAL";
+    media["last_orientation_note_marker_a"] = "NORMAL"; -- O-005
+    media["last_orientation_note_marker_b"] = "NORMAL";
     if timer_mode == 1 then
         current_count_direction = "UP";
     else
@@ -6778,6 +6511,7 @@ local function reset(pressed, is_user)
 
 	]]
     activate(false); -- start or stop the timer, in this case, stop the timer and get it ready start again
+    pause_carry_ns = 0; -- B-015 / B-011 (review): a Reset discards the time a pause (or this stop) cut off
     clear_marker_timers(); -- Reset: do not resume marker colour / note timers from before the reset
     --[[
 
@@ -6790,7 +6524,7 @@ local function reset(pressed, is_user)
 		Reset "Active Source" text (if defined)
 
 	]]
-    if active_source ~= "Select" then
+    if active_source ~= "Select" and not timer_event_active then -- B-008: the list's own reset keeps the name
         set_text(active_source, "");
         --[[
 			force the visibility
@@ -6798,7 +6532,6 @@ local function reset(pressed, is_user)
 		]]
         if active_source_force_visible then set_visible(active_source, false) end;
     end
-
     --[[
 	 		Make sure the trigger is as accurate as possible depending
 			if the timer is counting up or down.
@@ -6808,19 +6541,17 @@ local function reset(pressed, is_user)
     update_time_markers(round_seconds);
     update_media_names(true);
     reset_activated = false;           -- notify timer settings a reset call ended
+    user_reset_in_progress = false;
 
     debug_log('END of function reset') -- function variable names:  activating ' )
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Called when a source is activated/deactivated
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: For Timer Activation "Specific Source Active": when the chosen source becomes active, resets the timer (Auto reset) and starts it; when it becomes inactive, pauses it.
+	Scope: local; called by timer_activation_source_activated and timer_activation_source_deactivated
+	type: helper (activation)
+	input type: cd: calldata (the signal's data, with the source); connected: bool (true: activated; false: deactivated)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function timer_activation_source_activate_signal(cd, connected)
@@ -6841,7 +6572,7 @@ local function timer_activation_source_activate_signal(cd, connected)
             if (name == timer_activation_source) then
                 if connected then
                     debug_log('Activate Timer: Source Shown')
-                    if timer_reset == 2 then reset(true) end
+                    if timer_reset == 2 and not disable_script then reset(true) end -- B-043: disabled keeps the time
                     start(true)
                 else
                     debug_log('De-activate Timer: Source Hiden')
@@ -6851,16 +6582,14 @@ local function timer_activation_source_activate_signal(cd, connected)
         end;
     end
 end
+local media_paused_by_hide = false; -- B-073: the timer source's hide paused the marker audio
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Called when a source is activated/deactivated
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Reacts to sources being shown, hidden, activated or deactivated: handles "Timer Scene Active" and Auto Recording "Timer Visible". With Timer Activation "Timer Source Visible" or "Timer Scene Active", starts the timer when its source appears (resetting first with Auto reset) and stops it when it goes; marker media is paused while the timer is hidden and resumed with it. A timer that is already running is left alone (B-066).
+	Scope: local; called by source_show, source_hide, source_activated and source_deactivated
+	type: helper (activation)
+	input type: cd: calldata (the signal's data, with the source); connected: bool (true: shown / activated; false: hidden / deactivated)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function activate_signal(cd, connected)
@@ -6890,14 +6619,22 @@ local function activate_signal(cd, connected)
 		]]
         if (name == timer_source) then
             if connected then record(5, 300) end;
+            if connected and timer_active then -- B-066: already running: don't restart it (record() itself ignores an active recording)
+                media_paused_by_hide = false;      -- B-073 (review): Start while hidden already resumed the audio
+                return
+            end
 
             if in_table({ 2, 3 }, timer_activation) then
                 --[[
 					Source visibility was set to hidden
 				]]
                 if not connected then
-                    pause_play_media(media["source_name_audio_marker_a"], true);
-                    pause_play_media(media["source_name_audio_marker_b"], true);
+                    -- B-073: already stopped (marker pause, expired with the audio finishing):
+                    -- activate(false) below won't suspend the playback limit, so do it here
+                    if not timer_active then suspend_media_limits() end
+                    pause_play_media(media["playing_audio_marker_a"], true);
+                    pause_play_media(media["playing_audio_marker_b"], true);
+                    media_paused_by_hide = true;
                 end
                 --[[
 					timer_mode: either
@@ -6906,7 +6643,7 @@ local function activate_signal(cd, connected)
 					define > new_settings: not required here because we will use the global (ctx.propsSet)
 					purpose: User requires the timer to intiate.
 				]]
-                if not set_timer_activated and (timer_reset == 2) then
+                if connected and not set_timer_activated and (timer_reset == 2) and not disable_script then -- B-040 / B-043: Auto reset only before a start, not on hide or while disabled
                     update_timer_settings(true); -- optional inputs: set_to_default(bool), new_settings(obs_property_data/obs_userdata)
                 end
 
@@ -6915,20 +6652,27 @@ local function activate_signal(cd, connected)
                 else
                     activate(false);
                 end;
+                --[[
+					B-073: resume the marker audio the hide paused, as Start does. If the timer
+					didn't start again, the audio still plays on with its playback limit.
+				]]
+                if connected and media_paused_by_hide then
+                    media_paused_by_hide = false;
+                    if not timer_active then rearm_media_limits() end
+                    pause_play_media(media["playing_audio_marker_a"], false);
+                    pause_play_media(media["playing_audio_marker_b"], false);
+                end
             end;
         end;
     end;
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:		reset timer
-	type:
-	input type:
-	returns:		none
+	Description: User Reset: resets the timer as a user request (also before the script is ready). Ignored on key release.
+	Scope: local; called by hotkey_send_reset and reset_button_clicked
+	type: helper (timer control)
+	input type: pressed: bool (true on key down or click)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function activate_reset(pressed)
@@ -6952,17 +6696,15 @@ local function activate_reset(pressed)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:		reset timer
-	type:
-	input type:
-	returns:		none
+	Description: Reset hotkey: resets the timer. Ignored while the script is disabled and on key release.
+	Scope: local; registered by assign_hotkeys as the hotkey "Reset"
+	type: hotkey handler
+	input type: pressed: bool (true on key down, false on key up)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function hotkey_send_reset(pressed)
+    if disable_script then return end -- B-043: Disable Script ignores user input
     debug_log('hotkey_send_reset(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ')
     --[[
 		For hotkeys: This is called on key down & key up. A bool check:
@@ -6983,17 +6725,16 @@ local function hotkey_send_reset(pressed)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Apply the time from "Manually set timer", same as the "Set" button
-
-	Credit:			ccpaging (PR #14)
-	Modified:
-	function:		set timer
-	type:
-	input type:
-	returns:		none
+	Description: Set hotkey: in Count Up, sets the timer to the saved time from the panel. Ignored while the script is disabled and on key release.
+	Scope: local; registered by assign_hotkeys as the hotkey "Set"
+	type: hotkey handler
+	input type: pressed: bool (true on key down, false on key up)
+	returns: none
+	Credit: ccpaging (PR #14)
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function hotkey_send_set(pressed)
+    if disable_script then return end -- B-043: Disable Script ignores user input
     debug_log('hotkey_send_set(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ')
     if pressed then         -- key is currently down
         --return -- uncomment 'return' to ignore the call while key is down
@@ -7007,14 +6748,11 @@ local function hotkey_send_set(pressed)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Set the titles / labels of the Start / Pause Button
-
-	Credit:
-	Modified:
-	function:		Update start/puase button label
-	type:
-	input type: 	mode, timer_active
-	returns:		props
+	Description: Sets the labels of the Start, Pause and direction buttons to match the mode, whether the timer runs, and "Split Start Pause Button".
+	Scope: local; called by start_button_clicked and pause_button_clicked
+	type: helper (panel)
+	input type: props: obs_properties (the panel)
+	returns: obs_properties: props
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function property_button_update_start(props)
@@ -7033,7 +6771,7 @@ local function property_button_update_start(props)
 		and on the timer type.
 	]]
     if mode == 2 then
-        obs.obs_property_set_description(direction_button_prop, "Toggle: Count Up");
+        obs.obs_property_set_description(direction_button_prop, direction_button_label()); -- B-051
         if timer_active then
             if split_startpause then
                 obs.obs_property_set_description(start_button_prop, "Start Count Down Timer");
@@ -7050,7 +6788,7 @@ local function property_button_update_start(props)
             end
         end;
     else
-        obs.obs_property_set_description(direction_button_prop, "Toggle: Count Down");
+        obs.obs_property_set_description(direction_button_prop, direction_button_label()); -- B-051
         if timer_active then
             if split_startpause then
                 obs.obs_property_set_description(start_button_prop, "Start Count Up Timer");
@@ -7071,14 +6809,11 @@ local function property_button_update_start(props)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Callback for button press
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Start button: starts the timer and updates the button labels.
+	Scope: local; registered by script_properties as the button "start_button"
+	type: button callback
+	input type: props: obs_properties (the panel); p: obs_property (the button; not used)
+	returns: bool: true (refresh the panel)
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function start_button_clicked(props, p)
@@ -7090,14 +6825,11 @@ local function start_button_clicked(props, p)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Callback for button press
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Pause (or Start/Pause) button: toggles the timer and updates the button labels.
+	Scope: local; registered by script_properties as the button "pause_button"
+	type: button callback
+	input type: props: obs_properties (the panel); p: obs_property (the button; not used)
+	returns: bool: true (refresh the panel)
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function pause_button_clicked(props, p)
@@ -7109,14 +6841,11 @@ local function pause_button_clicked(props, p)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Callback for button press
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Button handler for "Add Seconds Set 1"; no panel button uses it (the panel has no Add/Subtract buttons).
+	Scope: local; not registered or called
+	type: button callback (unused)
+	input type: props: obs_properties (not used); p: obs_property (not used)
+	returns: bool: true
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function sec_add_1_button_clicked(props, p)
@@ -7127,14 +6856,11 @@ local function sec_add_1_button_clicked(props, p)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Callback for button press
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Button handler for "Add Seconds Set 2"; no panel button uses it (the panel has no Add/Subtract buttons).
+	Scope: local; not registered or called
+	type: button callback (unused)
+	input type: props: obs_properties (not used); p: obs_property (not used)
+	returns: bool: true
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function sec_add_2_button_clicked(props, p)
@@ -7145,14 +6871,11 @@ local function sec_add_2_button_clicked(props, p)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Callback for button press
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Button handler for "Add Seconds Set 3"; no panel button uses it (the panel has no Add/Subtract buttons).
+	Scope: local; not registered or called
+	type: button callback (unused)
+	input type: props: obs_properties (not used); p: obs_property (not used)
+	returns: bool: true
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function sec_add_3_button_clicked(props, p)
@@ -7163,14 +6886,11 @@ local function sec_add_3_button_clicked(props, p)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Callback for button press
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Button handler for "Subtract Seconds Set 1"; no panel button uses it (the panel has no Add/Subtract buttons).
+	Scope: local; not registered or called
+	type: button callback (unused)
+	input type: props: obs_properties (not used); p: obs_property (not used)
+	returns: bool: true
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function sec_sub_1_button_clicked(props, p)
@@ -7181,14 +6901,11 @@ local function sec_sub_1_button_clicked(props, p)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Callback for button press
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Button handler for "Subtract Seconds Set 2"; no panel button uses it (the panel has no Add/Subtract buttons).
+	Scope: local; not registered or called
+	type: button callback (unused)
+	input type: props: obs_properties (not used); p: obs_property (not used)
+	returns: bool: true
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function sec_sub_2_button_clicked(props, p)
@@ -7199,14 +6916,11 @@ local function sec_sub_2_button_clicked(props, p)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Callback for button press
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Button handler for "Subtract Seconds Set 3"; no panel button uses it (the panel has no Add/Subtract buttons).
+	Scope: local; not registered or called
+	type: button callback (unused)
+	input type: props: obs_properties (not used); p: obs_property (not used)
+	returns: bool: true
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function sec_sub_3_button_clicked(props, p)
@@ -7217,14 +6931,11 @@ local function sec_sub_3_button_clicked(props, p)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Usually called by a button or hotkey press
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Exports the script's settings to a JSON file (see write_to_json). Ignored on key release.
+	Scope: local; called by export_button_clicked
+	type: helper (files)
+	input type: pressed: bool (true to export)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function export(pressed)
@@ -7236,14 +6947,11 @@ local function export(pressed)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Callback for button press
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: "Export Settings" button: exports the settings to a JSON file.
+	Scope: local; registered by script_properties as the button "export_button"
+	type: button callback
+	input type: props: obs_properties (not used); p: obs_property (not used)
+	returns: bool: false (no panel refresh)
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function export_button_clicked(props, p)
@@ -7254,14 +6962,11 @@ local function export_button_clicked(props, p)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Callback on property modification
-
-	Credit:
-	Modified:
-	function:		Callback for Settings import
-	type:
-	input type:
-	returns:
+	Description: Loads the settings file chosen in the import list from the backup folder into the settings, and sets the list back to "select".
+	Scope: local; called by import_button_clicked
+	type: helper (files)
+	input type: props: obs_properties (not used); property: obs_property (the button; only its name is read); settings: obs_data (the settings to load into)
+	returns: bool: true
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function import_properties(props, property, settings)
@@ -7274,10 +6979,11 @@ local function import_properties(props, property, settings)
     -- convert Windows path to UNIX path
     import_folder = import_folder .. "/" .. import_list .. ".json"
     import_folder = import_folder:gsub([[\]], "/");
-    if obs.os_file_exists(import_folder) then
-        data = obs.obs_data_create_from_json_file(import_folder)
+    if backup_folder ~= nil and backup_folder ~= "" and obs.os_file_exists(import_folder) then -- B-069: no path check without a folder
+        local data = obs.obs_data_create_from_json_file(import_folder) -- B-004: local, and released below
         if data ~= nil then
             obs.obs_data_apply(settings, data)
+            obs.obs_data_release(data)
             obs.obs_data_set_string(settings, "import_list", "select")
             ctx.propsSet = settings
         end
@@ -7287,37 +6993,39 @@ local function import_properties(props, property, settings)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Callback for button press
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: "Import Settings" button: imports the chosen settings file and applies it through script_update.
+	Scope: local; registered by script_properties as the button "import_button"
+	type: button callback
+	input type: props: obs_properties (the panel); property: obs_property (the button); settings: obs_data (not used; the script's own settings are used)
+	returns: bool: true (refresh the panel)
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function import_button_clicked(props, property, settings)
     debug_log('import_button_clicked(' ..
         pre_dump(props) ..
         ", " .. pre_dump(property) .. ", " .. pre_dump(settings) .. ') -- function variable names:  props, p, settings ')
-    local property_name = obs.obs_property_name(property);
+    --[[
+		B-045: a button click calls only this callback (never the property's modified
+		callback), so import here, once; then load the imported values like an edit.
+	]]
+    if ctx.propsSet ~= nil then
+        import_properties(props, property, ctx.propsSet);
+        _G.script_update(ctx.propsSet); -- defined below (OBS entry point)
+    end
     -- IMPORTANT: returns true to trigger refresh of the properties
     return true;
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Callback for button press
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: "Set" button: in Count Up, sets the timer to the saved time from the panel. Ignored while the script is disabled.
+	Scope: local; registered by script_properties as the button "sw_button"
+	type: button callback
+	input type: props: obs_properties (not used); p: obs_property (not used); settings: obs_data (not used)
+	returns: bool: false (no panel refresh), or none while disabled
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function sw_saved_button_clicked(props, p, settings)
+    if disable_script then return end -- B-043: Disable Script ignores user input
     debug_log('sw_saved_button_clicked(' ..
         pre_dump(props) ..
         ", " .. pre_dump(p) .. ", " .. pre_dump(settings) .. ') -- function variable names:  props, p, settings ')
@@ -7329,17 +7037,15 @@ local function sw_saved_button_clicked(props, p, settings)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Callback for button press
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Reset button: resets the timer as a user request. Ignored while the script is disabled.
+	Scope: local; registered by script_properties as the button "reset_button"
+	type: button callback
+	input type: props: obs_properties (not used); p: obs_property (not used); settings: obs_data (not used)
+	returns: bool: true (refresh the panel), or none while disabled
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function reset_button_clicked(props, p, settings)
+    if disable_script then return end -- B-043: Disable Script ignores user input
     debug_log('reset_button_clicked(' ..
         pre_dump(props) ..
         ", " .. pre_dump(p) .. ", " .. pre_dump(settings) .. ') -- function variable names:  props, p, settings ')
@@ -7348,14 +7054,11 @@ local function reset_button_clicked(props, p, settings)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Usually called by a button or hotkey press
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Records a split while the timer runs (the time and the running time for the interval) and updates the split list text. Ignored on key release.
+	Scope: local; called by hotkey_send_split and split_button_clicked
+	type: helper (splits)
+	input type: pressed: bool (true on key down or click)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function split_time(pressed)
@@ -7366,23 +7069,22 @@ local function split_time(pressed)
     if timer_active then
         split_count = split_count + 1;
         split_itm[split_count] = current_seconds;
+        split_elapsed[split_count] = split_run_elapsed; -- B-025
         split_unpack();
         set_split_text(split_source);
     end;
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:		reset timer
-	type:
-	input type:
-	returns:		none
+	Description: Split hotkey: records a split. Ignored while the script is disabled and on key release.
+	Scope: local; registered by assign_hotkeys as the hotkey "Split Time"
+	type: hotkey handler
+	input type: pressed: bool (true on key down, false on key up)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function hotkey_send_split(pressed)
+    if disable_script then return end -- B-043: Disable Script ignores user input
     debug_log('hotkey_send_split(' .. pre_dump(pressed) .. ') -- function variable names:  pressed ')
     --[[
 		For hotkeys: This is called on key down & key up. A bool check:
@@ -7403,17 +7105,15 @@ local function hotkey_send_split(pressed)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Callback for button press
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: "Split Time" button: records a split. Ignored while the script is disabled.
+	Scope: local; registered by script_properties as the button "split_button"
+	type: button callback
+	input type: props: obs_properties (not used); p: obs_property (not used)
+	returns: bool: false (no panel refresh), or none while disabled
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function split_button_clicked(props, p)
+    if disable_script then return end -- B-043: Disable Script ignores user input
     debug_log('split_button_clicked(' ..
         pre_dump(props) .. ", " .. pre_dump(p) .. ') -- function variable names:  props, p ')
     split_time(true);
@@ -7421,14 +7121,11 @@ local function split_button_clicked(props, p)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Copies the script's settings into the global variables the timer uses (modes, formats, sources, markers, notes, media, colours, limits, the note group types), looks up the note source types, takes the normal text colour from the timer source unless it is set in the panel or a script colour is showing, notes whether the timer mode changed, and refreshes the source list.
+	Scope: local; called by init and script_update
+	type: helper (settings)
+	input type: settings: obs_data (the script's settings)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function load_settings_globals(settings)
@@ -7447,6 +7144,9 @@ local function load_settings_globals(settings)
     enable_property_timer_activation = obs.obs_data_get_bool(settings, "enable_property_timer_activation");
     enable_property_debug = obs.obs_data_get_bool(settings, "enable_property_debug");
     enable_property_backup = obs.obs_data_get_bool(settings, "enable_property_backup");
+    for option in pairs(NOTE_GROUP_TYPES) do -- 6.1 option: note group source types
+        note_group_types[option] = obs.obs_data_get_bool(settings, "note_group_type_" .. option);
+    end
     last_timer_mode = timer_mode;
     timer_day = obs.obs_data_get_int(settings, "day");
     timer_year = obs.obs_data_get_int(settings, "year");
@@ -7544,8 +7244,13 @@ local function load_settings_globals(settings)
     backup_folder = obs.obs_data_get_string(settings, "backup_folder");
     active_source = obs.obs_data_get_string(settings, "active_source");
     start_recording = obs.obs_data_get_int(settings, "start_recording");
-    media["color_normal"] = enable_property_color_normal and obs.obs_data_get_int(settings, "color_normal") or
-        get_text_color(timer_source);
+    if enable_property_color_normal then
+        media["color_normal"] = obs.obs_data_get_int(settings, "color_normal");
+    elseif not (script_colour_showing and media["color_normal"] ~= nil) then
+        -- B-067 (decision 2026-10-09, option a): while a marker colour shows, keep the last
+        -- captured normal colour instead of reading the marker colour back from the source
+        media["color_normal"] = get_text_color(timer_source);
+    end
     media["color_marker_a"] = obs.obs_data_get_int(settings, "color_marker_a");
     media["color_marker_b"] = obs.obs_data_get_int(settings, "color_marker_b");
     audio_marker_a = obs.obs_data_get_string(ctx.propsSet, "audio_marker_a");
@@ -7588,19 +7293,42 @@ local function load_settings_globals(settings)
 	]]
 end
 --[[
+	B-074: OBS saves the sources before any script code runs at exit (the exit save
+	precedes SCRIPTING_SHUTDOWN, EXIT and script unload, and script_save runs after
+	the sources are written). So a marker colour showing at exit is saved on the
+	source; script_save records it with the normal colour, and the next start-up
+	restores the normal colour before it is read from the source.
+]]
+--[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: If the script was unloaded while a marker colour showed, puts the saved normal colour back on the timer source once it exists (B-074, repair at the next start).
+	Scope: local; called by init
+	type: helper (persistence)
+	input type: none
+	returns: none
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function restore_saved_normal_colour()
+    if ctx.propsSet == nil or not obs.obs_data_get_bool(ctx.propsSet, "sw_colour_restore_pending") then return end
+    local source = obs.obs_get_source_by_name(timer_source or "");
+    if source == nil then return end -- not loaded yet: the next init() tries again
+    obs.obs_source_release(source);
+    obs.obs_data_set_bool(ctx.propsSet, "sw_colour_restore_pending", false);
+    set_timer_text_color(obs.obs_data_get_int(ctx.propsSet, "sw_colour_restore_normal"));
+    script_colour_showing = false;
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description: Prepares the script once the sources are loaded: restores a saved colour, marks the script ready, loads the settings, hides the media, limit notes and (for "Timer Source Visible") the timer, loads the saved Count Up time or resets, connects the Timer Activation signals, and starts the timer if its activation scene or source is already active.
+	Scope: local; called by deferred_init_callback, loaded and on_event
+	type: helper (startup)
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function init()
     debug_log('init')
+    restore_saved_normal_colour(); -- B-074: before load_settings_globals() reads the normal colour
     obs.obs_data_set_bool(ctx.propsSet, "script_ready", true); -- set to signal ready state.
     debug_log('loaded set script_ready (' .. pre_dump(true) .. ') ')
     --[[
@@ -7624,6 +7352,14 @@ local function init()
     if timer_mode == 1 then
         if load_saved_time then
             timer_value(sw_current_seconds); -- value
+            --[[
+				B-036: the reset that prepares the markers is skipped here, so
+				prepare them for the loaded time (as reset() does).
+			]]
+            update_time_markers(roundSeconds());
+            update_media_names(true);
+            last_text = tostring(obs.os_gettime_ns()); -- O-004: show the loaded time now, not the text saved earlier
+            set_time_text(timer_source);
         else
             timer_value(0);
             reset(true); -- <BUG signal handler crash on startup?
@@ -7631,38 +7367,57 @@ local function init()
     else
         reset(true); -- <BUG signal handler crash on startup?
     end;
+    --[[
+		B-033: the activation sources exist now (script_update ran before the
+		collection's sources were loaded), so connect their signals here.
+	]]
+    timer_activation_signals();
+    --[[
+		B-038 / B-059: an activation that happened while OBS was loading is undone
+		by the reset above (mode 3), or its event was dropped by the frontend
+		(mode 4). Check the condition again now.
+	]]
+    if timer_activation == 4 and timer_activation_source == frontend_get_current_scene() then
+        start(true);
+    elseif timer_activation == 3 then
+        local source = obs.obs_get_source_by_name(timer_source);
+        if source ~= nil then
+            local active = obs.obs_source_active(source);
+            obs.obs_source_release(source);
+            if active then start(true) end
+        end
+    end
 end
 --[[
+	B-035: init() from loaded() only until loading has finished. OBS also emits
+	source_load later (Undo / Redo restores sources), and re-running init() then
+	reset or stopped a running timer. On a scene collection switch OBS re-creates
+	the script and FINISHED_LOADING doesn't come, so SCENE_COLLECTION_CHANGED runs
+	init() and marks loading as finished.
+]]
+local loading_finished = false;
+--[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	One-shot timer: runs init() for a script added to an OBS session
-					that is already running (FINISHED_LOADING will not fire).
-					Deferred so it runs after script_load / script_update complete.
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:		none
+	Description: Runs init once, shortly after the script loads into an OBS that is already running, then removes itself.
+	Scope: local; a timer callback added by script_load
+	type: timer callback
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function deferred_init_callback()
     debug_log('deferred_init_callback()')
     obs.remove_current_callback();
     init();
+    loading_finished = true; -- script added while OBS runs: FINISHED_LOADING won't come
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	custom function
-					we use this to get a signal handler for a specific source once
-					it is loaded to ensure it is connected when OBS starts up
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Counts the sources of the script's types as OBS loads them, hides the timer source for "Timer Source Visible", and runs init once all of them are loaded.
+	Scope: local; connected by script_load to the global "source_load" signal
+	type: signal handler
+	input type: cd: calldata (the signal's data, with the source)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function loaded(cd)
@@ -7694,7 +7449,7 @@ local function loaded(cd)
         end;
 
         if in_table(required_sources, id) then
-            sources_loaded = sources_loaded + 1; -- add this to the loaded sopurce tally
+            sources_loaded = sources_loaded + 1; -- add this to the loaded source tally
         end;
     end;
     --[[
@@ -7711,21 +7466,18 @@ local function loaded(cd)
 		Some of the functions included requires the source to be loaded,
 		so check that all sources are loaded before continuing
 	]]
-    if all_sources_loaded then
+    if all_sources_loaded and not loading_finished then -- B-035
         debug_log('all_sources_loaded are now loaded!')
         init();
     end;
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Passes a "show" event to activate_signal, but with connected = false (reversed). Not connected to any signal.
+	Scope: local; not called
+	type: signal handler (unused)
+	input type: cd: calldata (the signal's data)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function source_show(cd)
@@ -7734,14 +7486,11 @@ local function source_show(cd)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Passes a "hide" event to activate_signal, but with connected = true (reversed). Not connected to any signal.
+	Scope: local; not called
+	type: signal handler (unused)
+	input type: cd: calldata (the signal's data)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function source_hide(cd)
@@ -7750,14 +7499,11 @@ local function source_hide(cd)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: A source became active (shown in program): passes it to activate_signal.
+	Scope: local; connected by script_load to the global "source_activate" signal
+	type: signal handler
+	input type: cd: calldata (the signal's data, with the source)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function source_activated(cd)
@@ -7766,14 +7512,11 @@ local function source_activated(cd)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: A source stopped being active: passes it to activate_signal.
+	Scope: local; connected by script_load to the global "source_deactivate" signal
+	type: signal handler
+	input type: cd: calldata (the signal's data, with the source)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function source_deactivated(cd)
@@ -7782,14 +7525,11 @@ local function source_deactivated(cd)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: The "Specific Source Active" source became active: passes it to timer_activation_source_activate_signal.
+	Scope: local; connected by timer_activation_signals to the source's "activate" signal
+	type: signal handler
+	input type: cd: calldata (the signal's data, with the source)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function timer_activation_source_activated(cd)
@@ -7798,31 +7538,24 @@ local function timer_activation_source_activated(cd)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: The "Specific Source Active" source stopped being active: passes it to timer_activation_source_activate_signal.
+	Scope: local; connected by timer_activation_signals to the source's "deactivate" signal
+	type: signal handler
+	input type: cd: calldata (the signal's data, with the source)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function timer_activation_source_deactivated(cd)
     debug_log('timer_activation_source_deactivated(' .. pre_dump(cd) .. ') -- function variable names:  cd ')
     timer_activation_source_activate_signal(cd, false);
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Called when a source is activated/deactivated
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: For Timer Activation "Specific Media Active": when the chosen media source starts playing, resets the timer (Auto reset) and starts it.
+	Scope: local; called by timer_activation_source_media_started
+	type: helper (activation)
+	input type: cd: calldata (the signal's data, with the source)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function timer_activation_source_media(cd)
@@ -7843,7 +7576,7 @@ local function timer_activation_source_media(cd)
             if source_id ~= "ffmpeg_source" then return end;             -- apply this to media type sources only
             local name = obs.obs_source_get_name(source);                -- Get Source NAME
             if (name == timer_activation_source) then
-                if timer_reset == 2 then reset(true) end
+                if timer_reset == 2 and not disable_script then reset(true) end -- B-043: disabled keeps the time
                 start(true)
             end;
         end;
@@ -7851,14 +7584,11 @@ local function timer_activation_source_media(cd)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: The "Specific Media Active" source started playing: passes it to timer_activation_source_media.
+	Scope: local; connected by timer_activation_signals to the source's "media_started" signal
+	type: signal handler
+	input type: cd: calldata (the signal's data, with the source)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function timer_activation_source_media_started(cd)
@@ -7866,19 +7596,62 @@ local function timer_activation_source_media_started(cd)
     timer_activation_source_media(cd);
 end
 --[[
+	B-034: disconnect every activation signal recorded under `name`. The source is
+	found through its weak reference (a renamed source too); a deleted source is
+	gone, and libobs frees its signal handler with it.
+]]
+--[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Disconnects every signal the script connected to a source and forgets it, releasing the weak reference (B-034).
+	Scope: local; called by timer_activation_signals
+	type: helper (signals)
+	input type: name: string (the source name the connections are kept under)
+	returns: none
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function disconnect_activation_source(name)
+    local handlers = connectedHandlers[name];
+    if handlers == nil then return end
+    local source = handlers.weak and obs.obs_weak_source_get_source(handlers.weak) or nil;
+    if source ~= nil then
+        local sh = obs.obs_source_get_signal_handler(source);
+        if sh then
+            for _, handler in ipairs(handlers) do
+                obs.signal_handler_disconnect(sh, handler.signal, handler.callback);
+            end
+        end
+        obs.obs_source_release(source);
+    end
+    if handlers.weak then obs.obs_weak_source_release(handlers.weak) end
+    connectedHandlers[name] = nil;
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description: Connects the signals for "Specific Source Active" (activate, deactivate) or "Specific Media Active" (media_started) to the chosen source, and disconnects the connections that no longer match the setting or the source (B-034).
+	Scope: global; called by init and script_update
+	type: helper (signals)
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function timer_activation_signals()
     debug_log('timer_activation_signals(' .. pre_dump(settings) .. ') -- function variable names:  settings ')
+    --[[
+		B-034: keep the connections only while the same source object is connected
+		for the same mode; disconnect everything else (another source, another mode,
+		or a source deleted and re-created under the same name). Reconnecting on
+		every settings update would pile up detached callbacks in obslua.
+	]]
+    local current = nil;
+    if (timer_activation == 5 or timer_activation == 6) and timer_activation_source ~= "select" then
+        current = obs.obs_get_source_by_name(timer_activation_source);
+    end
+    for name, handlers in pairs(connectedHandlers) do
+        local same = current ~= nil and name == timer_activation_source and handlers.mode == timer_activation
+            and handlers.weak ~= nil and obs.obs_weak_source_references_source(handlers.weak, current);
+        if not same then disconnect_activation_source(name) end
+    end
+    if current ~= nil then obs.obs_source_release(current) end
     if timer_activation_source ~= "select" then
         if timer_activation == 5 then
             local source = obs.obs_get_source_by_name(timer_activation_source); -- Increments the source reference counter, use obs_source_release() to release it when complete.
@@ -7901,19 +7674,18 @@ function timer_activation_signals()
             end;
             obs.obs_source_release(source);
         end
+        if connectedHandlers[timer_activation_source] then
+            connectedHandlers[timer_activation_source].mode = timer_activation; -- B-034
+        end
     end
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Callback on property modification
-
-	Credit:
-	Modified:
-	function:
-	type:			property event
-	input type: 	props, property, settings
-	returns: 		true to update properties
+	Description: Updates the panel when a setting changes: shows, hides and enables fields for the current options, prevents the same text source being used twice, limits the date fields, rebuilds the source lists (text sources, and groups for the note lists), the Timer Activation list and the import file list, and corrects a few invalid choices. For the two free-text fields it refreshes only when the change affects visibility, so typing isn't interrupted (B11). Ignored while the script is disabled, during an internal write, or before the panel is ready.
+	Scope: local; set by script_properties as the modified callback of many properties
+	type: property callback
+	input type: props: obs_properties (the panel); property: obs_property (the property that changed); settings: obs_data (the script's settings)
+	returns: bool: true to rebuild the panel; false (free-text field, no visible change) or none (ignored)
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function property_onchange(props, property, settings)
@@ -8062,7 +7834,6 @@ local function property_onchange(props, property, settings)
     local text_suffix_prop = obs.obs_properties_get(props, "text_suffix");
     local active_source_prop = obs.obs_properties_get(props, "active_source");
 
-
     local note_source_marker_a_prop  = obs.obs_properties_get(props, "note_source_marker_a");
     local note_source_marker_b_prop  = obs.obs_properties_get(props, "note_source_marker_b");
     local sub_limit_note_source_prop = obs.obs_properties_get(props, "sub_limit_note_source");
@@ -8149,7 +7920,6 @@ local function property_onchange(props, property, settings)
         layout_value == 2 and timer_options_value == 2); -- F8: Custom Time Format, Count Down
     obs.obs_property_set_visible(add_limit_note_source_visible_prop,
         add_limit_note_source ~= "select" and not in_table(ignore_list, timer_source_value));
-
     obs.obs_property_set_visible(timer_activation_prop,
         enable_property_timer_activation and layout_value == 2 and timer_options_value == 2 and
         not in_table(ignore_list, timer_source_value));
@@ -8304,7 +8074,7 @@ local function property_onchange(props, property, settings)
     obs.obs_property_set_visible(audio_marker_b_arr_prop,
         (layout_value == 2 and enable_property_trigger_options and trigger_options_value == 2 and audio_marker_b_value == 'list' and editable_list_has_values("text_arr_marker_b")));
     obs.obs_property_set_visible(audio_marker_end_prop,
-        ((in_table({ "TIMER END TEXT", "Select", "OVERTIME" }, timer_expire_event_value) or (is_expire_scene(timer_expire_event_value) and obs.obs_data_get_bool(settings, "expire_audio_first"))) and layout_value == 2 and enable_property_trigger_options and trigger_options_value == 2));
+        ((in_table({ "TIMER END TEXT", "Select", "select", "invalid", "OVERTIME" }, timer_expire_event_value) or (is_expire_scene(timer_expire_event_value) and obs.obs_data_get_bool(settings, "expire_audio_first"))) and layout_value == 2 and enable_property_trigger_options and trigger_options_value == 2));
     obs.obs_property_set_visible(color_marker_a_prop,
         enable_property_color_marker_a and
         (layout_value == 2 and enable_property_trigger_options and trigger_options_value == 2 and editable_list_has_values("text_arr_marker_a")));
@@ -8322,9 +8092,9 @@ local function property_onchange(props, property, settings)
         (layout_value == 2 and enable_property_trigger_options and trigger_options_value == 2 and media_playback_limit_value == 2) and
         (not in_table({ 'none' }, audio_marker_b_value)) and editable_list_has_values("text_arr_marker_b"));
     obs.obs_property_set_visible(a_note_prop,
-        (media["note_source_unversioned_id_marker_a"] == text_source_unversioned_id and layout_value == 2 and enable_marker_notes_value ~= 1 and enable_property_trigger_options and trigger_options_value == 2 and not in_table(ignore_list, note_source_marker_a_value) and editable_list_has_values("text_arr_marker_a")));
+        (is_note_text_id(media["note_source_unversioned_id_marker_a"]) and layout_value == 2 and enable_marker_notes_value ~= 1 and enable_property_trigger_options and trigger_options_value == 2 and not in_table(ignore_list, note_source_marker_a_value) and editable_list_has_values("text_arr_marker_a")));
     obs.obs_property_set_visible(b_note_prop,
-        (media["note_source_unversioned_id_marker_b"] == text_source_unversioned_id and layout_value == 2 and enable_marker_notes_value ~= 1 and enable_property_trigger_options and trigger_options_value == 2 and not in_table(ignore_list, note_source_marker_b_value) and editable_list_has_values("text_arr_marker_b")));
+        (is_note_text_id(media["note_source_unversioned_id_marker_b"]) and layout_value == 2 and enable_marker_notes_value ~= 1 and enable_property_trigger_options and trigger_options_value == 2 and not in_table(ignore_list, note_source_marker_b_value) and editable_list_has_values("text_arr_marker_b")));
     obs.obs_property_set_visible(a_source_prop,
         (layout_value == 2 and enable_marker_notes_value ~= 1 and enable_property_trigger_options and trigger_options_value == 2 and editable_list_has_values("text_arr_marker_a")));
     obs.obs_property_set_visible(b_source_prop,
@@ -8338,7 +8108,7 @@ local function property_onchange(props, property, settings)
     obs.obs_property_set_visible(hide_note_marker_b_prop,
         (layout_value == 2 and enable_property_trigger_options and trigger_options_value == 2 and enable_marker_notes_value ~= 1 and not in_table(ignore_list, note_source_marker_b_value) and editable_list_has_values("text_arr_marker_b")));
     obs.obs_property_set_visible(duration_marker_end_prop,
-        ((in_table({ "TIMER END TEXT", "Select", "OVERTIME" }, timer_expire_event_value) or (is_expire_scene(timer_expire_event_value) and obs.obs_data_get_bool(settings, "expire_audio_first"))) and layout_value == 2 and enable_property_trigger_options and trigger_options_value == 2 and media_playback_limit_value == 2));
+        ((in_table({ "TIMER END TEXT", "Select", "select", "invalid", "OVERTIME" }, timer_expire_event_value) or (is_expire_scene(timer_expire_event_value) and obs.obs_data_get_bool(settings, "expire_audio_first"))) and layout_value == 2 and enable_property_trigger_options and trigger_options_value == 2 and media_playback_limit_value == 2));
     --[[
 
 			BACKUP SETTINGS INPUTS
@@ -8358,13 +8128,12 @@ local function property_onchange(props, property, settings)
     obs.obs_property_set_visible(export_button_prop,
         enable_property_backup and backup_mode_value and backup_folder ~= "" and backup_folder ~= nil and
         layout_value == 2 and not in_table(ignore_list, timer_source_value));
-    obs.obs_property_set_visible(import_button_prop,
-        enable_property_backup and backup_mode_value and layout_value == 2 and
-        not in_table(ignore_list, timer_source_value) and timer_options_value == 2);
     obs.obs_property_set_visible(export_folder_prop,
         enable_property_backup and backup_mode_value and layout_value == 2 and
         not in_table(ignore_list, timer_source_value) and timer_options_value == 2);
+    -- B-050: one rule (a second call used to override the Backup Mode condition)
     obs.obs_property_set_visible(import_button_prop,
+        enable_property_backup and backup_mode_value and
         import_list_value ~= "select" and import_list_value ~= "none" and import_list_value ~= "" and layout_value == 2 and
         not in_table(ignore_list, timer_source_value) and timer_options_value == 2);
     --[[
@@ -8401,13 +8170,11 @@ local function property_onchange(props, property, settings)
     if countdown_type_value == 1 and month_value ~= 1 and day_value == 0 then
         obs.obs_data_set_int(settings, "day", 1); -- set to at least 1, else the timer won"t know it is at zero
     end
-
     --[[
 
 		Some Calandar Stuff
 
 	]]
-
     local adjsut_limit = (timer_mode == 2 and countdown_type ~= 1 or timer_mode ~= 2)
     --[[
 		Duration inputs (manual set, and count down "Hours, Minutes, Seconds") accept
@@ -8463,9 +8230,6 @@ local function property_onchange(props, property, settings)
 		If value defined, then hide millisecond button.
 		If value not defined, then show millisecond button.
 
-	]]
-    --[[
-
 		Timer type is Count Down?
 		Set button labels
 
@@ -8483,7 +8247,7 @@ local function property_onchange(props, property, settings)
 		Set button labels
 	]]
     if timer_mode_value == 2 then
-        obs.obs_property_set_description(direction_button_prop, "Count Up");
+        obs.obs_property_set_description(direction_button_prop, direction_button_label()); -- B-051
         if timer_active then
             if split_startpause then
                 obs.obs_property_set_description(start_button_prop, "Start Count Down Timer");
@@ -8500,7 +8264,7 @@ local function property_onchange(props, property, settings)
             end
         end;
     else
-        obs.obs_property_set_description(direction_button_prop, "Toggle: Count Down");
+        obs.obs_property_set_description(direction_button_prop, direction_button_label()); -- B-051
         if timer_active then
             if split_startpause then
                 obs.obs_property_set_description(start_button_prop, "Start Count Up Timer");
@@ -8611,7 +8375,6 @@ local function property_onchange(props, property, settings)
         obs.obs_data_set_int(settings, "timer_activation", 1);                  -- Don"t allow timer and active text source to be the same
         obs.obs_data_set_int(settings, "timer_reset", 1);                       -- Don"t allow timer and active text source to be the same
     end
-
     --[[
 		Rebuild text source lists
 	]]
@@ -8664,7 +8427,6 @@ local function property_onchange(props, property, settings)
     --[[
 		Other fancy stuff
 	]]
-
     if sec_add_limit > 1 then
         obs.obs_property_int_set_suffix(sec_add_limit_prop, " Calls");
     end
@@ -8674,7 +8436,6 @@ local function property_onchange(props, property, settings)
     if sec_add_limit == 0 then
         obs.obs_property_int_set_suffix(sec_add_limit_prop, "     Zero allow infinite calls");
     end
-
 
     if sec_sub_limit > 1 then
         obs.obs_property_int_set_suffix(sec_sub_limit_prop, " Calls");
@@ -8690,12 +8451,13 @@ local function property_onchange(props, property, settings)
 	]]
     local filenames = get_filenames(backup_folder, ".json");
     local has_file_list = (table.getn(filenames) > 0);
-    if obs.os_file_exists(backup_folder) then
+    -- B-069: libobs (Windows) leaks one block per os_file_exists(""); the folder is empty by default
+    if backup_folder ~= nil and backup_folder ~= "" and obs.os_file_exists(backup_folder) then
         obs.obs_property_list_clear(import_list_prop);
         obs.obs_property_list_add_string(import_list_prop, "No Files Found", "none");
         if has_file_list then
             obs.obs_property_list_clear(import_list_prop);
-            obs.obs_property_list_add_string(import_list_prop, "Auto Import   [ select file ]", "select");
+            obs.obs_property_list_add_string(import_list_prop, "Select a file, then click Import Settings", "select"); -- B-045 (review): picking no longer imports
             for i, v in pairs(filenames) do
                 obs.obs_property_list_add_string(import_list_prop, v, v);
             end;
@@ -8717,19 +8479,16 @@ local function property_onchange(props, property, settings)
     if timer_expire_event_value == "invalid" then
         obs.obs_data_set_string(settings, "timer_expire_event", "select");
     end
-
     -- IMPORTANT: returns true to trigger refresh of the properties
     return true;
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: On Countdown expiry with a Source List, Scene List or Auto List expire event, shows the next entry of the list (for Auto List, the next child of the chosen group or scene). If the list has more than one entry and there is a default time, resets the timer and starts it again for the next entry.
+	Scope: local; called by timer_ended
+	type: helper (expire event)
+	input type: source_type: string ("source", "scene" or "auto")
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 local function timer_expire_event_cycle_source_list(source_type)
@@ -8758,7 +8517,6 @@ local function timer_expire_event_cycle_source_list(source_type)
             cycle_index, source_list = cycle_source_list_by_source_type(source_list, source_type, cycle_index);
         end
     end
-
     --[[
 		The folowing section will only update cycle_index
 		this is used to determine what the next item must be
@@ -8777,7 +8535,7 @@ local function timer_expire_event_cycle_source_list(source_type)
 		Set timer_active for it to self-start
 	]]
     --timer_active = false
-    if hasMultipleItems then
+    if hasMultipleItems and default_seconds > 0 then -- B-007: a 0 s countdown would expire and restart every frame
         timer_event_active = true
         reset(true); -- Reset the timer
         timer_event_active = false
@@ -8786,48 +8544,28 @@ local function timer_expire_event_cycle_source_list(source_type)
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
+	Description: Ends the Timer Expired audio after End Audio Duration: hides it, stops its own timer, and makes a waiting expire-scene switch (F4).
+	Scope: global; a timer callback added by play_timer_end_audio
+	type: timer callback
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function timer_end_media_end_callback()
     if disable_script then return; end;
     debug_log('timer_end_media_end_callback() -- function variable names:  ')
     set_visible(media['source_name_audio_marker_end'], false);
+    media["playing_audio_marker_end"] = nil; -- B-076 (review): no longer playing
     timer_remove(timer_end_media_end_callback);
     if pending_expire_scene ~= nil then switch_to_expire_scene(pending_expire_scene) end -- F4: audio done, now switch
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Only used in Count Down mode
-
-	Credit:
-	Modified:
-	function:
-	type:
-	input type:
-	returns:
-----------------------------------------------------------------------------------------------------------------------------------------
-]]
---[[
-----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Play the "Timer Expired Audio" (marker_end) and, if a duration is set,
-					hide it after that duration. Moved out of timer_ended() so overtime (F2)
-					can use it too.
-
-	Credit:
-	Modified:
-	function:
-	type:			Support
-	input type: 	none
-	returns:		none
+	Description: Plays the Timer Expired audio: shows the source, connects its media-ended signal, and starts the End Audio Duration timer when "Media Playback Limit" is enabled with a duration.
+	Scope: global; called by start_overtime and timer_ended
+	type: helper (media)
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function play_timer_end_audio()
@@ -8836,6 +8574,7 @@ function play_timer_end_audio()
 	]]
     if not in_table(ignore_list, media["source_name_audio_marker_end"]) then
         set_visible(media["source_name_audio_marker_end"], true); -- play the media
+        media["playing_audio_marker_end"] = media["source_name_audio_marker_end"]; -- B-076 (review)
         disconnect_after_media_end("marker_end");                 -- attach a signal handler to set source hidden when media playback ends
         --[[
 			If the user wants the media to stop after defined duration
@@ -8849,18 +8588,12 @@ function play_timer_end_audio()
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	F2: Timer Expire Event "Continue counting (overtime)".
-					Instead of stopping at zero, keep the timer running and count up
-					(the same mechanism as the direction toggle). The usual expiry actions
-					still happen: "Timer Expires" recording trigger and Timer Expired Audio.
-					Reset ends overtime.
-
-	Credit:			AkashicStreaming (feature request)
-	Modified:
-	function:
-	type:			Support
-	input type: 	none
-	returns:		none
+	Description: Starts overtime when a countdown reaches zero with the "OVERTIME" expire event: the timer keeps running and counts up, Auto Recording "Timer Expires" and the expiry audio are triggered, and with "Overtime: show '+' and Marker B colour" the pending marker colour resets are cancelled and the Marker B colour is set (F2).
+	Scope: global; called by set_time_text
+	type: helper (expire event)
+	input type: none
+	returns: none
+	Credit: AkashicStreaming (feature request)
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function start_overtime()
@@ -8872,31 +8605,40 @@ function start_overtime()
     record(2, 100);         -- "Timer Expires" recording trigger, as on a normal expiry
     play_timer_end_audio(); -- Timer Expired Audio, as on a normal expiry
     if overtime_style then
+        --[[
+			B-013 / B-012 (decision 2026-10-09): overtime sets its own colour, so a
+			marker colour reset still pending is cancelled instead of painting the
+			normal colour over it.
+		]]
+        reset_text_a_colour_end_timer();
+        reset_text_b_colour_end_timer();
+        for _, ref in ipairs({ "marker_a", "marker_b" }) do
+            media["colour_due_" .. ref] = nil;
+            media["colour_left_" .. ref] = nil;
+        end
         set_timer_text_color(media["color_marker_b"]);
         color_normal_updated = true; -- stop update_timer_display() repainting the normal colour over it
     end
 end
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	Switch to the Timer Expire Event scene. Used straight away on expiry, or
-					(F4, "Play Timer Expired Audio first, then switch") once the audio is done:
-					after End Audio Duration (timer_end_media_end_callback) or when the media
-					ends (signal_media_ended -> expire_scene_switch_callback).
-
-	Credit:			SheriMJ (feature request, F4)
-	Modified:		Moved out of timer_ended() so both paths share it
-	function:
-	type:			Support
-	input type: 	string (scene name)
-	returns:		none
+	Description: Switches to the Timer Expire Event scene, hiding the timer in the other scenes and recording the switch as the script's own, then resets the timer settings. Used straight away on expiry, or (F4, "Play Timer Expired Audio first, then switch") once the audio is done.
+	Scope: global; called by timer_ended, timer_end_media_end_callback and expire_scene_switch_callback
+	type: helper (expire event)
+	input type: scene_name: string (scene name; nothing happens if it doesn't exist)
+	returns: none
+	Credit: SheriMJ (feature request, F4)
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function switch_to_expire_scene(scene_name)
     debug_log('switch_to_expire_scene(' .. pre_dump(scene_name) .. ')')
     pending_expire_scene = nil;
-    set_visible(timer_source, false); -- last thing, set visibility of timer to hide because we are changing to another scene
     local source = obs.obs_get_source_by_name(scene_name);
-    if source == nil then return end
+    if source == nil then return end -- B-006: no such scene (renamed or deleted): keep the timer visible
+    -- B-031 (decision 2026-10-11): hide the timer in every scene except the expire scene,
+    -- where it may be showing the end text
+    set_visible(timer_source, false, scene_name);
+    note_self_switch(scene_name); -- B-065
     obs.obs_frontend_remove_event_callback(on_event)
     obs.obs_frontend_set_current_scene(source)
     obs.obs_frontend_add_event_callback(on_event)
@@ -8914,6 +8656,15 @@ end
 --[[
 	F4: one-shot, so the switch after a natural media end runs on the timer thread
 ]]
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description: Makes a waiting expire-scene switch after the Timer Expired media ended naturally, from a one-shot timer so it runs on the timer thread (F4). Stops its own timer first.
+	Scope: global; a timer callback added by signal_media_ended
+	type: timer callback
+	input type: none
+	returns: none
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
 function expire_scene_switch_callback()
     timer_remove(expire_scene_switch_callback);
     if pending_expire_scene ~= nil then switch_to_expire_scene(pending_expire_scene) end
@@ -8921,10 +8672,28 @@ end
 --[[
 	F4: true when the Timer Expire Event value is a scene name (not one of the fixed options)
 ]]
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description: Tells whether a Timer Expire Event value is a scene name rather than one of the fixed options (F4).
+	Scope: global; called by property_onchange and timer_ended
+	type: helper (expire event)
+	input type: value: string or nil (the Timer Expire Event value)
+	returns: bool
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
 function is_expire_scene(value)
     return value ~= nil and value ~= "" and
         not in_table({ "select", "Select", "TIMER END TEXT", "OVERTIME", "Source List", "Scene List", "Auto List", "invalid" }, value);
 end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description: Handles a timer that reached its end: stops it, lets pending marker colour resets and media limits run on, triggers Auto Recording "Timer Expires", stops looping marker media, and runs the Countdown expire event (switch scene, perhaps after the audio; cycle a list; show the Timer Expired Text; play the expiry audio).
+	Scope: global; called by set_time_text
+	type: helper (expire event)
+	input type: source_name: string or nil (the timer source)
+	returns: none
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
 function timer_ended(source_name)
     if disable_script then return; end;
     debug_log('timer_ended(' .. pre_dump(source_name) .. ') -- function variable names:  source_name ')
@@ -8936,6 +8705,18 @@ function timer_ended(source_name)
 		stop the timer
 	]]
     activate(false); -- This will remove the callback.
+    pause_carry_ns = 0; -- B-015: an expired run carries nothing over into a restart
+    --[[
+		B-012 (decision 2026-10-09): a marker colour reset that was still pending
+		completes after the expiry (activate(false) suspended it like a pause).
+		Overtime, which sets its own colour, doesn't come through here (B-013).
+	]]
+    for _, ref in ipairs({ "marker_a", "marker_b" }) do
+        local left = media["colour_left_" .. ref];
+        if left ~= nil and left > 0 then reset_marker_text_colour_start_timer(left, ref) end
+        media["colour_left_" .. ref] = nil;
+    end
+    rearm_media_limits(); -- B-068: marker audio still playing at expiry keeps its duration limit (B-011: it may finish)
     --[[
 		If user wants recording to start when timer ended, now is a good timer to initiate recording
 		NOTE: Recording will only be started, if it is not already recording
@@ -8946,11 +8727,10 @@ function timer_ended(source_name)
 	]]
     stop_looping_media("marker_a");
     stop_looping_media("marker_b");
-
     --[[
 		Timer expired and a scene change is requested.
 	]]
-    if timer_mode == 2 and not in_table({ "TIMER END TEXT", "Source List", "Scene List", "Auto List", "Select", "OVERTIME" }, timer_expire_event) then
+    if timer_mode == 2 and is_expire_scene(timer_expire_event) then -- B-006: the stored "select" / "invalid" are no scene
         --[[
 			F4: "Play Timer Expired Audio first, then switch": play the audio now and switch
 			when it is done (End Audio Duration, or the media ends). Otherwise switch now.
@@ -8990,30 +8770,24 @@ function timer_ended(source_name)
         local text = stop_text;
         set_text(source_name, text);
     end
-
     --[[
 			for now, only limit the timer end media playback
 			for these settings:
 		]]
-    if timer_mode == 2 and in_table({ "TIMER END TEXT", "Select" }, timer_expire_event) then
-        play_timer_end_audio();
+    if timer_mode == 2 and in_table({ "TIMER END TEXT", "Select", "select", "invalid" }, timer_expire_event) then
+        play_timer_end_audio(); -- B-006 (decision 2026-10-09): "Select" = no expire action, but the end audio plays
     end;
     --[[
 		TODO> We want to update the timer start button description at this point.
 	]]
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	A function named script_properties defines the properties that the user
-					can change for the entire script module itself. The stacking order of properties detirmine
-					the order and position of the items on the UI
-	Credit:
-	Modified:
-	function:		Creates UI
-	type:			Properties
-	input type: 	none
-	returns:		props
+	Description: Builds the script's settings panel: every property in display order, with their lists, tooltips, buttons, groups and modified callbacks; the order here is the order in the panel.
+	Scope: global; called by OBS when the panel is shown or rebuilt
+	type: OBS entry point
+	input type: none
+	returns: obs_properties: the panel
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function script_properties()
@@ -9067,7 +8841,6 @@ function script_properties()
 		Release with source_list_release().
 	]]
     local sources = obs.obs_enum_sources();
-
     --[[
 		Returns table with all sources, including nested scenes.
 	]]
@@ -9214,11 +8987,6 @@ function script_properties()
     local p_15_r = obs.obs_properties_add_bool(ctx.propsDef, "round_up_countdown", "Round up displayed countdown");                                                                                                                                                                                                        -- F8
     obs.obs_property_set_long_description(p_15_r,
         "\nCount Down only, and only when the Time Format has no seconds ($S).\n\nOn: the display rounds up to the smallest unit shown, so '$H:$M' reads 00:01 until the timer reaches zero.\nOff: the display rounds down, so it reads 00:00 for the last 59 seconds.\n\nMarkers and the timer end are not affected.\n"); -- User Tip
-
-
-
-
-
     --[[
 		Option list: User select to show or hide available features.
 		This provides UI layout options to enhance the user experience.
@@ -9232,16 +9000,14 @@ function script_properties()
         "Specific Source Active", "Specific Media Active", "Recording Started", "Streaming Started" }; -- Add options to the list
     for i, v in ipairs(t_type) do obs.obs_property_list_add_int(p_65, v, i) end;                       -- This list is auto indexed thus have an interger reference containing a string value
     obs.obs_property_set_long_description(p_65, "\nConfigure how the timer is activated.\n");          -- User Tip
-
     --[[
 		Option list: User select <option> to be used.
 	]]
     local p_65_a = obs.obs_properties_add_list(ctx.propsDef, "timer_activation_source", "<i>Activation Source</i>",
         obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING);
     obs.obs_property_list_add_string(p_65_a, "Select", "select");                                -- Adds a default option to the list. First (top-most) list item. If selected the option is ignored.
-    obs.obs_property_set_long_description(p_65_b,
+    obs.obs_property_set_long_description(p_65_a, -- B-047: was p_65_b (declared below: nil here)
         "\nSelect a trigger source that activates the timer upon its visibility or display.\n"); -- User Tip
-
     --[[
 		Option list: User select to show or hide available features.
 		This provides UI layout options to enhance the user experience.
@@ -9345,7 +9111,6 @@ function script_properties()
         obs.OBS_EDITABLE_LIST_TYPE_STRINGS, nil, nil);
     obs.obs_property_set_long_description(p_21, "\nExpand or hide additional options triggered by time stamps.\n"); -- User Tip
     obs.obs_property_set_long_description(p_21, "\nUse format 00:00:00 ( hours:minutes:seconds )\n");               -- User Tip
-
     --[[
 		Editable Option list: User adds a text time stamp that will trigger time Marker functions.
 		This provides function options to change feature behaviour.
@@ -9589,8 +9354,6 @@ function script_properties()
 
     obs.obs_properties_add_int_slider(ctx.propsDef, "hide_note_marker_a", "Hide Marker A Note", 0, 10800, 1);
     obs.obs_properties_add_int_slider(ctx.propsDef, "hide_note_marker_b", "Hide Marker B Note", 0, 10800, 1);
-
-
     --[[
 		Option list: User select a reference to be used as control to enable an auto start recording feature.
 		This provides function options to change a function behaviour.
@@ -9608,14 +9371,14 @@ function script_properties()
 	]]
     local p_34 = obs.obs_properties_add_text(ctx.propsDef, "text_prefix", "<font color=#fefceb>Timer Prefix</font>",
         obs.OBS_TEXT_DEFAULT);
-    obs.obs_property_set_long_description(p_34, "\nDefine text placed before the Timer\n"); -- User Tip
+    obs.obs_property_set_long_description(p_34, "\n Define text placed before the Timer\n Accepts Format 'String{param1,param2}'\n param1 is reference to marker 1 or 2, or accepts timestamp.\n param2 is numeric for display time in seconds.\n Example: string{00:00:05,3} or string{1,3}\n"); -- User Tip
     --[[
 		 Text Field
 	]]
     local p_35 = obs.obs_properties_add_text(ctx.propsDef, "text_suffix", "<font color=#fefceb>Timer Suffix</font>",
         obs.OBS_TEXT_DEFAULT);
-    obs.obs_property_set_long_description(p_35, "\nDefine text placed after the Timer\n"); -- User Tip
-    --[[
+    obs.obs_property_set_long_description(p_35, "\n Define text placed after the Timer\n Accepts Format 'String{param1,param2}'\n param1 is reference to marker 1 or 2, or accepts timestamp.\n param2 is numeric for display time in seconds.\n Example: string{00:00:05,3} or string{1,3}\n"); -- User Tip
+    --[["
 		Option list: User select <text-source> to be used as visual feedback indicating a source name that is targeted.
 		This provides function options that will impact on visual feedback to the user.
 		Changing this setting will impact on the function or end result.
@@ -9658,7 +9421,6 @@ function script_properties()
             obs.obs_property_list_add_string(p_36, value, value); -- Add options to the list
         end;
     end;
-
     --[[
 		Option list: User select a reference to be used as control to enable an action que task once the timer expires.
 		This provides function options to change a function behaviour.
@@ -9668,7 +9430,7 @@ function script_properties()
 	]]
     local p_37 = obs.obs_properties_add_list(ctx.propsDef, "timer_expire_event", "<i>Timer Expire Event</i>",
         obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING);
-    obs.obs_property_set_long_description(p_37, "\nDefine what happens afater timer ends\n"); -- User Tip
+    obs.obs_property_set_long_description(p_37, "\nDefine what happens after the timer ends\n"); -- User Tip
     obs.obs_property_list_add_string(p_37, "Select", "select");                               -- Adds a default options
     obs.obs_property_list_add_string(p_37, "TIMER END TEXT", "TIMER END TEXT");               -- Adds a default options
     obs.obs_property_list_add_string(p_37, "Continue counting (overtime)", "OVERTIME");       -- F2
@@ -9737,7 +9499,6 @@ function script_properties()
             obs.obs_property_list_add_string(p_33, value, value); -- Add options to the list
         end;
     end;
-
     --[[
 		 Text Field
 	]]
@@ -9751,7 +9512,6 @@ function script_properties()
 	]]
     local p_39 = obs.obs_properties_add_editable_list(ctx.propsDef, "cycle_list", "Cycle List",
         obs.OBS_EDITABLE_LIST_TYPE_STRINGS, nil, nil);
-
     --[[
 		Option list: User select a reference to be used as control to determine a cycling direction.
 		This provides function options to change feature behaviour.
@@ -9793,8 +9553,8 @@ function script_properties()
     local p_a4 = obs.obs_properties_add_int(group_props_2, "sec_add_limit", "Limit", 0, 1000, 1);
     obs.obs_property_int_set_suffix(p_a4, "     Zero allow infinite calls");
     local p_a5 = obs.obs_properties_add_int(group_props_2, "sec_add_limit_used", "Used", 0, 1000, 1);
-    obs.obs_property_int_set_suffix(p_a5, "     Refesh to update form");
-    obs.obs_property_set_long_description(p_a5, "\nClick the refresh button the update and show the used limits.\n"); -- User Tip
+    obs.obs_property_int_set_suffix(p_a5, "     Refresh to update form");
+    obs.obs_property_set_long_description(p_a5, "\nClick the refresh button to update and show the used limits.\n"); -- User Tip
     local p_a6 = obs.obs_properties_add_list(group_props_2, "add_limit_note_source", "<i>Limit Note</i>",
         obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING);
     obs.obs_property_set_long_description(p_a6,
@@ -9830,7 +9590,7 @@ function script_properties()
             --[[
 				add item to property list
 			]]
-            obs.obs_property_list_add_string(p_a5, value, value); -- Add options to the list
+            obs.obs_property_list_add_string(p_a6, value, value); -- B-049: the Limit Note list (p_a5 is the "Used" int)
         end;
     end;
     local p_b7 = obs.obs_properties_add_int(group_props_2, "add_limit_note_source_visible", "Note visible", 0, 36000, 1);
@@ -9854,8 +9614,8 @@ function script_properties()
     local p_b4 = obs.obs_properties_add_int(group_props_3, "sec_sub_limit", "Limit", 0, 1000, 1);
     obs.obs_property_int_set_suffix(p_b4, "     Zero allow infinite calls");
     local p_b5 = obs.obs_properties_add_int(group_props_3, "sec_sub_limit_used", "Used", 0, 1000, 1);
-    obs.obs_property_int_set_suffix(p_b5, "     Refesh to update form");
-    obs.obs_property_set_long_description(p_b5, "\nClick the refresh button the update and show the used limits.\n"); -- User Tip
+    obs.obs_property_int_set_suffix(p_b5, "     Refresh to update form");
+    obs.obs_property_set_long_description(p_b5, "\nClick the refresh button to update and show the used limits.\n"); -- User Tip
     local p_b6 = obs.obs_properties_add_list(group_props_3, "sub_limit_note_source", "<i>Limit Note</i>",
         obs.OBS_COMBO_TYPE_LIST, obs.OBS_COMBO_FORMAT_STRING);
     obs.obs_property_set_long_description(p_b6,
@@ -9891,7 +9651,7 @@ function script_properties()
             --[[
 				add item to property list
 			]]
-            obs.obs_property_list_add_string(p_b5, value, value); -- Add options to the list
+            obs.obs_property_list_add_string(p_b6, value, value); -- B-049: the Limit Note list (p_b5 is the "Used" int)
         end;
     end;
     local p_b7 = obs.obs_properties_add_int(group_props_3, "sub_limit_note_source_visible", "Note visible", 0, 36000, 1);
@@ -10062,37 +9822,31 @@ function script_properties()
 
 		This property is referenced to trigger an onchange event listener.
 	]]
-    local p_59 = obs.obs_properties_add_button(ctx.propsDef, "import_button", "Import Settings", import_button_clicked);
-
+    obs.obs_properties_add_button(ctx.propsDef, "import_button", "Import Settings", import_button_clicked);
     --[[
 		Property Button: User interaction that will export all property settings to a json file.
 		This provides function interaction to change feature behaviour.
 		Interacting with this property will complete a feature task.
 	]]
     local p_60 = obs.obs_properties_add_button(ctx.propsDef, "export_button", "Export Settings", export_button_clicked);
-
     --[[
 		SCRIPT READY
 		MUST BE HIDDEN
 	]]
     local p_61 = obs.obs_properties_add_bool(ctx.propsDef, "script_ready", "Script Ready");
     obs.obs_property_set_visible(p_61, set_visible_properties);
-
-
     --[[
 		Property Checkbox: User interaction that will disable the plugin.
 		This provides function interaction to change feature behaviour.
 		Interacting with this property will impact on feature options and behaviour.
 	]]
     obs.obs_properties_add_bool(ctx.propsDef, "disable_script", "Disable Script");
-
     --[[
 		Property Checkbox: User interaction that will disable the plugin.
 		This provides function interaction to change feature behaviour.
 		Interacting with this property will impact on feature options and behaviour.
 	]]
-    local p_63 = obs.obs_properties_add_bool(ctx.propsDef, "select_features", "Disable Featues");
-
+    local p_63 = obs.obs_properties_add_bool(ctx.propsDef, "select_features", "Disable Features");
     --[[
 		Wrap and group properties together.
 		Thise group provides options to the user to define a custom time value used as a start point for a stopwatch to continue from
@@ -10113,89 +9867,83 @@ function script_properties()
 		Interacting with this property will impact on feature options and behaviour.
 	]]
     local p_64_1 = obs.obs_properties_add_bool(group_props_4, "enable_property_split_source", "Timer Time Split/Lap");
-
     --[[
 		Property Checkbox: User interaction that will disable the plugin.
 		This provides function interaction to change feature behaviour.
 		Interacting with this property will impact on feature options and behaviour.
 	]]
     local p_64_2 = obs.obs_properties_add_bool(group_props_4, "enable_property_trigger_options", "Marker Settings");
-
     --[[
 		Property Checkbox: User interaction that will disable the plugin.
 		This provides function interaction to change feature behaviour.
 		Interacting with this property will impact on feature options and behaviour.
 	]]
     local p_64_3 = obs.obs_properties_add_bool(group_props_4, "enable_property_color_normal", "Text Colour [Normal]");
-
     --[[
 		Property Checkbox: User interaction that will disable the plugin.
 		This provides function interaction to change feature behaviour.
 		Interacting with this property will impact on feature options and behaviour.
 	]]
     local p_64_4 = obs.obs_properties_add_bool(group_props_4, "enable_property_color_marker_a", "Text Colour [Marker A]");
-
     --[[
 		Property Checkbox: User interaction that will disable the plugin.
 		This provides function interaction to change feature behaviour.
 		Interacting with this property will impact on feature options and behaviour.
 	]]
     local p_64_5 = obs.obs_properties_add_bool(group_props_4, "enable_property_color_marker_b", "Text Colour [Marker B]");
-
-
     --[[
 		Property Checkbox: User interaction that will disable the plugin.
 		This provides function interaction to change feature behaviour.
 		Interacting with this property will impact on feature options and behaviour.
 	]]
     local p_64_6 = obs.obs_properties_add_bool(group_props_4, "enable_property_start_recording", "Recording");
-
-
     --[[
 		Property Checkbox: User interaction that will disable the plugin.
 		This provides function interaction to change feature behaviour.
 		Interacting with this property will impact on feature options and behaviour.
 	]]
     local p_64_7 = obs.obs_properties_add_bool(group_props_4, "enable_property_text_prefix", "Timer Text Prefix");
-
-
     --[[
 		Property Checkbox: User interaction that will disable the plugin.
 		This provides function interaction to change feature behaviour.
 		Interacting with this property will impact on feature options and behaviour.
 	]]
     local p_64_8 = obs.obs_properties_add_bool(group_props_4, "enable_property_text_suffix", "Timer Text Suffix");
-
-
     --[[
 		Property Checkbox: User interaction that will disable the plugin.
 		This provides function interaction to change feature behaviour.
 		Interacting with this property will impact on feature options and behaviour.
 	]]
     local p_64_9 = obs.obs_properties_add_bool(group_props_4, "enable_property_timer_activation", "Timer Activation");
-
-
     --[[
 		Property Checkbox: User interaction that will disable the plugin.
 		This provides function interaction to change feature behaviour.
 		Interacting with this property will impact on feature options and behaviour.
 	]]
     local p_64_10 = obs.obs_properties_add_bool(group_props_4, "enable_property_timer_manipulation", "Timer Manipulation");
-
-
     --[[
 		Property Checkbox: User interaction that will disable the plugin.
 		This provides function interaction to change feature behaviour.
 		Interacting with this property will impact on feature options and behaviour.
 	]]
     local p_64_11 = obs.obs_properties_add_bool(group_props_4, "enable_property_debug", "Debugging");
-
     --[[
 		Property Checkbox: User interaction that will disable the plugin.
 		This provides function interaction to change feature behaviour.
 		Interacting with this property will impact on feature options and behaviour.
 	]]
     local p_64_12 = obs.obs_properties_add_bool(group_props_4, "enable_property_backup", "Backup");
+    --[[
+		6.1 option: the source types that take part when a Group is a Marker A/B Note Source.
+	]]
+    local group_props_4_ng = obs.obs_properties_create();
+    obs.obs_properties_add_group(group_props_4, "_group_4_note_types", "Marker note groups: include these source types",
+        obs.OBS_GROUP_NORMAL, group_props_4_ng);
+    for _, t in ipairs({ { "text", "Text" }, { "image", "Image (also Image Slide Show)" }, { "browser", "Browser (web page)" },
+        { "color", "Colour" }, { "media", "Media (also VLC Video Source)" } }) do
+        local p_ng = obs.obs_properties_add_bool(group_props_4_ng, "note_group_type_" .. t[1], t[2]);
+        obs.obs_property_set_long_description(p_ng, "\nApplies when a Group is the Marker A or B Note Source. The group's items of the ticked types are shown and hidden in turn, one per marker; other types are skipped. No note text or colour is written to group items, of any type. Reset hides every item in the group, whatever its type.\n"); -- User Tip
+    end
 
 
     obs.source_list_release(sources); -- free memory, release sources as it is no longer needed
@@ -10205,8 +9953,7 @@ function script_properties()
 		Each entry provides a callback to a referenced proeprty along with a target callback handler
 
 
-	timer_source, split_source, active_source, note_source_marker_a, note_source_marker_b, sub_limit_note_source, add_limit_note_source
-
+	    timer_source, split_source, active_source, note_source_marker_a, note_source_marker_b, sub_limit_note_source, add_limit_note_source
 
 	]]                                                                     --
     obs.obs_property_set_modified_callback(p_ab, property_onchange);    -- timer_manipulation
@@ -10248,7 +9995,8 @@ function script_properties()
     obs.obs_property_set_modified_callback(p_56, property_onchange);    -- backup_mode
     obs.obs_property_set_modified_callback(p_57, property_onchange);    -- backup_folder
     obs.obs_property_set_modified_callback(p_58, property_onchange);    -- import_list
-    obs.obs_property_set_modified_callback(p_59, import_properties);    -- import_button
+    -- B-045: no modified callback on the import button: obs_properties_apply_settings runs every
+    -- modified callback, so the import ran on each panel rebuild; it runs on the click instead
     obs.obs_property_set_modified_callback(p_62, property_onchange);    -- split_startpause
     obs.obs_property_set_modified_callback(p_63, property_onchange);    -- select_features
     obs.obs_property_set_modified_callback(p_64_0, property_onchange);  -- select_features
@@ -10272,18 +10020,13 @@ function script_properties()
 
     return ctx.propsDef;
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	We use this to keep track of what text type sources was assigned/selected in properties
-
-	Credit:
-	Modified:
-	function:		Called upon settings initialization and modification
-	type:
-	input type:
-
-	returns:
+	Description: Records which text source each source setting currently uses (timer, split, active, the marker notes and the limit notes), so the panel lists can leave out sources already taken.
+	Scope: global; called by load_settings_globals
+	type: helper (panel)
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function update_source_list()
@@ -10297,17 +10040,13 @@ function update_source_list()
     selected_source_list["sub_limit_note_source"] = sub_limit_note_source;
     selected_source_list["add_limit_note_source"] = add_limit_note_source;
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	We use this to keep track of what text type sources was assigned/selected in properties
-
-	Credit:
-	Modified:
-	function:		Called upon settings initialization and modification
-	type:
-	input type:
-	returns:
+	Description: Tells whether a source is already used by another source setting, so it can be left out of this setting's list. "Select" and the setting's own choice count as not taken.
+	Scope: global; called by property_onchange, script_properties and fill_split_source_list
+	type: helper (panel)
+	input type: input_value: string (source name); reference: string (the setting whose list is being built)
+	returns: bool; none while the script is disabled
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function source_selected(input_value, reference)
@@ -10317,39 +10056,26 @@ function source_selected(input_value, reference)
     if in_table({ 'Select', 'select' }, input_value) or selected_source_list[reference] == input_value then return false end; -- was { 'Select, select' }: one string (B5)
     return in_table(selected_source_list, input_value);
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	B5: when no Text source is free for the Split Source list (the only Text
-					source is already the Timer Source or another role), show why, as a
-					disabled entry, instead of a list that only says "Select".
-
-	Credit:
-	Modified:
-	function:
-	type:			UI
-	input type: 	obs_property_t (list)
-	returns:		none
+	Description: Adds a disabled entry to a source list saying there is no free text source and how to add one (B5).
+	Scope: global; called by property_onchange, script_properties and fill_split_source_list
+	type: helper (panel)
+	input type: prop: obs_property (the list)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function add_no_free_source_hint(prop)
     obs.obs_property_list_add_string(prop, "No free Text source: add another Text source, then Refresh", "no_free_source");
     obs.obs_property_list_item_disable(prop, obs.obs_property_list_item_count(prop) - 1, true);
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	B5: rebuild the Split Source list from the current OBS sources.
-					Used by the "Refresh sources" button: returning true from a button only
-					redraws the panel, it does not call script_properties() again, so a Text
-					source created while the panel is open would otherwise never appear.
-
-	Credit:
-	Modified:
-	function:
-	type:			UI
-	input type: 	obs_property_t (list)
-	returns:		none
+	Description: Rebuilds the split source list from the current OBS text sources not used by another setting, in name order, or the "no free source" hint if there are none (B5).
+	Scope: global; called by split_source_refresh_clicked
+	type: helper (panel)
+	input type: prop: obs_property (the split source list)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function fill_split_source_list(prop)
@@ -10375,43 +10101,123 @@ function fill_split_source_list(prop)
     end
     if not found then add_no_free_source_hint(prop) end
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	B5: "Refresh sources" button next to Split Source
-
-	Credit:
-	Modified:
-	function:
-	type:			UI callback
-	input type: 	props, p
-	returns:		true (redraw the panel)
+	Description: "Refresh sources" button next to Split Source: rebuilds the split source list (B5).
+	Scope: global; registered by script_properties as the button "split_source_refresh"
+	type: button callback
+	input type: props: obs_properties (the panel); p: obs_property (not used)
+	returns: bool: true (refresh the panel)
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function split_source_refresh_clicked(props, p)
     fill_split_source_list(obs.obs_properties_get(props, "split_source"));
     return true;
 end
-
+--[[
+	B-037 (decision 2026-10-09): only a change to a timing setting resets the
+	timer. Timing settings: mode, countdown type, target date, and time or start
+	duration. Anything else (prefix, colours, sources, notes, ...) redraws only.
+]]
+local last_timing_signature = nil;
+local last_mili_trigger = nil;
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	A function named script_update will be called when settings are changed
-
-	Credit:
-	Modified:
-	function:		Called upon settings initialization and modification
-	type:
-	input type:
-	returns:
+	Description: Combines the timing settings (mode, countdown type, target date, time) into one string, so script_update can tell whether a timing setting changed (B-037).
+	Scope: local; called by script_update
+	type: helper (settings)
+	input type: settings: obs_data (the script's settings)
+	returns: string
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function timing_signature(settings)
+    local parts = {};
+    for _, key in ipairs({ "timer_mode", "countdown_type", "year", "month", "day", "hours", "minutes", "seconds" }) do
+        parts[#parts + 1] = tostring(obs.obs_data_get_int(settings, key));
+    end
+    return table.concat(parts, ":");
+end
+--[[
+	B-076 / B-077: reset() hid the marker / end audio and the limit notes, and set up
+	a Marker Audio list; a settings change no longer resets (B-037). So when the user
+	chooses another source or list for one of them, hide what is now chosen (a shown
+	media source would play), except audio playing right now, and start a new list at
+	its first entry. Keyed on the user's choice (the setting and the list's entries),
+	not on the list's current entry, which moves on after every marker.
+	sync_only: after a reset, which did all this, only record the choices.
+]]
+local media_choices = {};
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description: Tells whether a source is the marker or end audio playing right now.
+	Scope: local; called by hide_new_media_choices
+	type: helper (media)
+	input type: name: string (source name)
+	returns: bool
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function audio_playing_now(name)
+    return name == media["playing_audio_marker_a"] or name == media["playing_audio_marker_b"] or
+        name == media["playing_audio_marker_end"]
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description: Reads a media or limit-note setting: a single source, or "list" with its entries.
+	Scope: local; called by hide_new_media_choices
+	type: helper (media)
+	input type: key: string (the setting name)
+	returns: string, table: a key for the choice ("list:" plus the entries, or the source name) and the source names
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function media_choice(key)
+    local value = obs.obs_data_get_string(ctx.propsSet, key);
+    if value ~= "list" then return value, { value } end
+    local names = obs_data_array_to_table(ctx.propsSet, key .. "_arr") or {};
+    return "list:" .. table.concat(names, "|"), names
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description: When the user picks another source or list for the marker audio, end audio or limit notes, hides what is now chosen (except audio playing now) and starts a changed Marker Audio list at its first entry (B-076, B-077). With sync_only, after a reset, it only records the choices.
+	Scope: local; called by script_update
+	type: helper (media)
+	input type: sync_only: bool or nil (true: only record the choices)
+	returns: none
+----------------------------------------------------------------------------------------------------------------------------------------
+]]
+local function hide_new_media_choices(sync_only)
+    if ctx.propsSet == nil then return end
+    for _, key in ipairs({ "audio_marker_a", "audio_marker_b", "audio_marker_end", "add_limit_note_source", "sub_limit_note_source" }) do
+        local choice, names = media_choice(key);
+        if choice ~= media_choices[key] then
+            local first = (media_choices[key] == nil);
+            media_choices[key] = choice;
+            if not sync_only then
+                for _, name in ipairs(names) do
+                    -- list entries: media sources only, as reset_audio_source_visibility (REV6 re-review)
+                    local media_entry = (choice:sub(1, 5) ~= "list:") or is_valid_type_source(name, "ffmpeg_source");
+                    if media_entry and not audio_playing_now(name) then set_visible(name, false) end
+                end
+                local ref = key:match("^audio_(marker_[ab])$");
+                if ref and not first and choice:sub(1, 5) == "list:" then -- B-077: as update_media_names(true) in a reset
+                    media["cycle_index_" .. ref] = 1;
+                    media["last_orientation_" .. ref] = count_orientation;
+                    assign_audio_source_name(key .. "_arr", ref);
+                end
+            end
+        end
+    end
+end
+--[[
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description: Applies changed settings: loads them into the globals, stops the timer when the script is disabled, reads the custom units and frame rate, and resets the hundredths state when the timing or trigger changed. Only a timing change stops the secondary timers and resets the timer (B-037); other changes keep the time and redraw, updating the markers, prefix and suffix, media choices and activation signals.
+	Scope: global; called by OBS when settings change and after load, and by import_button_clicked
+	type: OBS entry point
+	input type: settings: obs_data (the script's settings)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function script_update(settings)
     debug_log('script_update(' .. pre_dump(settings) .. ') -- function variable names:  settings ')
-    --[[
-		something changed, remove all timers.
-	]]
-    remove_all_timers();
-
     ctx.propsSet = settings; -- Keep track of current settings
     --[[
 		Once OBS has loaded, the script is ready. Set it before
@@ -10421,7 +10227,6 @@ function script_update(settings)
     if frontend_ready() then
         obs.obs_data_set_bool(settings, "script_ready", true);
     end
-
     --[[
 		Update a gloabl in case something changed.
 	]]
@@ -10434,44 +10239,62 @@ function script_update(settings)
 		load any property values available to globals
 	]]
     load_settings_globals(settings); -- load all property settings to globals
-    reset_mili();                    -- ensure mili hide/show settings are updated
-
-    reset(true);                     -- anything could have changed so reset everything
+    if disable_script and timer_active then
+        activate(false); -- B-042 (decision 2026-10-09): Disable Script pauses a running timer and keeps the time
+        rearm_media_limits(); -- B-068 (review): the marker audio isn't paused, so its limit keeps running
+    end
+    --[[
+		B-024: the units must be known before reset() and update_timer_settings()
+		redraw the timer, or a stopped timer is shown with the previous units.
+	]]
+    hour_unit = get_unit_allocation(custom_time_format, 'H');
+    minute_unit = get_unit_allocation(custom_time_format, 'M');
+    frame_unit = get_frame_unit(custom_time_format); -- F3: nil = hundredths, else frames per second
+    if frame_unit == 0 then frame_unit = output_fps() end
+    local signature = timing_signature(settings);
+    local timing_changed = (signature ~= last_timing_signature);
+    last_timing_signature = signature;
+    if timing_changed or toggle_mili_trigger ~= last_mili_trigger then
+        reset_mili();                -- ensure mili hide/show settings are updated
+    end
+    last_mili_trigger = toggle_mili_trigger;
+    if not timing_changed then
+        --[[
+			B-037: keep the time and state, but apply the edit: marker times may have
+			changed, and a new timer source must be written even if the text is the same.
+		]]
+        update_time_markers(roundSeconds());
+        prepare_text_prefix_suffix(); -- B-075: a new prefix / suffix (reset() prepared it before B-037)
+        hide_new_media_choices();     -- B-076
+        last_text = tostring(obs.os_gettime_ns()); -- force the redraw, as reset() does
+        set_time_text(timer_source); -- redraw with the new display settings
+        timer_activation_signals();
+        return;
+    end
+    remove_all_timers();             -- a timing change starts over
+    reset(true);
+    hide_new_media_choices(true);    -- B-076: reset() did the work; only record the choices
     --[[
 		If setting changed, update timer
 	]]
     update_timer_settings(false); -- optional inputs: set_to_default(bool), new_settings(obs_property_data/obs_userdata)
-
-    hour_unit = get_unit_allocation(custom_time_format, 'H');
-
-    minute_unit = get_unit_allocation(custom_time_format, 'M');
-
-    frame_unit = get_frame_unit(custom_time_format); -- F3: nil = hundredths, else frames per second
-    if frame_unit == 0 then frame_unit = output_fps() end
     --[[
 	 		Make sure the trigger is as accurate as possible depending
 			if the timer is counting up or down.
 	]]
     timer_activation_signals()
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	A function named script_defaults will be called to set the default settings
-
-	Credit:
-	Modified:
-	function:		Called when the script is started for the first time or when the script settings
-					is set to default
-	type:			settings
-	input type: 	Called when the Script is loaded thr first time or
-	returns:		None
+	Description: Sets the default value of every setting, and the starting tick length.
+	Scope: global; called by OBS
+	type: OBS entry point
+	input type: settings: obs_data (the script's settings)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function script_defaults(settings)
     debug_log('script_defaults(' .. pre_dump(settings) .. ') -- function variable names:  settings ')
-
-
     --[[
 		Get the correct frequency for splitseconds when the script loads.
 	]]
@@ -10481,7 +10304,6 @@ function script_defaults(settings)
 
 		Set property INTEGER TYPES.
 	]]
-
     obs.obs_data_set_default_int(settings, "sec_add_limit", 0);
     obs.obs_data_set_default_int(settings, "sec_add_limit_used", 0);
     obs.obs_data_set_default_int(settings, "sec_sub_limit", 0);
@@ -10544,9 +10366,9 @@ function script_defaults(settings)
     obs.obs_data_set_default_bool(settings, "expire_audio_first", false); -- F4
     obs.obs_data_set_default_string(settings, "cycle_source_children", "select");
     obs.obs_data_set_default_string(settings, "day_text", "# Day \n");
-    obs.obs_data_set_default_string(settings, "audio_marker_a", "None");
-    obs.obs_data_set_default_string(settings, "audio_marker_b", "None");
-    obs.obs_data_set_default_string(settings, "audio_marker_end", "None");
+    obs.obs_data_set_default_string(settings, "audio_marker_a", "none"); -- B-048: the list value
+    obs.obs_data_set_default_string(settings, "audio_marker_b", "none"); -- B-048: the list value
+    obs.obs_data_set_default_string(settings, "audio_marker_end", "none"); -- B-048: the list value
     obs.obs_data_set_default_string(settings, "days_text", "# Days \n");
     obs.obs_data_set_default_string(settings, "split_source", "select");
     obs.obs_data_set_default_string(settings, "timer_source", "select");
@@ -10587,30 +10409,34 @@ function script_defaults(settings)
     obs.obs_data_set_default_bool(settings, "enable_property_timer_manipulation", true);
     obs.obs_data_set_default_bool(settings, "enable_property_debug", true);
     obs.obs_data_set_default_bool(settings, "enable_property_backup", true);
+    obs.obs_data_set_default_bool(settings, "note_group_type_text", true);   -- 6.1 option: Text only, as before
+    obs.obs_data_set_default_bool(settings, "note_group_type_image", false);
+    obs.obs_data_set_default_bool(settings, "note_group_type_browser", false);
+    obs.obs_data_set_default_bool(settings, "note_group_type_color", false);
+    obs.obs_data_set_default_bool(settings, "note_group_type_media", false);
     obs.obs_data_set_default_bool(settings, "enable_property_description", true); -- F5: shown by default; the checkbox at the top of the form hides it
 
     debug_log('loaded get default script_ready (' .. pre_dump(true) .. ') ')
     -- Keep track of current settings
     ctx.propsSet = settings;
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:		A function named script_save will be called when the script is saved
-						NOTE: This function is usually used for saving extra data ( such as in this
-						case, a hotkey"s save data ).  Settings set via the properties are saved
-						automatically.
-
-	Credit:
-	Modified:
-	function:			Called when script is saved
-	type:				OBS
-	input type: 		settings
-	returns:			none
+	Description: Saves the hotkey bindings into the settings, records a marker colour showing at save time so the next start can restore the normal colour (B-074), and, with "Autoload last time stamp when OBS starts", stores the current time.
+	Scope: global; called by OBS when it saves (also at exit)
+	type: OBS entry point
+	input type: settings: obs_data (the script's settings)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function script_save(settings)
     debug_log('script_save(' .. pre_dump(settings) .. ') -- function variable names:  settings ')
+    -- B-074: a marker colour shows now; if this is the exit save, restore the normal colour at the next start
+    local colour_pending = script_colour_showing and media["color_normal"] ~= nil;
+    obs.obs_data_set_bool(settings, "sw_colour_restore_pending", colour_pending);
+    if colour_pending then
+        obs.obs_data_set_int(settings, "sw_colour_restore_normal", media["color_normal"]);
+    end
     --[[
 		script save
 
@@ -10619,7 +10445,6 @@ function script_save(settings)
     local hotkey_save_array_reset = obs.obs_hotkey_save(hotkey_id_reset);
     obs.obs_data_set_array(settings, "reset_hotkey", hotkey_save_array_reset);
     obs.obs_data_array_release(hotkey_save_array_reset);
-
     --[[
 		script save
 
@@ -10628,7 +10453,6 @@ function script_save(settings)
     local hotkey_save_array_set = obs.obs_hotkey_save(hotkey_id_set);
     obs.obs_data_set_array(settings, "set_hotkey", hotkey_save_array_set);
     obs.obs_data_array_release(hotkey_save_array_set);
-
     --[[
 		script save
 
@@ -10637,7 +10461,6 @@ function script_save(settings)
     local hotkey_save_array_start = obs.obs_hotkey_save(hotkey_id_start);
     obs.obs_data_set_array(settings, "start_hotkey", hotkey_save_array_start);
     obs.obs_data_array_release(hotkey_save_array_start);
-
     --[[
 		script save
 
@@ -10712,24 +10535,13 @@ function script_save(settings)
         obslua.obs_data_apply(settings, ctx.propsSet);
     end
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-
-	Description:	a function named script_load will be called on startup
-					Connect hotkey and activation/deactivation signal callbacks
-					--
-					NOTE: These particular script callbacks do not necessarily have to
-					be disconnected, as callbacks will automatically destroy themselves
-					if the script is unloaded.  So there"s no real need to manually
-					disconnect callbacks that are intended to last until the script is
-					unloaded.
-	Credit:
-	Modified:
-	function:		Called when OBS is launched or the script is added
-	type:			OBS
-	input type: 	settings
-	returns:		none
+	Description: Registers the script's hotkeys (Reset, Set, Start, Pause, Split Time, Milliseconds Toggle, Change Timer Direction, Add and Subtract Seconds Sets 1-3), named after the script file, and loads their saved bindings.
+	Scope: global; called by script_load
+	type: helper (hotkeys)
+	input type: settings: obs_data (the script's settings); load_globals: bool (not used)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function assign_hotkeys(settings, load_globals)
@@ -10891,24 +10703,13 @@ function assign_hotkeys(settings, load_globals)
     obs.obs_hotkey_load(hotkey_id_sec_sub_3, hotkey_save_array_sec_sub_3);
     obs.obs_data_array_release(hotkey_save_array_sec_sub_3);
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-
-	Description:	a function named script_load will be called on startup
-					Connect hotkey and activation/deactivation signal callbacks
-					--
-					NOTE: These particular script callbacks do not necessarily have to
-					be disconnected, as callbacks will automatically destroy themselves
-					if the script is unloaded.  So there"s no real need to manually
-					disconnect callbacks that are intended to last until the script is
-					unloaded.
-	Credit:
-	Modified:
-	function:		Called when OBS is launched or the script is added
-	type:			OBS
-	input type: 	settings
-	returns:		none
+	Description: Starts the script: marks it ready if OBS has loaded, schedules init when OBS is already running, sets the tick length, connects the global source load and activate signals and the frontend event callback, and registers the hotkeys.
+	Scope: global; called by OBS when the script loads
+	type: OBS entry point
+	input type: settings: obs_data (the script's settings)
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function script_load(settings)
@@ -10948,81 +10749,65 @@ function script_load(settings)
 		If the user is not loading saved time, clear it
 	]]
 end
-
 --[[
 ----------------------------------------------------------------------------------------------------------------------------------------
-	Description:	a function named script_unload will be called when the script is unloaded
-
-	Credit:
-	Modified:
-	function:		Drop references to the properties object; OBS owns and destroys it
-	type:
-	input type:
-	returns:		none
+	Description: Cleans up when the script unloads: writes the debug buffer, puts the normal colour back if a marker colour shows (B-074), drops the panel references, and releases the weak source references of the signal connections.
+	Scope: global; called by OBS when the script unloads
+	type: OBS entry point
+	input type: none
+	returns: none
 ----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function script_unload()
+    flush_debug_file(); -- B-057: the lines buffered since the last write
+    --[[
+		B-074: Reload Scripts or removing the script while a marker colour shows: put the
+		normal colour back, so later saves keep it. (At OBS exit the sources are already
+		saved and released here: see restore_saved_normal_colour.)
+	]]
+    if script_colour_showing and media["color_normal"] ~= nil then
+        set_timer_text_color(media["color_normal"]);
+        if ctx.propsSet ~= nil then obs.obs_data_set_bool(ctx.propsSet, "sw_colour_restore_pending", false) end
+    end
     ctx.propsDef = nil;
     props = nil;
+    -- B-034: release the weak source references (OBS removes the script's signal callbacks itself)
+    for name, handlers in pairs(connectedHandlers) do
+        if handlers.weak then obs.obs_weak_source_release(handlers.weak) end
+        connectedHandlers[name] = nil;
+    end
 end
-
 --[[
---------------------------------------------------------------------
- custom function
-
-	Adds a callback that will be called when a frontend event occurs.
-	obslua.obs_frontend_add_event_callback(callback, private_data)
-	obs.remove_current_callback()
-	obslua.OBS_FRONTEND_EVENT_EXIT = 17
-	obslua.OBS_FRONTEND_EVENT_FINISHED_LOADING = 26
-	obslua.OBS_FRONTEND_EVENT_PREVIEW_SCENE_CHANGED = 24
-	obslua.OBS_FRONTEND_EVENT_PROFILE_CHANGED = 15
-	obslua.OBS_FRONTEND_EVENT_PROFILE_LIST_CHANGED = 16
-	obslua.OBS_FRONTEND_EVENT_RECORDING_PAUSED = 27
-	obslua.OBS_FRONTEND_EVENT_RECORDING_STARTED = 5
-	obslua.OBS_FRONTEND_EVENT_RECORDING_STARTING = 4
-	obslua.OBS_FRONTEND_EVENT_RECORDING_STOPPED = 7
-	obslua.OBS_FRONTEND_EVENT_RECORDING_STOPPING = 6
-	obslua.OBS_FRONTEND_EVENT_RECORDING_UNPAUSED = 28
-	obslua.OBS_FRONTEND_EVENT_REPLAY_BUFFER_STARTED = 19
-	obslua.OBS_FRONTEND_EVENT_REPLAY_BUFFER_STARTING = 18
-	obslua.OBS_FRONTEND_EVENT_REPLAY_BUFFER_STOPPED = 21
-	obslua.OBS_FRONTEND_EVENT_REPLAY_BUFFER_STOPPING = 20
-	obslua.OBS_FRONTEND_EVENT_SCENE_CHANGED = 8
-	obslua.OBS_FRONTEND_EVENT_SCENE_COLLECTION_CHANGED = 13
-	obslua.OBS_FRONTEND_EVENT_SCENE_COLLECTION_CLEANUP = 25
-	obslua.OBS_FRONTEND_EVENT_SCENE_COLLECTION_LIST_CHANGED = 14
-	obslua.OBS_FRONTEND_EVENT_SCENE_LIST_CHANGED = 9
-	obslua.OBS_FRONTEND_EVENT_STREAMING_STARTED = 1
-	obslua.OBS_FRONTEND_EVENT_STREAMING_STARTING = 0
-	obslua.OBS_FRONTEND_EVENT_STREAMING_STOPPED = 3
-	obslua.OBS_FRONTEND_EVENT_STREAMING_STOPPING = 2
-	obslua.OBS_FRONTEND_EVENT_STUDIO_MODE_DISABLED = 23
-	obslua.OBS_FRONTEND_EVENT_STUDIO_MODE_ENABLED = 22
-	obslua.OBS_FRONTEND_EVENT_TRANSITION_CHANGED = 10
-	obslua.OBS_FRONTEND_EVENT_TRANSITION_DURATION_CHANGED = 29
-	obslua.OBS_FRONTEND_EVENT_TRANSITION_LIST_CHANGED = 12
-	obslua.OBS_FRONTEND_EVENT_TRANSITION_STOPPED = 11
-	obslua.OBS_FRONTEND_EVENT_SCRIPTING_SHUTDOWN =
---------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------
+	Description: Handles OBS frontend events: runs init when loading finishes or the scene collection changes; for Timer Activation "Specific Scene Active", "Recording Started" or "Streaming Started", starts (resetting first with Auto reset), pauses or resumes the timer on scene changes, recording and streaming events. Scene switches made by the script itself are ignored (B-065).
+	Scope: global; added by script_load (and re-added by the scene switch helpers) as the frontend event callback
+	type: frontend event callback
+	input type: event: number (an OBS_FRONTEND_EVENT_* value)
+	returns: none
+----------------------------------------------------------------------------------------------------------------------------------------
 ]]
 function on_event(event)
     debug_log('on_event( ' .. pre_dump(event) .. ' ) -- function variable names: event')
     if event == obs.OBS_FRONTEND_EVENT_FINISHED_LOADING then
         debug_log('Event: Finished Loading')
         init();                                     -- redundancy
+        loading_finished = true;                    -- B-035: later source_load signals don't re-run init()
         if not load_saved_time then
             update_prop_settings_current_seconds(0) -- update current time to last time in properties
         end
+    elseif event == obs.OBS_FRONTEND_EVENT_SCENE_COLLECTION_CHANGED then
+        init();                                     -- B-035: a new collection's sources are loaded
+        loading_finished = true;                    -- B-035 (review): no FINISHED_LOADING comes after a switch
     elseif event == obs.OBS_FRONTEND_EVENT_SCENE_LIST_CHANGED then
         debug_log('Event: Scene List Changed')
     elseif event == obs.OBS_FRONTEND_EVENT_SCENE_CHANGED then
         debug_log('Event: Scene Changed')
         local current_scene_name = frontend_get_current_scene()
+        if is_self_switch(current_scene_name) then return end -- B-065: the script's own switch
         if timer_activation == 4 then
             if timer_activation_source == current_scene_name then
                 debug_log('Activate Timer: Scene Changed')
-                if timer_reset == 2 then reset(true) end
+                if timer_reset == 2 and not disable_script then reset(true) end -- B-043: disabled keeps the time
                 start(true)
             else
                 debug_log('De-activate Timer: Scene Changed')
@@ -11032,7 +10817,7 @@ function on_event(event)
     elseif event == obs.OBS_FRONTEND_EVENT_RECORDING_STARTED then
         debug_log('Event: Recording Started')
         if timer_activation == 7 then
-            if timer_reset == 2 then reset(true) end
+            if timer_reset == 2 and not disable_script then reset(true) end -- B-043: disabled keeps the time
             start(true)
         end
     elseif event == obs.OBS_FRONTEND_EVENT_RECORDING_PAUSED then
@@ -11053,7 +10838,7 @@ function on_event(event)
     elseif event == obs.OBS_FRONTEND_EVENT_STREAMING_STARTED then
         debug_log('Event: Streaming Started')
         if timer_activation == 8 then
-            if timer_reset == 2 then reset(true) end
+            if timer_reset == 2 and not disable_script then reset(true) end -- B-043: disabled keeps the time
             start(true)
         end
     elseif event == obs.OBS_FRONTEND_EVENT_STREAMING_STOPPED then
