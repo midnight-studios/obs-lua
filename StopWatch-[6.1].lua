@@ -7249,8 +7249,13 @@ local function load_settings_globals(settings)
 				from default_seconds for another function such as source cycling.
 
 				Every instance that a timer time is defined, we must record it to default_seconds
+
+        B-078: default_seconds (the Count Down start time that Reset and list cycling go
+		back to) is no longer taken from the clock here. This runs on every settings change,
+		and since B-037 keeps the time on a cosmetic edit, a Reset then returned to the
+		paused time. update_timer_settings sets it when the timing settings are applied.
 	]]
-    default_seconds = current_seconds;
+    -- default_seconds = current_seconds;
     split_type = obs.obs_data_get_int(settings, "split_type");
     stop_text = obs.obs_data_get_string(settings, "stop_text");
     timer_expire_event = obs.obs_data_get_string(settings, "timer_expire_event");
